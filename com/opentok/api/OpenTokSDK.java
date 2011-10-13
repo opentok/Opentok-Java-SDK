@@ -12,6 +12,7 @@ package com.opentok.api;
 
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -58,11 +59,24 @@ public class OpenTokSDK {
 		data_string_builder.append(nonce);
 		data_string_builder.append("&role=");
 		data_string_builder.append(role);
+
+		if(!RoleConstants.SUBSCRIBER.equals(role) &&
+		    !RoleConstants.PUBLISHER.equals(role) &&
+		    !RoleConstants.MODERATOR.equals(role) &&
+		    !"".equals(role))
+		    throw new OpenTokException(role + " is not a recognized role");
+
 		if(expire_time != null) {
+		    if(expire_time < new Date().getTime())
+				throw new OpenTokException("Expire time must be in the future");
+		    if(expire_time > (new Date().getTime() + 604800))
+				throw new OpenTokException("Expire time must be in the next 7 days");
 			data_string_builder.append("&expire_time=");
 			data_string_builder.append(expire_time);
 		}
 		if (connection_data != null) {
+		    if(connection_data.length() > 1000)
+		        throw new OpenTokException("Connection data must be less than 1000 characters");
 			data_string_builder.append("&connection_data=");
 			data_string_builder.append(connection_data);
 		}
@@ -75,9 +89,6 @@ public class OpenTokSDK {
 			StringBuilder inner_builder = new StringBuilder();
 			inner_builder.append("partner_id=");
 			inner_builder.append(this.api_key);
-
-			inner_builder.append("&sdk_version=");
-			inner_builder.append(API_Config.SDK_VERSION);
 
 			inner_builder.append("&sig=");
 
@@ -126,7 +137,7 @@ public class OpenTokSDK {
 	}
 
 	public String generate_token(String session_id, String role, Long expire_time) throws OpenTokException {
-		return this.generate_token(session_id, role, null, null);
+		return this.generate_token(session_id, role, expire_time, null);
 	}
 
     public OpenTokSession create_session() throws OpenTokException {
