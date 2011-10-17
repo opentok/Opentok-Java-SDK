@@ -182,20 +182,20 @@ class UnitTest {
 		try {
 		    // enabled
 		    SessionProperties sp = new SessionProperties();
-		    sp.p2p_preference = "enable";
+		    sp.p2p_preference = "enabled";
             OpenTokSession s = sdk.create_session("216.38.134.114", sp);
             TokBoxXML xml = get_session_info(s.session_id);
-            if(!xml.getElementValue("preference", "p2p").equals("enable")) {
-                System.out.println("Java SDK tests: p2p not set to enable");
+            if(!xml.getElementValue("preference", "p2p").equals("enabled")) {
+                System.out.println("Java SDK tests: p2p not set to enabled");
                 return false;
             }
 		    // disable
 		    sp = new SessionProperties();
-		    sp.p2p_preference = "disable";
+		    sp.p2p_preference = "disabled";
             s = sdk.create_session("216.38.134.114", sp);
             xml = get_session_info(s.session_id);
-            if(!xml.getElementValue("preference", "p2p").equals("disable")) {
-                System.out.println("Java SDK tests: p2p not set to disable");
+            if(!xml.getElementValue("preference", "p2p").equals("disabled")) {
+                System.out.println("Java SDK tests: p2p not set to disabled");
                 return false;
             }
 		} catch (OpenTokException e) {
