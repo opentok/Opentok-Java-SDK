@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0          http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.opentok.api</groupId>
     <artifactId>opentok-java-sdk</artifactId>
-    <version>0.91.53</version>
+    <version>0.91.53-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Opentok Java SDK</name>
     <description>The Java library to interact with the Opentok platform</description>
@@ -20,6 +20,8 @@
     </licenses>
     <scm>
         <connection>scm:git://git@github.com:opentok/Opentok-Java-SDK.git</connection>
+        <developerConnection>scm:git://git@github.com:opentok/Opentok-Java-SDK.git</developerConnection>
+        <url>https://github.com/opentok/Opentok-Java-SDK</url>
     </scm>
     <developers>
         <developer>
