@@ -20,7 +20,6 @@
     </licenses>
     <scm>
         <connection>scm:git://git@github.com:opentok/Opentok-Java-SDK.git</connection>
-        <url>https://github.com/opentok/Opentok-Java-SDK</url>
     </scm>
     <developers>
         <developer>
