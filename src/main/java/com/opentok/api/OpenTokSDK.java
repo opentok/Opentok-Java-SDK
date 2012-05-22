@@ -67,9 +67,9 @@ public class OpenTokSDK {
 		    throw new OpenTokException(role + " is not a recognized role");
 
 		if(expire_time != null) {
-		    if(expire_time < new Date().getTime())
+		    if(expire_time < System.currentTimeMillis() / 1000)
 				throw new OpenTokException("Expire time must be in the future");
-		    if(expire_time > (new Date().getTime() + 604800))
+		    if(expire_time > (System.currentTimeMillis() / 1000 + 604800))
 				throw new OpenTokException("Expire time must be in the next 7 days");
 			data_string_builder.append("&expire_time=");
 			data_string_builder.append(expire_time);
