@@ -2,8 +2,6 @@
  * These unit tests require the opentok Java SDK.
  * https://github.com/opentok/Opentok-Java-SDK.git
  * 
- * If you run the tests with ant it will handle downloading them and
- * moving them into the src directory.
  */
 
 package com.opentok.test;
