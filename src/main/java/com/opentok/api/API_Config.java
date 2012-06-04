@@ -13,8 +13,6 @@ public class API_Config {
 	
 	public static final String API_SECRET = "91e6f7609074be23b40747a4651ba5a7";
 	
-	public static final String API_URL = "http://staging.tokbox.com/hl";
-	// Uncomment this line when you launch your app
-	// public static final String API_URL = "https://api.opentok.com/hl";
+	public static final String API_URL = "https://api.opentok.com";
 }
 
