@@ -69,8 +69,8 @@ public class OpenTokSDK {
 		if(expire_time != null) {
 		    if(expire_time < System.currentTimeMillis() / 1000)
 				throw new OpenTokException("Expire time must be in the future");
-		    if(expire_time > (System.currentTimeMillis() / 1000 + 604800))
-				throw new OpenTokException("Expire time must be in the next 7 days");
+		    if(expire_time > (System.currentTimeMillis() / 1000 + 2592000))
+				throw new OpenTokException("Expire time must be in the next 30 days");
 			data_string_builder.append("&expire_time=");
 			data_string_builder.append(expire_time);
 		}
