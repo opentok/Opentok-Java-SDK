@@ -62,98 +62,10 @@ public class UnitTest {
         String actual = xml.getElementValue("session_id", "Session");
         Assert.assertEquals("Java SDK tests: Session create with location failed", expected, actual);
     }
-    
-    @Test
-    public void testNumOutputStreams0() throws OpenTokException {
-		int expected = 0;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_numOutputStreams = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("numOutputStreams", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: num output streams do not match", expected, actual);
-    }
-    
-    @Test
-    public void testNumOutputStreams5() throws OpenTokException {
-		int expected = 5;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_numOutputStreams = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("numOutputStreams", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: num output streams do not match", expected, actual);
-    }
-    
-    @Test
-    public void testNumOutputStreams100() throws OpenTokException {
-		int expected = 100;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_numOutputStreams = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("numOutputStreams", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: num output streams do not match", expected, actual);
-    }
-
-    @Test
-    public void testSwitchType0() throws OpenTokException {
-		int expected = 0;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_switchType = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("switchType", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: switch type does not match", expected, actual);
-    }
-
-    @Test
-    public void testSwitchType1() throws OpenTokException {
-		int expected = 1;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_switchType = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("switchType", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: switch type does not match", expected, actual);
-    }
-
-    @Test
-    public void testSwitchTimeout435() throws OpenTokException {
-		int expected = 435;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_switchTimeout = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("switchTimeout", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: switch timeout does not match", expected, actual);
-    }
-
-    @Test
-    public void testSwitchTimeout2000() throws OpenTokException {
-		int expected = 2000;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_switchTimeout = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("switchTimeout", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: switch timeout does not match", expected, actual);
-    }
-
-    @Test
-    public void testSwitchTimeout4350() throws OpenTokException {
-		int expected = 4350;
-	    SessionProperties sp = new SessionProperties();
-	    sp.multiplexer_switchTimeout = expected;
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        int actual = new Integer(xml.getElementValue("switchTimeout", "multiplexer"));
-        Assert.assertEquals("Java SDK tests: switch timeout does not match", expected, actual);
-    }
 
     @Test
     public void testP2PPreferenceEnable() throws OpenTokException {
-		String expected = "enable";
+		String expected = "enabled";
 	    SessionProperties sp = new SessionProperties();
 	    sp.p2p_preference = expected;
         OpenTokSession s = sdk.create_session("216.38.134.114", sp);
@@ -164,7 +76,7 @@ public class UnitTest {
 
     @Test
     public void testP2PPreferenceDisable() throws OpenTokException {
-		String expected = "disable";
+		String expected = "disabled";
 	    SessionProperties sp = new SessionProperties();
 	    sp.p2p_preference = expected;
         OpenTokSession s = sdk.create_session("216.38.134.114", sp);
@@ -172,28 +84,6 @@ public class UnitTest {
         String actual = xml.getElementValue("preference", "p2p");
         Assert.assertEquals("Java SDK tests: p2p not disabled", expected, actual);
 	}
-
-    @Test
-    public void testEchoSuppressionEnable() throws OpenTokException {
-		String expected = "True";
-	    SessionProperties sp = new SessionProperties();
-	    sp.echoSuppression_enabled = new Boolean(expected);
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        String actual = xml.getElementValue("enabled", "echoSuppression");
-        Assert.assertEquals("Java SDK tests: echoSuppression not set to true", expected, actual);
-    }
-
-    @Test
-    public void testEchoSuppressionDisable() throws OpenTokException {
-		String expected = "False";
-	    SessionProperties sp = new SessionProperties();
-	    sp.echoSuppression_enabled = new Boolean(expected);
-        OpenTokSession s = sdk.create_session("216.38.134.114", sp);
-        TokBoxXML xml = get_session_info(s.session_id);
-        String actual = xml.getElementValue("enabled", "echoSuppression");
-        Assert.assertEquals("Java SDK tests: echoSuppression not set to false", expected, actual);
-    }
 
     @Test
     public void testRoleDefault() throws OpenTokException {
@@ -309,12 +199,10 @@ public class UnitTest {
     
     @Test
     public void testTokenExpireTimeDefault() throws OpenTokException {
-		String expected = "";
         String s= sdk.create_session().session_id;
         String t = sdk.generate_token(s, RoleConstants.MODERATOR);
         TokBoxXML xml = get_token_info(t);
-        String actual = xml.getElementValue("expire_time", "token").trim();
-        Assert.assertEquals("Java SDK tests: expire time not set to expected time", expected, actual);
+        Assert.assertFalse("Java SDK tests: expire_time should not exist for default", xml.hasElement("expire_time", "token"));
     }
 
     @Test
@@ -322,7 +210,7 @@ public class UnitTest {
     	OpenTokException expected = null;
 		try {
             String s= sdk.create_session().session_id;
-            sdk.generate_token(s, RoleConstants.MODERATOR, new Date().getTime() - 100);
+            sdk.generate_token(s, RoleConstants.MODERATOR, new Date().getTime() / 1000 - 100);
 		} catch (OpenTokException e) {
 			expected = e;
         }
@@ -331,12 +219,19 @@ public class UnitTest {
     
     @Test
     public void testTokenExpireTimeNow() throws OpenTokException {
-		long expected = new Date().getTime() / 1000;
-        String s= sdk.create_session().session_id;
-        String t = sdk.generate_token(s, RoleConstants.MODERATOR, expected);
+    	long expireTime = new Date().getTime() / 1000;
+    	String expected = "Token expired on " + expireTime;
+        String s = sdk.create_session().session_id;
+        String t = sdk.generate_token(s, RoleConstants.MODERATOR, expireTime);
+        // Allow the token to expire.
+        try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
         TokBoxXML xml = get_token_info(t);
-        long actual = new Long(xml.getElementValue("expire_time", "token").trim());
-        Assert.assertEquals("Java SDK tests: expire time not set to expected time", expected, actual);
+        String actual = xml.getElementValue("invalid", "token");
+        Assert.assertEquals("Java SDK tests: unexpected invalid token message", expected, actual);
     }
     
     @Test
