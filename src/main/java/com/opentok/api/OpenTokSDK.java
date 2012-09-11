@@ -10,6 +10,7 @@
 
 package com.opentok.api;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Date;
@@ -67,7 +68,7 @@ public class OpenTokSDK {
 		    throw new OpenTokException(role + " is not a recognized role");
 
 		if(expire_time != null) {
-		    if(expire_time < System.currentTimeMillis() / 1000)
+		    if(expire_time < (System.currentTimeMillis() / 1000)-1)
 				throw new OpenTokException("Expire time must be in the future");
 		    if(expire_time > (System.currentTimeMillis() / 1000 + 2592000))
 				throw new OpenTokException("Expire time must be in the next 30 days");
@@ -78,7 +79,11 @@ public class OpenTokSDK {
 		    if(connection_data.length() > 1000)
 		        throw new OpenTokException("Connection data must be less than 1000 characters");
 			data_string_builder.append("&connection_data=");
-			data_string_builder.append(connection_data);
+			try {
+				data_string_builder.append(URLEncoder.encode(connection_data, "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("Error during URL encode of your connection_data.", e);
+			};
 		}
 
 
