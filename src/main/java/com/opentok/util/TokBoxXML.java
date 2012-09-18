@@ -43,7 +43,7 @@ public class TokBoxXML {
 		Node parentNode = TokBoxUtils.parseXML(parentElement, this.xml.getElementsByTagName(parentElement));
 		Node searchNode = TokBoxUtils.parseXML(elementName, parentNode.getChildNodes());
 
-		return searchNode.getTextContent();
+		return null == searchNode ? null : searchNode.getTextContent();
 	}
 
 

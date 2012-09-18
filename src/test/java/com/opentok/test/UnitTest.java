@@ -24,8 +24,13 @@ public class UnitTest {
 	
     private OpenTokSDK sdk;
 
+    private int apiKey;
+    private String apiSecret;
+
     public UnitTest() {
-		sdk = new OpenTokSDK(API_Config.API_KEY,API_Config.API_SECRET);
+        apiKey = Integer.valueOf(System.getProperty("apiKey"));
+        apiSecret = System.getProperty("apiSecret");
+		sdk = new OpenTokSDK(apiKey, apiSecret);
     }
 
     private TokBoxXML get_session_info(String session_id) throws OpenTokException {
