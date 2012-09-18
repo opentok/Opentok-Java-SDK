@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.opentok.api</groupId>
     <artifactId>opentok-java-sdk</artifactId>
-    <version>0.91.57-SNAPSHOT</version>
+    <version>0.91.57</version>
     <packaging>jar</packaging>
     <name>Opentok Java SDK</name>
     <description>The Java library to interact with the Opentok platform</description>
