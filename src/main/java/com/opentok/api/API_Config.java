@@ -12,6 +12,6 @@ public class API_Config {
 	
 	public static final String API_SECRET = ""; // Fill this in with generated API Secret in email
 	
-	public static final String API_URL = "https://api.opentok.com";
+	public static final String API_URL = "http://api.opentok.com";
 }
 
