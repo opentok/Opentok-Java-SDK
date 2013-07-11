@@ -221,7 +221,7 @@ public class UnitTest {
         } catch (OpenTokException e) {
             expected = e;
         }
-        Assert.assertNotNull("Change: Java SDK tests: exception should be thrown for empty sessionId", expected);
+        Assert.assertNotNull("Java SDK tests: exception should be thrown for empty sessionId", expected);
     }
 
     @Test
