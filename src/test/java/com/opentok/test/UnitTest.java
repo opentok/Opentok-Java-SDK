@@ -183,7 +183,7 @@ public class UnitTest {
     	OpenTokException expected = null;
 		try {
             String s= sdk.create_session().session_id;
-            String t = sdk.generate_token(s, "asdfasdf");
+            sdk.generate_token(s, "asdfasdf");
 		} catch (OpenTokException e) {
 			expected = e;
         }
@@ -202,6 +202,39 @@ public class UnitTest {
 		Assert.assertNotNull("Java SDK tests: exception should be thrown for role null", expected);
     }
     
+    @Test
+    public void testTokenNullSessionId() throws OpenTokException {
+        OpenTokException expected = null;
+        try {
+            sdk.generate_token(null);
+        } catch (OpenTokException e) {
+            expected = e;
+        }
+        Assert.assertNotNull("Java SDK tests: exception should be thrown for null sessionId", expected);
+    }
+    
+
+    public void testTokenEmptySessionId() throws OpenTokException {
+        OpenTokException expected = null;
+        try {
+            sdk.generate_token("");
+        } catch (OpenTokException e) {
+            expected = e;
+        }
+        Assert.assertNotNull("Change: Java SDK tests: exception should be thrown for empty sessionId", expected);
+    }
+
+    @Test
+    public void testTokenIncompleteSessionId() throws OpenTokException {
+        OpenTokException expected = null;
+        try {
+            sdk.generate_token("jkasjda2ndasd");
+        } catch (OpenTokException e) {
+            expected = e;
+        }
+        Assert.assertNotNull("Java SDK tests: exception should be thrown for invalid sessionId", expected);
+    }
+
     @Test
     public void testTokenExpireTimeDefault() throws OpenTokException {
         String s= sdk.create_session().session_id;

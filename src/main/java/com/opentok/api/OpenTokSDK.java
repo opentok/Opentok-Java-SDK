@@ -12,21 +12,20 @@ package com.opentok.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Map;
+import java.util.Random;
 
-import com.opentok.api.constants.SessionProperties;
+import javax.xml.bind.DatatypeConverter;
+
 import com.opentok.api.constants.RoleConstants;
+import com.opentok.api.constants.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.util.Base64;
 import com.opentok.util.GenerateMac;
 import com.opentok.util.TokBoxXML;
-import com.opentok.api.OpenTokSession;
 
 public class OpenTokSDK {
 
@@ -42,12 +41,35 @@ public class OpenTokSDK {
 	 *
      * Generate a token which is passed to the JS API to enable widgets to connect to the Opentok api.
 	 *
-	 * @session_id: Specify a session_id to make this token only valid for that session_id.
+*    * @session_id: Specify a session_id to make this token only valid for that session_id. Tokens generated without a valid sessionId will be rejected and the client might be disconnected.
      * @role: One of the constants defined in RoleConstants. Default is publisher, look in the documentation to learn more about roles.
      * @expire_time: Integer timestamp. You can override the default token expire time of 24h by choosing an explicit expire time. Can be up to 7d after create_time.
 	 */
     public String generate_token(String session_id, String role, Long expire_time, String connection_data) throws OpenTokException {
-		Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
+	
+        if(session_id == null || session_id == "") {
+            throw new OpenTokException("SessionId cannot be null or empty.");   
+        }
+        String decodedSessionId = "";
+        try { 
+            String subSessionId = session_id.substring(2);
+            for (int i = 0; i<3; i++){
+                String newSessionId = subSessionId.concat(repeatString("=",i));
+                decodedSessionId = new String(DatatypeConverter.parseBase64Binary(
+                            newSessionId.replace('-', '+').replace('_', '/')), "ISO8859_1");
+                if (decodedSessionId.contains("~")){ 
+                    break;
+                }
+            }
+            if(!decodedSessionId.split("~")[1].equals(String.valueOf(api_key))) {
+                throw new OpenTokException("SessionId does not belong to the same partnerId");
+            }
+        } catch (Exception e) {
+            throw new OpenTokException("SessionId cannot be invalid.");
+        }
+        
+        
+        Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
 		StringBuilder data_string_builder = new StringBuilder();
 		//Build the string
 		Random random = new Random();
@@ -110,6 +132,7 @@ public class OpenTokSDK {
 
 		return token_string_builder.toString();
 	}
+    
 
 	/**
 	 * Creates a new session.
@@ -163,6 +186,12 @@ public class OpenTokSDK {
 		String session_id = xmlResponse.getElementValue("session_id", "Session");
 		return new OpenTokSession(session_id);
 	}
+    
+    private static String repeatString(String str, int times){
+        StringBuilder ret = new StringBuilder();
+        for(int i = 0;i < times;i++) ret.append(str);
+        return ret.toString();
+    }
 
 	protected TokBoxXML do_request(String url, Map<String, String> params) throws OpenTokException {
 		TokBoxNetConnection n = new TokBoxNetConnection();
