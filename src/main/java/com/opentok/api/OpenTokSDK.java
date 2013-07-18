@@ -48,7 +48,7 @@ public class OpenTokSDK {
     public String generate_token(String session_id, String role, Long expire_time, String connection_data) throws OpenTokException {
 	
         if(session_id == null || session_id == "") {
-            throw new OpenTokException("SessionId cannot be null or empty.");   
+            throw new OpenTokException("Null or empty session ID are not valid");   
         }
         String decodedSessionId = "";
         try { 
@@ -62,10 +62,10 @@ public class OpenTokSDK {
                 }
             }
             if(!decodedSessionId.split("~")[1].equals(String.valueOf(api_key))) {
-                throw new OpenTokException("SessionId does not belong to the same partnerId");
+                throw new OpenTokException("An invalid session ID was passed");
             }
         } catch (Exception e) {
-            throw new OpenTokException("SessionId cannot be invalid.");
+            throw new OpenTokException("An invalid session ID was passed");
         }
         
         
