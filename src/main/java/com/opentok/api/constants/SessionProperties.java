@@ -1,37 +1,88 @@
-
-/*!
-* OpenTok Java Library
-* http://www.tokbox.com/
-*
-* Copyright 2010, TokBox, Inc.
-*/
 package com.opentok.api.constants;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
+
+/**
+ * Defines values for the <code>properties</code> parameter of the {@link com.opentok.api.OpenTok#createSession(SessionProperties)} method.
+ *
+ * @see <a href="../OpenTokSDK.html#createSession(com.opentok.api.constants.SessionProperties)">OpenTokSDK.createSession(SessionProperties)</a>
+ */
 public class SessionProperties {
 
-	public Boolean echoSuppression_enabled = null;
-	public Integer multiplexer_numOutputStreams = null;
-	public Integer multiplexer_switchType = null;
-	public Integer multiplexer_switchTimeout = null;
-	public Integer multiplexer_transitionDuration = null;
-	public String p2p_preference = null;
 
-	public Map<String, String> to_map() {
-		Map<String, String> m = new HashMap<String, String>();
-		if(this.echoSuppression_enabled != null)
-			m.put("echoSuppression.enabled", this.echoSuppression_enabled.toString());
-		if(this.multiplexer_numOutputStreams != null)
-			m.put("multiplexer.numOutputStreams", this.multiplexer_numOutputStreams.toString());
-		if(this.multiplexer_switchType != null)
-			m.put("multiplexer.switchType", this.multiplexer_switchType.toString());
-		if(this.multiplexer_switchTimeout != null)
-			m.put("multiplexer.switchTimeout", this.multiplexer_switchTimeout.toString());
-		if(this.multiplexer_transitionDuration != null)
-			m.put("multiplexer.transitionDuration", this.multiplexer_transitionDuration.toString());
-		if(this.p2p_preference != null)
-			m.put("p2p.preference", this.p2p_preference);
-		return m;
-	}
+    private String location = null;
+    private boolean p2p = false;
+
+    private SessionProperties(Builder builder)
+    {
+        this.location = builder.location;
+        this.p2p = builder.p2p;
+    }
+
+    public static class Builder
+    {
+        private String location = null;
+        private boolean p2p = false;
+        
+
+        public Builder location(String location)
+        {
+            this.location = location;
+            return this;
+        }
+
+        public Builder p2p(boolean p2p)
+        {
+            this.p2p = p2p;
+            return this;
+        }
+
+        public SessionProperties build()
+        {
+            return new SessionProperties(this);
+        }
+    }
+    /**
+    * An IP address that the OpenTok servers will use to situate the session in its global network. If you
+    * do not pass in a location hint, the OpenTok servers will be based on first client connecting to the session.
+    */
+    public String getLocation() {
+        return location;
+    }
+    
+	/**
+	 * Defines wether the session's streams will be transmitted directly between peers or using the OpenTok media server:
+	 * <p>
+	 * <ul>
+	 *   <li>
+	 *     <code>false</code> &mdash; The session's streams will all be relayed using the OpenTok media server.
+	 *     <br><br>
+	 *     The OpenTok media server provides benefits not available in peer-to-peer sessions. For example, the OpenTok media server can
+	 *     decrease bandwidth usage in multiparty sessions. Also, the OpenTok server can improve the quality of the user experience
+	 *     through <a href="http://www.tokbox.com/blog/quality-of-experience-and-traffic-shaping-the-next-step-with-mantis/">dynamic
+	 *     traffic shaping</a>. For information on pricing, see the <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
+	 *     <br><br>
+	 *   </li>
+	 *   <li>
+	 *     <code>true</code> &mdash; The session will transmit streams directly between clients.
+	 *   </li>
+	 * </ul>
+	 */
+    public boolean isP2p() {
+        return p2p;
+    }
+
+    public Map<String, String> toMap() {
+        Map<String, String> params = new HashMap<String, String>();
+        if (null != location) {
+            params.put("location", location);
+        }
+        if (p2p) {
+            params.put("p2p.preference", "enabled");
+        }
+        return params;
+    }
+
 };

@@ -1,30 +1,21 @@
 package com.opentok.util;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.opentok.exception.OpenTokException;
-import com.opentok.util.TokBoxUtils;
+import com.opentok.exception.OpenTokRequestException;
 
 public class TokBoxXML {
 
 	private Document xml;
 
-	public TokBoxXML(String xmlString) throws OpenTokException{
+	public TokBoxXML(String xmlString) throws OpenTokException {
 		
 		try {
 			this.xml = TokBoxUtils.setupDocument(xmlString);
-		} catch(IOException ioe) {
-			throw new OpenTokException(ioe.toString());	
-		} catch(ParserConfigurationException pce) {
-			throw new OpenTokException(pce.toString());
-		} catch(SAXException saxe) {
-			throw new OpenTokException(saxe.toString());
+		} catch(Exception e) {
+			throw new OpenTokRequestException(500, "Error response: message: " + e.getMessage());	
 		}
 	}
 

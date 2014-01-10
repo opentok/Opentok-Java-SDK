@@ -14,6 +14,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.opentok.exception.OpenTokException;
+import com.opentok.exception.OpenTokRequestException;
 
 public class TokBoxUtils {
 	public static Node parseXML(String matchToken, NodeList nodelist) {
@@ -32,7 +33,7 @@ public class TokBoxUtils {
 
 	public static Document setupDocument(String xmlResponse) throws ParserConfigurationException, SAXException, IOException, OpenTokException {
 		if(null == xmlResponse) {
-			throw new OpenTokException("There was an error in retrieving the response. Please make sure that you are pointing to the correct server");
+			throw new OpenTokRequestException(500, "There was an error in retrieving the response");
 		}
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -44,7 +45,7 @@ public class TokBoxUtils {
 		Node errorNodes = TokBoxUtils.parseXML("error", document.getElementsByTagName("error"));
 
 		if(null != errorNodes) {
-			throw new OpenTokException(xmlResponse);
+			throw new OpenTokRequestException(500, xmlResponse);
 		}
 
 		return document;
