@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class IOHelper {
 	//singleton instance of IOHelper
-	private static IOHelper helper = null;
+	private static volatile IOHelper helper = null;
 	
 	private IOHelper(){
 		
