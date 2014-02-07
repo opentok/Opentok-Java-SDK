@@ -166,71 +166,12 @@ public class OpenTok {
         if(!decodedSessionId.split("~")[1].equals(String.valueOf(apiKey))) {
             throw new OpenTokSessionNotFoundException("Session not found");
         }
-
-        Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
-        StringBuilder dataStringBuilder = new StringBuilder();
-        //Build the string
-        Random random = new Random();
-        int nonce = random.nextInt();
-        dataStringBuilder.append("session_id=");
-        dataStringBuilder.append(sessionId);
-        dataStringBuilder.append("&create_time=");
-        dataStringBuilder.append(create_time);
-        dataStringBuilder.append("&nonce=");
-        dataStringBuilder.append(nonce);
-        dataStringBuilder.append("&role=");
-        dataStringBuilder.append(role);
-
-        if(!RoleConstants.SUBSCRIBER.equals(role) &&
-                !RoleConstants.PUBLISHER.equals(role) &&
-                !RoleConstants.MODERATOR.equals(role) &&
-                !"".equals(role))
-            throw new OpenTokInvalidArgumentException(role + " is not a recognized role");
-
-        if (expireTime != 0) {
-            if(expireTime < (System.currentTimeMillis() / 1000)-1)
-                throw new OpenTokInvalidArgumentException("Expire time must be in the future");
-            if(expireTime > (System.currentTimeMillis() / 1000 + 2592000))
-                throw new OpenTokInvalidArgumentException("Expire time must be in the next 30 days");
-            dataStringBuilder.append("&expire_time=");
-            dataStringBuilder.append(expireTime);
-        }
-
-        if (connectionData != null) {
-            if(connectionData.length() > 1000)
-                throw new OpenTokInvalidArgumentException("Connection data must be less than 1000 characters");
-            dataStringBuilder.append("&connection_data=");
-            try {
-                dataStringBuilder.append(URLEncoder.encode(connectionData, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new OpenTokInvalidArgumentException("Error during URL encode of your connectionData: " +  e.getMessage());
-            };
-        }
-
-
-        StringBuilder tokenStringBuilder = new StringBuilder();
-        try {
-            tokenStringBuilder.append("T1==");
-
-            StringBuilder innerBuilder = new StringBuilder();
-            innerBuilder.append("partner_id=");
-            innerBuilder.append(this.apiKey);
-
-            innerBuilder.append("&sig=");
-
-            innerBuilder.append(GenerateMac.calculateRFC2104HMAC(dataStringBuilder.toString(),
-                    this.apiSecret));
-            innerBuilder.append(":");
-            innerBuilder.append(dataStringBuilder.toString());
-
-            tokenStringBuilder.append(Base64.encode(innerBuilder.toString()));
-
-        } catch (java.security.SignatureException e) {
-            throw new OpenTokRequestException(500, e.getMessage());
-        }
-
-        return tokenStringBuilder.toString();
+        
+        Session session = new Session(decodedSessionId, apiKey, apiSecret);
+        return session.generateToken(role, expireTime, connectionData);
     }
+
+    
 
     /**
      * Generates the token for the given session. The role is set to publisher, the token expires in
@@ -281,7 +222,7 @@ public class OpenTok {
      *
      * @see #createSession(SessionProperties)
      */
-    public String createSession() throws OpenTokException {
+    public Session createSession() throws OpenTokException {
         return createSession(null);
     }
 
@@ -371,7 +312,7 @@ public class OpenTok {
      * in JavaScript on the page that you serve to the client. The JavaScript will use this value when calling the
      * <code>connect()</code> method of the Session object (to connect a user to an OpenTok session).
      */
-    public String createSession(SessionProperties properties) throws OpenTokException {
+    public Session createSession(SessionProperties properties) throws OpenTokException {
         Map<String, String> params;
         if(null != properties) {
             params = properties.toMap();
@@ -384,7 +325,7 @@ public class OpenTok {
         if(xmlResponse.hasElement("error", "Errors")) {
             throw new OpenTokRequestException(500, "Unable to create session");
         }
-        return xmlResponse.getElementValue("session_id", "Session");
+        return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret, properties);
     }
 
     private static String repeatString(String str, int times){

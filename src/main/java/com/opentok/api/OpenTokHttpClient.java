@@ -90,6 +90,6 @@ public class OpenTokHttpClient {
     private static void addCommonHeaders(BoundRequestBuilder get) {
         get.addHeader("X-TB-PARTNER-AUTH", String.format("%s:%s", apiKey, apiSecret));
         get.addHeader("X-TB-VERSION", "1");
-        get.addHeader("User-Agent", "OpenTok-Java-SDK/2.0.0");
+        get.addHeader("User-Agent", "OpenTok-Java-SDK/2.0.0-beta");
     }
 }
