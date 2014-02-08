@@ -9,9 +9,9 @@ package com.opentok.api.constants;
 /**
  * Defines values for the role parameter of the <code>OpenTokSDK.generateToken()</code> method.
  *
- * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String)">OpenTokSDK.generate_token(String, String)</a>
- * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String, java.lang.Long)">OpenTokSDK.generate_token(String, String, Long)</a>
- * @see <a href="../OpenTokSDK.html#generate_token(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)">OpenTokSDK.generate_token(String, String, Long, String)</a>
+ * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String)">OpenTokSDK.generateTokentoken(String, String)</a>
+ * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String, java.lang.Long)">OpenTokSDK.generateTokentoken(String, String, Long)</a>
+ * @see <a href="../OpenTokSDK.html#generateTokentoken(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)">OpenTokSDK.generateTokentoken(String, String, Long, String)</a>
  */
 public class RoleConstants {
     /**
