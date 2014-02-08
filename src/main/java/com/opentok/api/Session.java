@@ -6,7 +6,6 @@ import java.util.Random;
 
 import com.opentok.api.constants.RoleConstants;
 import com.opentok.api.constants.SessionProperties;
-import com.opentok.api.constants.SessionProperties.Builder;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
 import com.opentok.exception.OpenTokRequestException;
@@ -41,14 +40,9 @@ public class Session {
     public String getSessionId() {
         return sessionId;
     }
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
+    
     public SessionProperties getProperties() {
         return properties;
-    }
-    public void setProperties(SessionProperties properties) {
-        this.properties = properties;
     }
     
     /**

@@ -11,11 +11,9 @@
 package com.opentok.api;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -29,8 +27,6 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
 import com.opentok.exception.OpenTokRequestException;
 import com.opentok.exception.OpenTokSessionNotFoundException;
-import com.opentok.util.Base64;
-import com.opentok.util.GenerateMac;
 import com.opentok.util.TokBoxXML;
 
 /**
