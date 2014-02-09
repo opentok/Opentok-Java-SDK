@@ -9,25 +9,25 @@ package com.opentok.api.constants;
 /**
  * Defines values for the role parameter of the <code>OpenTokSDK.generateToken()</code> method.
  *
- * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String)">OpenTokSDK.generate_token(String, String)</a>
- * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String, java.lang.Long)">OpenTokSDK.generate_token(String, String, Long)</a>
- * @see <a href="../OpenTokSDK.html#generate_token(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)">OpenTokSDK.generate_token(String, String, Long, String)</a>
+ * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String)">OpenTokSDK.generateTokentoken(String, String)</a>
+ * @see <a href="../OpenTokSDK.html#generateToken(java.lang.String, java.lang.String, java.lang.Long)">OpenTokSDK.generateTokentoken(String, String, Long)</a>
+ * @see <a href="../OpenTokSDK.html#generateTokentoken(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)">OpenTokSDK.generateTokentoken(String, String, Long, String)</a>
  */
 public class RoleConstants {
     /**
     * The "subscriber" role. The client assigned a token with this role is restricted to subscribing to streams
     * in the session.
     */
-    public static final String SUBSCRIBER = "subscriber"; //Can only subscribe
+    public static final String SUBSCRIBER = "subscriber";
     /**
-     * The "publisher" role. The client assigned a token with this role can publish and subscribe to streams
-     * in the session.
+     * The "publisher" role. The client assigned a token with this role can publish and subscribe to
+     * streams in the session.
      */
-    public static final String PUBLISHER = "publisher";   //Can publish, subscribe, and signal
+    public static final String PUBLISHER = "publisher";
     /**
-     * The "moderator" role. The client assigned a token with this role can moderate sessions (in clients using
-     * the OpenTok JavaScript library) in addition to publishing and subscribing to streams
-     * in the session.
+     * The "moderator" role. The client assigned a token with this role can moderate sessions (in
+     * clients using the OpenTok JavaScript library) in addition to publishing and subscribing to
+     * streams in the session.
      */
-    public static final String MODERATOR = "moderator";   //Can do the above along with  forceDisconnect and forceUnpublish
+    public static final String MODERATOR = "moderator";
 }

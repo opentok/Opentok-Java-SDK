@@ -46,12 +46,12 @@ take one parameter: a SessionProperties object. You now generate a SessionProper
 Builder pattern. And the createSession() method returns a session ID string, not a Session object.
 (The Session class has been removed.)
 
-The generate_token() method has been renamed generateToken().
+The generateTokentoken() method has been renamed generateToken().
 
 # Creating Sessions
 Use the `createSession()` method of the OpenTokSDK object to create a session and a session ID.
 
-The following code creates an OpenTok server-enabled session:
+The following code creates a session that uses the OpenTok Media Router:
 
 <pre>
 import com.opentok.api.OpenTokSDK;
@@ -63,7 +63,7 @@ class Test {
         String API_SECRET = ""; // Replace with your OpenTok API secret.
         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
 
-        //Generate an OpenTok server-enabled session
+        //Generate a session that uses the OpenTok Media Router
         System.out.println(sdk.createSession());
    }
 }
@@ -91,7 +91,7 @@ class Test {
 </pre>
 
 # Generating tokens
-Use the  `generate_token()` method of the OpenTokSDK object to create an OpenTok token:
+Use the  `generateTokentoken()` method of the OpenTokSDK object to create an OpenTok token:
 
 The following example shows how to obtain a token:
 
@@ -101,14 +101,14 @@ import com.opentok.exception.OpenTokException;
 
 class Test {
     public static void main(String argv[]) throws OpenTokException {
-        // Set the following constants with the API key and API secret
-        // that you receive when you sign up to use the OpenTok API:
-        OpenTokSDK sdk = new OpenTokSDK(API_Config.API_KEY, API_Config.API_SECRET);
+        int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+        String API_SECRET = ""; // Replace with your OpenTok API secret.
+        OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
 
         //Generate a basic session. Or you could use an existing session ID.
         String sessionId = System.out.println(sdk.create_session());
 
-        String token = sdk.generate_token(sessionId);
+        String token = sdk.generateTokentoken(sessionId);
         System.out.println(token);
     }
 }
@@ -117,15 +117,15 @@ class Test {
 The following Java code example shows how to obtain a token that has a role of "subscriber" and that has
 a connection metadata string:
 
-<pre>import com.opentok.api.API_Config;
+<pre>
 import com.opentok.api.OpenTokSDK;
 import com.opentok.api.constants.RoleConstants;
 
 class Test {
     public static void main(String argv[]) throws OpenTokException {
-        // Set the following constants with the API key and API secret
-        // that you receive when you sign up to use the OpenTok API:
-        OpenTokSDK sdk = new OpenTokSDK(API_Config.API_KEY, API_Config.API_SECRET);
+        int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+        String API_SECRET = ""; // Replace with your OpenTok API secret.
+        OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
 
         //Generate a basic session. Or you could use an existing session ID.
         String sessionId = System.out.println(sdk.create_session().getSessionId());
@@ -137,7 +137,7 @@ class Test {
         String connectionData = "username=Bob,userLevel=4";
 
         // Generate a token.
-        String token = sdk.generate_token(sessionId, role, null, connectionData);
+        String token = sdk.generateTokentoken(sessionId, role, null, connectionData);
         System.out.println(token);
     }
 }

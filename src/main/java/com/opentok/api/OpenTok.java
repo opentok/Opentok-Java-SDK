@@ -64,14 +64,13 @@ public class OpenTok {
      * The following Java code example shows how to obtain a token:
      * <p>
      * <pre>
-     * import com.opentok.api.API_Config;
      * import com.opentok.api.OpenTokSDK;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
-     *         // Set the following constants with the API key and API secret
-     *         // that you receive when you sign up to use the OpenTok API:
-     *         OpenTokSDK sdk = new OpenTokSDK(API_Config.API_KEY, API_Config.API_SECRET);
+     *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
+     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
      *
      *         //Generate a basic session. Or you could use an existing session ID.
      *         String sessionId = System.out.println(sdk.createSession());
@@ -86,15 +85,13 @@ public class OpenTok {
      * a connection metadata string:
      * <p>
      * <pre>
-     * import com.opentok.api.API_Config;
-     * import com.opentok.api.OpenTokSDK;
      * import com.opentok.api.constants.RoleConstants;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
-     *         // Set the following constants with the API key and API secret
-     *         // that you receive when you sign up to use the OpenTok API:
-     *         OpenTokSDK sdk = new OpenTokSDK(API_Config.API_KEY, API_Config.API_SECRET);
+     *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
+     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
      *
      *         //Generate a basic session. Or you could use an existing session ID.
      *         String sessionId = System.out.println(sdk.createSession());
@@ -239,16 +236,17 @@ public class OpenTok {
      * Calling this method results in an {@link com.opentok.exception.OpenTokException} in the event of an error. Check
      * the error message for details.
      * <p>
-     * The following code creates an OpenTok server-enabled session:
+     * The following code creates a session that uses the OpenTok Media Router:
      *
      * <pre>
-     * import com.opentok.api.API_Config;
      * import com.opentok.api.OpenTokSDK;
      * import com.opentok.api.constants.SessionProperties;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
-     *         OpenTokSDK sdk = new OpenTokSDK(API_Config.API_KEY, API_Config.API_SECRET);
+     *         int API_KEY = 0; // Replace with your OpenTok API key.
+     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
+     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
      *
      *         String sessionId = sdk.createSession();
      *         System.out.println(sessionId);
@@ -259,13 +257,14 @@ public class OpenTok {
      * The following code creates a peer-to-peer session:
      *
      * <pre>
-     * import com.opentok.api.API_Config;
      * import com.opentok.api.OpenTokSDK;
      * import com.opentok.api.constants.SessionProperties;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
-     *         OpenTokSDK sdk = new OpenTokSDK(API_Config.API_KEY, API_Config.API_SECRET);
+     *         int API_KEY = 0; // Replace with your OpenTok API key.
+     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
+     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
      *
      *         SessionProperties sp = new SessionProperties();
      *         sp.p2p_preference = "enabled";
@@ -387,8 +386,8 @@ public class OpenTok {
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start recording an archive.
      * <p>
-     * You can only record one archive at a time for a given session. You can only record archives of OpenTok
-     * server-enabled sessions; you cannot archive peer-to-peer sessions.
+     * You can only record one archive at a time for a given session. You can only record archives
+     * of sessions that uses the OpenTok Media Router; you cannot archive peer-to-peer sessions.
      *
      * @param sessionId The session ID of the OpenTok session to archive.
      * @param name The name of the archive. You can use this name to identify the archive. It is a property

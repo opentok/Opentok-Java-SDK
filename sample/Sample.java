@@ -6,11 +6,11 @@ import com.opentok.exception.OpenTokException;
 
 class Sample {
     public static void main(String argv[]) throws OpenTokException {
-        int API_KEY = 0; // Replace with your OpenTok API key.
+        int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
         String API_SECRET = ""; // Replace with your OpenTok API secret.
         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
 
-        // Generate an OpenTok server-enabled session
+        // Generate a session that uses the OpenTok Media Router
         System.out.println(sdk.createSession().getSessionId());
         System.out.println();
 
