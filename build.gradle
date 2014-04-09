@@ -1,0 +1,88 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'idea'
+
+group = 'com.tokbox'
+archivesBaseName = 'opentok'
+// TODO: how do we increment this before/after a release for deployment and development?
+version = '2.2.0-pre'
+
+sourceCompatibility = 1.5
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+} 
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+              authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+              authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'OpenTok Java SDK'
+                packaging 'jar'
+                description 'The OpenTok Ruby SDK lets you generate sessions and tokens for OpenTok applications. This version of the SDK also includes support for working with OpenTok 2.0 archives.'
+                url 'http://www.tokbox.com/opentok'
+
+                scm {
+                    connection 'scm:git:https://github.com/opentok/Opentok-Java-SDK.git'
+                    developerConnection 'scm:git:https://github.com/opentok/Opentok-Java-SDK.git'
+                    url 'opentok.github.io/opentok-java-sdk'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'http://www.opensource.org/licenses/mit-license'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'manasdpradhan'
+                        name 'Manas Pradhan'
+                        email 'manas@tokbox.com'
+                        organization 'TokBox, Inc.'
+                    }
+                    developer {
+                        id 'aoberoi'
+                        name 'Ankur Oberoi'
+                        email 'aoberoi@gmail.com'
+                        organization 'TokBox, Inc.'
+                    }
+                }
+            }
+        }
+    }
+}
