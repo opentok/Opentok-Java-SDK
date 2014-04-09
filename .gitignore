@@ -1,2 +1,25 @@
 *.class
-target
+
+# Package Files
+*.jar
+*.war
+
+# gradle user config
+gradle.properties
+
+# gradle
+.gradle
+build
+out
+bin
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea
+
+# Eclipse
+.settings
+.classpath
+.project
