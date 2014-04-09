@@ -1,4 +1,4 @@
-package com.opentok.util;
+package com.tokbox.util;
 
 import java.security.SignatureException;
 import javax.crypto.Mac;

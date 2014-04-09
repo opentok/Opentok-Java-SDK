@@ -8,7 +8,7 @@
 * Last modified: @opentok.sdk.java.mod_time@
 */
 
-package com.opentok.api;
+package com.tokbox.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -20,12 +20,12 @@ import java.util.Random;
 
 import javax.xml.bind.DatatypeConverter;
 
-import com.opentok.api.constants.RoleConstants;
-import com.opentok.api.constants.SessionProperties;
-import com.opentok.exception.OpenTokException;
-import com.opentok.util.Base64;
-import com.opentok.util.GenerateMac;
-import com.opentok.util.TokBoxXML;
+import com.tokbox.api.constants.RoleConstants;
+import com.tokbox.api.constants.SessionProperties;
+import com.tokbox.exception.OpenTokException;
+import com.tokbox.util.Base64;
+import com.tokbox.util.GenerateMac;
+import com.tokbox.util.TokBoxXML;
 
 public class OpenTokSDK {
 

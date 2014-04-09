@@ -4,15 +4,15 @@
  * 
  */
 
-package com.opentok.test;
+package com.tokbox.test;
 
-import com.opentok.api.API_Config;
-import com.opentok.api.OpenTokSDK;
-import com.opentok.api.OpenTokSession;
-import com.opentok.api.constants.SessionProperties;
-import com.opentok.api.constants.RoleConstants;
-import com.opentok.exception.OpenTokException;
-import com.opentok.util.TokBoxXML;
+import com.tokbox.api.API_Config;
+import com.tokbox.api.OpenTokSDK;
+import com.tokbox.api.OpenTokSession;
+import com.tokbox.api.constants.SessionProperties;
+import com.tokbox.api.constants.RoleConstants;
+import com.tokbox.exception.OpenTokException;
+import com.tokbox.util.TokBoxXML;
 import java.util.*;
 import java.net.*;
 import java.io.*;

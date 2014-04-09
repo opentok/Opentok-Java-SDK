@@ -5,7 +5,7 @@
 * Copyright 2010, TokBox, Inc.
 *
 */
-package com.opentok.api;
+package com.tokbox.api;
 
 public class API_Config {
 	public static final int API_KEY = 0; // Fill this in with generated API Key (http://tokbox.com/opentok/api/tools/js/apikey)

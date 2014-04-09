@@ -1,4 +1,4 @@
-package com.opentok.util;
+package com.tokbox.util;
 
 public class Base64 {
 

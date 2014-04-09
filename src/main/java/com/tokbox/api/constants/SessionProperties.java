@@ -5,7 +5,7 @@
 *
 * Copyright 2010, TokBox, Inc.
 */
-package com.opentok.api.constants;
+package com.tokbox.api.constants;
 
 import java.util.*;
 

@@ -6,7 +6,7 @@
 * Copyright 2010, TokBox, Inc.
 */
 
-package com.opentok.api.constants;
+package com.tokbox.api.constants;
 ///List of valid roles for a token
 public class RoleConstants {
     public static final String SUBSCRIBER = "subscriber"; //Can only subscribe

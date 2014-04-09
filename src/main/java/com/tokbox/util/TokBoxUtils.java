@@ -1,4 +1,4 @@
-package com.opentok.util;
+package com.tokbox.util;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -13,7 +13,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.opentok.exception.OpenTokException;
+import com.tokbox.exception.OpenTokException;
 
 public class TokBoxUtils {
 	public static Node parseXML(String matchToken, NodeList nodelist) {

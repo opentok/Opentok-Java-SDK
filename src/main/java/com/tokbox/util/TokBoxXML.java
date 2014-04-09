@@ -1,4 +1,4 @@
-package com.opentok.util;
+package com.tokbox.util;
 
 import java.io.IOException;
 
@@ -8,8 +8,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.opentok.exception.OpenTokException;
-import com.opentok.util.TokBoxUtils;
+import com.tokbox.exception.OpenTokException;
+import com.tokbox.util.TokBoxUtils;
 
 public class TokBoxXML {
 

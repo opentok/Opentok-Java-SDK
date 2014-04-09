@@ -6,7 +6,7 @@
 * Copyright 2010, TokBox, Inc.
 *
 */
-package com.opentok.api;
+package com.tokbox.api;
 
 public class OpenTokSession {
 
