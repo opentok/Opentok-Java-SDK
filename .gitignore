@@ -12,6 +12,7 @@ gradle.properties
 build
 out
 bin
+!gradle/wrapper/gradle-wrapper.jar
 
 # IntelliJ
 *.iml
