@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok'
