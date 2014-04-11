@@ -4,21 +4,24 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.Response;
 import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokRequestException;
+import com.opentok.api.constants.Version;
 
 public class OpenTokHttpClient {
     
-    private static final AsyncHttpClient client = new AsyncHttpClient();
-    private static final String apiUrl = "https://api.tokbox.com";
+    private static final AsyncHttpClient client = new AsyncHttpClient((new AsyncHttpClientConfig.Builder()).setUserAgent("OpenTok-Java-SDK/"+Version.VERSION).build());
+    private static String apiUrl;
     private static int apiKey;
     private static String apiSecret;
     
-    protected static void initialize(int apiKey, String apiSecret) {
+    protected static void initialize(int apiKey, String apiSecret, String apiUrl) {
         OpenTokHttpClient.apiKey = apiKey;
         OpenTokHttpClient.apiSecret = apiSecret;
+        OpenTokHttpClient.apiUrl = apiUrl;
     }
 
     protected static String makeDeleteRequest(String resource) throws OpenTokException {
@@ -89,7 +92,5 @@ public class OpenTokHttpClient {
 
     private static void addCommonHeaders(BoundRequestBuilder get) {
         get.addHeader("X-TB-PARTNER-AUTH", String.format("%s:%s", apiKey, apiSecret));
-        get.addHeader("X-TB-VERSION", "1");
-        get.addHeader("User-Agent", "OpenTok-Java-SDK/2.0.0-beta");
     }
 }

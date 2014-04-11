@@ -53,9 +53,13 @@ public class OpenTok {
      * page)
      */
     public OpenTok(int apiKey, String apiSecret) {
+        this(apiKey, apiSecret, "https://api.opentok.com");
+    }
+
+    public OpenTok(int apiKey, String apiSecret, String apiUrl) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        OpenTokHttpClient.initialize(apiKey, apiSecret);
+        OpenTokHttpClient.initialize(apiKey, apiSecret, apiUrl);
     }
 
     /**
