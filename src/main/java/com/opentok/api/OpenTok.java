@@ -328,6 +328,7 @@ public class OpenTok {
         
         TokBoxXML xmlResponse = new TokBoxXML(this.client.createSession(params));
 
+
         // NOTE: doing this null check twice is kind of ugly
         if (properties != null) {
             return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret, properties);

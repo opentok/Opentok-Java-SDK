@@ -42,6 +42,8 @@ public class OpenTokTest {
 
     @Before
     public void setUp() {
+
+        // read system properties for integration testing
         int anApiKey = 0;
         boolean useMockKey = false;
         String anApiKeyProp = System.getProperty("apiKey");
@@ -51,7 +53,9 @@ public class OpenTokTest {
         } catch (NumberFormatException e) {
             useMockKey = true;
         }
-        if (!useMockKey) {
+
+        if (!useMockKey && anApiSecret != null && !anApiSecret.isEmpty()) {
+            // TODO: figure out when to turn mocking off based on this
             apiKey = anApiKey;
             apiSecret = anApiSecret;
         }
@@ -62,7 +66,6 @@ public class OpenTokTest {
     public void testCreateDefaultSession() throws OpenTokException {
         String sessionId = "SESSIONID";
         stubFor(post(urlEqualTo("/session/create"))
-                //.withHeader("Accept", equalTo("text/xml"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/xml")
