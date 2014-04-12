@@ -1,5 +1,7 @@
 package com.opentok.api.constants;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,13 +76,17 @@ public class SessionProperties {
         return p2p;
     }
 
-    public Map<String, String> toMap() {
-        Map<String, String> params = new HashMap<String, String>();
+    public Map<String, Collection<String>> toMap() {
+        Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
         if (null != location) {
-            params.put("location", location);
+            ArrayList<String> valueList = new ArrayList<String>();
+            valueList.add(location);
+            params.put("location", valueList);
         }
         if (p2p) {
-            params.put("p2p.preference", "enabled");
+            ArrayList<String> valueList = new ArrayList<String>();
+            valueList.add("enabled");
+            params.put("p2p.preference", valueList);
         }
         return params;
     }

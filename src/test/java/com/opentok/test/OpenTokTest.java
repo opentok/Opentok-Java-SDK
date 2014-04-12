@@ -15,15 +15,14 @@ package com.opentok.test;
 //import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 //import com.ning.http.client.Response;
 import com.opentok.api.OpenTok;
-//import com.opentok.api.Session;
+import com.opentok.api.Session;
+import com.opentok.api.constants.Version;
+import com.opentok.exception.OpenTokException;
 //import com.opentok.api.constants.RoleConstants;
 //import com.opentok.api.constants.SessionProperties;
-//import com.opentok.exception.OpenTokException;
 //import com.opentok.exception.OpenTokRequestException;
 //import com.opentok.util.TokBoxXML;
 
-import com.opentok.api.Session;
-import com.opentok.exception.OpenTokException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,24 +36,6 @@ public class OpenTokTest {
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
-
-//    public OpenTokTest() {
-//        boolean useMockKey = false;
-//        String apiKeyProp = System.getProperty("apiKey");
-//        String apiSecret = System.getProperty("apiSecret");
-//        try {
-//            int apiKey = Integer.parseInt(apiKeyProp);
-//        } catch (NumberFormatException e) {
-//            useMockKey = true;
-//        }
-//        if (useMockKey || apiSecret == null) {
-//            apiKey = 123456;
-//            apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-//        }
-//
-//        sdk = new OpenTok(apiKey, apiSecret);
-//        client = new AsyncHttpClient();
-//    }
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8080);
@@ -79,27 +60,29 @@ public class OpenTokTest {
 
     @Test
     public void testCreateDefaultSession() throws OpenTokException {
+        String sessionId = "SESSIONID";
         stubFor(post(urlEqualTo("/session/create"))
                 //.withHeader("Accept", equalTo("text/xml"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/xml")
                         .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
-                                "session_id>1_MX4xMjM0NTZ-fk1vbiBNYXIgMTcgMDA6NDE6MzEgUERUIDIwMTR-MC42ODM3ODk1MzQ0OT" +
-                                "QyODA4fg</session_id><partner_id>123456</partner_id><create_dt>Mon Mar 17 00:41:31 " +
-                                "PDT 2014</create_dt></Session></sessions>")));
+                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
+                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
 
         Session session = sdk.createSession();
 
         assertNotNull(session);
-        // TODO: assert properties of Session object
+        assertEquals(this.apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+        assertFalse(session.getProperties().isP2p());
+        assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 // TODO: add p2p.preference=disabled
                 //.withRequestBody(matching(".*<message>1234</message>.*"))
-                .withHeader("x-tb-partner-auth", matching("123456:1234567890abcdef1234567890abcdef1234567890"))
-                // TODO: read version dynamically
-                .withHeader("user-agent", matching(".*OpenTok-Java-SDK/2.2.0-pre.*")));
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
 //    private TokBoxXML get_session_info(String session_id) throws OpenTokException {

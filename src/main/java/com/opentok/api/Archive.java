@@ -176,24 +176,24 @@ public class Archive {
         this.url = url;
     }
     
-    public Archive stop() throws OpenTokException {
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("content-type", "application/json");
-        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.partnerId + "/archive/" + id, headers, null,
-                "{ \"action\" : \"stop\"  }");
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            Archive updatedArchive =  mapper.readValue(archive, Archive.class);
-            this.status = updatedArchive.status;
-            return this;
-        } catch (Exception e) {
-            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
-        }
-    }
+//    public Archive stop() throws OpenTokException {
+//        HashMap<String, String> headers = new HashMap<String, String>();
+//        headers.put("content-type", "application/json");
+//        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.partnerId + "/archive/" + id, headers, null,
+//                "{ \"action\" : \"stop\"  }");
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            Archive updatedArchive =  mapper.readValue(archive, Archive.class);
+//            this.status = updatedArchive.status;
+//            return this;
+//        } catch (Exception e) {
+//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//        }
+//    }
     
-    public void delete() throws OpenTokException {
-        OpenTokHttpClient.makeDeleteRequest("/v2/partner/" + partnerId + "/archive/" + id);
-    }
+//    public void delete() throws OpenTokException {
+//        OpenTokHttpClient.makeDeleteRequest("/v2/partner/" + partnerId + "/archive/" + id);
+//    }
 
     @Override
     public String toString() {

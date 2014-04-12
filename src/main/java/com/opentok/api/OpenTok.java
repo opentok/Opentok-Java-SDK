@@ -11,6 +11,7 @@
 package com.opentok.api;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class OpenTok {
 
     private int apiKey;
     private String apiSecret;
+    protected OpenTokHttpClient client;
 
     /**
      * Creates an OpenTokSDK object.
@@ -59,7 +61,9 @@ public class OpenTok {
     public OpenTok(int apiKey, String apiSecret, String apiUrl) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        OpenTokHttpClient.initialize(apiKey, apiSecret, apiUrl);
+        this.client = new OpenTokHttpClient.Builder(apiKey, apiSecret)
+                .apiUrl(apiUrl)
+                .build();
     }
 
     /**
@@ -312,19 +316,24 @@ public class OpenTok {
      * <code>connect()</code> method of the Session object (to connect a user to an OpenTok session).
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
-        Map<String, String> params;
-        if(null != properties) {
+        Map<String, Collection<String>> params;
+        Session session = null;
+
+        // NOTE: doing this null check twice is kind of ugly
+        if(properties != null) {
             params = properties.toMap();
         } else {
-            params = new HashMap<String, String>();
+            params = null;
         }
         
-        TokBoxXML xmlResponse = new TokBoxXML(OpenTokHttpClient.makePostRequest("/session/create", null, params, null)); 
-                
-        if(xmlResponse.hasElement("error", "Errors")) {
-            throw new OpenTokRequestException(500, "Unable to create session");
+        TokBoxXML xmlResponse = new TokBoxXML(this.client.createSession(params));
+
+        // NOTE: doing this null check twice is kind of ugly
+        if (properties != null) {
+            return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret, properties);
+        } else {
+            return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret);
         }
-        return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret, properties);
     }
 
     private static String repeatString(String str, int times){
@@ -339,16 +348,16 @@ public class OpenTok {
      * @param archiveId The archive ID.
      * @return The {@link Archive} object.
      */
-    public Archive getArchive(String archiveId) throws OpenTokException {
-        ObjectMapper mapper = new ObjectMapper();
-        String archive = OpenTokHttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
-        try {
-            return mapper.readValue(archive, Archive.class);
-        } catch (Exception e) {
-            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
-        }
-        
-    }
+//    public Archive getArchive(String archiveId) throws OpenTokException {
+//        ObjectMapper mapper = new ObjectMapper();
+//        String archive = OpenTokHttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
+//        try {
+//            return mapper.readValue(archive, Archive.class);
+//        } catch (Exception e) {
+//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//        }
+//
+//    }
 
     /**
      * Returns a List of {@link Archive} objects, representing archives that are both
@@ -358,9 +367,9 @@ public class OpenTok {
      *
      * @return A List of {@link Archive} objects.
      */
-    public List<Archive> listArchives() throws OpenTokException {
-        return listArchives(0, 1000);
-    }
+//    public List<Archive> listArchives() throws OpenTokException {
+//        return listArchives(0, 1000);
+//    }
 
     /**
      * Returns a List of {@link Archive} objects, representing archives that are both
@@ -371,18 +380,18 @@ public class OpenTok {
      * @param count The number of archives to be returned. The maximum number of archives returned is 1000.
      * @return A List of {@link Archive} objects.
      */
-    public List<Archive> listArchives(int offset, int count) throws OpenTokException {
-        ObjectMapper mapper = new ObjectMapper();
-        String archive = OpenTokHttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive?offset=" + offset + "&count="
-                + count);
-        try {
-            JsonNode node = mapper.readTree(archive);
-            return mapper.readValue(node.get("items"), new TypeReference<List<Archive>>() {
-            });
-        } catch (Exception e) {
-            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
-        }
-    }
+//    public List<Archive> listArchives(int offset, int count) throws OpenTokException {
+//        ObjectMapper mapper = new ObjectMapper();
+//        String archive = OpenTokHttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive?offset=" + offset + "&count="
+//                + count);
+//        try {
+//            JsonNode node = mapper.readTree(archive);
+//            return mapper.readValue(node.get("items"), new TypeReference<List<Archive>>() {
+//            });
+//        } catch (Exception e) {
+//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//        }
+//    }
     
     /**
      * Starts archiving an OpenTok 2.0 session.
@@ -399,21 +408,21 @@ public class OpenTok {
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
-    public Archive startArchive(String sessionId, String name) throws OpenTokException {
-        if (sessionId == null || sessionId == "") {
-            throw new OpenTokInvalidArgumentException("Session not valid");
-        }
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("content-type", "application/json");
-        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive", headers, null,
-                "{ \"sessionId\" : \"" + sessionId + "\", \"name\": \"" + name + "\" }");
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(archive, Archive.class);
-        } catch (Exception e) {
-            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
-        }
-    }
+//    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+//        if (sessionId == null || sessionId == "") {
+//            throw new OpenTokInvalidArgumentException("Session not valid");
+//        }
+//        HashMap<String, String> headers = new HashMap<String, String>();
+//        headers.put("content-type", "application/json");
+//        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive", headers, null,
+//                "{ \"sessionId\" : \"" + sessionId + "\", \"name\": \"" + name + "\" }");
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            return mapper.readValue(archive, Archive.class);
+//        } catch (Exception e) {
+//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//        }
+//    }
 
     /**
      * Stops an OpenTok archive that is being recorded.
@@ -424,18 +433,18 @@ public class OpenTok {
      * @param archiveId The archive ID of the archive you want to stop recording.
      * @return The Archive object corresponding to the archive being stopped.
      */
-    public Archive stopArchive(String archiveId) throws OpenTokException {
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("content-type", "application/json");
-        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop", headers, null,
-                "");
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(archive, Archive.class);
-        } catch (Exception e) {
-            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
-        }
-    }
+//    public Archive stopArchive(String archiveId) throws OpenTokException {
+//        HashMap<String, String> headers = new HashMap<String, String>();
+//        headers.put("content-type", "application/json");
+//        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop", headers, null,
+//                "");
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            return mapper.readValue(archive, Archive.class);
+//        } catch (Exception e) {
+//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//        }
+//    }
     
     /**
      * Deletes an OpenTok archive.
@@ -446,7 +455,7 @@ public class OpenTok {
      *
      * @param archiveId The archive ID of the archive you want to delete.
      */
-    public void deleteArchive(String archiveId) throws OpenTokException {
-        OpenTokHttpClient.makeDeleteRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
-    }
+//    public void deleteArchive(String archiveId) throws OpenTokException {
+//        OpenTokHttpClient.makeDeleteRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
+//    }
 }
