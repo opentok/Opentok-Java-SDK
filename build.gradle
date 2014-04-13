@@ -40,7 +40,9 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
+ext.isReleaseVersion = hasProperty('isReleaseVersion') ? isReleaseVersion : false
 signing {
+    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
 }
 

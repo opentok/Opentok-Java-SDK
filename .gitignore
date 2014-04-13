@@ -5,6 +5,7 @@
 *.war
 
 # gradle
+gradle.properties
 .gradle
 build
 out
