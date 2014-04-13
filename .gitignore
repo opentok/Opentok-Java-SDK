@@ -4,9 +4,6 @@
 *.jar
 *.war
 
-# gradle user config
-gradle.properties
-
 # gradle
 .gradle
 build
