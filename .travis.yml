@@ -1,4 +1,5 @@
 language: java
+install: ./gradlew compileJava
 jdk:
   - openjdk7
   - openjdk6
