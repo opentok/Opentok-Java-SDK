@@ -1,4 +1,6 @@
-# OpenTok Server SDK for Java
+# OpenTok Java SDK
+
+[![Build Status](https://travis-ci.org/aoberoi/Opentok-Java-SDK.svg?branch=modernization)](https://travis-ci.org/aoberoi/Opentok-Java-SDK)
 
 The OpenTok server SDKs include code for your web server. Use these SDKs to generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and to obtain
