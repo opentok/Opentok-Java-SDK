@@ -168,7 +168,7 @@ public class OpenTok {
             throw new OpenTokSessionNotFoundException("Session not found");
         }
         
-        Session session = new Session(decodedSessionId, apiKey, apiSecret);
+        Session session = new Session(sessionId, apiKey, apiSecret);
         return session.generateToken(role, expireTime, connectionData);
     }
 

@@ -6,10 +6,16 @@
 
 package com.opentok.test;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.opentok.test.Helpers;
 
 import com.opentok.api.OpenTok;
 import com.opentok.api.Session;
@@ -153,28 +159,27 @@ public class OpenTokTest {
 
     // TODO: test session creation conditions that result in errors
 
-//    @Test
-//    public void testRoleDefault() throws OpenTokException {
-//        Session s= sdk.createSession();
-//        String t = s.generateToken();
-//        TokBoxXML xml = get_token_info(t);
-//
-//        String expectedRole = "publisher";
-//        String actualRole = xml.getElementValue("role", "token").trim();
-//        Assert.assertEquals("Java SDK tests: role default not default (publisher)", expectedRole, actualRole);
-//
-//        // Permissions are set as an empty node in the xml
-//        // Verify that the expected permission node is there
-//        // Verify nodes for permissions not granted to the role are not there
-//        Assert.assertTrue("Java SDK tests: default role does not have subscriber permissions", xml.hasElement("subscribe", "permissions"));
-//        Assert.assertTrue("Java SDK tests: default role does not have publisher permissions", xml.hasElement("publish", "permissions"));
-//        Assert.assertTrue("Java SDK tests: default role does not have signal permissions", xml.hasElement("signal", "permissions"));
-//        Assert.assertFalse("Java SDK tests: default role should not have forceunpublish permissions", xml.hasElement("forceunpublish", "permissions"));
-//        Assert.assertFalse("Java SDK tests: default role should not have forcedisconnect permissions", xml.hasElement("forcedisconnect", "permissions"));
-//        Assert.assertFalse("Java SDK tests: default role should not have record permissions", xml.hasElement("record", "permissions"));
-//        Assert.assertFalse("Java SDK tests: default role should not have playback permissions", xml.hasElement("playback", "permissions"));
-//    }
-//
+    @Test
+    public void testRoleDefault() throws
+            OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException, SignatureException,
+            InvalidKeyException {
+
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+
+        String token = opentok.generateToken(sessionId);
+
+        assertNotNull(token);
+        assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
+
+        Map<String, String> tokenData = Helpers.decodeToken(token);
+        assertEquals(Integer.toString(apiKey), tokenData.get("partner_id"));
+        assertNotNull(tokenData.get("create_time"));
+        assertNotNull(tokenData.get("nonce"));
+    }
+
 //    @Test
 //    public void testRolePublisher() throws OpenTokException {
 //        Session s= sdk.createSession();

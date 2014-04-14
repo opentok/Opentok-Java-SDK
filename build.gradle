@@ -32,6 +32,7 @@ dependencies {
     compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.13'
     compile group: 'org.codehaus.jackson', name: 'jackson-core-asl', version: '1.9.13'
     compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
     // TODO: find out how to initialize these dependencies properly, or remove them
     //compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
