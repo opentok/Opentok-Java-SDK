@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -210,6 +211,48 @@ public class OpenTokTest {
         Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
         assertEquals(role, roleTokenData.get("role"));
         assertEquals(OpenTokInvalidArgumentException.class, actualException.getClass());
+    }
+
+    @Test
+    public void testTokenExpireTime() throws
+            OpenTokException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
+            UnsupportedEncodingException {
+
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        long now = System.currentTimeMillis() / 1000L;
+        long inOneHour = now + (60*60);
+        long inThirtyDays = now + (60*60*24*30);
+        ArrayList<Exception> exceptions = new ArrayList<Exception>();
+
+
+        String defaultToken = opentok.generateToken(sessionId);
+        String oneHourToken = opentok.generateToken(sessionId, null, inOneHour);
+        try {
+            String earlyExpireTimeToken = opentok.generateToken(sessionId, null, now - 10);
+        } catch (Exception exception) {
+            exceptions.add(exception);
+        }
+        try {
+            String lateExpireTimeToken = opentok.generateToken(sessionId, null, inThirtyDays+(60*60*24) /* 31 days */);
+        } catch (Exception exception) {
+            exceptions.add(exception);
+        }
+
+        assertNotNull(defaultToken);
+        assertNotNull(oneHourToken);
+        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiSecret));
+
+        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
+        assertEquals(Double.toString(inThirtyDays), defaultTokenData.get("expire_time"));
+        Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
+        assertEquals(Double.toString(inOneHour), oneHourTokenData.get("expire_time"));
+        // TODO: iterate over exceptions
+        //assertEquals(OpenTokInvalidArgumentException.class, actualException.getClass());
+
     }
 
 //    @Test
