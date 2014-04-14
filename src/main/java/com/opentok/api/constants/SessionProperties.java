@@ -1,5 +1,8 @@
 package com.opentok.api.constants;
 
+import com.opentok.exception.OpenTokInvalidArgumentException;
+import org.apache.commons.validator.routines.InetAddressValidator;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,32 +20,30 @@ public class SessionProperties {
     private String location = null;
     private boolean p2p = false;
 
-    private SessionProperties(Builder builder)
-    {
+    private SessionProperties(Builder builder) {
         this.location = builder.location;
         this.p2p = builder.p2p;
     }
 
-    public static class Builder
-    {
+    public static class Builder {
         private String location = null;
         private boolean p2p = false;
         
 
-        public Builder location(String location)
-        {
+        public Builder location(String location) throws OpenTokInvalidArgumentException {
+            if (!InetAddressValidator.getInstance().isValidInet4Address(location)) {
+                throw new OpenTokInvalidArgumentException("Location must be a valid IPv4 address. location="+location);
+            }
             this.location = location;
             return this;
         }
 
-        public Builder p2p(boolean p2p)
-        {
+        public Builder p2p(boolean p2p) {
             this.p2p = p2p;
             return this;
         }
 
-        public SessionProperties build()
-        {
+        public SessionProperties build() {
             return new SessionProperties(this);
         }
     }

@@ -6,27 +6,25 @@
 
 package com.opentok.test;
 
-//import java.util.Date;
-//import java.util.HashMap;
-//import java.util.Map;
-//import java.util.Map.Entry;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
-//import com.ning.http.client.AsyncHttpClient;
-//import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-//import com.ning.http.client.Response;
 import com.opentok.api.OpenTok;
 import com.opentok.api.Session;
 import com.opentok.api.constants.Version;
+import com.opentok.api.constants.RoleConstants;
+import com.opentok.api.constants.SessionProperties;
 import com.opentok.exception.OpenTokException;
-//import com.opentok.api.constants.RoleConstants;
-//import com.opentok.api.constants.SessionProperties;
-//import com.opentok.exception.OpenTokRequestException;
-//import com.opentok.util.TokBoxXML;
+import com.opentok.exception.OpenTokInvalidArgumentException;
+import com.opentok.exception.OpenTokRequestException;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
@@ -83,62 +81,78 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 // TODO: add p2p.preference=disabled
-                //.withRequestBody(matching(".*<message>1234</message>.*"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
-//    private TokBoxXML get_session_info(String session_id) throws OpenTokException {
-//        String token = sdk.generateToken(session_id);
-//        Map<String, String> headers = new HashMap<String, String>();
-//        headers.put("X-TB-TOKEN-AUTH", token );
-//        TokBoxXML xml;
-//        xml = new TokBoxXML(makePostRequest("/session/" + session_id + "?extended=true", headers, new HashMap<String, String>(), null));
-//        return xml;
-//    }
-//
-//    private TokBoxXML get_token_info(String token) throws OpenTokException {
-//        Map<String, String> headers = new HashMap<String, String>();
-//        headers.put("X-TB-TOKEN-AUTH",token);
-//        TokBoxXML xml;
-//        xml = new TokBoxXML(makePostRequest("/token/validate", headers, new HashMap<String, String>(), null));
-//        return xml;
-//    }
-//
-//    @Test
-//    public void testCreateSessionNoParams() throws OpenTokException {
-//        Session session = sdk.createSession();
-//        TokBoxXML xml = get_session_info(session.getSessionId());
-//        String expected = session.getSessionId();
-//        String actual = xml.getElementValue("session_id", "Session");
-//        Assert.assertEquals("Java SDK tests: Session create with no params failed", expected, actual);
-//    }
-//
-//    @Test
-//    public void testCreateSessionWithLocation() throws OpenTokException {
-//        SessionProperties properties = new SessionProperties.Builder()
-//                                            .location("216.38.134.114")
-//                                            .build();
-//        Session session = sdk.createSession(properties);
-//        TokBoxXML xml = get_session_info(session.getSessionId());
-//        String expected = session.getSessionId();
-//        String actual = xml.getElementValue("session_id", "Session");
-//        Assert.assertEquals("Java SDK tests: Session create with location failed", expected, actual);
-//    }
-//
-//    @Test
-//    public void testP2PEnable() throws OpenTokException {
-//        String expected = "enabled";
-//        SessionProperties properties = new SessionProperties.Builder()
-//                                            .location("216.38.134.114")
-//                                            .p2p(true)
-//                                            .build();
-//        Session s = sdk.createSession(properties);
-//        TokBoxXML xml = get_session_info(s.getSessionId());
-//        String actual = xml.getElementValue("preference", "p2p");
-//        Assert.assertEquals("Java SDK tests: p2p not enabled", expected, actual);
-//    }
-//
+    @Test
+    public void testCreateP2pSession() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        stubFor(post(urlEqualTo("/session/create"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/xml")
+                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
+                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
+                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+
+        SessionProperties properties = new SessionProperties.Builder()
+                .p2p(true)
+                .build();
+        Session session = sdk.createSession(properties);
+
+        assertNotNull(session);
+        assertEquals(this.apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+        assertTrue(session.getProperties().isP2p());
+        assertNull(session.getProperties().getLocation());
+
+        verify(postRequestedFor(urlMatching("/session/create"))
+                // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+                .withRequestBody(matching(".*p2p.preference=enabled.*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    @Test
+    public void testCreateLocationHintSession() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String locationHint = "12.34.56.78";
+        stubFor(post(urlEqualTo("/session/create"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/xml")
+                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
+                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
+                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+
+        SessionProperties properties = new SessionProperties.Builder()
+                .location(locationHint)
+                .build();
+        Session session = sdk.createSession(properties);
+
+        assertNotNull(session);
+        assertEquals(this.apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+        assertFalse(session.getProperties().isP2p());
+        assertEquals(locationHint, session.getProperties().getLocation());
+
+        verify(postRequestedFor(urlMatching("/session/create"))
+                // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+                .withRequestBody(matching(".*location="+locationHint+".*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    @Test(expected = OpenTokInvalidArgumentException.class)
+    public void testCreateBadSession() throws OpenTokException {
+            SessionProperties properties = new SessionProperties.Builder()
+                    .location("NOT A VALID IP")
+                    .build();
+    }
+
+    // TODO: test session creation conditions that result in errors
+
 //    @Test
 //    public void testRoleDefault() throws OpenTokException {
 //        Session s= sdk.createSession();
@@ -381,39 +395,5 @@ public class OpenTokTest {
 //        }
 //        Assert.assertNotNull("Java SDK tests: connection data over 1000 characters should not be accepted. Test String: " + test_string , expected);
 //    }
-//
-//    private String makePostRequest(String resource, Map<String, String> headers, Map<String, String> params,
-//            String postData) throws OpenTokException {
-//        BoundRequestBuilder post = this.client.preparePost(apiUrl + resource);
-//        if (params != null) {
-//            for (Entry<String, String> pair : params.entrySet()) {
-//                post.addParameter(pair.getKey(), pair.getValue());
-//            }
-//        }
-//
-//        if (headers != null) {
-//            for (Entry<String, String> pair : headers.entrySet()) {
-//                post.addHeader(pair.getKey(), pair.getValue());
-//            }
-//        }
-//
-//        post.addHeader("X-TB-PARTNER-AUTH", String.format("%s:%s", apiKey, apiSecret));
-//        post.addHeader("X-TB-VERSION", "1");
-//
-//        if (postData != null) {
-//            post.setBody(postData);
-//        }
-//
-//        try {
-//            Response result = post.execute().get();
-//
-//            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new OpenTokRequestException(result.getStatusCode(), result.getStatusText());
-//            }
-//
-//            return result.getResponseBody();
-//        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, "Error response: message: " + e.getMessage());
-//        }
-//    }
+
 }
