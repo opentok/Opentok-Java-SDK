@@ -160,7 +160,7 @@ public class OpenTokTest {
     // TODO: test session creation conditions that result in errors
 
     @Test
-    public void testRoleDefault() throws
+    public void testTokenDefault() throws
             OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException, SignatureException,
             InvalidKeyException {
 
@@ -178,6 +178,38 @@ public class OpenTokTest {
         assertEquals(Integer.toString(apiKey), tokenData.get("partner_id"));
         assertNotNull(tokenData.get("create_time"));
         assertNotNull(tokenData.get("nonce"));
+    }
+
+    @Test
+    public void testTokenRoles() throws
+            OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException, SignatureException,
+            InvalidKeyException {
+
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+        String role = RoleConstants.SUBSCRIBER;
+        Exception actualException = null;
+
+        String defaultToken = opentok.generateToken(sessionId);
+        String roleToken = opentok.generateToken(sessionId, role);
+        try {
+            String invalidToken = opentok.generateToken(sessionId, "NOT A VALID ROLE");
+        } catch(OpenTokException exception) {
+            actualException = exception;
+        }
+
+        assertNotNull(defaultToken);
+        assertNotNull(roleToken);
+        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(roleToken, apiSecret));
+
+        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
+        assertEquals("publisher", defaultTokenData.get("role"));
+        Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
+        assertEquals(role, roleTokenData.get("role"));
+        assertEquals(OpenTokInvalidArgumentException.class, actualException.getClass());
     }
 
 //    @Test
