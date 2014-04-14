@@ -1,5 +1,4 @@
 language: java
-install: ./gradlew assemble --info
 jdk:
   - openjdk7
   - openjdk6
