@@ -289,12 +289,6 @@ public class OpenTok {
         return createSession(null);
     }
 
-    private static String repeatString(String str, int times){
-        StringBuilder ret = new StringBuilder();
-        for(int i = 0;i < times;i++) ret.append(str);
-        return ret.toString();
-    }
-
     private static String readXml(String xpathQuery, String xml) throws XPathExpressionException {
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xpath = xpathFactory.newXPath();
