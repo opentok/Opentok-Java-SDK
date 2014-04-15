@@ -75,7 +75,7 @@ The following code creates a peer-to-peer session:
 
 <pre>
 import com.opentok.api.OpenTokSDK;
-import com.opentok.api.constants.SessionProperties;
+import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
 
 class Test {

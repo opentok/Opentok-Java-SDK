@@ -19,7 +19,7 @@ import com.opentok.api.OpenTok;
 import com.opentok.api.Session;
 import com.opentok.api.constants.Version;
 import com.opentok.api.constants.Role;
-import com.opentok.api.constants.SessionProperties;
+import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
 

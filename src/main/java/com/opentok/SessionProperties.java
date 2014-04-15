@@ -1,4 +1,4 @@
-package com.opentok.api.constants;
+package com.opentok;
 
 import com.opentok.exception.OpenTokInvalidArgumentException;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Defines values for the <code>properties</code> parameter of the {@link com.opentok.api.OpenTok#createSession(SessionProperties)} method.
  *
- * @see <a href="../OpenTokSDK.html#createSession(com.opentok.api.constants.SessionProperties)">OpenTokSDK.createSession(SessionProperties)</a>
+ * @see <a href="../OpenTokSDK.html#createSession(com.opentok.SessionProperties)">OpenTokSDK.createSession(SessionProperties)</a>
  */
 public class SessionProperties {
 

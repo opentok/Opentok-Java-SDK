@@ -11,7 +11,7 @@ import com.opentok.api.constants.Role;
 import com.opentok.util.Crypto;
 import org.apache.commons.codec.binary.Base64;
 
-import com.opentok.api.constants.SessionProperties;
+import com.opentok.SessionProperties;
 import com.opentok.api.constants.TokenOptions;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;

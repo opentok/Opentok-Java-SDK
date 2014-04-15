@@ -20,7 +20,7 @@ import javax.xml.xpath.XPathFactory;
 
 import com.opentok.api.constants.TokenOptions;
 
-import com.opentok.api.constants.SessionProperties;
+import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
 import com.opentok.util.HttpClient;
@@ -196,7 +196,7 @@ public class OpenTok {
      *
      * <pre>
      * import com.opentok.api.OpenTokSDK;
-     * import com.opentok.api.constants.SessionProperties;
+     * import com.opentok.SessionProperties;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
@@ -214,7 +214,7 @@ public class OpenTok {
      *
      * <pre>
      * import com.opentok.api.OpenTokSDK;
-     * import com.opentok.api.constants.SessionProperties;
+     * import com.opentok.SessionProperties;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
