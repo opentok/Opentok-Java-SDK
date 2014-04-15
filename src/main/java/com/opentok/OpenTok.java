@@ -10,8 +10,10 @@
 
 package com.opentok;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.RequestException;
@@ -324,9 +331,9 @@ public class OpenTok {
      *
      * @return A List of {@link Archive} objects.
      */
-//    public List<Archive> listArchives() throws OpenTokException {
-//        return listArchives(0, 1000);
-//    }
+    public List<Archive> listArchives() throws OpenTokException {
+        return listArchives(0, 1000);
+    }
 
     /**
      * Returns a List of {@link Archive} objects, representing archives that are both
@@ -337,18 +344,23 @@ public class OpenTok {
      * @param count The number of archives to be returned. The maximum number of archives returned is 1000.
      * @return A List of {@link Archive} objects.
      */
-//    public List<Archive> listArchives(int offset, int count) throws OpenTokException {
-//        ObjectMapper mapper = new ObjectMapper();
-//        String archive = HttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive?offset=" + offset + "&count="
-//                + count);
-//        try {
-//            JsonNode node = mapper.readTree(archive);
-//            return mapper.readValue(node.get("items"), new TypeReference<List<Archive>>() {
-//            });
-//        } catch (Exception e) {
-//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
-//        }
-//    }
+    public List<Archive> listArchives(int offset, int count) throws OpenTokException {
+        ObjectMapper mapper = new ObjectMapper();
+        String archive = this.client.getArchives(offset, count);
+        try {
+            JsonParser jp = mapper.getFactory().createParser(archive);
+            return mapper.readValue(mapper.treeAsTokens(mapper.readTree(jp).get("items")),
+                    TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Archive.class));
+        } catch (JsonMappingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (JsonParseException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
     
     /**
      * Starts archiving an OpenTok 2.0 session.

@@ -89,6 +89,46 @@ public class HttpClient extends AsyncHttpClient {
         return responseString;
     }
 
+    public String getArchives(int offset, int count) {
+        String responseString = null;
+        Future<Response> request = null;
+        // TODO: maybe use a StringBuilder?
+        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive";
+        if (offset != 0 || count != 1000) {
+            url += "?";
+            if (offset != 0) {
+                url += ("offset=" + Integer.toString(offset));
+            }
+            if (count != 1000) {
+                url += ("count=" + Integer.toString(count));
+            }
+        }
+
+        try {
+            request = this.prepareGet(url).execute();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        try {
+            Response response = request.get();
+            // TODO: check response code
+            responseString = response.getResponseBody();
+        } catch (InterruptedException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        return responseString;
+    }
+
 //    protected static String makeDeleteRequest(String resource) throws OpenTokException {
 //        BoundRequestBuilder get = client.prepareDelete(apiUrl + resource);
 //        addCommonHeaders(get);
