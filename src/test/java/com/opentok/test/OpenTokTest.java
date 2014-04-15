@@ -155,29 +155,6 @@ public class OpenTokTest {
     }
 
     // TODO: test session creation conditions that result in errors
-//    @Test
-//    public void testRoleGarbageInput() {
-//        OpenTokException expected = null;
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken("asdfasdf");
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for role asdfasdf", expected);
-//    }
-//
-//    @Test
-//    public void testRoleNull() {
-//        OpenTokException expected = null;
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken(null);
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for role null", expected);
-//    }
 
     @Test
     public void testTokenDefault() throws
