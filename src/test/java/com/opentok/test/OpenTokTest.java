@@ -12,9 +12,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 
 import com.opentok.TokenOptions;
-
 import com.opentok.OpenTok;
 import com.opentok.Session;
 import com.opentok.constants.Version;
@@ -254,71 +254,43 @@ public class OpenTokTest {
 
     }
 
-//    @Test
-//    public void testRolePublisher() throws OpenTokException {
-//        Session s= sdk.createSession();
-//        String t = s.generateToken(Role.PUBLISHER);
-//        TokBoxXML xml = get_token_info(t);
-//
-//        String expectedRole = "publisher";
-//        String actualRole = xml.getElementValue("role", "token").trim();
-//        Assert.assertEquals("Java SDK tests: role not publisher", expectedRole, actualRole);
-//
-//        // Permissions are set as an empty node in the xml
-//        // Verify that the expected permission node is there
-//        // Verify nodes for permissions not granted to the role are not there
-//        Assert.assertTrue("Java SDK tests: publisher role does not have subscriber permissions", xml.hasElement("subscribe", "permissions"));
-//        Assert.assertTrue("Java SDK tests: publisher role does not have publisher permissions", xml.hasElement("publish", "permissions"));
-//        Assert.assertTrue("Java SDK tests: publisher role does not have signal permissions", xml.hasElement("signal", "permissions"));
-//        Assert.assertFalse("Java SDK tests: publisher role should not have forceunpublish permissions", xml.hasElement("forceunpublish", "permissions"));
-//        Assert.assertFalse("Java SDK tests: publisher role should not have forcedisconnect permissions", xml.hasElement("forcedisconnect", "permissions"));
-//        Assert.assertFalse("Java SDK tests: publisher role should not have record permissions", xml.hasElement("record", "permissions"));
-//        Assert.assertFalse("Java SDK tests: publisher role should not have playback permissions", xml.hasElement("playback", "permissions"));
-//    }
-//
-//    @Test
-//    public void testRoleSubscriber() throws OpenTokException {
-//        Session s= sdk.createSession();
-//        String t = s.generateToken(Role.SUBSCRIBER);
-//        TokBoxXML xml = get_token_info(t);
-//
-//        String expectedRole = "subscriber";
-//        String actualRole = xml.getElementValue("role", "token").trim();
-//        Assert.assertEquals("Java SDK tests: role not subscriber", expectedRole, actualRole);
-//
-//        // Permissions are set as an empty node in the xml
-//        // Verify that the expected permission node is there
-//        // Verify nodes for permissions not granted to the role are not there
-//        Assert.assertTrue("Java SDK tests: subscriber role does not have subscriber permissions", xml.hasElement("subscribe", "permissions"));
-//        Assert.assertFalse("Java SDK tests: subscriber role should not have publisher permissions", xml.hasElement("publish", "permissions"));
-//        Assert.assertFalse("Java SDK tests: subscriber role should not have signal permissions", xml.hasElement("signal", "permissions"));
-//        Assert.assertFalse("Java SDK tests: subscriber role should not have forceunpublish permissions", xml.hasElement("forceunpublish", "permissions"));
-//        Assert.assertFalse("Java SDK tests: subscriber role should not have forcedisconnect permissions", xml.hasElement("forcedisconnect", "permissions"));
-//        Assert.assertFalse("Java SDK tests: subscriber role should not have record permissions", xml.hasElement("record", "permissions"));
-//        Assert.assertFalse("Java SDK tests: subscriber role should not have playback permissions", xml.hasElement("playback", "permissions"));
-//    }
-//
-//    @Test
-//    public void testRoleModerator() throws OpenTokException {
-//        Session s= sdk.createSession();
-//        String t = s.generateToken(Role.MODERATOR);
-//        TokBoxXML xml = get_token_info(t);
-//
-//        String expectedRole = "moderator";
-//        String actualRole = xml.getElementValue("role", "token").trim();
-//        Assert.assertEquals("Java SDK tests: role not moderator", expectedRole, actualRole);
-//
-//        // Permissions are set as an empty node in the xml
-//        // Verify that the expected permission node is there
-//        // Verify nodes for permissions not granted to the role are not there
-//        Assert.assertTrue("Java SDK tests: moderator role does not have subscriber permissions", xml.hasElement("subscribe", "permissions"));
-//        Assert.assertTrue("Java SDK tests: moderator role does not have publisher permissions", xml.hasElement("publish", "permissions"));
-//        Assert.assertTrue("Java SDK tests: moderator role does not have signal permissions", xml.hasElement("signal", "permissions"));
-//        Assert.assertTrue("Java SDK tests: moderator role does not have forceunpublish permissions", xml.hasElement("forceunpublish", "permissions"));
-//        Assert.assertTrue("Java SDK tests: moderator role does not have forcedisconnect permissions", xml.hasElement("forcedisconnect", "permissions"));
-//        Assert.assertTrue("Java SDK tests: moderator role does not have record permissions", xml.hasElement("record", "permissions"));
-//        Assert.assertTrue("Java SDK tests: moderator role does not have playback permissions", xml.hasElement("playback", "permissions"));
-//    }
+    @Test
+    public void testTokenConnectionData() throws
+            OpenTokException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
+            UnsupportedEncodingException {
+
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        // purposely contains some exotic characters
+        String actualData = "{\"name\":\"%foo ç &\"}";
+        Exception tooLongException = null;
+
+        String defaultToken = opentok.generateToken(sessionId);
+        String dataBearingToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+            .data(actualData)
+            .build());
+        try {
+            String dataTooLongToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+                    .data(StringUtils.repeat("x", 1001))
+                    .build());
+        } catch (InvalidArgumentException e) {
+            tooLongException = e;
+        }
+
+        assertNotNull(defaultToken);
+        assertNotNull(dataBearingToken);
+        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(dataBearingToken, apiSecret));
+
+        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
+        assertNull(defaultTokenData.get("connection_data"));
+        Map<String, String> dataBearingTokenData = Helpers.decodeToken(dataBearingToken);
+        assertEquals(actualData, dataBearingTokenData.get("connection_data"));
+        assertEquals(InvalidArgumentException.class, tooLongException.getClass());
+    }
+
 //
 //    @Test
 //    public void testRoleGarbageInput() {
