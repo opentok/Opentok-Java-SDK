@@ -1,6 +1,6 @@
-package com.opentok.api.constants;
+package com.opentok;
 
-import com.opentok.exception.OpenTokInvalidArgumentException;
+import com.opentok.exception.InvalidArgumentException;
 
 /**
  * Created by ankur on 4/14/14.
@@ -49,11 +49,11 @@ public class TokenOptions {
             return this;
         }
 
-        public Builder data(String data) throws OpenTokInvalidArgumentException {
+        public Builder data(String data) throws InvalidArgumentException {
             if (data.length() <= 1000) {
                 this.data = data;
             } else {
-                throw new OpenTokInvalidArgumentException(
+                throw new InvalidArgumentException(
                         "The given connection data is too long, limit is 1000 characters: "+data.length());
             }
             return this;

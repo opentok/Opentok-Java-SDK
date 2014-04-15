@@ -1,4 +1,4 @@
-package com.opentok.api.constants;
+package com.opentok.constants;
 
 /**
  * Created by ankur on 4/11/14.

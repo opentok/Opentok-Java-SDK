@@ -13,15 +13,15 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.opentok.api.constants.TokenOptions;
+import com.opentok.TokenOptions;
 
-import com.opentok.api.OpenTok;
-import com.opentok.api.Session;
-import com.opentok.api.constants.Version;
-import com.opentok.api.constants.Role;
+import com.opentok.OpenTok;
+import com.opentok.Session;
+import com.opentok.constants.Version;
+import com.opentok.Role;
 import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
-import com.opentok.exception.OpenTokInvalidArgumentException;
+import com.opentok.exception.InvalidArgumentException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -147,7 +147,7 @@ public class OpenTokTest {
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
-    @Test(expected = OpenTokInvalidArgumentException.class)
+    @Test(expected = InvalidArgumentException.class)
     public void testCreateBadSession() throws OpenTokException {
             SessionProperties properties = new SessionProperties.Builder()
                     .location("NOT A VALID IP")
@@ -249,7 +249,7 @@ public class OpenTokTest {
         Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
         assertEquals(Double.toString(inOneHour), oneHourTokenData.get("expire_time"));
         for (Exception e : exceptions) {
-            assertEquals(OpenTokInvalidArgumentException.class, e.getClass());
+            assertEquals(InvalidArgumentException.class, e.getClass());
         }
 
     }

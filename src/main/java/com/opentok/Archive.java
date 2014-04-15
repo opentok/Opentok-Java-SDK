@@ -1,12 +1,8 @@
-package com.opentok.api;
+package com.opentok;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
-
-import com.opentok.exception.OpenTokException;
-import com.opentok.exception.OpenTokRequestException;
 
 /**
 * Represents an archive of an OpenTok session. 
@@ -166,7 +162,7 @@ public class Archive {
      * The download URL of the available MP4 file. This is only set for an archive with the status set to "available";
      * for other archives, (including archives wit the status "uploaded") this method returns null. The download URL is
      * obfuscated, and the file is only available from the URL for 10 minutes. To generate a new URL, call
-     * the {@link OpenTok#listArchives()} or {@link OpenTok#getArchive(String)} method.
+     * the {@link com.opentok.OpenTok#listArchives()} or {@link com.opentok.OpenTok#getArchive(String)} method.
      */
     public String getUrl() {
         return url;
@@ -187,7 +183,7 @@ public class Archive {
 //            this.status = updatedArchive.status;
 //            return this;
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
 //        }
 //    }
     

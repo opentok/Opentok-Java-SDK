@@ -1,10 +1,10 @@
 package com.opentok.exception;
 
-public class OpenTokRequestException extends OpenTokException {
+public class RequestException extends OpenTokException {
 
     private static final long serialVersionUID = -3852834447530956514L;
 
-    public OpenTokRequestException(String message) {
+    public RequestException(String message) {
         super(message);
     }
 

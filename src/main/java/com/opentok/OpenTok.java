@@ -8,7 +8,7 @@
  * Last modified: @opentok.sdk.java.mod_time@
  */
 
-package com.opentok.api;
+package com.opentok;
 
 import java.io.StringReader;
 import java.util.Collection;
@@ -18,11 +18,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import com.opentok.api.constants.TokenOptions;
-
-import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
-import com.opentok.exception.OpenTokInvalidArgumentException;
+import com.opentok.exception.InvalidArgumentException;
 import com.opentok.util.HttpClient;
 import org.xml.sax.InputSource;
 
@@ -89,7 +86,7 @@ public class OpenTok {
      * a connection metadata string:
      * <p>
      * <pre>
-     * import com.opentok.api.constants.Role;
+     * import com.opentok.Role;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
@@ -143,7 +140,7 @@ public class OpenTok {
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
 
         if(sessionId == null || sessionId == "") {
-            throw new OpenTokInvalidArgumentException("Session not valid");
+            throw new InvalidArgumentException("Session not valid");
         }
 
         // TODO: use more succinct codec routines
@@ -159,11 +156,11 @@ public class OpenTok {
 //                }
 //            }
 //        } catch (UnsupportedEncodingException e) {
-//            throw new OpenTokSessionNotFoundException("Session not found");
+//            throw new SessionNotFoundException("Session not found");
 //        }
 //
 //        if(!decodedSessionId.split("~")[1].equals(String.valueOf(apiKey))) {
-//            throw new OpenTokSessionNotFoundException("Session not found");
+//            throw new SessionNotFoundException("Session not found");
 //        }
         
         Session session = new Session(sessionId, apiKey, apiSecret);
@@ -325,7 +322,7 @@ public class OpenTok {
 //        try {
 //            return mapper.readValue(archive, Archive.class);
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
 //        }
 //
 //    }
@@ -360,7 +357,7 @@ public class OpenTok {
 //            return mapper.readValue(node.get("items"), new TypeReference<List<Archive>>() {
 //            });
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
 //        }
 //    }
     
@@ -381,7 +378,7 @@ public class OpenTok {
      */
 //    public Archive startArchive(String sessionId, String name) throws OpenTokException {
 //        if (sessionId == null || sessionId == "") {
-//            throw new OpenTokInvalidArgumentException("Session not valid");
+//            throw new InvalidArgumentException("Session not valid");
 //        }
 //        HashMap<String, String> headers = new HashMap<String, String>();
 //        headers.put("content-type", "application/json");
@@ -391,7 +388,7 @@ public class OpenTok {
 //        try {
 //            return mapper.readValue(archive, Archive.class);
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
 //        }
 //    }
 
@@ -413,7 +410,7 @@ public class OpenTok {
 //        try {
 //            return mapper.readValue(archive, Archive.class);
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, "Exception mapping json: " + e.getMessage());
+//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
 //        }
 //    }
     

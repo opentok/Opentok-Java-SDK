@@ -121,7 +121,7 @@ a connection metadata string:
 
 <pre>
 import com.opentok.api.OpenTokSDK;
-import com.opentok.api.constants.Role;
+import com.opentok.Role;
 
 class Test {
     public static void main(String argv[]) throws OpenTokException {

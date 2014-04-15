@@ -11,7 +11,7 @@ import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
 import com.ning.http.client.filter.RequestFilter;
 
-import com.opentok.api.constants.Version;
+import com.opentok.constants.Version;
 
 public class HttpClient extends AsyncHttpClient {
     
@@ -66,12 +66,12 @@ public class HttpClient extends AsyncHttpClient {
 //        try {
 //            Response result = get.execute().get();
 //            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new OpenTokRequestException(result.getStatusCode(), "Error response: message: "
+//                throw new RequestException(result.getStatusCode(), "Error response: message: "
 //                        + result.getStatusText());
 //            }
 //            return result.getResponseBody();
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, e.getMessage());
+//            throw new RequestException(500, e.getMessage());
 //        }
 //    }
 //
@@ -82,12 +82,12 @@ public class HttpClient extends AsyncHttpClient {
 //        try {
 //            Response result = get.execute().get();
 //            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new OpenTokRequestException(result.getStatusCode(), "Error response: message: "
+//                throw new RequestException(result.getStatusCode(), "Error response: message: "
 //                        + result.getStatusText());
 //            }
 //            return result.getResponseBody();
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, e.getMessage());
+//            throw new RequestException(500, e.getMessage());
 //        }
 //    }
 //
@@ -116,12 +116,12 @@ public class HttpClient extends AsyncHttpClient {
 //            Response result = post.execute().get();
 //
 //            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new OpenTokRequestException(result.getStatusCode(), "Error response: message: " + result.getStatusText());
+//                throw new RequestException(result.getStatusCode(), "Error response: message: " + result.getStatusText());
 //            }
 //
 //            return result.getResponseBody();
 //        } catch (Exception e) {
-//            throw new OpenTokRequestException(500, e.getMessage());
+//            throw new RequestException(500, e.getMessage());
 //        }
 //    }
 //

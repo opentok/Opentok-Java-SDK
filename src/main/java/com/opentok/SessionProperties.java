@@ -1,6 +1,6 @@
 package com.opentok;
 
-import com.opentok.exception.OpenTokInvalidArgumentException;
+import com.opentok.exception.InvalidArgumentException;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 
 /**
- * Defines values for the <code>properties</code> parameter of the {@link com.opentok.api.OpenTok#createSession(SessionProperties)} method.
+ * Defines values for the <code>properties</code> parameter of the {@link OpenTok#createSession(SessionProperties)} method.
  *
  * @see <a href="../OpenTokSDK.html#createSession(com.opentok.SessionProperties)">OpenTokSDK.createSession(SessionProperties)</a>
  */
@@ -30,9 +30,9 @@ public class SessionProperties {
         private boolean p2p = false;
         
 
-        public Builder location(String location) throws OpenTokInvalidArgumentException {
+        public Builder location(String location) throws InvalidArgumentException {
             if (!InetAddressValidator.getInstance().isValidInet4Address(location)) {
-                throw new OpenTokInvalidArgumentException("Location must be a valid IPv4 address. location="+location);
+                throw new InvalidArgumentException("Location must be a valid IPv4 address. location="+location);
             }
             this.location = location;
             return this;

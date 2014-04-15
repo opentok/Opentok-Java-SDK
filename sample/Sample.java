@@ -1,6 +1,6 @@
-import com.opentok.api.OpenTok;
-import com.opentok.api.Session;
-import com.opentok.api.constants.Role;
+import com.opentok.OpenTok;
+import com.opentok.Session;
+import com.opentok.Role;
 import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
 

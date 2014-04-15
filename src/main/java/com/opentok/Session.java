@@ -1,4 +1,4 @@
-package com.opentok.api;
+package com.opentok;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -7,14 +7,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Random;
 
-import com.opentok.api.constants.Role;
+import com.opentok.exception.InvalidArgumentException;
 import com.opentok.util.Crypto;
 import org.apache.commons.codec.binary.Base64;
 
-import com.opentok.SessionProperties;
-import com.opentok.api.constants.TokenOptions;
 import com.opentok.exception.OpenTokException;
-import com.opentok.exception.OpenTokInvalidArgumentException;
 
 public class Session {
 
@@ -97,7 +94,7 @@ public class Session {
         //                       | "partner_id={apiKey}&sig={sig}:| -- dataStringBuilder -- |
 
         if (tokenOptions == null) {
-            throw new OpenTokInvalidArgumentException("Token options cannot be null");
+            throw new InvalidArgumentException("Token options cannot be null");
         }
 
         Role role = tokenOptions.getRole();
@@ -121,10 +118,10 @@ public class Session {
         if (expireTime == 0) {
             expireTime = now + (60*60*24); // 1 day
         } else if(expireTime < now-1) {
-            throw new OpenTokInvalidArgumentException(
+            throw new InvalidArgumentException(
                     "Expire time must be in the future. relative time: "+ (expireTime - now));
         } else if(expireTime > (now + (60*60*24*30) /* 30 days */)) {
-            throw new OpenTokInvalidArgumentException(
+            throw new InvalidArgumentException(
                     "Expire time must be in the next 30 days. too large by "+ (expireTime - (now + (60*60*24*30))));
         }
         dataStringBuilder.append("&expire_time=");
@@ -132,14 +129,14 @@ public class Session {
 
         if (data != null) {
             if(data.length() > 1000) {
-                throw new OpenTokInvalidArgumentException(
+                throw new InvalidArgumentException(
                         "Connection data must be less than 1000 characters. length: " + data.length());
             }
             dataStringBuilder.append("&connection_data=");
             try {
                 dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                throw new OpenTokInvalidArgumentException(
+                throw new InvalidArgumentException(
                         "Error during URL encode of your connection data: " +  e.getMessage());
             }
         }

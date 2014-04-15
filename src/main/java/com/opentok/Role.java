@@ -5,7 +5,7 @@
  * Copyright 2010, TokBox, Inc.
  */
 
-package com.opentok.api.constants;
+package com.opentok;
 /**
  * Defines values for the role parameter of the <code>OpenTokSDK.generateToken()</code> method.
  *

@@ -1,6 +1,6 @@
 import java.util.List;
-import com.opentok.api.Archive;
-import com.opentok.api.OpenTok;
+import com.opentok.Archive;
+import com.opentok.OpenTok;
 import com.opentok.exception.OpenTokException;
 
 class ArchivingSample {
