@@ -12,14 +12,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Map;
+
+import com.opentok.*;
 import org.apache.commons.lang.StringUtils;
 
-import com.opentok.TokenOptions;
-import com.opentok.OpenTok;
-import com.opentok.Session;
 import com.opentok.constants.Version;
-import com.opentok.Role;
-import com.opentok.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.InvalidArgumentException;
 
@@ -320,5 +317,48 @@ public class OpenTokTest {
             assertEquals(InvalidArgumentException.class, e.getClass());
         }
     }
+
+    @Test
+    public void testGetArchive() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395187836000,\n" +
+                                "          \"duration\" : 62,\n" +
+                                "          \"id\" : \"" + archiveId + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 8347554,\n" +
+                                "          \"status\" : \"available\",\n" +
+                                "          \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" +
+                                archiveId + "%2Farchive.mp4?Expires=1395194362&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Si" +
+                                "gnature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "        }")));
+
+        Archive archive = sdk.getArchive(archiveId);
+
+        assertNotNull(archive);
+        assertEquals(this.apiKey, archive.getPartnerId());
+        assertEquals(archiveId, archive.getId());
+        assertEquals(1395187836000L, archive.getCreatedAt());
+        assertEquals(62, archive.getDuration());
+        assertEquals("", archive.getName());
+        assertEquals("SESSIONID", archive.getSessionId());
+        assertEquals(8347554, archive.getSize());
+        assertEquals(Archive.Status.AVAILABLE, archive.getStatus());
+        assertEquals("http://tokbox.com.archive2.s3.amazonaws.com/123456%2F"+archiveId +"%2Farchive.mp4?Expires=13951" +
+                "94362&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", archive.getUrl());
+
+        verify(getRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    // TODO: test get archive failure scenarios
 
 }

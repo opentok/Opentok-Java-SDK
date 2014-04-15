@@ -22,8 +22,11 @@ import javax.xml.xpath.XPathFactory;
 
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.xml.sax.InputSource;
 
 /**
@@ -231,7 +234,7 @@ public class OpenTok {
      *     "disabled" (the default) &mdash; The session's streams will all be relayed using the OpenTok media server.
      *     <br><br>
      *     <i>In OpenTok v2:</i> The <a href="http://www.tokbox.com/blog/mantis-next-generation-cloud-technology-for-webrtc/">OpenTok
-     *     media server</a> provides benefits not available in peer-to-peer sessions. For example, the OpenTok media server can
+     *     media server</a> provides benefits not AVAILABLE in peer-to-peer sessions. For example, the OpenTok media server can
      *     decrease bandwidth usage in multiparty sessions. Also, the OpenTok server can improve the quality of the user experience
      *     through <a href="http://www.tokbox.com/blog/quality-of-experience-and-traffic-shaping-the-next-step-with-mantis/">dynamic
      *     traffic shaping</a>. For information on pricing, see the <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
@@ -302,16 +305,16 @@ public class OpenTok {
      * @param archiveId The archive ID.
      * @return The {@link Archive} object.
      */
-//    public Archive getArchive(String archiveId) throws OpenTokException {
-//        ObjectMapper mapper = new ObjectMapper();
-//        String archive = HttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
-//        try {
-//            return mapper.readValue(archive, Archive.class);
-//        } catch (Exception e) {
-//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
-//        }
-//
-//    }
+    public Archive getArchive(String archiveId) throws OpenTokException {
+        ObjectMapper mapper = new ObjectMapper();
+        String archive = this.client.getArchive(archiveId);
+        try {
+            return mapper.readValue(archive, Archive.class);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+
+    }
 
     /**
      * Returns a List of {@link Archive} objects, representing archives that are both
@@ -329,8 +332,8 @@ public class OpenTok {
      * Returns a List of {@link Archive} objects, representing archives that are both
      * both completed and in-progress, for your API key.
      *
-     * @param offset The index offset of the first archive. 0 is offset of the most recently started archive.
-     * 1 is the offset of the archive that started prior to the most recent archive.
+     * @param offset The index offset of the first archive. 0 is offset of the most recently STARTED archive.
+     * 1 is the offset of the archive that STARTED prior to the most recent archive.
      * @param count The number of archives to be returned. The maximum number of archives returned is 1000.
      * @return A List of {@link Archive} objects.
      */
@@ -385,7 +388,7 @@ public class OpenTok {
      * session being archived.
      *
      * @param archiveId The archive ID of the archive you want to stop recording.
-     * @return The Archive object corresponding to the archive being stopped.
+     * @return The Archive object corresponding to the archive being STOPPED.
      */
 //    public Archive stopArchive(String archiveId) throws OpenTokException {
 //        HashMap<String, String> headers = new HashMap<String, String>();
@@ -403,8 +406,8 @@ public class OpenTok {
     /**
      * Deletes an OpenTok archive.
      * <p>
-     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an archive
-     * removes its record from the list of archives. For an "available" archive, it also removes the archive
+     * You can only delete an archive which has a status of "AVAILABLE" or "UPLOADED". Deleting an archive
+     * removes its record from the list of archives. For an "AVAILABLE" archive, it also removes the archive
      * file, making it unavailable for download.
      *
      * @param archiveId The archive ID of the archive you want to delete.

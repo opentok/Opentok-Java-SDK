@@ -28,7 +28,7 @@ public class HttpClient extends AsyncHttpClient {
     }
 
     public String createSession(Map<String, Collection<String>> params) {
-        Future request = null;
+        Future<Response> request = null;
         String responseString = null;
         Response response = null;
         FluentStringsMap paramsString = new FluentStringsMap().addAll(params);
@@ -43,7 +43,7 @@ public class HttpClient extends AsyncHttpClient {
         }
 
         try {
-            response = (Response)request.get();
+            response = request.get();
             // TODO: check response code
             responseString = response.getResponseBody();
         } catch (InterruptedException e) {
@@ -56,6 +56,36 @@ public class HttpClient extends AsyncHttpClient {
             // TODO: throw OpenTokException
             e.printStackTrace();
         }
+        return responseString;
+    }
+
+    public String getArchive(String archiveId) {
+        String responseString = null;
+        Future<Response> request = null;
+        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive/"+archiveId;
+
+        try {
+            request = this.prepareGet(url).execute();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        try {
+            Response response = request.get();
+            // TODO: check response code
+            responseString = response.getResponseBody();
+        } catch (InterruptedException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
         return responseString;
     }
 

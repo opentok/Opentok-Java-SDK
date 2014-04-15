@@ -1,8 +1,9 @@
 package com.opentok;
 
-import java.util.UUID;
-
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
 * Represents an archive of an OpenTok session. 
@@ -11,51 +12,56 @@ public class Archive {
     /**
      * Defines values returned by the {@link Archive#getStatus} method.
      */
-    public enum ArchiveState {
+    public enum Status {
         /**
-         * The archive file is available for download from the OpenTok cloud. You can get the URL of
+         * The archive file is AVAILABLE for download from the OpenTok cloud. You can get the URL of
          * the download file by calling the {@link Archive#getUrl} method.
          */
-        available,
+        AVAILABLE,
         /**
-         * The archive file has been deleted.
+         * The archive file has been DELETED.
          */
-        deleted,
+        DELETED,
         /**
-         * The recording of the archive failed.
+         * The recording of the archive FAILED.
          */
-        failed,
+        FAILED,
         /**
-         * The archive recording has started and is in progress.
+         * The archive recording has STARTED and is in progress.
          */
-        started,
+        STARTED,
         /**
-         * The archive recording has stopped, but the file is not available.
+         * The archive recording has STOPPED, but the file is not AVAILABLE.
          */
-        stopped,
+        STOPPED,
         /**
-         * The archive file is available at the target S3 bucket you specified using the
+         * The archive file is AVAILABLE at the target S3 bucket you specified using the
          * REST API.
          */
-        uploaded,
-        /**
-         * The archive status is unknown.
-         */
-        unknown
+        UPLOADED;
+
+        @JsonValue public String toString() {
+            return super.toString().toLowerCase();
+        }
     }
 
-    private long createdAt = System.currentTimeMillis();
-    private int duration = 0;
-    private UUID id;
-    private String name;
-    private int partnerId;
-    private String reason = "";
-    private String sessionId;
-    private int size = 0;
-    private ArchiveState status = ArchiveState.unknown;
-    private String url;
+    @JsonProperty private long createdAt;
+    @JsonProperty private int duration = 0;
+    @JsonProperty private String id;
+    @JsonProperty private String name;
+    @JsonProperty private int partnerId;
+    @JsonProperty private String reason;
+    @JsonProperty private String sessionId;
+    @JsonProperty private int size = 0;
+    @JsonProperty private Status status;
+    @JsonProperty private String url;
 
     protected Archive() {
+    }
+
+    @JsonCreator
+    public static Archive makeArchive() {
+        return new Archive();
     }
 
     /**
@@ -65,10 +71,6 @@ public class Archive {
         return createdAt;
     }
 
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
-    }
-
     /**
      * The duration of the archive, in milliseconds.
      */
@@ -76,19 +78,11 @@ public class Archive {
         return duration;
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
     /**
      * The archive ID.
      */
-    public UUID getId() {
+    public String getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     /**
@@ -98,10 +92,6 @@ public class Archive {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     /**
      * The OpenTok API key associated with the archive.
      */
@@ -109,20 +99,12 @@ public class Archive {
         return partnerId;
     }
 
-    public void setPartnerId(int partnerId) {
-        this.partnerId = partnerId;
-    }
-
     /**
-     * For archives with the status "stopped", this can be set to "90 mins exceeded", "failure", "session ended",
-     * or "user initiated". For archives with the status "failed", this can be set to "system failure".
+     * For archives with the status "STOPPED", this can be set to "90 mins exceeded", "failure", "session ended",
+     * or "user initiated". For archives with the status "FAILED", this can be set to "system failure".
      */
     public String getReason() {
         return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     /**
@@ -132,10 +114,6 @@ public class Archive {
         return sessionId;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
     /** 
      * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
      */
@@ -143,33 +121,21 @@ public class Archive {
         return size;
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
-
     /**
-     * The status of the archive, as defined by the {@link ArchiveState} enum.
+     * The status of the archive, as defined by the {@link com.opentok.Archive.Status} enum.
      */
-    public ArchiveState getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(ArchiveState status) {
-        this.status = status;
-    }
-
     /**
-     * The download URL of the available MP4 file. This is only set for an archive with the status set to "available";
-     * for other archives, (including archives wit the status "uploaded") this method returns null. The download URL is
-     * obfuscated, and the file is only available from the URL for 10 minutes. To generate a new URL, call
+     * The download URL of the AVAILABLE MP4 file. This is only set for an archive with the status set to "AVAILABLE";
+     * for other archives, (including archives wit the status "UPLOADED") this method returns null. The download URL is
+     * obfuscated, and the file is only AVAILABLE from the URL for 10 minutes. To generate a new URL, call
      * the {@link com.opentok.OpenTok#listArchives()} or {@link com.opentok.OpenTok#getArchive(String)} method.
      */
     public String getUrl() {
         return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
     
 //    public Archive stop() throws OpenTokException {
