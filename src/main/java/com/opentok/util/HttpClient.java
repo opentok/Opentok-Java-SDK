@@ -1,4 +1,4 @@
-package com.opentok.api;
+package com.opentok.util;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -13,14 +13,14 @@ import com.ning.http.client.filter.RequestFilter;
 
 import com.opentok.api.constants.Version;
 
-public class OpenTokHttpClient extends AsyncHttpClient {
+public class HttpClient extends AsyncHttpClient {
     
     private final String apiUrl;
     // NOTE: do we even need these since we now have the PartnerAuthRequestFilter?
     private final int apiKey;
     private final String apiSecret;
 
-    private OpenTokHttpClient(Builder builder) {
+    private HttpClient(Builder builder) {
         super(builder.config);
         this.apiKey = builder.apiKey;
         this.apiSecret = builder.apiSecret;
@@ -145,13 +145,13 @@ public class OpenTokHttpClient extends AsyncHttpClient {
             return this;
         }
 
-        public OpenTokHttpClient build() {
+        public HttpClient build() {
             this.config = new AsyncHttpClientConfig.Builder()
                     .setUserAgent("Opentok-Java-SDK/"+Version.VERSION)
                     .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret))
                     .build();
             // NOTE: not thread-safe, config could be modified by another thread here?
-            OpenTokHttpClient client = new OpenTokHttpClient(this);
+            HttpClient client = new HttpClient(this);
             return client;
         }
     }

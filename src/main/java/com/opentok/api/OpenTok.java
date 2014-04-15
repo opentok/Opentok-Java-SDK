@@ -23,6 +23,7 @@ import com.opentok.api.constants.TokenOptions;
 import com.opentok.api.constants.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
+import com.opentok.util.HttpClient;
 import org.xml.sax.InputSource;
 
 /**
@@ -39,7 +40,7 @@ public class OpenTok {
 
     private int apiKey;
     private String apiSecret;
-    protected OpenTokHttpClient client;
+    protected HttpClient client;
 
     /**
      * Creates an OpenTokSDK object.
@@ -56,7 +57,7 @@ public class OpenTok {
     public OpenTok(int apiKey, String apiSecret, String apiUrl) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        this.client = new OpenTokHttpClient.Builder(apiKey, apiSecret)
+        this.client = new HttpClient.Builder(apiKey, apiSecret)
                 .apiUrl(apiUrl)
                 .build();
     }
@@ -320,7 +321,7 @@ public class OpenTok {
      */
 //    public Archive getArchive(String archiveId) throws OpenTokException {
 //        ObjectMapper mapper = new ObjectMapper();
-//        String archive = OpenTokHttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
+//        String archive = HttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
 //        try {
 //            return mapper.readValue(archive, Archive.class);
 //        } catch (Exception e) {
@@ -352,7 +353,7 @@ public class OpenTok {
      */
 //    public List<Archive> listArchives(int offset, int count) throws OpenTokException {
 //        ObjectMapper mapper = new ObjectMapper();
-//        String archive = OpenTokHttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive?offset=" + offset + "&count="
+//        String archive = HttpClient.makeGetRequest("/v2/partner/" + this.apiKey + "/archive?offset=" + offset + "&count="
 //                + count);
 //        try {
 //            JsonNode node = mapper.readTree(archive);
@@ -384,7 +385,7 @@ public class OpenTok {
 //        }
 //        HashMap<String, String> headers = new HashMap<String, String>();
 //        headers.put("content-type", "application/json");
-//        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive", headers, null,
+//        String archive = HttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive", headers, null,
 //                "{ \"sessionId\" : \"" + sessionId + "\", \"name\": \"" + name + "\" }");
 //        ObjectMapper mapper = new ObjectMapper();
 //        try {
@@ -406,7 +407,7 @@ public class OpenTok {
 //    public Archive stopArchive(String archiveId) throws OpenTokException {
 //        HashMap<String, String> headers = new HashMap<String, String>();
 //        headers.put("content-type", "application/json");
-//        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop", headers, null,
+//        String archive = HttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop", headers, null,
 //                "");
 //        ObjectMapper mapper = new ObjectMapper();
 //        try {
@@ -426,6 +427,6 @@ public class OpenTok {
      * @param archiveId The archive ID of the archive you want to delete.
      */
 //    public void deleteArchive(String archiveId) throws OpenTokException {
-//        OpenTokHttpClient.makeDeleteRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
+//        HttpClient.makeDeleteRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
 //    }
 }

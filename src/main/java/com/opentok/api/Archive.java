@@ -179,7 +179,7 @@ public class Archive {
 //    public Archive stop() throws OpenTokException {
 //        HashMap<String, String> headers = new HashMap<String, String>();
 //        headers.put("content-type", "application/json");
-//        String archive = OpenTokHttpClient.makePostRequest("/v2/partner/" + this.partnerId + "/archive/" + id, headers, null,
+//        String archive = HttpClient.makePostRequest("/v2/partner/" + this.partnerId + "/archive/" + id, headers, null,
 //                "{ \"action\" : \"stop\"  }");
 //        ObjectMapper mapper = new ObjectMapper();
 //        try {
@@ -192,7 +192,7 @@ public class Archive {
 //    }
     
 //    public void delete() throws OpenTokException {
-//        OpenTokHttpClient.makeDeleteRequest("/v2/partner/" + partnerId + "/archive/" + id);
+//        HttpClient.makeDeleteRequest("/v2/partner/" + partnerId + "/archive/" + id);
 //    }
 
     @Override
