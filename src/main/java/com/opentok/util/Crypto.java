@@ -1,11 +1,16 @@
 package com.opentok.util;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Formatter;
+import java.util.List;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.binary.Base64;
 
 public class Crypto {
 	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -27,5 +32,13 @@ public class Crypto {
         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
         mac.init(signingKey);
         return toHexString(mac.doFinal(data.getBytes()));
+    }
+
+    public static List<String> decodeSessionId(String sessionId) throws UnsupportedEncodingException {
+        sessionId = sessionId.substring(2);
+        sessionId = sessionId.replaceAll("-", "+").replaceAll("_", "/");
+        byte[] buffer = Base64.decodeBase64(sessionId);
+        sessionId = new String(buffer, "UTF-8");
+        return new ArrayList<String>(Arrays.asList(sessionId.split("~")));
     }
 }

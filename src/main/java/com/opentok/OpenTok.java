@@ -11,7 +11,9 @@
 package com.opentok;
 
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.xpath.XPath;
@@ -20,6 +22,7 @@ import javax.xml.xpath.XPathFactory;
 
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.InvalidArgumentException;
+import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import org.xml.sax.InputSource;
 
@@ -138,30 +141,19 @@ public class OpenTok {
      * @return The token string.
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
-
+        List<String> sessionIdParts = null;
         if(sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
 
-        // TODO: use more succinct codec routines
-//        String decodedSessionId = "";
-//        try {
-//            String subSessionId = sessionId.substring(2);
-//            for (int i = 0; i<3; i++){
-//                String newSessionId = subSessionId.concat(repeatString("=",i));
-//                decodedSessionId = new String(DatatypeConverter.parseBase64Binary(
-//                        newSessionId.replace('-', '+').replace('_', '/')), "ISO8859_1");
-//                if (decodedSessionId.contains("~")){
-//                    break;
-//                }
-//            }
-//        } catch (UnsupportedEncodingException e) {
-//            throw new SessionNotFoundException("Session not found");
-//        }
-//
-//        if(!decodedSessionId.split("~")[1].equals(String.valueOf(apiKey))) {
-//            throw new SessionNotFoundException("Session not found");
-//        }
+        try {
+            sessionIdParts = Crypto.decodeSessionId(sessionId);
+        } catch (UnsupportedEncodingException e) {
+            throw new InvalidArgumentException("Session ID was not valid");
+        }
+        if (!sessionIdParts.contains(Integer.toString(this.apiKey))) {
+            throw new InvalidArgumentException("Session ID was not valid");
+        }
         
         Session session = new Session(sessionId, apiKey, apiSecret);
         return session.generateToken(tokenOptions);

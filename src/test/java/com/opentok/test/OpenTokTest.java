@@ -155,6 +155,29 @@ public class OpenTokTest {
     }
 
     // TODO: test session creation conditions that result in errors
+//    @Test
+//    public void testRoleGarbageInput() {
+//        OpenTokException expected = null;
+//        try {
+//            Session s= sdk.createSession();
+//            s.generateToken("asdfasdf");
+//        } catch (OpenTokException e) {
+//            expected = e;
+//        }
+//        Assert.assertNotNull("Java SDK tests: exception should be thrown for role asdfasdf", expected);
+//    }
+//
+//    @Test
+//    public void testRoleNull() {
+//        OpenTokException expected = null;
+//        try {
+//            Session s= sdk.createSession();
+//            s.generateToken(null);
+//        } catch (OpenTokException e) {
+//            expected = e;
+//        }
+//        Assert.assertNotNull("Java SDK tests: exception should be thrown for role null", expected);
+//    }
 
     @Test
     public void testTokenDefault() throws
@@ -248,6 +271,7 @@ public class OpenTokTest {
         assertEquals(Double.toString(inOneDay), defaultTokenData.get("expire_time"));
         Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
         assertEquals(Double.toString(inOneHour), oneHourTokenData.get("expire_time"));
+        assertEquals(2, exceptions.size());
         for (Exception e : exceptions) {
             assertEquals(InvalidArgumentException.class, e.getClass());
         }
@@ -291,31 +315,34 @@ public class OpenTokTest {
         assertEquals(InvalidArgumentException.class, tooLongException.getClass());
     }
 
-//
-//    @Test
-//    public void testRoleGarbageInput() {
-//        OpenTokException expected = null;
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken("asdfasdf");
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for role asdfasdf", expected);
-//    }
-//
-//    @Test
-//    public void testRoleNull() {
-//        OpenTokException expected = null;
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken(null);
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for role null", expected);
-//    }
-//
+    @Test
+    public void testTokenBadSessionId() throws OpenTokException {
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        ArrayList<Exception> exceptions = new ArrayList<Exception>();
+
+        try {
+            String nullSessionToken = opentok.generateToken(null);
+        } catch (Exception e) {
+            exceptions.add(e);
+        }
+        try {
+            String emptySessionToken = opentok.generateToken("");
+        } catch (Exception e) {
+            exceptions.add(e);
+        }
+        try {
+            String invalidSessionToken = opentok.generateToken("NOT A VALID SESSION ID");
+        } catch (Exception e) {
+            exceptions.add(e);
+        }
+
+        assertEquals(3, exceptions.size());
+        for (Exception e : exceptions) {
+            assertEquals(InvalidArgumentException.class, e.getClass());
+        }
+    }
 //    @Test
 //    public void testTokenNullSessionId() throws OpenTokException {
 //        OpenTokException expected = null;
@@ -347,104 +374,6 @@ public class OpenTokTest {
 //            expected = e;
 //        }
 //        Assert.assertNotNull("Java SDK tests: exception should be thrown for invalid sessionId", expected);
-//    }
-//
-//    @Test
-//    public void testTokenExpireTimeDefault() throws OpenTokException {
-//        Session s= sdk.createSession();
-//        String t = s.generateToken(Role.MODERATOR);
-//        TokBoxXML xml = get_token_info(t);
-//        Assert.assertFalse("Java SDK tests: expire_time should not exist for default", xml.hasElement("expire_time", "token"));
-//    }
-//
-//    @Test
-//    public void testTokenExpireTimePast() {
-//        OpenTokException expected = null;
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken(Role.MODERATOR, new Date().getTime() / 1000 - 100);
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for expire time in past", expected);
-//    }
-//
-//    @Test
-//    public void testTokenExpireTimeNow() throws OpenTokException {
-//        long expireTime = new Date().getTime() / 1000;
-//        String expected = "Token expired on " + expireTime;
-//        Session s = sdk.createSession();
-//        String t = s.generateToken(Role.MODERATOR, expireTime);
-//        // Allow the token to expire.
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            // do nothing
-//        }
-//        TokBoxXML xml = get_token_info(t);
-//        String actual = xml.getElementValue("invalid", "token");
-//        Assert.assertEquals("Java SDK tests: unexpected invalid token message", expected, actual);
-//    }
-//
-//    @Test
-//    public void testTokenExpireTimeNearFuture() throws OpenTokException {
-//        long expected = new Date().getTime() / 1000 + 34200;
-//        Session s= sdk.createSession();
-//        String t = s.generateToken(Role.MODERATOR, expected);
-//        TokBoxXML xml = get_token_info(t);
-//        long actual = new Long(xml.getElementValue("expire_time", "token").trim());
-//        Assert.assertEquals("Java SDK tests: expire time not set to expected time", expected, actual);
-//    }
-//
-//    @Test
-//    public void testTokenExpireTimeFarFuture() {
-//        OpenTokException expected = null;
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken(Role.MODERATOR, new Date().getTime() + 604800000);
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for expire time more than 7 days in future", expected);
-//    }
-//
-//    @Test
-//    public void testConnectionData() throws OpenTokException {
-//        String expected = "test string";
-//        String actual = null;
-//        Session s= sdk.createSession();
-//        String t = s.generateToken(Role.PUBLISHER, 0, expected);
-//        TokBoxXML xml = get_token_info(t);
-//        actual = xml.getElementValue("connection_data", "token").trim();
-//        Assert.assertEquals("Java SDK tests: connection data not set", expected, actual);
-//    }
-//
-//    @Test
-//    public void testConnectionDataTooLarge() {
-//        OpenTokException expected = null;
-//        String test_string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-//                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" +
-//                "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" +
-//                "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd" +
-//                "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" +
-//                "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" +
-//                "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" +
-//                "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" +
-//                "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" +
-//                "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii" +
-//                "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj" +
-//                "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" +
-//                "llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll" +
-//                "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-//                "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn" +
-//                "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo";
-//        try {
-//            Session s= sdk.createSession();
-//            s.generateToken(Role.PUBLISHER, new Date().getTime(), test_string);
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: connection data over 1000 characters should not be accepted. Test String: " + test_string , expected);
 //    }
 
 }
