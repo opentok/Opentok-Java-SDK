@@ -11,28 +11,18 @@
 package com.opentok.api;
 
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import com.opentok.api.constants.TokenOptions;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
-import com.opentok.api.constants.RoleConstants;
 import com.opentok.api.constants.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
-import com.opentok.exception.OpenTokRequestException;
-import com.opentok.exception.OpenTokSessionNotFoundException;
 import org.xml.sax.InputSource;
 
 /**
@@ -98,7 +88,7 @@ public class OpenTok {
      * a connection metadata string:
      * <p>
      * <pre>
-     * import com.opentok.api.constants.RoleConstants;
+     * import com.opentok.api.constants.Role;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
@@ -112,11 +102,11 @@ public class OpenTok {
      *         // Replace with meaningful metadata for the connection.
      *         String connectionMetadata = "username=Bob,userLevel=4";
      *
-     *         // Use the RoleConstants value appropriate for the user.
-     *         String role = RoleConstants.SUBSCRIBER;
+     *         // Use the Role value appropriate for the user.
+     *         String role = Role.SUBSCRIBER;
      *
      *         // Generate a token.
-     *         String token = sdk.generateToken(sessionId, RoleConstants.PUBLISHER, null, connectionMetadata);
+     *         String token = sdk.generateToken(sessionId, Role.PUBLISHER, null, connectionMetadata);
      *         System.out.println(token);
      *     }
      * }
@@ -128,7 +118,7 @@ public class OpenTok {
      * @param sessionId The session ID corresponding to the session to which the user will connect.
      *
      * @param role Each role defines a set of permissions granted to the token.
-     * Valid values are defined in the RoleConstants class:
+     * Valid values are defined in the Role class:
      *
      *   * `SUBSCRIBER` &mdash; A subscriber can only subscribe to streams.</li>
      *

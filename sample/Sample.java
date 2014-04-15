@@ -1,7 +1,7 @@
 import com.opentok.api.OpenTok;
 import com.opentok.api.Session;
+import com.opentok.api.constants.Role;
 import com.opentok.api.constants.SessionProperties;
-import com.opentok.api.constants.RoleConstants;
 import com.opentok.exception.OpenTokException;
 
 class Sample {
@@ -26,16 +26,16 @@ class Sample {
         System.out.println(s);
 
         // Generate a subscriber token
-        System.out.println(sessionId.generateToken(RoleConstants.SUBSCRIBER));
+        System.out.println(sessionId.generateToken(Role.SUBSCRIBER));
         System.out.println(s);
 
         // Generate a moderator token
-        System.out.println(sessionId.generateToken(RoleConstants.MODERATOR));
+        System.out.println(sessionId.generateToken(Role.MODERATOR));
 
         // Generate a subscriber token that has connection data....
 
-        // Use the RoleConstants value appropriate for the client.
-        String role = RoleConstants.SUBSCRIBER;
+        // Use the Role value appropriate for the client.
+        String role = Role.SUBSCRIBER;
         // Replace with meaningful metadata for the client.
         String connectionData = "username=Bob,userLevel=4";
         String token = sessionId.generateToken(role, 0, connectionData);

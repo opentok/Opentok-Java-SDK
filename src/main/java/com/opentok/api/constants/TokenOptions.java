@@ -7,12 +7,12 @@ import com.opentok.exception.OpenTokInvalidArgumentException;
  */
 public class TokenOptions {
 
-    private String role;
+    private Role role;
     private double expireTime;
     private String data;
 
     private TokenOptions(Builder builder) {
-        this.role = builder.role != null ? builder.role : "publisher";
+        this.role = builder.role != null ? builder.role : Role.PUBLISHER;
 
         // default value calculated at token generation time
         this.expireTime = builder.expireTime;
@@ -21,7 +21,7 @@ public class TokenOptions {
         this.data = builder.data;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
@@ -34,16 +34,12 @@ public class TokenOptions {
     }
 
     public static class Builder {
-        private String role;
+        private Role role;
         private double expireTime = 0;
         private String data;
 
-        public Builder role(String role) throws OpenTokInvalidArgumentException {
-            if (role.equals("publisher") || role.equals("subscriber") || role.equals("moderator")) {
-                this.role = role;
-            } else {
-                throw new OpenTokInvalidArgumentException("The given role is not valid: " + role);
-            }
+        public Builder role(Role role) {
+            this.role = role;
             return this;
         }
 

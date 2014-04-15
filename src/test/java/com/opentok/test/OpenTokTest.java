@@ -11,22 +11,17 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.opentok.api.constants.TokenOptions;
-import com.opentok.test.Helpers;
 
 import com.opentok.api.OpenTok;
 import com.opentok.api.Session;
 import com.opentok.api.constants.Version;
-import com.opentok.api.constants.RoleConstants;
+import com.opentok.api.constants.Role;
 import com.opentok.api.constants.SessionProperties;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
-import com.opentok.exception.OpenTokRequestException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -191,20 +186,12 @@ public class OpenTokTest {
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         OpenTok opentok = new OpenTok(apiKey, apiSecret);
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        String role = RoleConstants.SUBSCRIBER;
-        Exception actualException = null;
+        Role role = Role.SUBSCRIBER;
 
         String defaultToken = opentok.generateToken(sessionId);
         String roleToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
                 .role(role)
                 .build());
-        try {
-            String invalidToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
-                .role("NOT A VALID ROLE")
-                .build());
-        } catch(OpenTokException exception) {
-            actualException = exception;
-        }
 
         assertNotNull(defaultToken);
         assertNotNull(roleToken);
@@ -214,8 +201,7 @@ public class OpenTokTest {
         Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
         assertEquals("publisher", defaultTokenData.get("role"));
         Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
-        assertEquals(role, roleTokenData.get("role"));
-        assertEquals(OpenTokInvalidArgumentException.class, actualException.getClass());
+        assertEquals(role.toString(), roleTokenData.get("role"));
     }
 
     @Test
@@ -271,7 +257,7 @@ public class OpenTokTest {
 //    @Test
 //    public void testRolePublisher() throws OpenTokException {
 //        Session s= sdk.createSession();
-//        String t = s.generateToken(RoleConstants.PUBLISHER);
+//        String t = s.generateToken(Role.PUBLISHER);
 //        TokBoxXML xml = get_token_info(t);
 //
 //        String expectedRole = "publisher";
@@ -293,7 +279,7 @@ public class OpenTokTest {
 //    @Test
 //    public void testRoleSubscriber() throws OpenTokException {
 //        Session s= sdk.createSession();
-//        String t = s.generateToken(RoleConstants.SUBSCRIBER);
+//        String t = s.generateToken(Role.SUBSCRIBER);
 //        TokBoxXML xml = get_token_info(t);
 //
 //        String expectedRole = "subscriber";
@@ -315,7 +301,7 @@ public class OpenTokTest {
 //    @Test
 //    public void testRoleModerator() throws OpenTokException {
 //        Session s= sdk.createSession();
-//        String t = s.generateToken(RoleConstants.MODERATOR);
+//        String t = s.generateToken(Role.MODERATOR);
 //        TokBoxXML xml = get_token_info(t);
 //
 //        String expectedRole = "moderator";
@@ -394,7 +380,7 @@ public class OpenTokTest {
 //    @Test
 //    public void testTokenExpireTimeDefault() throws OpenTokException {
 //        Session s= sdk.createSession();
-//        String t = s.generateToken(RoleConstants.MODERATOR);
+//        String t = s.generateToken(Role.MODERATOR);
 //        TokBoxXML xml = get_token_info(t);
 //        Assert.assertFalse("Java SDK tests: expire_time should not exist for default", xml.hasElement("expire_time", "token"));
 //    }
@@ -404,7 +390,7 @@ public class OpenTokTest {
 //        OpenTokException expected = null;
 //        try {
 //            Session s= sdk.createSession();
-//            s.generateToken(RoleConstants.MODERATOR, new Date().getTime() / 1000 - 100);
+//            s.generateToken(Role.MODERATOR, new Date().getTime() / 1000 - 100);
 //        } catch (OpenTokException e) {
 //            expected = e;
 //        }
@@ -416,7 +402,7 @@ public class OpenTokTest {
 //        long expireTime = new Date().getTime() / 1000;
 //        String expected = "Token expired on " + expireTime;
 //        Session s = sdk.createSession();
-//        String t = s.generateToken(RoleConstants.MODERATOR, expireTime);
+//        String t = s.generateToken(Role.MODERATOR, expireTime);
 //        // Allow the token to expire.
 //        try {
 //            Thread.sleep(1000);
@@ -432,7 +418,7 @@ public class OpenTokTest {
 //    public void testTokenExpireTimeNearFuture() throws OpenTokException {
 //        long expected = new Date().getTime() / 1000 + 34200;
 //        Session s= sdk.createSession();
-//        String t = s.generateToken(RoleConstants.MODERATOR, expected);
+//        String t = s.generateToken(Role.MODERATOR, expected);
 //        TokBoxXML xml = get_token_info(t);
 //        long actual = new Long(xml.getElementValue("expire_time", "token").trim());
 //        Assert.assertEquals("Java SDK tests: expire time not set to expected time", expected, actual);
@@ -443,7 +429,7 @@ public class OpenTokTest {
 //        OpenTokException expected = null;
 //        try {
 //            Session s= sdk.createSession();
-//            s.generateToken(RoleConstants.MODERATOR, new Date().getTime() + 604800000);
+//            s.generateToken(Role.MODERATOR, new Date().getTime() + 604800000);
 //        } catch (OpenTokException e) {
 //            expected = e;
 //        }
@@ -455,7 +441,7 @@ public class OpenTokTest {
 //        String expected = "test string";
 //        String actual = null;
 //        Session s= sdk.createSession();
-//        String t = s.generateToken(RoleConstants.PUBLISHER, 0, expected);
+//        String t = s.generateToken(Role.PUBLISHER, 0, expected);
 //        TokBoxXML xml = get_token_info(t);
 //        actual = xml.getElementValue("connection_data", "token").trim();
 //        Assert.assertEquals("Java SDK tests: connection data not set", expected, actual);
@@ -482,7 +468,7 @@ public class OpenTokTest {
 //                "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo";
 //        try {
 //            Session s= sdk.createSession();
-//            s.generateToken(RoleConstants.PUBLISHER, new Date().getTime(), test_string);
+//            s.generateToken(Role.PUBLISHER, new Date().getTime(), test_string);
 //        } catch (OpenTokException e) {
 //            expected = e;
 //        }

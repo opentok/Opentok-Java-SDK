@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Random;
 
+import com.opentok.api.constants.Role;
 import com.opentok.util.Crypto;
 import org.apache.commons.codec.binary.Base64;
 
@@ -66,7 +67,7 @@ public class Session {
      * that user must pass an authentication token along with the API key.
      *
      * @param role Each role defines a set of permissions granted to the token.
-     * Valid values are defined in the RoleConstants class:
+     * Valid values are defined in the Role class:
      *
      *   * `SUBSCRIBER` &mdash; A subscriber can only subscribe to streams.</li>
      *
@@ -99,7 +100,7 @@ public class Session {
             throw new OpenTokInvalidArgumentException("Token options cannot be null");
         }
 
-        String role = tokenOptions.getRole();
+        Role role = tokenOptions.getRole();
         double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
         String data = tokenOptions.getData();             // will be null if nothing was explicitly set
         Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
