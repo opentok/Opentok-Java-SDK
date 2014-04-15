@@ -154,13 +154,13 @@ public class OpenTok {
         if (!sessionIdParts.contains(Integer.toString(this.apiKey))) {
             throw new InvalidArgumentException("Session ID was not valid");
         }
-        
+
+        // NOTE: kind of wasteful of a Session instance
         Session session = new Session(sessionId, apiKey, apiSecret);
         return session.generateToken(tokenOptions);
     }
 
     public String generateToken(String sessionId) throws OpenTokException {
-        // NOTE: should there be a static defaultTokenOptions?
         return generateToken(sessionId, new TokenOptions.Builder().build());
     }
 

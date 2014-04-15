@@ -343,37 +343,5 @@ public class OpenTokTest {
             assertEquals(InvalidArgumentException.class, e.getClass());
         }
     }
-//    @Test
-//    public void testTokenNullSessionId() throws OpenTokException {
-//        OpenTokException expected = null;
-//        try {
-//            sdk.generateToken(null);
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for null sessionId", expected);
-//    }
-//
-//
-//    public void testTokenEmptySessionId() throws OpenTokException {
-//        OpenTokException expected = null;
-//        try {
-//            sdk.generateToken("");
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for empty sessionId", expected);
-//    }
-//
-//    @Test
-//    public void testTokenIncompleteSessionId() throws OpenTokException {
-//        OpenTokException expected = null;
-//        try {
-//            sdk.generateToken("jkasjda2ndasd");
-//        } catch (OpenTokException e) {
-//            expected = e;
-//        }
-//        Assert.assertNotNull("Java SDK tests: exception should be thrown for invalid sessionId", expected);
-//    }
 
 }
