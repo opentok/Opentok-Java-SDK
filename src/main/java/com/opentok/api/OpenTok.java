@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.opentok.api.constants.TokenOptions;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -144,87 +145,39 @@ public class OpenTok {
      *
      * @return The token string.
      */
-    public String generateToken(String sessionId, String role, long expireTime, String connectionData) throws OpenTokException {
+    public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
 
         if(sessionId == null || sessionId == "") {
             throw new OpenTokInvalidArgumentException("Session not valid");
         }
-        String decodedSessionId = "";
-        try { 
-            String subSessionId = sessionId.substring(2);
-            for (int i = 0; i<3; i++){
-                String newSessionId = subSessionId.concat(repeatString("=",i));
-                decodedSessionId = new String(DatatypeConverter.parseBase64Binary(
-                        newSessionId.replace('-', '+').replace('_', '/')), "ISO8859_1");
-                if (decodedSessionId.contains("~")){ 
-                    break;
-                }
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new OpenTokSessionNotFoundException("Session not found");
-        }
 
-        if(!decodedSessionId.split("~")[1].equals(String.valueOf(apiKey))) {
-            throw new OpenTokSessionNotFoundException("Session not found");
-        }
+        // TODO: use more succinct codec routines
+//        String decodedSessionId = "";
+//        try {
+//            String subSessionId = sessionId.substring(2);
+//            for (int i = 0; i<3; i++){
+//                String newSessionId = subSessionId.concat(repeatString("=",i));
+//                decodedSessionId = new String(DatatypeConverter.parseBase64Binary(
+//                        newSessionId.replace('-', '+').replace('_', '/')), "ISO8859_1");
+//                if (decodedSessionId.contains("~")){
+//                    break;
+//                }
+//            }
+//        } catch (UnsupportedEncodingException e) {
+//            throw new OpenTokSessionNotFoundException("Session not found");
+//        }
+//
+//        if(!decodedSessionId.split("~")[1].equals(String.valueOf(apiKey))) {
+//            throw new OpenTokSessionNotFoundException("Session not found");
+//        }
         
         Session session = new Session(sessionId, apiKey, apiSecret);
-        return session.generateToken(role, expireTime, connectionData);
+        return session.generateToken(tokenOptions);
     }
 
-    
-
-    /**
-     * Generates the token for the given session. The role is set to publisher, the token expires in
-     * 24 hours, and there is no connection data.
-     *
-     * @param sessionId The session ID.
-     *
-     * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
-     */
     public String generateToken(String sessionId) throws OpenTokException {
-        return this.generateToken(sessionId, RoleConstants.PUBLISHER, 0, null);
-    }
-
-
-    /**
-     * Generates the token for the given session and with the specified role. The token expires in
-     * 24 hours, and there is no connection data.
-     *
-     * @param sessionId The session ID.
-     * @param role The role assigned to the token.
-     *
-     * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
-     */
-    public String generateToken(String sessionId, String role) throws OpenTokException {
-        return this.generateToken(sessionId, role, 0, null);
-    }
-
-    /**
-     * Generates the token for the given session, with the specified role and expiration time.
-     * There is no connection data.
-     *
-     * @param sessionId The session ID.
-     * @param role The role assigned to the token.
-     * @param expireTime The expiration time, in seconds, since the UNIX epoch. Pass in 0 to use
-     * the default expiration time of 24 hours after the token creation time. The maximum expiration
-     * time is 30 days after the creation time.
-     *
-     * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
-     */
-    public String generateToken(String sessionId, String role, Long expireTime) throws OpenTokException {
-        return this.generateToken(sessionId, role, expireTime, null);
-    }
-
-    /**
-     * Creates an OpenTok session and returns the session ID, with the default properties. The
-     * session uses the OpenTok media server. And the session uses the first client connecting
-     * to determine the location of OpenTok server to use.
-     *
-     * @see #createSession(SessionProperties)
-     */
-    public Session createSession() throws OpenTokException {
-        return createSession(null);
+        // NOTE: should there be a static defaultTokenOptions?
+        return generateToken(sessionId, new TokenOptions.Builder().build());
     }
 
     /**
@@ -335,6 +288,17 @@ public class OpenTok {
         } else {
             return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret);
         }
+    }
+
+    /**
+     * Creates an OpenTok session and returns the session ID, with the default properties. The
+     * session uses the OpenTok media server. And the session uses the first client connecting
+     * to determine the location of OpenTok server to use.
+     *
+     * @see #createSession(SessionProperties)
+     */
+    public Session createSession() throws OpenTokException {
+        return createSession(null);
     }
 
     private static String repeatString(String str, int times){

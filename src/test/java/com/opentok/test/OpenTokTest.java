@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.opentok.api.constants.TokenOptions;
 import com.opentok.test.Helpers;
 
 import com.opentok.api.OpenTok;
@@ -194,9 +195,13 @@ public class OpenTokTest {
         Exception actualException = null;
 
         String defaultToken = opentok.generateToken(sessionId);
-        String roleToken = opentok.generateToken(sessionId, role);
+        String roleToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+                .role(role)
+                .build());
         try {
-            String invalidToken = opentok.generateToken(sessionId, "NOT A VALID ROLE");
+            String invalidToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+                .role("NOT A VALID ROLE")
+                .build());
         } catch(OpenTokException exception) {
             actualException = exception;
         }
@@ -224,19 +229,26 @@ public class OpenTokTest {
         OpenTok opentok = new OpenTok(apiKey, apiSecret);
         long now = System.currentTimeMillis() / 1000L;
         long inOneHour = now + (60*60);
+        long inOneDay = now + (60*60*24);
         long inThirtyDays = now + (60*60*24*30);
         ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
 
         String defaultToken = opentok.generateToken(sessionId);
-        String oneHourToken = opentok.generateToken(sessionId, null, inOneHour);
+        String oneHourToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+            .expireTime(inOneHour)
+            .build());
         try {
-            String earlyExpireTimeToken = opentok.generateToken(sessionId, null, now - 10);
+            String earlyExpireTimeToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+            .expireTime(now - 10)
+            .build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
         try {
-            String lateExpireTimeToken = opentok.generateToken(sessionId, null, inThirtyDays+(60*60*24) /* 31 days */);
+            String lateExpireTimeToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+                .expireTime(inThirtyDays+(60*60*24) /* 31 days */)
+                .build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
@@ -247,11 +259,12 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiSecret));
 
         Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
-        assertEquals(Double.toString(inThirtyDays), defaultTokenData.get("expire_time"));
+        assertEquals(Double.toString(inOneDay), defaultTokenData.get("expire_time"));
         Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
         assertEquals(Double.toString(inOneHour), oneHourTokenData.get("expire_time"));
-        // TODO: iterate over exceptions
-        //assertEquals(OpenTokInvalidArgumentException.class, actualException.getClass());
+        for (Exception e : exceptions) {
+            assertEquals(OpenTokInvalidArgumentException.class, e.getClass());
+        }
 
     }
 

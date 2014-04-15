@@ -4,8 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Random;
 
-import com.opentok.api.constants.RoleConstants;
 import com.opentok.api.constants.SessionProperties;
+import com.opentok.api.constants.TokenOptions;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
 import com.opentok.exception.OpenTokRequestException;
@@ -54,35 +54,8 @@ public class Session {
      * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
      */
     public String generateToken() throws OpenTokException {
-        return this.generateToken(RoleConstants.PUBLISHER, 0, null);
-    }
-
-
-    /**
-     * Generates the token for the given session and with the specified role. The token expires in
-     * 24 hours, and there is no connection data.
-     *
-     * @param role The role assigned to the token.
-     *
-     * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
-     */
-    public String generateToken(String role) throws OpenTokException {
-        return this.generateToken(role, 0, null);
-    }
-
-    /**
-     * Generates the token for the given session, with the specified role and expiration time.
-     * There is no connection data.
-     *
-     * @param role The role assigned to the token.
-     * @param expireTime The expiration time, in seconds, since the UNIX epoch. Pass in 0 to use
-     * the default expiration time of 24 hours after the token creation time. The maximum expiration
-     * time is 30 days after the creation time.
-     *
-     * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
-     */
-    public String generateToken(String role, Long expireTime) throws OpenTokException {
-        return this.generateToken(role, expireTime, null);
+        // NOTE: maybe there should be a static object for the defaultTokenOptions?
+        return this.generateToken(new TokenOptions.Builder().build());
     }
 
     /**
@@ -111,9 +84,17 @@ public class Session {
      *
      * @return The token string.
      */
-    public String generateToken(String role, long expireTime,
-            String connectionData) throws OpenTokInvalidArgumentException,
-            OpenTokRequestException {
+    public String generateToken(TokenOptions tokenOptions) throws
+            OpenTokInvalidArgumentException, OpenTokRequestException {
+
+        if (tokenOptions == null) {
+            throw new OpenTokInvalidArgumentException("Token options cannot be null");
+        }
+
+        String role = tokenOptions.getRole();
+        double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
+        String data = tokenOptions.getData();             // will be null if nothing was explicitly set
+
         Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
         StringBuilder dataStringBuilder = new StringBuilder();
         //Build the string
@@ -128,30 +109,31 @@ public class Session {
         dataStringBuilder.append("&role=");
         dataStringBuilder.append(role);
 
-        if(!RoleConstants.SUBSCRIBER.equals(role) &&
-                !RoleConstants.PUBLISHER.equals(role) &&
-                !RoleConstants.MODERATOR.equals(role) &&
-                !"".equals(role))
-            throw new OpenTokInvalidArgumentException(role + " is not a recognized role");
-
-        if (expireTime != 0) {
-            if(expireTime < (System.currentTimeMillis() / 1000)-1)
-                throw new OpenTokInvalidArgumentException("Expire time must be in the future");
-            if(expireTime > (System.currentTimeMillis() / 1000 + 2592000))
-                throw new OpenTokInvalidArgumentException("Expire time must be in the next 30 days");
-            dataStringBuilder.append("&expire_time=");
-            dataStringBuilder.append(expireTime);
+        double now = System.currentTimeMillis() / 1000L;
+        if (expireTime == 0) {
+            expireTime = now + (60*60*24); // 1 day
+        } else if(expireTime < now-1) {
+            throw new OpenTokInvalidArgumentException(
+                    "Expire time must be in the future. relative time: "+ (expireTime - now));
+        } else if(expireTime > (now + (60*60*24*30) /* 30 days */)) {
+            throw new OpenTokInvalidArgumentException(
+                    "Expire time must be in the next 30 days. too large by "+ (expireTime - (now + (60*60*24*30))));
         }
+        dataStringBuilder.append("&expire_time=");
+        dataStringBuilder.append(expireTime);
 
-        if (connectionData != null) {
-            if(connectionData.length() > 1000)
-                throw new OpenTokInvalidArgumentException("Connection data must be less than 1000 characters");
+        if (data != null) {
+            if(data.length() > 1000) {
+                throw new OpenTokInvalidArgumentException(
+                        "Connection data must be less than 1000 characters. length: " + data.length());
+            }
             dataStringBuilder.append("&connection_data=");
             try {
-                dataStringBuilder.append(URLEncoder.encode(connectionData, "UTF-8"));
+                dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                throw new OpenTokInvalidArgumentException("Error during URL encode of your connectionData: " +  e.getMessage());
-            };
+                throw new OpenTokInvalidArgumentException(
+                        "Error during URL encode of your connection data: " +  e.getMessage());
+            }
         }
 
 
@@ -165,6 +147,7 @@ public class Session {
 
             innerBuilder.append("&sig=");
 
+            // TODO: user a more concise crypto routine
             innerBuilder.append(GenerateMac.calculateRFC2104HMAC(dataStringBuilder.toString(),
                     this.apiSecret));
             innerBuilder.append(":");
