@@ -10,6 +10,7 @@
 
 package com.opentok.api;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import com.opentok.api.constants.TokenOptions;
 import org.codehaus.jackson.JsonNode;
@@ -29,7 +33,7 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
 import com.opentok.exception.OpenTokRequestException;
 import com.opentok.exception.OpenTokSessionNotFoundException;
-import com.opentok.util.TokBoxXML;
+import org.xml.sax.InputSource;
 
 /**
 * Contains methods for creating OpenTok sessions and generating tokens.
@@ -270,7 +274,7 @@ public class OpenTok {
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
         Map<String, Collection<String>> params;
-        Session session = null;
+        String xpathQuery = "/sessions/Session/session_id";
 
         // NOTE: doing this null check twice is kind of ugly
         if(properties != null) {
@@ -279,14 +283,18 @@ public class OpenTok {
             params = null;
         }
         
-        TokBoxXML xmlResponse = new TokBoxXML(this.client.createSession(params));
+        String xmlResponse = this.client.createSession(params);
 
 
         // NOTE: doing this null check twice is kind of ugly
-        if (properties != null) {
-            return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret, properties);
-        } else {
-            return new Session(xmlResponse.getElementValue("session_id", "Session"), apiKey, apiSecret);
+        try {
+            if (properties != null) {
+                return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret, properties);
+            } else {
+                return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
+            }
+        } catch (XPathExpressionException e) {
+            throw new OpenTokException("Cannot create session. Could not read the response: "+xmlResponse);
         }
     }
 
@@ -305,6 +313,13 @@ public class OpenTok {
         StringBuilder ret = new StringBuilder();
         for(int i = 0;i < times;i++) ret.append(str);
         return ret.toString();
+    }
+
+    private static String readXml(String xpathQuery, String xml) throws XPathExpressionException {
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xpath = xpathFactory.newXPath();
+        InputSource source = new InputSource(new StringReader(xml));
+        return xpath.evaluate(xpathQuery, source);
     }
     
     /**
