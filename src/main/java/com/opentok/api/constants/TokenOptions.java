@@ -33,8 +33,6 @@ public class TokenOptions {
         return data;
     }
 
-    // TODO: toMap() method?
-
     public static class Builder {
         private String role;
         private double expireTime = 0;

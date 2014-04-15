@@ -15,7 +15,7 @@ public class TokBoxXML {
 		try {
 			this.xml = TokBoxUtils.setupDocument(xmlString);
 		} catch(Exception e) {
-			throw new OpenTokRequestException(500, "Error response: message: " + e.getMessage());	
+			throw new OpenTokRequestException("Error response: message: " + e.getMessage());
 		}
 	}
 

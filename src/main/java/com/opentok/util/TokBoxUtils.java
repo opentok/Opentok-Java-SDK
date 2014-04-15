@@ -33,7 +33,7 @@ public class TokBoxUtils {
 
 	public static Document setupDocument(String xmlResponse) throws ParserConfigurationException, SAXException, IOException, OpenTokException {
 		if(null == xmlResponse) {
-			throw new OpenTokRequestException(500, "There was an error in retrieving the response");
+			throw new OpenTokRequestException("There was an error in retrieving the response");
 		}
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -45,7 +45,7 @@ public class TokBoxUtils {
 		Node errorNodes = TokBoxUtils.parseXML("error", document.getElementsByTagName("error"));
 
 		if(null != errorNodes) {
-			throw new OpenTokRequestException(500, xmlResponse);
+			throw new OpenTokRequestException(xmlResponse);
 		}
 
 		return document;

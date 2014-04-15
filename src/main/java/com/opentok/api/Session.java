@@ -2,15 +2,18 @@ package com.opentok.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.Random;
+
+import com.opentok.util.Crypto;
+import org.apache.commons.codec.binary.Base64;
 
 import com.opentok.api.constants.SessionProperties;
 import com.opentok.api.constants.TokenOptions;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.OpenTokInvalidArgumentException;
-import com.opentok.exception.OpenTokRequestException;
-import com.opentok.util.Base64;
-import com.opentok.util.GenerateMac;
 
 public class Session {
 
@@ -84,8 +87,13 @@ public class Session {
      *
      * @return The token string.
      */
-    public String generateToken(TokenOptions tokenOptions) throws
-            OpenTokInvalidArgumentException, OpenTokRequestException {
+    public String generateToken(TokenOptions tokenOptions) throws OpenTokException {
+
+        // Token format
+        //
+        // | ------------------------------  tokenStringBuilder ----------------------------- |
+        // | "T1=="+Base64Encode(| --------------------- innerBuilder --------------------- |)|
+        //                       | "partner_id={apiKey}&sig={sig}:| -- dataStringBuilder -- |
 
         if (tokenOptions == null) {
             throw new OpenTokInvalidArgumentException("Token options cannot be null");
@@ -94,10 +102,9 @@ public class Session {
         String role = tokenOptions.getRole();
         double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
         String data = tokenOptions.getData();             // will be null if nothing was explicitly set
-
         Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
+
         StringBuilder dataStringBuilder = new StringBuilder();
-        //Build the string
         Random random = new Random();
         int nonce = random.nextInt();
         dataStringBuilder.append("session_id=");
@@ -147,16 +154,21 @@ public class Session {
 
             innerBuilder.append("&sig=");
 
-            // TODO: user a more concise crypto routine
-            innerBuilder.append(GenerateMac.calculateRFC2104HMAC(dataStringBuilder.toString(),
-                    this.apiSecret));
+            innerBuilder.append(Crypto.signData(dataStringBuilder.toString(), this.apiSecret));
             innerBuilder.append(":");
             innerBuilder.append(dataStringBuilder.toString());
 
-            tokenStringBuilder.append(Base64.encode(innerBuilder.toString()));
+            tokenStringBuilder.append(Base64.encodeBase64URLSafeString(innerBuilder.toString().getBytes("UTF-8")));
 
-        } catch (java.security.SignatureException e) {
-            throw new OpenTokRequestException(500, e.getMessage());
+        // if we only wanted Java 7 and above, we could DRY this into one catch clause
+        } catch (SignatureException e) {
+            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
+        } catch (InvalidKeyException e) {
+            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
         }
 
         return tokenStringBuilder.toString();
