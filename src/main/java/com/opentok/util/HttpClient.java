@@ -139,7 +139,6 @@ public class HttpClient extends AsyncHttpClient {
         // TODO: maybe use a StringBuilder?
         String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive";
 
-        // TODO: create JSON body string from sessionId and name
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, String> jsonBody = new HashMap<String, String>();
         jsonBody.put("sessionId", sessionId);
@@ -157,6 +156,36 @@ public class HttpClient extends AsyncHttpClient {
                     .setBody(requestBody)
                     .setHeader("Content-Type", "application/json")
                     .execute();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        try {
+            Response response = request.get();
+            // TODO: check response code
+            responseString = response.getResponseBody();
+        } catch (InterruptedException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+        return responseString;
+    }
+
+    public String stopArchive(String archiveId) {
+        String responseString = null;
+        Future<Response> request = null;
+        // TODO: maybe use a StringBuilder?
+        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive/stop";
+
+        try {
+            request = this.preparePost(url).execute();
         } catch (IOException e) {
             // TODO: throw OpenTokException
             e.printStackTrace();

@@ -502,4 +502,35 @@ public class OpenTokTest {
 
     // TODO: test start archive failure scenarios
 
+    @Test
+    public void testStopArchive() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+
+        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/stop"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243000,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"ARCHIVEID\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"stopped\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.stopArchive(archiveId);
+        assertNotNull(archive);
+        assertEquals("SESSIONID", archive.getSessionId());
+        assertEquals(archiveId, archive.getId());
+
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/stop"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
 }

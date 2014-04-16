@@ -400,18 +400,16 @@ public class OpenTok {
      * @param archiveId The archive ID of the archive you want to stop recording.
      * @return The Archive object corresponding to the archive being STOPPED.
      */
-//    public Archive stopArchive(String archiveId) throws OpenTokException {
-//        HashMap<String, String> headers = new HashMap<String, String>();
-//        headers.put("content-type", "application/json");
-//        String archive = HttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop", headers, null,
-//                "");
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            return mapper.readValue(archive, Archive.class);
-//        } catch (Exception e) {
-//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
-//        }
-//    }
+    public Archive stopArchive(String archiveId) throws OpenTokException {
+
+        String archive = this.client.stopArchive(archiveId);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(archive, Archive.class);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
     
     /**
      * Deletes an OpenTok archive.
