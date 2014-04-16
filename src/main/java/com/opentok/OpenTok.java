@@ -420,7 +420,7 @@ public class OpenTok {
      *
      * @param archiveId The archive ID of the archive you want to delete.
      */
-//    public void deleteArchive(String archiveId) throws OpenTokException {
-//        HttpClient.makeDeleteRequest("/v2/partner/" + this.apiKey + "/archive/" + archiveId);
-//    }
+    public void deleteArchive(String archiveId) throws OpenTokException {
+        this.client.deleteArchive(archiveId);
+    }
 }

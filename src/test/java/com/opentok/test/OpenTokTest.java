@@ -494,6 +494,8 @@ public class OpenTokTest {
         assertNotNull(archive.getId());
 
         verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
@@ -529,6 +531,23 @@ public class OpenTokTest {
         assertEquals(archiveId, archive.getId());
 
         verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/stop"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    // TODO: test stop archive failure scenarios
+
+    @Test
+    public void testDeleteArchive() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(delete(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(204)
+                        .withHeader("Content-Type", "application/json")));
+
+        sdk.deleteArchive(archiveId);
+
+        verify(deleteRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }

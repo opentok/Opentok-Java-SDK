@@ -208,6 +208,36 @@ public class HttpClient extends AsyncHttpClient {
         return responseString;
     }
 
+    public String deleteArchive(String archiveId) {
+        String responseString = null;
+        Future<Response> request = null;
+        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive/"+archiveId;
+
+        try {
+            request = this.prepareDelete(url).execute();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        try {
+            Response response = request.get();
+            // TODO: check response code
+            responseString = response.getResponseBody();
+        } catch (InterruptedException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        return responseString;
+    }
+
 //    protected static String makeDeleteRequest(String resource) throws OpenTokException {
 //        BoundRequestBuilder get = client.prepareDelete(apiUrl + resource);
 //        addCommonHeaders(get);
