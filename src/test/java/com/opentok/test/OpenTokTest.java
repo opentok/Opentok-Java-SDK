@@ -552,4 +552,6 @@ public class OpenTokTest {
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
+    // TODO: test delete archive failure scenarios
+
 }
