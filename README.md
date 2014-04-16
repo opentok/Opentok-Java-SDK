@@ -1,217 +1,205 @@
 # OpenTok Java SDK
 
+**TODO**: change this to opentok fork instead of aoberoi
+
 [![Build Status](https://travis-ci.org/aoberoi/Opentok-Java-SDK.svg?branch=modernization)](https://travis-ci.org/aoberoi/Opentok-Java-SDK)
 
-The OpenTok server SDKs include code for your web server. Use these SDKs to generate
-[sessions](http://tokbox.com/opentok/tutorials/create-session/) and to obtain
-[tokens](http://tokbox.com/opentok/tutorials/create-token/) for 
-[OpenTok](http://www.tokbox.com/) applications. This version of the SDK also includes
-support for working with OpenTok 2.0 archives.
+The OpenTok Java SDK lets you generate
+[sessions](http://tokbox.com/opentok/tutorials/create-session/) and
+[tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
+applications that run on the JVM. This version of the SDK also includes support for working with OpenTok
+2.0 archives.
 
-## Download
+# Installation
 
-Download the Java files:
+## Maven Central (recommended):
 
-<https://github.com/opentok/Opentok-Java-SDK/archive/master.zip>
+The [Maven Central](http://central.sonatype.org/) repository helps manage dependencies for JVM
+based projects. It can be used via several build tools, including Maven and Gradle.
 
-## Installing the SDK via Maven
+### Maven
 
-The OpenTok Server SDK for Java defines the class in the com.opentok.api package. If you use Maven, add
-the following dependency information to the Project Object Model (pom.xml) file:
+When you use Maven as your build tool, you can manage dependencies in the `pom.xml` file:
 
-<pre>
-&lt;dependency&gt;
-    &lt;groupId&gt;com.opentok.api&lt;/groupId&gt;
-    &lt;artifactId&gt;opentok-java-sdk&lt;/artifactId&gt;
-    &lt;version&gt;[0.91.54,)&lt;/version&gt;
-&lt;/dependency&gt;
-</pre>
+```xml
+<dependency>
+    <groupId>com.opentok</groupId>
+    <artifactId>opentok-server-sdk</artifactId>
+    <version>2.2.0</version>
+</dependency>
+```
 
+### Gradle
 
-## Requirements
+When you use Gradle as your build tool, you can manage dependencies in the `build.gradle` file:
 
-The OpenTok Java SDK requires Java 6 or greater.
+```groovy
+dependencies {
+  compile group: 'com.opentok', name: 'opentok-server-sdk', version: '2.2.0'
+}
+```
+
+## Manually:
+
+**TODO**: download from releases page?
+
+# Usage
+
+## Initializing
+
+Import the required classes in any class where it will be used. Then initialize a `com.opentok.OpenTok`
+object with your own API Key and API Secret.
+
+```java
+import com.opentok.OpenTok;
+
+// inside a class or method...
+int apiKey = 000000; // YOUR API KEY
+String apiSecret = "YOUR API SECRET";
+OpenTok opentok = new OpenTok(apiKey, apiSecret)
+```
+
+## Creating Sessions
+
+To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`
+method. The `properties` parameter is optional and it is used to specify whether you are creating a
+p2p Session and specifying a location hint. An instance can be initialized using the
+`com.opentok.SessionProperties.Builder` class. The `sessionId` property of the returned `com.opentok.Session`
+instance, which you can read using the `getSessionId()` method, is useful to get a sessionId that can
+be saved to a persistent store (e.g. database).
+
+```java
+import com.opentok.Session;
+import com.opentok.SessionProperties;
+
+// Just a plain Session
+Session session = opentok.createSession();
+// A p2p Session
+Session session = opentok.createSession(new SessionProperties.Builder()
+  .p2p(true)
+  .build());
+// A Session with a location hint
+Session session = opentok.createSession(new SessionProperties.Builder()
+  .location("12.34.56.78")
+  .build());
+
+// Store this sessionId in the database for later use
+String sessionId = session.getSessionId();
+```
+
+## Generating Tokens
+
+Once a Session is created, you can start generating Tokens for clients to use when connecting to it.
+You can generate a token either by calling an `com.opentok.OpenTok` instance's
+`generateToken(String sessionId, TokenOptions options)` method, or by calling a `com.opentok.Session`
+instance's `generateToken(TokenOptions options)` method after creating it. The `options` parameter
+is optional and it is used to set the role, expire time, and connection data of the token. An
+instance can be initialized using the `TokenOptions.Builder` class.
+
+```java
+import com.opentok.TokenOptions;
+import com.opentok.Roles;
+
+// Generate a token from just a sessionId (fetched from a database)
+String token = opentok.generateToken(sessionId);
+// Generate a token by calling the method on the Session (returned from createSession)
+String token = session.generateToken();
+
+// Set some options in a token
+String token = session.generateToken(new TokenOptions.Builder()
+  .role(Roles.MODERATOR)
+  .expireTime((System.currentTimeMillis() / 1000L) + (7 * 24 * 60 * 60)) // in one week
+  .data("name=Johnny")
+  .build());
+```
+
+## Working with Archives
+
+You can start the recording of an OpenTok Session using a `com.opentok.OpenTok` instance's
+`startArchive(String sessionId, String name)` method. This will return a `com.opentok.Archive` instance.
+The parameter `name` is a optional and used to assign a name for the Archive. Note that you can
+only start an Archive on a Session that has clients connected.
+
+```java
+import com.opentok.Archive;
+
+// A simple Archive (without a name)
+Archive archive = opentok.startArchive(sessionId, null);
+
+// Store this archiveId in the database for later use
+String archiveId = archive.getId();
+```
+
+You can stop the recording of a started Archive using a `com.opentok.Archive` instance's
+`stopArchive(String archiveId)` method.
+
+```java
+// Stop an Archive from an archiveId (fetched from database)
+Archive archive = opentok.stopArchive(archiveId);
+```
+
+To get an `com.opentok.Archive` instance (and all the information about it) from an `archiveId`, use
+a `com.opentok.OpenTok` instance's `getArchive(String archiveId)` method.
+
+```java
+Archive archive = opentok.getArchive(String archiveId);
+```
+
+To delete an Archive, you can call a `com.opentok.OpenTok` instance's `deleteArchive(String archiveId)`
+method.
+
+```java
+// Delete an Archive from an archiveId (fetched from database)
+opentok.deleteArchive(archiveId);
+```
+
+You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
+done using a `com.opentok.OpenTok` instance's `listArchives(int offset, int count)` method. You may optionally
+paginate the Archives you receive using the offset and count parameters. This will return a
+`List<Archive>` type.
+
+```java
+// Get a list with the first 1000 archives created by the API Key
+List<Archive> archives = opentok.listArchives();
+
+// Get a list of the first 50 archives created by the API Key
+List<Archive> archives = opentok.listArchives(0, 50);
+
+// Get a list of the next 50 archives
+List<Archive> archives = opentok.listArchives(50, 50);
+```
+
+# Documentation
+
+**TODO**: Reference documentation is available at <http://opentok.github.io/opentok-java-sdk/>
+
+# Requirements
 
 You need an OpenTok API key and API secret, which you can obtain at <https://dashboard.tokbox.com>.
 
+The OpenTok Java SDK requires JDK 6 or greater to compile. Runtime requires Java SE 6 or greater.
+This project is tested on both OpenJDK and Oracle implementations.
 
-# Changes in v2.0 of the OpenTok Java SDK
+# Release Notes
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not work
-with OpenTok 1.0 archives.)
+**TODO**: See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
+about each release.
 
-The API_Config class has been removed. Store your OpenTok API key and API secret in code outside
-of the SDK files.
+## Important changes in v2.0
 
-The create_session() method has been renamed createSession(). Also, the method has changed to
-take one parameter: a SessionProperties object. You now generate a SessionProperties object using a
-Builder pattern. And the createSession() method returns a session ID string, not a Session object.
-(The Session class has been removed.)
+This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
+work with OpenTok 1.0 archives.)
 
-The generateTokentoken() method has been renamed generateToken().
+# Development and Contributing
 
-# Creating Sessions
-Use the `createSession()` method of the OpenTokSDK object to create a session and a session ID.
+Interested in contributing? We <3 pull requests! File a new
+[Issue](https://github.com/opentok/opentok-java-sdk/issues) or take a look at the existing ones. If
+you are going to send us a pull request, please try to run the test suite first and also include
+tests for your changes.
 
-The following code creates a session that uses the OpenTok Media Router:
+# Support
 
-<pre>
-import com.opentok.api.OpenTokSDK;
-import com.opentok.exception.OpenTokException;
+See <http://tokbox.com/opentok/support/> for all our support options.
 
-class Test {
-    public static void main(String argv[]) throws OpenTokException {
-        int API_KEY = 0; // Replace with your OpenTok API key.
-        String API_SECRET = ""; // Replace with your OpenTok API secret.
-        OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
-
-        //Generate a session that uses the OpenTok Media Router
-        System.out.println(sdk.createSession());
-   }
-}
-</pre>
-
-The following code creates a peer-to-peer session:
-
-<pre>
-import com.opentok.api.OpenTokSDK;
-import com.opentok.SessionProperties;
-import com.opentok.exception.OpenTokException;
-
-class Test {
-    public static void main(String argv[]) throws OpenTokException {
-        int API_KEY = 0; // Replace with your OpenTok API key.
-        String API_SECRET = ""; // Replace with your OpenTok API secret.
-
-        OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
-
-        SessionProperties sp = new SessionProperties.Builder().p2pPreference(true).build();
-        String sessionId = sdk.create_session(sp);
-        System.out.println(sessionId);
-    }
-}
-</pre>
-
-# Generating tokens
-Use the  `generateTokentoken()` method of the OpenTokSDK object to create an OpenTok token:
-
-The following example shows how to obtain a token:
-
-<pre>
-import com.opentok.api.OpenTokSDK;
-import com.opentok.exception.OpenTokException;
-
-class Test {
-    public static void main(String argv[]) throws OpenTokException {
-        int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
-        String API_SECRET = ""; // Replace with your OpenTok API secret.
-        OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
-
-        //Generate a basic session. Or you could use an existing session ID.
-        String sessionId = System.out.println(sdk.create_session());
-
-        String token = sdk.generateTokentoken(sessionId);
-        System.out.println(token);
-    }
-}
-</pre>
-
-The following Java code example shows how to obtain a token that has a role of "subscriber" and that has
-a connection metadata string:
-
-<pre>
-import com.opentok.api.OpenTokSDK;
-import com.opentok.Role;
-
-class Test {
-    public static void main(String argv[]) throws OpenTokException {
-        int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
-        String API_SECRET = ""; // Replace with your OpenTok API secret.
-        OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
-
-        //Generate a basic session. Or you could use an existing session ID.
-        String sessionId = System.out.println(sdk.create_session().getSessionId());
-
-        // Use the RoleConstants value appropriate for the user.
-        String role = RoleConstants.SUBSCRIBER;
-
-        // Replace with meaningful metadata for the connection.
-        String connectionData = "username=Bob,userLevel=4";
-
-        // Generate a token.
-        String token = sdk.generateTokentoken(sessionId, role, null, connectionData);
-        System.out.println(token);
-    }
-}
-</pre>
-
-
-# Working with OpenTok 2.0 archives
-
-The following method starts recording an archive of an OpenTok 2.0 session (given a session ID)
-and returns the archive ID (on success).
-
-<pre>
-java.util.UUID startArchive(OpenTokSDK sdk, String sessionId, String name) {
-    try {
-        Archive archive = sdk.startArchive(sessionId, name);
-        return archive.getId();
-    } catch (OpenTokException exception){
-        System.out.println(exception.toString());
-        return null;
-    }
-}
-</pre>
-
-The following method stops the recording of an archive (given an archive ID), returning
-true on success, and false on failure.
-
-<pre>
-boolean stopArchive(OpenTokSDK sdk, String archiveId) {
-    try {
-        Archive archive = sdk.stopArchive(archiveId);
-        return true;
-    } catch (OpenTokException exception){
-        System.out.println(exception.toString());
-        return false;
-    }
-}
-</pre>
-
-The following method logs information on a given archive.
-
-<pre>
-void logArchiveInfo(OpenTokSDK sdk, String archiveId) {
-    try {
-        Archive archive = sdk.getArchive(archiveId);
-        System.out.println(archive.toString());
-    } catch (OpenTokException exception){
-        System.out.println(exception.toString());
-    }
-}
-</pre>
-
-The following method logs information on all archives (up to 50)
-for your API key:
-
-<pre>
-void listArchives(OpenTokSDK sdk) {
-    try {
-        List<Archive> archives = sdk.listArchives();
-        for (int i = 0; i &lt; archives.size(); i++) {
-            Archive archive = archives.get(i);
-            System.out.println(archive.toString());
-        }
-    } catch (OpenTokException exception) {
-        System.out.println(exception.toString());
-    }
-}
-</pre>
-
-
-
-# More information
-
-For details on the API, see the comments in Java files in src/main/java/com/opentok.
-
-For more information on OpenTok, go to <http://www.tokbox.com/>.
+Find a bug? File it on the [Issues](https://github.com/opentok/opentok-java-sdk/issues) page. Hint:
+test cases are really helpful!
