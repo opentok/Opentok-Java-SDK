@@ -2,10 +2,13 @@ package com.opentok.util;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ning.http.client.*;
 import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
@@ -126,6 +129,53 @@ public class HttpClient extends AsyncHttpClient {
             e.printStackTrace();
         }
 
+        return responseString;
+    }
+
+    public String startArchive(String sessionId, String name) {
+        String responseString = null;
+        Future<Response> request = null;
+        String requestBody = null;
+        // TODO: maybe use a StringBuilder?
+        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive";
+
+        // TODO: create JSON body string from sessionId and name
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, String> jsonBody = new HashMap<String, String>();
+        jsonBody.put("sessionId", sessionId);
+        if (name != null) {
+            jsonBody.put("name", name);
+        }
+        try {
+            requestBody = mapper.writeValueAsString(jsonBody);
+        } catch (JsonProcessingException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+        try {
+            request = this.preparePost(url)
+                    .setBody(requestBody)
+                    .setHeader("Content-Type", "application/json")
+                    .execute();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
+
+        try {
+            Response response = request.get();
+            // TODO: check response code
+            responseString = response.getResponseBody();
+        } catch (InterruptedException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO: throw OpenTokException
+            e.printStackTrace();
+        }
         return responseString;
     }
 

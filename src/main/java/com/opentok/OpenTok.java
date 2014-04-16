@@ -377,21 +377,19 @@ public class OpenTok {
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
-//    public Archive startArchive(String sessionId, String name) throws OpenTokException {
-//        if (sessionId == null || sessionId == "") {
-//            throw new InvalidArgumentException("Session not valid");
-//        }
-//        HashMap<String, String> headers = new HashMap<String, String>();
-//        headers.put("content-type", "application/json");
-//        String archive = HttpClient.makePostRequest("/v2/partner/" + this.apiKey + "/archive", headers, null,
-//                "{ \"sessionId\" : \"" + sessionId + "\", \"name\": \"" + name + "\" }");
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            return mapper.readValue(archive, Archive.class);
-//        } catch (Exception e) {
-//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
-//        }
-//    }
+    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+        if (sessionId == null || sessionId == "") {
+            throw new InvalidArgumentException("Session not valid");
+        }
+        // TODO: do validation on sessionId and name
+        String archive = this.client.startArchive(sessionId, name);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(archive, Archive.class);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
 
     /**
      * Stops an OpenTok archive that is being recorded.
