@@ -243,9 +243,9 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiSecret));
 
         Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
-        assertEquals(Double.toString(inOneDay), defaultTokenData.get("expire_time"));
+        assertEquals(Long.toString(inOneDay), defaultTokenData.get("expire_time"));
         Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
-        assertEquals(Double.toString(inOneHour), oneHourTokenData.get("expire_time"));
+        assertEquals(Long.toString(inOneHour), oneHourTokenData.get("expire_time"));
         assertEquals(2, exceptions.size());
         for (Exception e : exceptions) {
             assertEquals(InvalidArgumentException.class, e.getClass());

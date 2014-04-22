@@ -9,7 +9,7 @@ archivesBaseName = 'opentok'
 // TODO: how do we increment this before/after a release for deployment and development?
 version = '2.2.0-pre'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.6
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'

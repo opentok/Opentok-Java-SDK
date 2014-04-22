@@ -124,8 +124,8 @@ public class Session {
             throw new InvalidArgumentException(
                     "Expire time must be in the next 30 days. too large by "+ (expireTime - (now + (60*60*24*30))));
         }
-        dataStringBuilder.append("&expire_time=");
-        dataStringBuilder.append(expireTime);
+        // NOTE: Double.toString() would print the value with scientific notation
+        dataStringBuilder.append(String.format("&expire_time=%.0f", expireTime));
 
         if (data != null) {
             if(data.length() > 1000) {
@@ -156,7 +156,13 @@ public class Session {
             innerBuilder.append(":");
             innerBuilder.append(dataStringBuilder.toString());
 
-            tokenStringBuilder.append(Base64.encodeBase64URLSafeString(innerBuilder.toString().getBytes("UTF-8")));
+            tokenStringBuilder.append(
+                    Base64.encodeBase64String(
+                            innerBuilder.toString().getBytes("UTF-8")
+                    )
+                    .replace("+", "-")
+                    .replace("/", "_")
+            );
 
         // if we only wanted Java 7 and above, we could DRY this into one catch clause
         } catch (SignatureException e) {
