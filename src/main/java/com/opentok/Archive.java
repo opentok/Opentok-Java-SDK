@@ -137,25 +137,6 @@ public class Archive {
     public String getUrl() {
         return url;
     }
-    
-//    public Archive stop() throws OpenTokException {
-//        HashMap<String, String> headers = new HashMap<String, String>();
-//        headers.put("content-type", "application/json");
-//        String archive = HttpClient.makePostRequest("/v2/partner/" + this.partnerId + "/archive/" + id, headers, null,
-//                "{ \"action\" : \"stop\"  }");
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            Archive updatedArchive =  mapper.readValue(archive, Archive.class);
-//            this.status = updatedArchive.status;
-//            return this;
-//        } catch (Exception e) {
-//            throw new RequestException(500, "Exception mapping json: " + e.getMessage());
-//        }
-//    }
-    
-//    public void delete() throws OpenTokException {
-//        HttpClient.makeDeleteRequest("/v2/partner/" + partnerId + "/archive/" + id);
-//    }
 
     @Override
     public String toString() {
