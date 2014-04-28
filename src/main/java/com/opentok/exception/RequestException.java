@@ -8,4 +8,8 @@ public class RequestException extends OpenTokException {
         super(message);
     }
 
+    public RequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }
