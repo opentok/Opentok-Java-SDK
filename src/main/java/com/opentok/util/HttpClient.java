@@ -19,14 +19,11 @@ import com.opentok.constants.Version;
 public class HttpClient extends AsyncHttpClient {
     
     private final String apiUrl;
-    // NOTE: do we even need these since we now have the PartnerAuthRequestFilter?
     private final int apiKey;
-    private final String apiSecret;
 
     private HttpClient(Builder builder) {
         super(builder.config);
         this.apiKey = builder.apiKey;
-        this.apiSecret = builder.apiSecret;
         this.apiUrl = builder.apiUrl;
     }
 
@@ -237,76 +234,6 @@ public class HttpClient extends AsyncHttpClient {
 
         return responseString;
     }
-
-//    protected static String makeDeleteRequest(String resource) throws OpenTokException {
-//        BoundRequestBuilder get = client.prepareDelete(apiUrl + resource);
-//        addCommonHeaders(get);
-//
-//        try {
-//            Response result = get.execute().get();
-//            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new RequestException(result.getStatusCode(), "Error response: message: "
-//                        + result.getStatusText());
-//            }
-//            return result.getResponseBody();
-//        } catch (Exception e) {
-//            throw new RequestException(500, e.getMessage());
-//        }
-//    }
-//
-//    protected static String makeGetRequest(String resource) throws OpenTokException {
-//        BoundRequestBuilder get = client.prepareGet(apiUrl + resource);
-//        addCommonHeaders(get);
-//
-//        try {
-//            Response result = get.execute().get();
-//            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new RequestException(result.getStatusCode(), "Error response: message: "
-//                        + result.getStatusText());
-//            }
-//            return result.getResponseBody();
-//        } catch (Exception e) {
-//            throw new RequestException(500, e.getMessage());
-//        }
-//    }
-//
-//    protected static String makePostRequest(String resource, Map<String, String> headers, Map<String, String> params,
-//            String postData) throws OpenTokException {
-//        BoundRequestBuilder post = client.preparePost(apiUrl + resource);
-//        if (params != null) {
-//            for (Entry<String, String> pair : params.entrySet()) {
-//                post.addParameter(pair.getKey(), pair.getValue());
-//            }
-//        }
-//
-//        if (headers != null) {
-//            for (Entry<String, String> pair : headers.entrySet()) {
-//                post.addHeader(pair.getKey(), pair.getValue());
-//            }
-//        }
-//
-//        addCommonHeaders(post);
-//
-//        if (postData != null) {
-//            post.setBody(postData);
-//        }
-//
-//        try {
-//            Response result = post.execute().get();
-//
-//            if (result.getStatusCode() < 200 || result.getStatusCode() > 299) {
-//                throw new RequestException(result.getStatusCode(), "Error response: message: " + result.getStatusText());
-//            }
-//
-//            return result.getResponseBody();
-//        } catch (Exception e) {
-//            throw new RequestException(500, e.getMessage());
-//        }
-//    }
-//
-//    private static void addCommonHeaders(BoundRequestBuilder get) {
-//        get.addHeader("X-TB-PARTNER-AUTH", String.format("%s:%s", apiKey, apiSecret));
-//    }
 
     public static class Builder {
         private final int apiKey;

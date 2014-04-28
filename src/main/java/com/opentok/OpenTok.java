@@ -351,6 +351,8 @@ public class OpenTok {
             JsonParser jp = mapper.getFactory().createParser(archive);
             return mapper.readValue(mapper.treeAsTokens(mapper.readTree(jp).get("items")),
                     TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Archive.class));
+
+        // if we only wanted Java 7 and above, we could DRY this into one catch clause
         } catch (JsonMappingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (JsonParseException e) {
