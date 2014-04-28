@@ -32,7 +32,7 @@ public class SessionProperties {
 
         public Builder location(String location) throws InvalidArgumentException {
             if (!InetAddressValidator.getInstance().isValidInet4Address(location)) {
-                throw new InvalidArgumentException("Location must be a valid IPv4 address. location="+location);
+                throw new InvalidArgumentException("Location must be a valid IPv4 address. location = " + location);
             }
             this.location = location;
             return this;

@@ -284,7 +284,7 @@ public class OpenTok {
                 return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
             }
         } catch (XPathExpressionException e) {
-            throw new OpenTokException("Cannot create session. Could not read the response: "+xmlResponse);
+            throw new OpenTokException("Cannot create session. Could not read the response: " + xmlResponse);
         }
     }
 

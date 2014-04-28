@@ -62,7 +62,7 @@ public class HttpClient extends AsyncHttpClient {
     public String getArchive(String archiveId) {
         String responseString = null;
         Future<Response> request = null;
-        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive/"+archiveId;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
 
         try {
             request = this.prepareGet(url).execute();
@@ -93,7 +93,7 @@ public class HttpClient extends AsyncHttpClient {
         String responseString = null;
         Future<Response> request = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive";
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
         if (offset != 0 || count != 1000) {
             url += "?";
             if (offset != 0) {
@@ -134,7 +134,7 @@ public class HttpClient extends AsyncHttpClient {
         Future<Response> request = null;
         String requestBody = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive";
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
 
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, String> jsonBody = new HashMap<String, String>();
@@ -179,7 +179,7 @@ public class HttpClient extends AsyncHttpClient {
         String responseString = null;
         Future<Response> request = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive/stop";
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/stop";
 
         try {
             request = this.preparePost(url).execute();
@@ -208,7 +208,7 @@ public class HttpClient extends AsyncHttpClient {
     public String deleteArchive(String archiveId) {
         String responseString = null;
         Future<Response> request = null;
-        String url = this.apiUrl+"/v2/partner/"+this.apiKey+"/archive/"+archiveId;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
 
         try {
             request = this.prepareDelete(url).execute();

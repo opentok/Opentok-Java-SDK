@@ -54,7 +54,7 @@ public class TokenOptions {
                 this.data = data;
             } else {
                 throw new InvalidArgumentException(
-                        "The given connection data is too long, limit is 1000 characters: "+data.length());
+                        "The given connection data is too long, limit is 1000 characters: " + data.length());
             }
             return this;
         }
