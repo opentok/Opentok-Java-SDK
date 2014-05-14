@@ -13,6 +13,11 @@ import org.apache.commons.codec.binary.Base64;
 
 import com.opentok.exception.OpenTokException;
 
+/**
+* Represents an OpenTok session. Use the {@link OpenTok#createSession(SessionProperties properties)}
+* method to create an OpenTok session. Use the {@link #getSessionId()} method of the session object
+* to get the session ID.
+*/
 public class Session {
 
     private String sessionId;
@@ -34,25 +39,40 @@ public class Session {
         this.properties = properties;
     }
     
+    /**
+    * Returns the OpenTok API key used to generate the session.
+    */
     public int getApiKey() {
         return apiKey;
     }
 
+    /**
+    * Returns the session ID, which uniquely identifies the session.
+    */
     public String getSessionId() {
         return sessionId;
     }
     
+    /**
+    * Returns the properties defining the session. These properties include:
+    *
+    * <ul>
+    *     <li>The location hint IP address.</li>
+    *     <li>Whether the session's streams will be transmitted directly between peers
+    *     or using the OpenTok media server.</li>
+    * </ul>
+    */
     public SessionProperties getProperties() {
         return properties;
     }
     
     /**
-     * Generates the token for the given session. The role is set to publisher, the token expires in
+     * Generates the token for the session. The role is set to publisher, the token expires in
      * 24 hours, and there is no connection data.
      *
-     * @param sessionId The session ID.
+     * @return The token string.
      *
-     * @see #generateToken(String sessionId, String role, long expireTime, String connectionData)
+     * @see #generateToken(TokenOptions tokenOptions)
      */
     public String generateToken() throws OpenTokException {
         // NOTE: maybe there should be a static object for the defaultTokenOptions?
@@ -60,28 +80,18 @@ public class Session {
     }
 
     /**
-     * Creates a token for connecting to an OpenTok session. In order to authenticate a user connecting to an OpenTok session
-     * that user must pass an authentication token along with the API key.
+     * Creates a token for connecting to an OpenTok session. In order to authenticate a user
+     * connecting to an OpenTok session that user must pass an authentication token along with
+     * the API key.
      *
-     * @param role Each role defines a set of permissions granted to the token.
-     * Valid values are defined in the Role class:
+     * @param tokenOptions This TokenOptions object defines options for the token.
+     * These include the following:
      *
-     *   * `SUBSCRIBER` &mdash; A subscriber can only subscribe to streams.</li>
-     *
-     *   * `PUBLISHER` &mdash; A publisher can publish streams, subscribe to streams, and signal.
-     *     (This is the default value if you do not specify a value for the `role` parameter.)</li>
-     *
-     *   * `MODERATOR` &mdash; In addition to the privileges granted to a publisher, a moderator
-     *     can call the `forceUnpublish()` and `forceDisconnect()` method of the
-     *     Session object.</li>
-     *
-     * @param expireTime The expiration time, in seconds, since the UNIX epoch. Pass in 0 to use
-     * the default expiration time of 24 hours after the token creation time. The maximum expiration
-     * time is 30 days after the creation time.
-     *
-     * @param connectionData A string containing metadata describing the end-user. For example, you can pass the
-     * user ID, name, or other data describing the end-user. The length of the string is limited to 1000 characters.
-     * This data cannot be updated once it is set.
+     * <ul>
+     *    <li>The role of the token (subscriber, publisher, or moderator)</li>
+     *    <li>The expiration time of the token</li>
+     *    <li>Connection data describing the end-user</li>
+     * </ul>
      *
      * @return The token string.
      */
