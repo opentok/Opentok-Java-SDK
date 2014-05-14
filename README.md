@@ -171,7 +171,8 @@ List<Archive> archives = opentok.listArchives(50, 50);
 
 # Documentation
 
-**TODO**: Reference documentation is available at <http://opentok.github.io/opentok-java-sdk/>
+Reference documentation is available at <http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
+docs directory of the SDK
 
 # Requirements
 
@@ -185,10 +186,21 @@ This project is tested on both OpenJDK and Oracle implementations.
 **TODO**: See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
 about each release.
 
-## Important changes in v2.0
+## Important changes in v2.2
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
+
+This version of the SDK includes a number of improvements in the API design. These include a number
+of API changes. See the OpenTok 2.2 SDK Reference for details on the new API.
+
+The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.
+
+The `create_session()` method has been renamed `createSession()`. Also, the method has changed to
+take one parameter: a SessionProperties object. You now generate a SessionProperties object using a Builder pattern.
+
+The `generate_token()` method has been renamed `generateToken()`. Also, the method has changed to
+take two parameters: the session ID and a TokenOptions object.
 
 # Development and Contributing
 
