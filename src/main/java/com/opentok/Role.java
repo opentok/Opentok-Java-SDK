@@ -16,7 +16,7 @@ public enum Role {
     SUBSCRIBER,
     /**
     * A publisher can publish streams, subscribe to streams, and signal. (This is the default
-    * value if you do not set a roll by calling the {@link TokenOptions.Builder#role(Role role)}
+    * value if you do not set a role by calling the {@link TokenOptions.Builder#role(Role role)}
     * method.
     */
     PUBLISHER,

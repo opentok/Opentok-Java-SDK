@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.xml.sax.InputSource;
 
 /**
-* Contains methods for creating OpenTok sessions and generating tokens.
+* Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
 * To create a new OpenTokSDK object, call the OpenTokSDK constructor with your OpenTok API key
 * and the API secret from <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>. Do not publicly share
@@ -186,7 +186,7 @@ public class OpenTok {
      * Creates a new OpenTok session and returns the session ID, which uniquely identifies
      * the session.
      * <p>
-     * For example, when using the OpenTok JavaScript library, use the session ID when calling the
+     * For example, when using the OpenTok.js library, use the session ID when calling the
      * <a href="http://tokbox.com/opentok/libraries/client/js/reference/OT.html#initSession">
      * OT.initSession()</a> method (to initialize an OpenTok session).
      * <p>
@@ -233,9 +233,8 @@ public class OpenTok {
      *    <li>A location hint for the location of the OpenTok server to use for the session.</li>
      * </ul>
      *
-     * @return A session ID for the new session. For example, when using the OpenTok JavaScript library, use this session ID
-     * in JavaScript on the page that you serve to the client. The JavaScript will use this value when calling the
-     * <code>connect()</code> method of the Session object (to connect a user to an OpenTok session).
+     * @return A session ID for the new session. For example, when using the OpenTok.js library, use
+     * this session ID when calling the <code>OT.initSession()</code> method.
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
         Map<String, Collection<String>> params;
@@ -337,9 +336,11 @@ public class OpenTok {
      * Returns a List of {@link Archive} objects, representing archives that are both
      * both completed and in-progress, for your API key.
      *
-     * @param offset The index offset of the first archive. 0 is offset of the most recently STARTED archive.
-     * 1 is the offset of the archive that STARTED prior to the most recent archive.
-     * @param count The number of archives to be returned. The maximum number of archives returned is 1000.
+     * @param offset The index offset of the first archive. 0 is offset of the most recently started
+     * archive.
+     * 1 is the offset of the archive that started prior to the most recent archive.
+     * @param count The number of archives to be returned. The maximum number of archives returned
+     * is 1000.
      * @return A List of {@link Archive} objects.
      */
     public List<Archive> listArchives(int offset, int count) throws OpenTokException {
@@ -414,9 +415,9 @@ public class OpenTok {
     /**
      * Deletes an OpenTok archive.
      * <p>
-     * You can only delete an archive which has a status of "AVAILABLE" or "UPLOADED". Deleting an archive
-     * removes its record from the list of archives. For an "AVAILABLE" archive, it also removes the archive
-     * file, making it unavailable for download.
+     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an
+     * archive removes its record from the list of archives. For an "available" archive, it also
+     * removes the archive file, making it unavailable for download.
      *
      * @param archiveId The archive ID of the archive you want to delete.
      */

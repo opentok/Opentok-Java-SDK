@@ -172,7 +172,7 @@ List<Archive> archives = opentok.listArchives(50, 50);
 # Documentation
 
 Reference documentation is available at <http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
-docs directory of the SDK
+docs directory of the SDK.
 
 # Requirements
 
