@@ -39,9 +39,9 @@ import org.xml.sax.InputSource;
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
-* To create a new OpenTokSDK object, call the OpenTokSDK constructor with your OpenTok API key
+* To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
 * and the API secret from <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>. Do not publicly share
-* your API secret. You will use it with the OpenTokSDK constructor (only on your web
+* your API secret. You will use it with the OpenTok constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
 * Be sure to include the entire OpenTok server SDK on your web server.
@@ -53,7 +53,7 @@ public class OpenTok {
     protected HttpClient client;
 
     /**
-     * Creates an OpenTokSDK object.
+     * Creates an OpenTok object.
      *
      * @param apiKey Your OpenTok API key. (See the <a href="https://dashboard.tokbox.com">OpenTok
      * dashboard</a> page.)
@@ -87,7 +87,7 @@ public class OpenTok {
      *     public static void main(String argv[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
      *         //Generate a basic session. Or you could use an existing session ID.
      *         String sessionId = System.out.println(sdk.createSession());
@@ -156,13 +156,13 @@ public class OpenTok {
      * The following example shows how to generate a token that has the default settings:
      * <p>
      * <pre>
-     * import com.opentok.OpenTokSDK;
+     * import com.opentok.OpenTok;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
      *         //Generate a basic session. Or you could use an existing session ID.
      *         String sessionId = System.out.println(sdk.createSession().getSessionId());
@@ -202,7 +202,7 @@ public class OpenTok {
      * The following code creates a peer-to-peer session:
      *
      * <pre>
-     * import com.opentok.OpenTokSDK;
+     * import com.opentok.OpenTok;
      * import com.opentok.Session;
      * import com.opentok.SessionProperties;
      *
@@ -210,7 +210,7 @@ public class OpenTok {
      *     public static void main(String argv[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key.
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
      *         SessionProperties sp = new SessionProperties().Builder().p2p(true).build();
      *
@@ -275,14 +275,14 @@ public class OpenTok {
      * The following example creates a session that uses the default settings:
      *
      * <pre>
-     * import com.opentok.OpenTokSDK;
+     * import com.opentok.OpenTok;
      * import com.opentok.SessionProperties;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key.
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
      *         String sessionId = sdk.createSession();
      *         System.out.println(sessionId);
