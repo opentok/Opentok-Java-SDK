@@ -59,7 +59,7 @@ public class TokenOptions {
         private String data;
 
         /**
-         * Sets the roll for the token. Each role defines a set of permissions granted to the token.
+         * Sets the role for the token. Each role defines a set of permissions granted to the token.
          *
          * @param role The role for the token. Valid values are defined in the Role class:
          * <ul>
