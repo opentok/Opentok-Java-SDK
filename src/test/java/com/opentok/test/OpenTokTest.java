@@ -508,7 +508,7 @@ public class OpenTokTest {
     public void testStopArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
 
-        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/stop"))
+        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId+"/stop"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
@@ -530,7 +530,7 @@ public class OpenTokTest {
         assertEquals("SESSIONID", archive.getSessionId());
         assertEquals(archiveId, archive.getId());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/stop"))
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId+"/stop"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
