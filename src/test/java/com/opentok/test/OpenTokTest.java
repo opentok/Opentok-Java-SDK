@@ -1,9 +1,3 @@
-/*
- * These unit tests require the opentok Java SDK.
- * https://github.com/opentok/Opentok-Java-SDK.git
- * 
- */
-
 package com.opentok.test;
 
 import java.io.UnsupportedEncodingException;

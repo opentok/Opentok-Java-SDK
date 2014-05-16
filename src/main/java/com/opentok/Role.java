@@ -1,10 +1,3 @@
-/*!
- * OpenTok Java Library
- * http://www.tokbox.com/
- *
- * Copyright 2010, TokBox, Inc.
- */
-
 package com.opentok;
 /**
  * Defines values for the role parameter of the <code>OpenTokSDK.generateToken()</code> method.

@@ -13,9 +13,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
 
-/**
- * Created by ankur on 4/14/14.
- */
 public class Helpers {
 
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";

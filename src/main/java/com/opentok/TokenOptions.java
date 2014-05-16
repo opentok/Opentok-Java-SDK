@@ -2,9 +2,6 @@ package com.opentok;
 
 import com.opentok.exception.InvalidArgumentException;
 
-/**
- * Created by ankur on 4/14/14.
- */
 public class TokenOptions {
 
     private Role role;

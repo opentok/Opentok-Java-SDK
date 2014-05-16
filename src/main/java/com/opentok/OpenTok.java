@@ -1,13 +1,3 @@
-
-/*!
- * OpenTok Java Library
- * http://www.tokbox.com/
- *
- * Copyright 2010, TokBox, Inc.
- *
- * Last modified: @opentok.sdk.java.mod_time@
- */
-
 package com.opentok;
 
 import java.io.IOException;
