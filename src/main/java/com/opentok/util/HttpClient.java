@@ -217,7 +217,7 @@ public class HttpClient extends AsyncHttpClient {
         String responseString = null;
         Future<Response> request = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/stop";
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop";
 
         try {
             request = this.preparePost(url).execute();
