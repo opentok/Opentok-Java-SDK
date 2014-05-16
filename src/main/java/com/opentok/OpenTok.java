@@ -27,11 +27,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.xml.sax.InputSource;
 
 /**
-* Contains methods for creating OpenTok sessions and generating tokens.
+* Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
-* To create a new OpenTokSDK object, call the OpenTokSDK constructor with your OpenTok API key
+* To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
 * and the API secret from <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>. Do not publicly share
-* your API secret. You will use it with the OpenTokSDK constructor (only on your web
+* your API secret. You will use it with the OpenTok constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
 * Be sure to include the entire OpenTok server SDK on your web server.
@@ -43,10 +43,10 @@ public class OpenTok {
     protected HttpClient client;
 
     /**
-     * Creates an OpenTokSDK object.
+     * Creates an OpenTok object.
      *
-     * @param apiKey Your OpenTok API key. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
-     * page)
+     * @param apiKey Your OpenTok API key. (See the <a href="https://dashboard.tokbox.com">OpenTok
+     * dashboard</a> page.)
      * @param apiSecret Your OpenTok API secret. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
      * page)
      */
@@ -63,39 +63,21 @@ public class OpenTok {
     }
 
     /**
-     * Creates a token for connecting to an OpenTok session. In order to authenticate a user connecting to an OpenTok session
-     * that user must pass an authentication token along with the API key.
-     * The following Java code example shows how to obtain a token:
+     * Creates a token for connecting to an OpenTok session. In order to authenticate a user
+     * connecting to an OpenTok session, the client passes a token when connecting to the session.
      * <p>
-     * <pre>
-     * import com.opentok.api.OpenTokSDK;
-     *
-     * class Test {
-     *     public static void main(String argv[]) throws OpenTokException {
-     *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
-     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
-     *
-     *         //Generate a basic session. Or you could use an existing session ID.
-     *         String sessionId = System.out.println(sdk.createSession());
-     *
-     *         String token = sdk.generateToken(sessionId);
-     *         System.out.println(token);
-     *     }
-     * }
-     * </pre>
-     * <p>
-     * The following Java code example shows how to obtain a token that has a role of "subscriber" and that has
-     * a connection metadata string:
+     * The following example shows how to obtain a token that has a role of "subscriber" and
+     * that has a connection metadata string:
      * <p>
      * <pre>
      * import com.opentok.Role;
+     * import com.opentok.TokenOptions;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
      *         //Generate a basic session. Or you could use an existing session ID.
      *         String sessionId = System.out.println(sdk.createSession());
@@ -106,37 +88,27 @@ public class OpenTok {
      *         // Use the Role value appropriate for the user.
      *         String role = Role.SUBSCRIBER;
      *
-     *         // Generate a token.
-     *         String token = sdk.generateToken(sessionId, Role.PUBLISHER, null, connectionMetadata);
+     *         // Generate a token:
+     *         TokenOptions options = new TokenOptions.Buider().role(role).data(connectionMetadata).build();
+     *         String token = sdk.generateToken(sessionId, options);
      *         System.out.println(token);
      *     }
      * }
      * </pre>
      * <p>
-     * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok dashboard</a>
-     * page to generate test tokens.
+     * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
+     * dashboard</a> page to generate test tokens.
      *
      * @param sessionId The session ID corresponding to the session to which the user will connect.
      *
-     * @param role Each role defines a set of permissions granted to the token.
-     * Valid values are defined in the Role class:
+     * @param tokenOptions This TokenOptions object defines options for the token.
+     * These include the following:
      *
-     *   * `SUBSCRIBER` &mdash; A subscriber can only subscribe to streams.</li>
-     *
-     *   * `PUBLISHER` &mdash; A publisher can publish streams, subscribe to streams, and signal.
-     *     (This is the default value if you do not specify a value for the `role` parameter.)</li>
-     *
-     *   * `MODERATOR` &mdash; In addition to the privileges granted to a publisher, a moderator
-     *     can call the `forceUnpublish()` and `forceDisconnect()` method of the
-     *     Session object.</li>
-     *
-     * @param expireTime The expiration time, in seconds, since the UNIX epoch. Pass in 0 to use
-     * the default expiration time of 24 hours after the token creation time. The maximum expiration
-     * time is 30 days after the creation time.
-     *
-     * @param connectionData A string containing metadata describing the end-user. For example, you can pass the
-     * user ID, name, or other data describing the end-user. The length of the string is limited to 1000 characters.
-     * This data cannot be updated once it is set.
+     * <ul>
+     *    <li>The role of the token (subscriber, publisher, or moderator)</li>
+     *    <li>The expiration time of the token</li>
+     *    <li>Connection data describing the end-user</li>
+     * </ul>
      *
      * @return The token string.
      */
@@ -160,62 +132,80 @@ public class OpenTok {
         return session.generateToken(tokenOptions);
     }
 
+    /**
+     * Creates a token for connecting to an OpenTok session, using the default settings. The default
+     * settings are the following:
+     *
+     * <ul>
+     *   <li>The token is assigned the role of publisher.</li>
+     *   <li>The token expires 24 hours after it is created.</li>
+     *   <li>The token includes no connection data.</li>
+     * </ul>
+     *
+     * <p>
+     * The following example shows how to generate a token that has the default settings:
+     * <p>
+     * <pre>
+     * import com.opentok.OpenTok;
+     *
+     * class Test {
+     *     public static void main(String argv[]) throws OpenTokException {
+     *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
+     *
+     *         //Generate a basic session. Or you could use an existing session ID.
+     *         String sessionId = System.out.println(sdk.createSession().getSessionId());
+     *
+     *         String token = sdk.generateToken(sessionId);
+     *         System.out.println(token);
+     *     }
+     * }
+     * </pre>
+     * @param sessionId The session ID corresponding to the session to which the user will connect.
+     *
+     * @return The token string.
+     *
+     * @see #generateToken(String, TokenOptions)
+     */
     public String generateToken(String sessionId) throws OpenTokException {
         return generateToken(sessionId, new TokenOptions.Builder().build());
     }
 
     /**
-     * Creates a new OpenTok session and returns the session ID, which uniquely identifies the session.
+     * Creates a new OpenTok session and returns the session ID, which uniquely identifies
+     * the session.
      * <p>
-     * For example, when using the OpenTok JavaScript library,
-     * use the session ID in JavaScript on the page that you serve to the client. The JavaScript will use this
-     * value when calling the <a href="http://tokbox.com/opentok/libraries/client/js/reference/Session.html#connect">connect()</a>
-     * method of the Session object (to connect a user to an OpenTok session).
+     * For example, when using the OpenTok.js library, use the session ID when calling the
+     * <a href="http://tokbox.com/opentok/libraries/client/js/reference/OT.html#initSession">
+     * OT.initSession()</a> method (to initialize an OpenTok session).
      * <p>
      * OpenTok sessions do not expire. However, authentication tokens do expire (see the
-     * {@link #generateToken(String, String, long, String)} method).
-     * Also note that sessions cannot explicitly be destroyed.
+     * {@link #generateToken(String, TokenOptions)} method). Also note that sessions cannot
+     * explicitly be destroyed.
      * <p>
      * A session ID string can be up to 255 characters long.
      * <p>
-     * Calling this method results in an {@link com.opentok.exception.OpenTokException} in the event of an error. Check
-     * the error message for details.
+     * Calling this method results in an {@link com.opentok.exception.OpenTokException} in
+     * the event of an error. Check the error message for details.
      * <p>
-     * The following code creates a session that uses the OpenTok Media Router:
-     *
-     * <pre>
-     * import com.opentok.api.OpenTokSDK;
-     * import com.opentok.SessionProperties;
-     *
-     * class Test {
-     *     public static void main(String argv[]) throws OpenTokException {
-     *         int API_KEY = 0; // Replace with your OpenTok API key.
-     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
-     *
-     *         String sessionId = sdk.createSession();
-     *         System.out.println(sessionId);
-     *     }
-     * }
-     * </pre>
-     *
      * The following code creates a peer-to-peer session:
      *
      * <pre>
-     * import com.opentok.api.OpenTokSDK;
+     * import com.opentok.OpenTok;
+     * import com.opentok.Session;
      * import com.opentok.SessionProperties;
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key.
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
-     *         OpenTokSDK sdk = new OpenTokSDK(API_KEY, API_SECRET);
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
-     *         SessionProperties sp = new SessionProperties();
-     *         sp.p2p_preference = "enabled";
+     *         SessionProperties sp = new SessionProperties().Builder().p2p(true).build();
      *
-     *         String sessionId = sdk.createSession(null, sp);
-     *         System.out.println(sessionId);
+     *         Session session = sdk.createSession(sp);
+     *         System.out.println(session.getSessionId());
      *     }
      * }
      * </pre>
@@ -223,34 +213,18 @@ public class OpenTok {
      * You can also create a session using the <a href="http://www.tokbox.com/opentok/api/#session_id_production">OpenTok
      * REST API</a> or the <a href="https://dashboard.tokbox.com/projects">OpenTok dashboard</a>.
      *
-     * @param properties Defines whether the session's streams will be transmitted directly between peers or
-     * using the OpenTok media server. You can set the following possible values:
-     * <p>
+     * @param properties This SessionProperties object defines options for the session.
+     * These include the following:
+     *
      * <ul>
-     *   <li>
-     *     "disabled" (the default) &mdash; The session's streams will all be relayed using the OpenTok media server.
-     *     <br><br>
-     *     <i>In OpenTok v2:</i> The <a href="http://www.tokbox.com/blog/mantis-next-generation-cloud-technology-for-webrtc/">OpenTok
-     *     media server</a> provides benefits not AVAILABLE in peer-to-peer sessions. For example, the OpenTok media server can
-     *     decrease bandwidth usage in multiparty sessions. Also, the OpenTok server can improve the quality of the user experience
-     *     through <a href="http://www.tokbox.com/blog/quality-of-experience-and-traffic-shaping-the-next-step-with-mantis/">dynamic
-     *     traffic shaping</a>. For information on pricing, see the <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
-     *     <br><br>
-     *   </li>
-     *   <li>
-     *     "enabled" &mdash; The session will attempt to transmit streams directly between clients.
-     *     <br><br>
-     *     <i>In OpenTok v1:</i> Peer-to-peer streaming decreases latency and improves quality. If peer-to-peer streaming
-     *     fails (either when streams are initially published or during the course of a session), the session falls back to using
-     *     the OpenTok media server to relaying streams. (Peer-to-peer streaming uses UDP, which may be blocked by a firewall.)
-     *     For a session created with peer-to-peer streaming enabled, only two clients can connect to the session at a time.
-     *     If an additional client attempts to connect, the client dispatches an exception event.
-     *   </li>
+     *    <li>Whether the session's streams will be transmitted directly between peers or
+     *    using the OpenTok Media Router.</li>
+     *
+     *    <li>A location hint for the location of the OpenTok server to use for the session.</li>
      * </ul>
      *
-     * @return A session ID for the new session. For example, when using the OpenTok JavaScript library, use this session ID
-     * in JavaScript on the page that you serve to the client. The JavaScript will use this value when calling the
-     * <code>connect()</code> method of the Session object (to connect a user to an OpenTok session).
+     * @return A session ID for the new session. For example, when using the OpenTok.js library, use
+     * this session ID when calling the <code>OT.initSession()</code> method.
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
         Map<String, Collection<String>> params;
@@ -279,9 +253,32 @@ public class OpenTok {
     }
 
     /**
-     * Creates an OpenTok session and returns the session ID, with the default properties. The
-     * session uses the OpenTok media server. And the session uses the first client connecting
-     * to determine the location of OpenTok server to use.
+     * Creates an OpenTok session with the default settings:
+     *
+     * <ul>
+     *     <li>The session uses the OpenTok media server.
+     *     <li>The session uses the first client connecting to determine the location of the
+     *     OpenTok server to use.</li>
+     * </ul>
+     *
+     * <p>
+     * The following example creates a session that uses the default settings:
+     *
+     * <pre>
+     * import com.opentok.OpenTok;
+     * import com.opentok.SessionProperties;
+     *
+     * class Test {
+     *     public static void main(String argv[]) throws OpenTokException {
+     *         int API_KEY = 0; // Replace with your OpenTok API key.
+     *         String API_SECRET = ""; // Replace with your OpenTok API secret.
+     *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
+     *
+     *         String sessionId = sdk.createSession();
+     *         System.out.println(sessionId);
+     *     }
+     * }
+     * </pre>
      *
      * @see #createSession(SessionProperties)
      */
@@ -329,9 +326,11 @@ public class OpenTok {
      * Returns a List of {@link Archive} objects, representing archives that are both
      * both completed and in-progress, for your API key.
      *
-     * @param offset The index offset of the first archive. 0 is offset of the most recently STARTED archive.
-     * 1 is the offset of the archive that STARTED prior to the most recent archive.
-     * @param count The number of archives to be returned. The maximum number of archives returned is 1000.
+     * @param offset The index offset of the first archive. 0 is offset of the most recently started
+     * archive.
+     * 1 is the offset of the archive that started prior to the most recent archive.
+     * @param count The number of archives to be returned. The maximum number of archives returned
+     * is 1000.
      * @return A List of {@link Archive} objects.
      */
     public List<Archive> listArchives(int offset, int count) throws OpenTokException {
@@ -406,9 +405,9 @@ public class OpenTok {
     /**
      * Deletes an OpenTok archive.
      * <p>
-     * You can only delete an archive which has a status of "AVAILABLE" or "UPLOADED". Deleting an archive
-     * removes its record from the list of archives. For an "AVAILABLE" archive, it also removes the archive
-     * file, making it unavailable for download.
+     * You can only delete an archive which has a status of "available" or "uploaded". Deleting an
+     * archive removes its record from the list of archives. For an "available" archive, it also
+     * removes the archive file, making it unavailable for download.
      *
      * @param archiveId The archive ID of the archive you want to delete.
      */

@@ -14,29 +14,29 @@ public class Archive {
      */
     public enum Status {
         /**
-         * The archive file is AVAILABLE for download from the OpenTok cloud. You can get the URL of
+         * The archive file is available for download from the OpenTok cloud. You can get the URL of
          * the download file by calling the {@link Archive#getUrl} method.
          */
         AVAILABLE,
         /**
-         * The archive file has been DELETED.
+         * The archive file has been deleted.
          */
         DELETED,
         /**
-         * The recording of the archive FAILED.
+         * The recording of the archive failed.
          */
         FAILED,
         /**
-         * The archive recording has STARTED and is in progress.
+         * The archive recording has started and is in progress.
          */
         STARTED,
         /**
-         * The archive recording has STOPPED, but the file is not AVAILABLE.
+         * The archive recording has stopped, but the file is not available.
          */
         STOPPED,
         /**
-         * The archive file is AVAILABLE at the target S3 bucket you specified using the
-         * REST API.
+         * The archive file is available at the target S3 bucket you set at the
+         * <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>.
          */
         UPLOADED;
 
