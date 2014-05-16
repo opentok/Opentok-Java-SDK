@@ -192,8 +192,8 @@ work with OpenTok 1.0 archives.)
 
 # Development and Contributing
 
-Interested in contributing? We :heart: pull requests! See the Development and [Contribution](CONTRIBUTING.md)
-guidelines.
+Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and 
+[Contribution](CONTRIBUTING.md) guidelines.
 
 # Support
 
