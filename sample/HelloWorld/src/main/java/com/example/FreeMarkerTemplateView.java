@@ -1,9 +1,5 @@
 package com.example;
 
-/**
- * Created by ankur on 4/16/14.
- */
-
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
