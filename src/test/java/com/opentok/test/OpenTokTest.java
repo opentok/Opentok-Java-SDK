@@ -71,7 +71,7 @@ public class OpenTokTest {
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertFalse(session.getProperties().isP2p());
+        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
@@ -81,7 +81,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testCreateP2pSession() throws OpenTokException {
+    public void testCreateRelayedSession() throws OpenTokException {
         String sessionId = "SESSIONID";
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
@@ -92,14 +92,14 @@ public class OpenTokTest {
                                 "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
 
         SessionProperties properties = new SessionProperties.Builder()
-                .p2p(true)
+                .mediaMode(MediaMode.RELAYED)
                 .build();
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertTrue(session.getProperties().isP2p());
+        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
@@ -129,7 +129,7 @@ public class OpenTokTest {
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertFalse(session.getProperties().isP2p());
+        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
         assertEquals(locationHint, session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))

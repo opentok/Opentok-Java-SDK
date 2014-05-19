@@ -19,11 +19,11 @@ public class SessionProperties {
 
 
     private String location = null;
-    private boolean p2p = false;
+    private MediaMode mediaMode;
 
     private SessionProperties(Builder builder) {
         this.location = builder.location;
-        this.p2p = builder.p2p;
+        this.mediaMode = builder.mediaMode;
     }
 
     /**
@@ -33,7 +33,7 @@ public class SessionProperties {
      */
     public static class Builder {
         private String location = null;
-        private boolean p2p = false;
+        private MediaMode mediaMode = MediaMode.ROUTED;
         
 
         /**
@@ -78,8 +78,8 @@ public class SessionProperties {
        *
        * @return The SessionProperties.Builder object with the peer-to-peer setting.
        */
-        public Builder p2p(boolean p2p) {
-            this.p2p = p2p;
+        public Builder mediaMode(MediaMode mediaMode) {
+            this.mediaMode = mediaMode;
             return this;
         }
 
@@ -103,12 +103,12 @@ public class SessionProperties {
      * Defines whether the session's streams will be transmitted directly between peers or using the
      * OpenTok media server. See {@link SessionProperties.Builder#p2p(boolean p2p)}.
      */
-    public boolean isP2p() {
-        return p2p;
+    public MediaMode mediaMode() {
+        return mediaMode;
     }
 
     /**
-     * Returns the session properites as a Map.
+     * Returns the session properties as a Map.
      */
     public Map<String, Collection<String>> toMap() {
         Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
@@ -117,11 +117,10 @@ public class SessionProperties {
             valueList.add(location);
             params.put("location", valueList);
         }
-        if (p2p) {
-            ArrayList<String> valueList = new ArrayList<String>();
-            valueList.add("enabled");
-            params.put("p2p.preference", valueList);
-        }
+        ArrayList<String> valueList = new ArrayList<String>();
+        valueList.add(mediaMode.toString());
+        params.put("p2p.preference", valueList);
+
         return params;
     }
 
