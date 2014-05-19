@@ -192,6 +192,7 @@ public class OpenTok {
      * The following code creates a peer-to-peer session:
      *
      * <pre>
+     * import com.opentok.MediaMode;
      * import com.opentok.OpenTok;
      * import com.opentok.Session;
      * import com.opentok.SessionProperties;
@@ -202,7 +203,8 @@ public class OpenTok {
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
      *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
-     *         SessionProperties sp = new SessionProperties().Builder().p2p(true).build();
+     *         SessionProperties sp = new SessionProperties().Builder()
+     *           .mediaMode(MediaMode.RELAYED).build();
      *
      *         Session session = sdk.createSession(sp);
      *         System.out.println(session.getSessionId());

@@ -64,11 +64,15 @@ OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ## Creating Sessions
 
 To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`
-method. The `properties` parameter is optional and it is used to specify whether you are creating a
-p2p Session and specifying a location hint. An instance can be initialized using the
-`com.opentok.SessionProperties.Builder` class. The `sessionId` property of the returned `com.opentok.Session`
-instance, which you can read using the `getSessionId()` method, is useful to get a sessionId that can
-be saved to a persistent store (e.g. database).
+method. The `properties` parameter is optional and it is used to specify two things:
+
+* Whether the session uses the OpenTok Media Server
+* A location hint for the OpenTok server.
+
+An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
+The `sessionId` property of the returned `com.opentok.Session` instance, which you can read using
+the `getSessionId()` method, is useful to get a sessionId that can be saved to a persistent store
+(e.g. database).
 
 ```java
 import com.opentok.Session;
@@ -76,10 +80,12 @@ import com.opentok.SessionProperties;
 
 // Just a plain Session
 Session session = opentok.createSession();
-// A p2p Session
+
+// A session that attempts to use peer-to-peer streaming
 Session session = opentok.createSession(new SessionProperties.Builder()
-  .p2p(true)
+  .mediaMode(MediaMode.RELAYED)
   .build());
+
 // A Session with a location hint
 Session session = opentok.createSession(new SessionProperties.Builder()
   .location("12.34.56.78")

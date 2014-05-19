@@ -54,27 +54,29 @@ public class SessionProperties {
         }
 
        /**
-       * Call this method to determine whether the session will transmit streams between peers
-       * (true) or using the OpenTok Media Router (false). By default, sessions use the OpenTok
-       * Media Router (false).
+       * Call this method to determine whether the session will transmit streams between using the
+       * OpenTok Media Router (MediaMode.ROUTED) or not (MediaMode.RELAYED). By default, sessions
+       * use the OpenTok Media Router (false). If a session does not use the OpenTok Media Router,
+       * clients will attempt to transmit streams directly to each other. If two clients cannot send
+       * and receive each others' streams, due to firewalls on the clients' networks, their
+       * streams will be relayed using the OpenTok TURN Server.
        * <p>
        * The <a href="http://www.tokbox.com/blog/mantis-next-generation-cloud-technology-for-webrtc/">
-       * OpenTok Media Router</a> provides benefits not available in peer-to-peer sessions.
-       * For example, the OpenTok media server can decrease bandwidth usage in multiparty sessions.
-       * Also, the OpenTok server can improve the quality of the user experience through
+       * OpenTok Media Router</a> provides a number of benefits. For example, the OpenTok Media
+       * Router can decrease bandwidth usage in multiparty sessions. Also, the OpenTok Media Router
+       * can improve the quality of the user experience through
        * <a href="http://www.tokbox.com/blog/quality-of-experience-and-traffic-shaping-the-next-step-with-mantis/">dynamic
        * traffic shaping</a>.
        * <p>
-       * For peer-to-peer sessions, the session will attempt to transmit streams directly
-       * between clients. If clients cannot connect due to firewall restrictions, the session uses
-       * the OpenTok TURN server to relay audio-video streams.
+       * With the mediaMode set to MediaMode.RELAYED, the session will attempt to transmit streams
+       * directly between clients. If clients cannot connect due to firewall restrictions, the
+       * session uses the OpenTok TURN server to relay audio-video streams.
        * <p>
        * You will be billed for streamed minutes if you use the OpenTok Media Router or if the
-       * peer-to-peer session uses the OpenTok TURN server to relay streams. For information on
-       * pricing, see the <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
+       * session uses the OpenTok TURN server to relay streams. For information on pricing, see the
+       * <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
        *
-       * @param p2p Set to true for a peer-to-peer session; set to false for a session that uses
-       * the OpenTok Media server.
+       * @param mediaMode Set to a value defined in the MediaMode enum.
        *
        * @return The SessionProperties.Builder object with the peer-to-peer setting.
        */
@@ -100,8 +102,9 @@ public class SessionProperties {
     }
     
     /**
-     * Defines whether the session's streams will be transmitted directly between peers or using the
-     * OpenTok media server. See {@link SessionProperties.Builder#p2p(boolean p2p)}.
+     * Defines whether the session will transmit streams using the OpenTok Media Server or attempt
+     * to transmit streams directly between clients. See
+     * {@link SessionProperties.Builder#mediaMode(MediaMode mediaMode)}.
      */
     public MediaMode mediaMode() {
         return mediaMode;
