@@ -15,6 +15,15 @@ task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
 }
+javadoc {
+    title = 'OpenTok 2.2 Java SDK'
+    destinationDir = file('docs')
+    exclude '**/util/**', '**/constants/**'
+    options {
+        locale 'en_US'
+        setMemberLevel JavadocMemberLevel.PUBLIC
+    }
+}
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
