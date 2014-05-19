@@ -169,6 +169,14 @@ List<Archive> archives = opentok.listArchives(0, 50);
 List<Archive> archives = opentok.listArchives(50, 50);
 ```
 
+# Samples
+
+There are two sample applications included in this repository. To get going as fast as possible, clone the whole
+repository and follow the Walkthroughs:
+
+*  [HelloWorld](sample/HelloWorld/README.md)
+*  [Archiving](sample/Archiving/README.md)
+
 # Documentation
 
 Reference documentation is available at <http://www.tokbox.com//opentok/libraries/server/java/reference/index.html> and in the
