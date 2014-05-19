@@ -12,5 +12,5 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.6'
 }
 
-run.systemProperty 'API_KEY', '854511'
-run.systemProperty 'API_SECRET', '***REMOVED***'
+run.systemProperty 'API_KEY', ''
+run.systemProperty 'API_SECRET', ''
