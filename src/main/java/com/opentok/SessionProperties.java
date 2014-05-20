@@ -67,8 +67,8 @@ public class SessionProperties {
        *       each client must send a separate audio-video stream to each client subscribing to
        *       it.)</li>
        *   <li>The OpenTok Media Router can improve the quality of the user experience through
-       *     <a href="http://tokbox.com/#iqc" target="_top">Intellegent Quality Control</a>. With
-       *     Intellegent Quality Control, if a client's connectivity degrades to a degree that
+       *     <a href="http://tokbox.com/#iqc" target="_top">Intelligent Quality Control</a>. With
+       *     Intelligent Quality Control, if a client's connectivity degrades to a degree that
        *     it does not support video for a stream it's subscribing to, the video is dropped on
        *     that client (without affecting other clients), and the client receives audio only.
        *     If the client's connectivity improves, the video returns.</li>
