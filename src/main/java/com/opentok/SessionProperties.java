@@ -74,13 +74,13 @@ public class SessionProperties {
        *     If the client's connectivity improves, the video returns.</li>
        *   <li>The OpenTok Media Router supports the
        *     <a href="http://tokbox.com/#archiving" target="_top">archiving and playback</a>
-       *     feature, which lets you record, save, and retrieve OpenTok sessions</li>
+       *     feature, which lets you record, save, and retrieve OpenTok sessions.</li>
        * </ul>
        *
        * <p>
-       * With the <code>mediaMode</code> property set to <code>MediaMode.ROUTED</code>, the session
+       * With the <code>mediaMode</code> property set to <code>MediaMode.RELAYED</code>, the session
        * will attempt to transmit streams directly between clients. If clients cannot connect due to
-       * firewall restrictions,the session uses the OpenTok TURN server to relay audio-video
+       * firewall restrictions, the session uses the OpenTok TURN server to relay audio-video
        * streams.
        * <p>
        * You will be billed for streamed minutes if you use the OpenTok Media Router or if the
