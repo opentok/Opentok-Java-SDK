@@ -54,29 +54,37 @@ public class SessionProperties {
         }
 
        /**
-       * Call this method to determine whether the session will transmit streams between using the
+       * Call this method to determine whether the session will transmit streams using the
        * OpenTok Media Router (MediaMode.ROUTED) or not (MediaMode.RELAYED). By default, sessions
-       * use the OpenTok Media Router (false). If a session does not use the OpenTok Media Router,
-       * clients will attempt to transmit streams directly to each other. If two clients cannot send
-       * and receive each others' streams, due to firewalls on the clients' networks, their
-       * streams will be relayed using the OpenTok TURN Server.
+       * use the OpenTok Media Router.
        * <p>
-       * The <a href="http://www.tokbox.com/blog/mantis-next-generation-cloud-technology-for-webrtc/">
-       * OpenTok Media Router</a> provides a number of benefits. For example, the OpenTok Media
-       * Router can decrease bandwidth usage in multiparty sessions. Also, the OpenTok Media Router
-       * can improve the quality of the user experience through
-       * <a href="http://www.tokbox.com/blog/quality-of-experience-and-traffic-shaping-the-next-step-with-mantis/">dynamic
-       * traffic shaping</a>.
+       * The <a href="http://tokbox.com/#multiparty" target="_top"> OpenTok Media Router</a>
+       * provides the following benefits:
+       *
+       * <ul>
+       *   <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
+       *       (When the <code>mediaMode</code> property is set to <code>MediaMode.ROUTED</code>,
+       *       each client must send a separate audio-video stream to each client subscribing to
+       *       it.)</li>
+       *   <li>The OpenTok Media Router can improve the quality of the user experience through
+       *     <a href="http://tokbox.com/#iqc" target="_top">Intellegent Quality Control</a>. With
+       *     Intellegent Quality Control, if a client's connectivity degrades to a degree that
+       *     it does not support video for a stream it's subscribing to, the video is dropped on
+       *     that client (without affecting other clients), and the client receives audio only.
+       *     If the client's connectivity improves, the video returns.</li>
+       * </ul>
+       *
        * <p>
-       * With the mediaMode set to MediaMode.RELAYED, the session will attempt to transmit streams
-       * directly between clients. If clients cannot connect due to firewall restrictions, the
-       * session uses the OpenTok TURN server to relay audio-video streams.
+       * With the <code>mediaMode</code> property set to <code>MediaMode.ROUTED</code>, the session
+       * will attempt to transmit streams directly between clients. If clients cannot connect due to
+       * firewall restrictions,the session uses the OpenTok TURN server to relay audio-video
+       * streams.
        * <p>
        * You will be billed for streamed minutes if you use the OpenTok Media Router or if the
        * session uses the OpenTok TURN server to relay streams. For information on pricing, see the
-       * <a href="http://www.tokbox.com/pricing">OpenTok pricing page</a>.
+       * <a href="http://www.tokbox.com/pricing" target="_top">OpenTok pricing page</a>.
        *
-       * @param mediaMode Set to a value defined in the MediaMode enum.
+       * @param mediaMode Set to a value defined in the {@link MediaMode} enum.
        *
        * @return The SessionProperties.Builder object with the peer-to-peer setting.
        */

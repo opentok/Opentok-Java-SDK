@@ -2,7 +2,7 @@ package com.opentok;
 
 /**
  * Defines values for the mediaMode parameter of the
- * {@link SessionProperties.Builder#role(MediaMode mediaMode)} method.
+ * {@link SessionProperties.Builder#mediaMode(MediaMode mediaMode)} method.
  */
 public enum MediaMode {
     /**
