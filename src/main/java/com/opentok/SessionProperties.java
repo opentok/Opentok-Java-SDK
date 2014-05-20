@@ -72,6 +72,9 @@ public class SessionProperties {
        *     it does not support video for a stream it's subscribing to, the video is dropped on
        *     that client (without affecting other clients), and the client receives audio only.
        *     If the client's connectivity improves, the video returns.</li>
+       *   <li>The OpenTok Media Router supports the
+       *     <a href="http://tokbox.com/#archiving" target="_top">archiving and playback</a>
+       *     feature, which lets you record, save, and retrieve OpenTok sessions</li>
        * </ul>
        *
        * <p>
@@ -86,7 +89,7 @@ public class SessionProperties {
        *
        * @param mediaMode Set to a value defined in the {@link MediaMode} enum.
        *
-       * @return The SessionProperties.Builder object with the peer-to-peer setting.
+       * @return The SessionProperties.Builder object with the media mode setting.
        */
         public Builder mediaMode(MediaMode mediaMode) {
             this.mediaMode = mediaMode;
