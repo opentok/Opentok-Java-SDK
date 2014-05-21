@@ -5,8 +5,8 @@
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications that run on the JVM. This version of the SDK also includes support for working with OpenTok
-2.0 archives.
+applications that run on the JVM. This version of the SDK also includes support for working with
+<a href="http://tokbox.com/#archiving"OpenTok 2.0 archives</a>.
 
 # Installation using Maven Central (recommended):
 
@@ -56,7 +56,7 @@ OpenTok opentok = new OpenTok(apiKey, apiSecret)
 To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`
 method. The `properties` parameter is optional and it is used to specify two things:
 
-* Whether the session uses the OpenTok Media Server
+* Whether the session uses the OpenTok Media Router
 * A location hint for the OpenTok server.
 
 An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
