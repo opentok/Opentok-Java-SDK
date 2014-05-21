@@ -15,7 +15,7 @@ import com.opentok.exception.OpenTokException;
 
 /**
 * Represents an OpenTok session. Use the {@link OpenTok#createSession(SessionProperties properties)}
-* method to create an OpenTok session. Use the {@link #getSessionId()} method of the session object
+* method to create an OpenTok session. Use the {@link #getSessionId()} method of the Session object
 * to get the session ID.
 */
 public class Session {

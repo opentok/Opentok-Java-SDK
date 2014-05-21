@@ -48,7 +48,7 @@ public class OpenTok {
      * @param apiKey Your OpenTok API key. (See the <a href="https://dashboard.tokbox.com">OpenTok
      * dashboard</a> page.)
      * @param apiSecret Your OpenTok API secret. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
-     * page)
+     * page.)
      */
     public OpenTok(int apiKey, String apiSecret) {
         this(apiKey, apiSecret, "https://api.opentok.com");
@@ -173,8 +173,7 @@ public class OpenTok {
     }
 
     /**
-     * Creates a new OpenTok session and returns the session ID, which uniquely identifies
-     * the session.
+     * Creates a new OpenTok session.
      * <p>
      * For example, when using the OpenTok.js library, use the session ID when calling the
      * <a href="http://tokbox.com/opentok/libraries/client/js/reference/OT.html#initSession">
@@ -189,7 +188,8 @@ public class OpenTok {
      * Calling this method results in an {@link com.opentok.exception.OpenTokException} in
      * the event of an error. Check the error message for details.
      * <p>
-     * The following code creates a peer-to-peer session:
+     * The following code creates a session that attempts to send streams directly between clients
+     * (falling back to use the OpenTok TURN server to relay streams if the clients cannot connect):
      *
      * <pre>
      * import com.opentok.MediaMode;
@@ -225,8 +225,9 @@ public class OpenTok {
      *    <li>A location hint for the location of the OpenTok server to use for the session.</li>
      * </ul>
      *
-     * @return A session ID for the new session. For example, when using the OpenTok.js library, use
-     * this session ID when calling the <code>OT.initSession()</code> method.
+     * @return A Session object representing the new session. Call the <code>getSessionId()</code>
+     * method of the Session object to get the session ID, which uniquely identifies the
+     * session. You will use this session ID in the client SDKs to identify the session.
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
         Map<String, Collection<String>> params;
@@ -281,6 +282,10 @@ public class OpenTok {
      *     }
      * }
      * </pre>
+     *
+     * @return A Session object representing the new session. Call the <code>getSessionId()</code>
+     * method of the Session object to get the session ID, which uniquely identifies the
+     * session. You will use this session ID in the client SDKs to identify the session.
      *
      * @see #createSession(SessionProperties)
      */
