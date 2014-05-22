@@ -63,7 +63,7 @@ public class SessionProperties {
        *
        * <ul>
        *   <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
-       *       (When the <code>mediaMode</code> property is set to <code>MediaMode.ROUTED</code>,
+       *       (When the <code>mediaMode</code> property is set to <code>MediaMode.RELAYED</code>,
        *       each client must send a separate audio-video stream to each client subscribing to
        *       it.)</li>
        *   <li>The OpenTok Media Router can improve the quality of the user experience through
