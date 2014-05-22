@@ -39,7 +39,11 @@ dependencies {
 
 ## Manually:
 
-**TODO**: download from releases page?
+Download the zip file for the latest release from the
+[Releases](https://github.com/opentok/opentok-java-sdk/releases) page. This zip contains a jars for
+the OpenTok Java SDK and its dependencies. Include these in the classpath for your own project by
+[using the JDK directly](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/classpath.html)
+or in your IDE of choice.
 
 # Usage
 
