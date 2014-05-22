@@ -16,7 +16,7 @@ task javadocJar(type: Jar) {
     from javadoc
 }
 javadoc {
-    title = 'OpenTok 2.2 Java SDK'
+    title = 'OpenTok Java SDK Reference'
     destinationDir = file('docs')
     exclude '**/util/**', '**/constants/**'
     options {
@@ -45,7 +45,7 @@ dependencies {
     // TODO: find out how to initialize these dependencies properly, or remove them
     //compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
-} 
+}
 
 artifacts {
     archives javadocJar, sourcesJar
