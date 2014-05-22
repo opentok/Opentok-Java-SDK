@@ -1,8 +1,6 @@
 # OpenTok Java SDK
 
-**TODO**: change this to opentok fork instead of aoberoi
-
-[![Build Status](https://travis-ci.org/aoberoi/Opentok-Java-SDK.svg?branch=modernization)](https://travis-ci.org/aoberoi/Opentok-Java-SDK)
+[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=modernization)](https://travis-ci.org/opentok/Opentok-Java-SDK)
 
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
@@ -191,7 +189,7 @@ This project is tested on both OpenJDK and Oracle implementations.
 
 # Release Notes
 
-**TODO**: See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
+See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
 about each release.
 
 ## Important changes in v2.2
@@ -212,7 +210,7 @@ take two parameters: the session ID and a TokenOptions object.
 
 # Development and Contributing
 
-Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and 
+Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and
 [Contribution](CONTRIBUTING.md) guidelines.
 
 # Support
