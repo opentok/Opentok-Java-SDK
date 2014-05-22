@@ -2,7 +2,6 @@ package com.example;
 
 import static spark.Spark.*;
 
-import com.opentok.*;
 import com.opentok.OpenTok;
 import com.opentok.Role;
 import com.opentok.TokenOptions;

@@ -5,7 +5,7 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 group = 'com.tokbox'
-archivesBaseName = 'opentok'
+archivesBaseName = 'opentok-server-sdk'
 // TODO: how do we increment this before/after a release for deployment and development?
 version = '2.2.0-pre'
 
