@@ -13,6 +13,9 @@ applications that run on the JVM. This version of the SDK also includes support 
 The [Maven Central](http://central.sonatype.org/) repository helps manage dependencies for JVM
 based projects. It can be used via several build tools, including Maven and Gradle.
 
+If you are updating from a previous version of this SDK, see
+[Important changes in v2.2](#important-changes-in-v22).
+
 ### Maven
 
 When you use Maven as your build tool, you can manage dependencies in the `pom.xml` file:
