@@ -103,7 +103,7 @@ the archive and can be read later. In this case, as in the HelloWorld sample app
 only one session created and it is used here and for the participant view. This will trigger the
 recording to begin. The response sent back to the client's XHR request will be the JSON
 representation of the archive, which is returned from the `toString()` method. The client is also
-listening for the 'archiveStarted' event, and uses that event to change the 'Start Archiving' button
+listening for the `archiveStarted` event, and uses that event to change the 'Start Archiving' button
 to show 'Stop Archiving' instead. When the user presses the button this time, another XHR request
 is sent to the <http://localhost:4567/stop/:archiveId> URL where `:archiveId` represents the ID the
 client receives in the 'archiveStarted' event. The route handler for this request is shown below:
