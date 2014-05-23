@@ -1,8 +1,7 @@
 # OpenTok Archiving Sample for Java
 
-This is a simple demo app that shows how you can use the OpenTok Java SDK to create Sessions,
-generate Tokens with those Sessions, and then pass these values to a JavaScript client that can
-connect and conduct a group chat.
+This is a simple demo app that shows how you can use the OpenTok Java SDK to archive (or record)
+Sessions, list archives that have been created, download the recordings, and delete the recordings.
 
 ## Running the App
 
@@ -26,200 +25,266 @@ Or if you are using the Gradle Wrapper that is distributed with the project:
 $ ./gradlew :sample/Archiving:run
 ```
 
-Visit <http://localhost:4567> in your browser. Open it again in a second window. Smile! You've just
-set up a group chat.
+Visit <http://localhost:4567> in your browser. You can now create new archives (either as a host or
+as a participant) and also play archives that have already been created.
+
 
 ## Walkthrough
 
-This demo application uses the [Spark micro web framework](http://www.sparkjava.com/). It is similar to
-many other popular web frameworks. We are only covering the very basics of the framework, but you can
-learn more by following the link above.
+This demo application uses the same frameworks and libraries as the HelloWorld sample. If you have
+not already gotten familiar with the code in that project, consider doing so before continuing.
 
-### Main Application (src/main/java/com/example/ArchivingServer.java)
+The explanations below are separated by page. Each section will focus on a route handler within the
+main application (src/main/java/com/example/ArchivingServer.java).
 
-The first thing done in this file is to import the dependencies we will be using. In this case that
-is the Spark web framework, a couple collection classes, and most importantly some classes from the
-OpenTok SDK.
+### Creating Archives – Host View
 
-```java
-import static spark.Spark.*;
-import spark.*;
+Start by visiting the host page at <http://localhost:4567/host> and using the application to record
+an archive. Your browser will first ask you to approve permission to use the camera and microphone.
+Once you've accepted, your image will appear inside the section titled 'Host'. To start recording
+the video stream, press the 'Start Archiving' button. Once archiving has begun the button will turn
+green and change to 'Stop Archiving'. You should also see a red blinking indicator that you are
+being recorded. Wave and say hello! Stop archiving when you are done.
 
-import java.util.Map;
-import java.util.HashMap;
-
-import com.opentok.OpenTok;
-import com.opentok.exception.OpenTokException;
-```
-
-Next, we set up a main class for the application.
+Next we will see how the host view is implemented on the server. The route handler for this page is
+shown below:
 
 ```java
-public class HelloWorldServer {
-  
-  // We will set up some class variables here
-
-  public static void main(String[] args) throws OpenTokException {
-    // The application will start here
-  }
-}
-```
-
-Next this application performs some basic checks on the environment. If it cannot find the `API_KEY`and
-`API_SECRET` system properties, there is no point in continuing.
-
-
-```java
-public class HelloWorldServer {
-
-  private static final String apiKey = System.getProperty("API_KEY");
-  private static final String apiSecret = System.getProperty("API_SECRET");
-
-  public static void main(String[] args) throws OpenTokException {
-
-    if (apiKey == null || apiKey.isEmpty() || apiSecret == null || apiSecret.isEmpty()) {
-      System.out.println("You must define API_KEY and API_SECRET system properties in the build.gradle file.");
-      System.exit(-1);
-    }
-
-  }
-}
-```
-
-The first thing the application does is to initialize an instance of `OpenTok` and store it as
-a static class variable.
-
-```java
-public class HelloWorldServer {
-
-  // ...
-  private static final OpenTok opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
-
-  public static void main(String[] args) throws OpenTokException {
-    // ...
-  }
-}
-```
-
-Now, lets discuss the Hello World application's functionality. We want to set up a group chat so
-that any client that visits a page will connect to the same OpenTok Session. Once they are connected
-they can Publish a Stream and Subscribe to all the other streams in that Session. So we just need
-one Session object, and it needs to be accessible every time a request is made. The next line of our
-application simply calls the `OpenTok` instance's `createSession()` method and pulls out the
-`String sessionId` using the `getSessionId()` method on the resulting `Session` instance. This is
-stored in another class variable. Alternatively, `sessionId`s are commonly stored in databses for
-applications that have many of them.
-
-```java
-public class HelloWorldServer {
-
-  // ...
-  private static String sessionId;
-
-  public static void main(String[] args) throws OpenTokException {
-    // ...
-
-    sessionId = opentok.createSession().getSessionId();
-  }
-}
-```
-
-Spark uses the `externalStaticFileLocation()` method to specify which directory to serve static
-files from.
-
-```java
-public class HelloWorldServer {
-
-  // ...
-
-  public static void main(String[] args) throws OpenTokException {
-    // ...
-
-    externalStaticFileLocation("./public");
-  }
-}
-```
-
-We only need one page, so we create one route handler for any HTTP GET requests to trigger.
-
-```java
-public class HelloWorldServer {
-
-  // ...
-
-  public static void main(String[] args) throws OpenTokException {
-    // ...
-
-    get(new FreeMarkerTemplateView("/") {
-      @Override
-      public ModelAndView handle(Request request, Response response) {
-
-      // This is where we handle the request and are responsible for returning a response
-
-      }
-    });
-
-  }
-}
-
-```
-
-Now all we have to do is serve a page with the three values the client will need to connect to the
-session: `apiKey`, `sessionId`, and `token`. The first two are available as class variables. The
-`token` is generated freshly on this request by calling `opentok.generateToken()`, and passing in
-the `sessionId`. This is because a Token is a piece of information that carries a specific client's
-permissions in a certain Session. Ideally, as we've done here, you generate a unique token for each
-client that will connect.
-
-```java
-    get(new FreeMarkerTemplateView("/") {
-      @Override
-      public ModelAndView handle(Request request, Response response) {
+get(new FreeMarkerTemplateView("/host") {
+    @Override
+    public ModelAndView handle(Request request, Response response) {
 
         String token = null;
         try {
-            token = opentok.generateToken(sessionId);
+            token = opentok.generateToken(sessionId, new TokenOptions.Builder()
+                .role(Role.MODERATOR)
+                .build());
         } catch (OpenTokException e) {
             e.printStackTrace();
         }
-
-        // Now we have apiKey, sessionId, and token
-
-      }
-    });
-```
-
-Now all we have to do is serve a page with those three values. To do so, we put together a Map of
-values that our template system (freemarker) will use to render an HTML page. This is done by
-returning an instance of `ModelAndView` that groups this map with the name of a view.
-
-```java
-    get(new FreeMarkerTemplateView("/") {
-      @Override
-      public ModelAndView handle(Request request, Response response) {
-        // ...
 
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put("apiKey", apiKey);
         attributes.put("sessionId", sessionId);
         attributes.put("token", token);
 
-        return new ModelAndView(attributes, "index.ftl");
-      }
-    });
+        return new ModelAndView(attributes, "host.ftl");
+    }
+});
 ```
 
-### Main Template (src/main/resources/com/example/freemarker/index.ftl)
+If you've completed the HelloWorld walkthrough, this should look familiar. This handler simply
+generates the three strings that the client (JavaScript) needs to connect to the session: `apiKey`,
+`sessionId` and `token`. After the user has connected to the session, they press the
+'Start Archiving' button, which sends an XHR (or Ajax) request to the <http://localhost:4567/start>
+URL. The route handler for this URL is shown below:
 
-This file simply sets up the HTML page for the JavaScript application to run, imports the
-JavaScript library, and passes the values created by the server into the JavaScript application
-inside `public/js/helloworld.js`
+```java
+get(new Route("/start") {
+    @Override
+    public Object handle(Request request, Response response) {
 
-### JavaScript Applicaton (public/js/helloworld.js)
+        Archive archive = null;
+        try {
+            archive = opentok.startArchive(sessionId, "Java Archiving Sample App");
+        } catch (OpenTokException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return archive.toString();
+    }
+});
+```
 
-The group chat is mostly implemented in this file. At a high level, we connect to the given
-Session, publish a stream from our webcam, and listen for new streams from other clients to
-subscribe to.
+In this handler the `startArchive()` method of the `opentok` instance is called with the `sessionId`
+for the session that needs to be archived. The optional second argument is `name`, which stored with
+the archive and can be read later. In this case, as in the HelloWorld sample app, there is
+only one session created and it is used here and for the participant view. This will trigger the
+recording to begin. The response sent back to the client's XHR request will be the JSON
+representation of the archive, which is returned from the `toString()` method. The client is also
+listening for the 'archiveStarted' event, and uses that event to change the 'Start Archiving' button
+to show 'Stop Archiving' instead. When the user presses the button this time, another XHR request
+is sent to the <http://localhost:4567/stop/:archiveId> URL where `:archiveId` represents the ID the
+client receives in the 'archiveStarted' event. The route handler for this request is shown below:
 
-For more details, read the comments in the file or go to the
-[JavaScript Client Library](http://tokbox.com/opentok/libraries/client/js/) for a full reference.
+```java
+get(new Route("/stop/:archiveId") {
+    @Override
+    public Object handle(Request request, Response response) {
+
+        Archive archive = null;
+        try {
+            archive = opentok.stopArchive(request.params("archiveId"));
+        } catch (OpenTokException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return archive.toString();
+    }
+});
+```
+
+This handler is very similar to the previous one. Instead of calling the `startArchive()` method,
+the `stopArchive()` method is called. This method takes an `archiveId` as its parameter, which
+is different for each time a session starts recording. But the client has sent this to the server
+as part of the URL, so the `request.params("archiveId")` expression is used to retrieve it.
+
+Now you have understood the three main routes that are used to create the Host experience of
+creating an archive. Much of the functionality is done in the client with JavaScript. That code can
+be found in the `public/js/host.js` file. Read about the
+[OpenTok.js JavaScript]() library to learn more.
+
+### Creating Archives - Participant View
+
+With the host view still open and publishing, open an additional window or tab and navigate to
+<http://localhost:4567/participant> and allow the browser to use your camera and microphone. Once
+again, start archiving in the host view. Back in the participant view, notice that the red blinking
+indicator has been shown so that the participant knows his video is being recorded. Now stop the
+archiving in the host view. Notice that the indicator has gone away in the participant view too.
+
+Creating this view on the server is as simple as the HelloWorld sample application. See the code
+for the route handler below:
+
+```java
+get(new FreeMarkerTemplateView("/participant") {
+    @Override
+    public ModelAndView handle(Request request, Response response) {
+
+        String token = null;
+        try {
+            token = opentok.generateToken(sessionId, new TokenOptions.Builder()
+                    .role(Role.MODERATOR)
+                    .build());
+        } catch (OpenTokException e) {
+            e.printStackTrace();
+        }
+
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        attributes.put("apiKey", apiKey);
+        attributes.put("sessionId", sessionId);
+        attributes.put("token", token);
+
+        return new ModelAndView(attributes, "participant.ftl");
+    }
+});
+```
+
+Since this view has no further interactivity with buttons, this is all that is needed for a client
+that is participating in an archived session.
+
+### Past Archives
+
+Start by visiting the history page at <http://localhost:4567/history>. You will see a table that
+displays all the archives created with your API Key. If there are more than five, the older ones
+can be seen by clicking the "Older →" link. If you click on the name of an archive, your browser
+will start downloading the archive file. If you click the "Delete" link in the end of the row
+for any archive, that archive will be deleted and no longer available. Some basic information like
+when the archive was created, how long it is, and its status is shown. You should see the archives
+you created in the previous sections here.
+
+We begin to see how this page is created by looking at the route handler for this URL:
+
+```java
+get(new FreeMarkerTemplateView("/history") {
+    @Override
+    public ModelAndView handle(Request request, Response response) {
+
+        String pageParam = request.queryParams("page");
+        int page;
+        try {
+            page = Integer.parseInt(pageParam);
+        } catch (NumberFormatException e) {
+            page = 1;
+        }
+
+        int offset = (page - 1) * 5;
+        List<Archive> archives = null;
+        try {
+            archives = opentok.listArchives(offset, 5);
+        } catch (OpenTokException e) {
+            e.printStackTrace();
+        }
+
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        attributes.put("archives", archives);
+        attributes.put("showPrevious", null);
+        // TODO: we don't have a total count, how do we know if there is a next page?
+        attributes.put("showNext", "/history?page=" + (page + 1));
+
+        if (page > 1) {
+            attributes.put("showPrevious", "/history?page=" + (page - 1));
+        }
+
+        return new ModelAndView(attributes, "history.ftl");
+    }
+});
+```
+
+This view is paginated so that we don't potentially show hundreds of rows on the table, which would
+be difficult for the user to navigate. So this code starts by figuring out which page needs to be
+shown, where each page is a set of 5 archives. The `page` number is read from the request's query
+string parameters as a string and then parsed into an `int`. The `offset`, which represents how many
+archives are being skipped is always calculated as five time as pages that are less than the current
+page, which is `(page - 1) * 5`. Now there is enough information to ask for a list of archives from
+OpenTok, which we do by calling the `listArchives()` method of the `opentok` instance. The first
+parameter is the offset, and the second is the count (which is always 5 in this view). If we are not
+at the first page, we can pass the view a string that contains the relative URL for the previous
+page. Similarly, we can also include one for the next page. Now the application renders the view
+using that information and the partial list of archives.
+
+At this point the template file `src/main/resources/com/example/freemarker/history.ftl` handles
+looping over the array of archives and outputting the proper information for each column in the
+table. It also places a link to the download and delete routes around the archive's name and
+it's delete button, respectively.
+
+The code for the download route handler is shown below:
+
+```java
+get(new Route("/download/:archiveId") {
+    @Override
+    public Object handle(Request request, Response response) {
+
+        Archive archive = null;
+        try {
+            archive = opentok.getArchive(request.params("archiveId"));
+        } catch (OpenTokException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        response.redirect(archive.getUrl());
+        return null;
+    }
+});
+```
+
+The download URL for an archive is available as a property of an `Archive` instance. In order to get
+an instance to this archive, the `getArchive()` method of the `opentok` instance is used. The only
+parameter it needs is the `archiveId`. We use the same technique as above to read that `archiveId`
+from the URL. Lastly, we send a redirect response back to the browser so the download begins.
+
+The code for the delete route handler is shown below:
+
+```java
+get(new Route("/delete/:archiveId") {
+    @Override
+    public Object handle(Request request, Response response) {
+
+        try {
+            opentok.deleteArchive(request.params("archiveId"));
+        } catch (OpenTokException e) {
+            e.printStackTrace();
+            return null;
+        }
+        response.redirect("/history");
+        return null;
+    }
+});
+```
+
+Once again the `archiveId` is retrieved from the URL of the request. This value is then passed the
+`deleteArchive()` method of the `opentok` instance. Now that the archive has been deleted, a
+redirect response back to the first page of the history is sent back to the browser.
+
+That completes the walkthrough for this Archiving sample application. Feel free to continue to use
+this application to browse the archives created for your API Key.
