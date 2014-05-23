@@ -69,7 +69,7 @@ method. The `properties` parameter is optional and it is used to specify two thi
 
 An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
 The `sessionId` property of the returned `com.opentok.Session` instance, which you can read using
-the `getSessionId()` method, is useful to get a sessionId that can be saved to a persistent store
+the `getSessionId()` method, is useful to get an identifier that can be saved to a persistent store
 (such as a database).
 
 ```java
@@ -196,7 +196,12 @@ The OpenTok Java SDK requires JDK 6 or greater to compile. Runtime requires Java
 This project is tested on both OpenJDK and Oracle implementations.
 
 
-# Important changes in v2.2
+# Release Notes
+
+See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
+about each release.
+
+## Important changes in v2.2
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
