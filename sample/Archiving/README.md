@@ -97,7 +97,7 @@ get(new Route("/start") {
 });
 ```
 
-In this handler the `startArchive()` method of the `opentok` instance is called with the `sessionId`
+In this handler, the `startArchive()` method of the `opentok` instance is called with the `sessionId`
 for the session that needs to be archived. The optional second argument is `name`, which stored with
 the archive and can be read later. In this case, as in the HelloWorld sample app, there is
 only one session created and it is used here and for the participant view. This will trigger the
@@ -226,7 +226,7 @@ This view is paginated so that we don't potentially show hundreds of rows on the
 be difficult for the user to navigate. So this code starts by figuring out which page needs to be
 shown, where each page is a set of 5 archives. The `page` number is read from the request's query
 string parameters as a string and then parsed into an `int`. The `offset`, which represents how many
-archives are being skipped is always calculated as five time as pages that are less than the current
+archives are being skipped is always calculated as five times as pages that are less than the current
 page, which is `(page - 1) * 5`. Now there is enough information to ask for a list of archives from
 OpenTok, which we do by calling the `listArchives()` method of the `opentok` instance. The first
 parameter is the offset, and the second is the count (which is always 5 in this view). If we are not
@@ -237,7 +237,7 @@ using that information and the partial list of archives.
 At this point the template file `src/main/resources/com/example/freemarker/history.ftl` handles
 looping over the array of archives and outputting the proper information for each column in the
 table. It also places a link to the download and delete routes around the archive's name and
-it's delete button, respectively.
+its delete button, respectively.
 
 The code for the download route handler is shown below:
 
