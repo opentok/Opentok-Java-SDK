@@ -18,7 +18,7 @@ public class ArchivingServer {
 
     private static final String apiKey = System.getProperty("API_KEY");
     private static final String apiSecret = System.getProperty("API_SECRET");
-    private static final OpenTok opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
+    private static OpenTok opentok;
     private static String sessionId;
 
     public static void main(String[] args) throws OpenTokException {
@@ -27,6 +27,8 @@ public class ArchivingServer {
             System.out.println("You must define API_KEY and API_SECRET system properties in the build.gradle file.");
             System.exit(-1);
         }
+
+        opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
 
         sessionId = opentok.createSession().getSessionId();
 

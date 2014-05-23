@@ -20,7 +20,8 @@ Next, start the server using Gradle (which handles dependencies and setting up t
 $ gradle :sample/HelloWorld:run
 ```
 
-Or if you are using the Gradle Wrapper that is distributed with the project:
+Or if you are using the Gradle Wrapper that is distributed with the project, from the root project
+directory:
 
 ```
 $ ./gradlew :sample/HelloWorld:run
@@ -93,10 +94,11 @@ a static class variable.
 public class HelloWorldServer {
 
   // ...
-  private static final OpenTok opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
+  private static OpenTok opentok;
 
   public static void main(String[] args) throws OpenTokException {
     // ...
+    opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
   }
 }
 ```

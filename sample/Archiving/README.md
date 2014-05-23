@@ -19,7 +19,8 @@ Next, start the server using Gradle (which handles dependencies and setting up t
 $ gradle :sample/Archiving:run
 ```
 
-Or if you are using the Gradle Wrapper that is distributed with the project:
+Or if you are using the Gradle Wrapper that is distributed with the project, from the root project
+directory:
 
 ```
 $ ./gradlew :sample/Archiving:run
