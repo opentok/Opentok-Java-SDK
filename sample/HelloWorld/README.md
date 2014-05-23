@@ -56,7 +56,7 @@ Next, we set up a main class for the application.
 
 ```java
 public class HelloWorldServer {
-  
+
   // We will set up some class variables here
 
   public static void main(String[] args) throws OpenTokException {
@@ -211,7 +211,7 @@ returning an instance of `ModelAndView` that groups this map with the name of a 
 
 ### Main Template (src/main/resources/com/example/freemarker/index.ftl)
 
-This file simply sets up the HTML page for the JavaScript application to run, imports the
+This file simply sets up the HTML page for the JavaScript application to run, imports the OpenTok.js
 JavaScript library, and passes the values created by the server into the JavaScript application
 inside `public/js/helloworld.js`
 
