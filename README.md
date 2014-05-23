@@ -6,7 +6,7 @@ The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
 applications that run on the JVM. This version of the SDK also includes support for working with
-<a href="http://tokbox.com/#archiving"OpenTok 2.0 archives</a>.
+[OpenTok 2.0 archives](http://tokbox.com/#archiving).
 
 # Installation using Maven Central (recommended):
 
@@ -106,7 +106,7 @@ String token = session.generateToken();
 // Set some options in a token
 String token = session.generateToken(new TokenOptions.Builder()
   .role(Role.MODERATOR)
-  .expireTime((System.currentTimeMillis() / 1000) + (7 * 24 * 60 * 60)) // in one week
+  .expireTime((System.currentTimeMillis() / 1000L) + (7 * 24 * 60 * 60)) // in one week
   .data("name=Johnny")
   .build());
 ```
