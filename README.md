@@ -205,7 +205,7 @@ This project is tested on both OpenJDK and Oracle implementations.
 See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
 about each release.
 
-## Important changes in v2.2
+# Important changes in v2.2
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
