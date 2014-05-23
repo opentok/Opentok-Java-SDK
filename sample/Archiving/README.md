@@ -181,8 +181,8 @@ displays all the archives created with your API Key. If there are more than five
 can be seen by clicking the "Older →" link. If you click on the name of an archive, your browser
 will start downloading the archive file. If you click the "Delete" link in the end of the row
 for any archive, that archive will be deleted and no longer available. Some basic information like
-when the archive was created, how long it is, and its status is shown. You should see the archives
-you created in the previous sections here.
+when the archive was created, how long it is, and its status is also shown. You should see the
+archives you created in the previous sections here.
 
 We begin to see how this page is created by looking at the route handler for this URL:
 
@@ -226,7 +226,7 @@ This view is paginated so that we don't potentially show hundreds of rows on the
 be difficult for the user to navigate. So this code starts by figuring out which page needs to be
 shown, where each page is a set of 5 archives. The `page` number is read from the request's query
 string parameters as a string and then parsed into an `int`. The `offset`, which represents how many
-archives are being skipped is always calculated as five times as pages that are less than the current
+archives are being skipped is always calculated as five times as many pages that are less than the current
 page, which is `(page - 1) * 5`. Now there is enough information to ask for a list of archives from
 OpenTok, which we do by calling the `listArchives()` method of the `opentok` instance. The first
 parameter is the offset, and the second is the count (which is always 5 in this view). If we are not
