@@ -170,8 +170,7 @@ get(new FreeMarkerTemplateView("/participant") {
 ```
 
 Since this view has no further interactivity with buttons, this is all that is needed for a client
-that is participating in an archived session. Once again, much of the functionality is implemented
-in the client, in code that can be found in the `public/js/participant.js` file.
+that is participating in an archived session.
 
 ### Past Archives
 
