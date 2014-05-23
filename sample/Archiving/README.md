@@ -98,7 +98,7 @@ get(new Route("/start") {
 ```
 
 In this handler, the `startArchive()` method of the `opentok` instance is called with the `sessionId`
-for the session that needs to be archived. The optional second argument is `name`, which stored with
+for the session that needs to be archived. The optional second argument is `name`, which is stored with
 the archive and can be read later. In this case, as in the HelloWorld sample app, there is
 only one session created and it is used here and for the participant view. This will trigger the
 recording to begin. The response sent back to the client's XHR request will be the JSON
