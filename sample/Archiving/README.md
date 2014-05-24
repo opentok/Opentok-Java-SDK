@@ -284,7 +284,7 @@ get(new Route("/delete/:archiveId") {
 });
 ```
 
-Once again the `archiveId` is retrieved from the URL of the request. This value is then passed the
+Once again the `archiveId` is retrieved from the URL of the request. This value is then passed to the
 `deleteArchive()` method of the `opentok` instance. Now that the archive has been deleted, a
 redirect response back to the first page of the history is sent back to the browser.
 
