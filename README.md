@@ -27,7 +27,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.opentok</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>2.2.0-beta.1</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.opentok', name: 'opentok-server-sdk', version: '2.2.0-beta.1'
+  compile group: 'com.opentok', name: 'opentok-server-sdk', version: '2.2.0'
 }
 ```
 
