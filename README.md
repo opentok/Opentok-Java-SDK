@@ -5,8 +5,12 @@
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications that run on the JVM. This version of the SDK also includes support for working with
-[OpenTok 2.0 archives](http://tokbox.com/#archiving).
+applications that run on the JVM. This version of the SDK also includes support for working
+with [OpenTok 2.0 archives](http://tokbox.com/#archiving).
+
+If you are updating from a previous version of this SDK, see
+[Important changes in v2.2](#important-changes-in-v22).
+
 
 # Installation using Maven Central (recommended):
 
@@ -201,7 +205,7 @@ This project is tested on both OpenJDK and Oracle implementations.
 See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
 about each release.
 
-## Important changes in v2.2
+# Important changes in v2.2
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
