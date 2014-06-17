@@ -82,20 +82,20 @@ the `getSessionId()` method, is useful to get an identifier that can be saved to
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 
-// Just a plain Session
+// A session that attempts to stream media directly between clients:
 Session session = opentok.createSession();
 
-// A session that attempts to use peer-to-peer streaming
+// A session that uses the OpenTok Media Router:
 Session session = opentok.createSession(new SessionProperties.Builder()
-  .mediaMode(MediaMode.RELAYED)
+  .mediaMode(MediaMode.ROUTED)
   .build());
 
-// A Session with a location hint
+// A Session with a location hint:
 Session session = opentok.createSession(new SessionProperties.Builder()
   .location("12.34.56.78")
   .build());
 
-// Store this sessionId in the database for later use
+// Store this sessionId in the database for later use:
 String sessionId = session.getSessionId();
 ```
 

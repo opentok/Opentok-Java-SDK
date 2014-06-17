@@ -2,10 +2,7 @@ package com.example;
 
 import static spark.Spark.*;
 
-import com.opentok.OpenTok;
-import com.opentok.Role;
-import com.opentok.TokenOptions;
-import com.opentok.Archive;
+import com.opentok.*;
 import spark.*;
 
 import java.util.Map;
@@ -30,7 +27,10 @@ public class ArchivingServer {
 
         opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
 
-        sessionId = opentok.createSession().getSessionId();
+        sessionId = opentok.createSession(new SessionProperties.Builder()
+                .mediaMode(MediaMode.ROUTED)
+                .build())
+                .getSessionId();
 
         externalStaticFileLocation("./public");
 
