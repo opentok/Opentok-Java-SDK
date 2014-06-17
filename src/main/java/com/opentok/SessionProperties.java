@@ -55,10 +55,18 @@ public class SessionProperties {
 
        /**
        * Call this method to determine whether the session will transmit streams using the
-       * OpenTok Media Router (MediaMode.ROUTED) or not (MediaMode.RELAYED). By default, sessions
-       * use the OpenTok Media Router.
+       * OpenTok Media Router (<code>MediaMode.ROUTED</code>) or not
+       * (<code>MediaMode.RELAYED</code>). By default, the <code>mediaMode</code> property
+       * is set to <code>MediaMode.RELAYED</code>.
+       *
        * <p>
-       * The <a href="http://tokbox.com/#multiparty" target="_top"> OpenTok Media Router</a>
+       * With the <code>mediaMode</code> property set to <code>MediaMode.RELAYED</code>, the session
+       * will attempt to transmit streams directly between clients. If clients cannot connect due to
+       * firewall restrictions, the session uses the OpenTok TURN server to relay audio-video
+       * streams.
+       *
+       * <p>
+       * The <a href="http://tokbox.com/#multiparty" target="_top">OpenTok Media Router</a>
        * provides the following benefits:
        *
        * <ul>
@@ -77,11 +85,6 @@ public class SessionProperties {
        *     feature, which lets you record, save, and retrieve OpenTok sessions.</li>
        * </ul>
        *
-       * <p>
-       * With the <code>mediaMode</code> property set to <code>MediaMode.RELAYED</code>, the session
-       * will attempt to transmit streams directly between clients. If clients cannot connect due to
-       * firewall restrictions, the session uses the OpenTok TURN server to relay audio-video
-       * streams.
        * <p>
        * You will be billed for streamed minutes if you use the OpenTok Media Router or if the
        * session uses the OpenTok TURN server to relay streams. For information on pricing, see the

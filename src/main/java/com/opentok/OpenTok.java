@@ -258,10 +258,14 @@ public class OpenTok {
     /**
      * Creates an OpenTok session with the default settings:
      *
+     * <p>
      * <ul>
-     *     <li>The session uses the OpenTok media server.
+     *     <li>The media mode is "relayed". The session will attempt to transmit streams
+     *        directly between clients. If two clients cannot send and receive each others'
+     *        streams, due to firewalls on the clients' networks, their streams will be
+     *        relayed  using the OpenTok TURN Server.</li>
      *     <li>The session uses the first client connecting to determine the location of the
-     *     OpenTok server to use.</li>
+     *        OpenTok server to use.</li>
      * </ul>
      *
      * <p>
