@@ -71,17 +71,17 @@ public class OpenTokTest {
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
+        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
-                // TODO: add p2p.preference=disabled
+                .withRequestBody(matching(".*p2p.preference=enabled.*"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
     @Test
-    public void testCreateRelayedSession() throws OpenTokException {
+    public void testCreateRoutedSession() throws OpenTokException {
         String sessionId = "SESSIONID";
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
@@ -92,19 +92,19 @@ public class OpenTokTest {
                                 "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
 
         SessionProperties properties = new SessionProperties.Builder()
-                .mediaMode(MediaMode.RELAYED)
+                .mediaMode(MediaMode.ROUTED)
                 .build();
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
+        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
-                // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-                .withRequestBody(matching(".*p2p.preference=enabled.*"))
+                // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+                .withRequestBody(matching(".*p2p.preference=disabled.*"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
@@ -129,7 +129,7 @@ public class OpenTokTest {
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
+        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
         assertEquals(locationHint, session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))

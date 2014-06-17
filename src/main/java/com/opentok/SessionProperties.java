@@ -33,7 +33,7 @@ public class SessionProperties {
      */
     public static class Builder {
         private String location = null;
-        private MediaMode mediaMode = MediaMode.ROUTED;
+        private MediaMode mediaMode = MediaMode.RELAYED;
         
 
         /**

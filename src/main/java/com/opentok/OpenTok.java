@@ -237,7 +237,7 @@ public class OpenTok {
         if(properties != null) {
             params = properties.toMap();
         } else {
-            params = null;
+            params = new SessionProperties.Builder().build().toMap();
         }
         
         String xmlResponse = this.client.createSession(params);
