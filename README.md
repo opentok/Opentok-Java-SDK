@@ -9,7 +9,7 @@ applications that run on the JVM. This version of the SDK also includes support 
 with [OpenTok 2.0 archives](http://tokbox.com/#archiving).
 
 If you are updating from a previous version of this SDK, see
-[Important changes in v2.2](#important-changes-in-v22).
+[Important changes since v2.2.0](#important-changes-since-v220).
 
 
 # Installation
@@ -207,7 +207,18 @@ This project is tested on both OpenJDK and Oracle implementations.
 See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
 about each release.
 
-# Important changes in v2.2.1
+# Important changes since v2.2.0
+
+**Changes in v2.2.1:**
+
+The default setting for the `createSession()` method is to create a session with the media mode set
+to relayed. In previous versions of the SDK, the default setting was to use the OpenTok Media Router
+(with the media mode set to routed in v2.2.0, or with p2p.preference="disabled" in previous
+versions). In a relayed session, clients will attempt to send streams directly between each other
+(peer to peer); and if clients cannot connect due to firewall restrictions, the session uses the
+OpenTok TURN server to relay audio-video streams.
+
+**Changes in v2.2.0:**
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
@@ -219,12 +230,6 @@ The API_Config class has been removed. Store your OpenTok API key and API secret
 
 The `create_session()` method has been renamed `createSession()`. Also, the method has changed to
 take one parameter: a SessionProperties object. You now generate a SessionProperties object using a Builder pattern.
-
-The default setting for the `createSession()` method is to create a session with the media mode set
-to relayed. In previous versions of the SDK, the default setting was to use the OpenTok Media Router
-(media mode set to routed). In a relayed session, clients will attempt to send streams directly between
-each other (peer-to-peer); if clients cannot connect due to firewall restrictions, the session uses the
-OpenTok TURN server to relay audio-video streams.
 
 The `generate_token()` method has been renamed `generateToken()`. Also, the method has changed to
 take two parameters: the session ID and a TokenOptions object.
