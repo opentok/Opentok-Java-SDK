@@ -548,4 +548,53 @@ public class OpenTokTest {
 
     // TODO: test delete archive failure scenarios
 
+    // NOTE: this test is pretty sloppy
+    @Test public void testGetExpiredArchive() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395187836000,\n" +
+                                "          \"duration\" : 62,\n" +
+                                "          \"id\" : \"" + archiveId + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 8347554,\n" +
+                                "          \"status\" : \"expired\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.getArchive(archiveId);
+        assertNotNull(archive);
+        assertEquals(Archive.Status.EXPIRED, archive.getStatus());
+    }
+
+    @Test public void testGetArchiveWithUnknownProperties() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395187836000,\n" +
+                                "          \"duration\" : 62,\n" +
+                                "          \"id\" : \"" + archiveId + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 8347554,\n" +
+                                "          \"status\" : \"expired\",\n" +
+                                "          \"url\" : null,\n" +
+                                "          \"thisisnotaproperty\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.getArchive(archiveId);
+
+        assertNotNull(archive);
+    }
 }

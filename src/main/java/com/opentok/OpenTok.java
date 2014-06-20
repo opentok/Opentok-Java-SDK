@@ -15,6 +15,7 @@ import javax.xml.xpath.XPathFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.opentok.exception.OpenTokException;
@@ -24,6 +25,7 @@ import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.xml.sax.InputSource;
 
 /**
@@ -41,6 +43,8 @@ public class OpenTok {
     private int apiKey;
     private String apiSecret;
     protected HttpClient client;
+    static protected ObjectReader archiveReader = new ObjectMapper()
+            .reader(Archive.class);
 
     /**
      * Creates an OpenTok object.
@@ -311,10 +315,9 @@ public class OpenTok {
      * @return The {@link Archive} object.
      */
     public Archive getArchive(String archiveId) throws OpenTokException {
-        ObjectMapper mapper = new ObjectMapper();
         String archive = this.client.getArchive(archiveId);
         try {
-            return mapper.readValue(archive, Archive.class);
+            return archiveReader.readValue(archive);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
@@ -385,9 +388,8 @@ public class OpenTok {
         }
         // TODO: do validation on sessionId and name
         String archive = this.client.startArchive(sessionId, name);
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(archive, Archive.class);
+            return archiveReader.readValue(archive);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
@@ -405,9 +407,8 @@ public class OpenTok {
     public Archive stopArchive(String archiveId) throws OpenTokException {
 
         String archive = this.client.stopArchive(archiveId);
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(archive, Archive.class);
+            return archiveReader.readValue(archive);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
