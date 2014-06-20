@@ -55,10 +55,11 @@ In order to create a release, the following should be completed in order.
 1. Run `gradle uploadArchives` to create a staging release.
 1. Login to [OSSRH](https://oss.sonatype.org/) and promote the staging release to a public release.
 1. Change the version number for future development by incrementing the patch number and
-   adding "-alpha.1" in each file except the README, then make another commit with the
-   message "Begin development on next version".
-1. Push the changes to the source repository: `git push origin master`
-1. Create a zip for uploading the release to Github Releases
+   adding "-alpha.1" in each file except the README. Building may have generated the docs files once again, so to clear
+   them run `git checkout -- docs/`. Then stage the remaining files and commit with the message
+   "Begin development on next version".
+1. Push the changes to the source repository: `git push origin master; git push --tags origin`
+1. Find the latest .jar in the build directory and upload this as an attached to the latest GitHub Release.
 
 ### IDE Integration
 
