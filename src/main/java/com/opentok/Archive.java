@@ -1,6 +1,7 @@
 package com.opentok;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
 * Represents an archive of an OpenTok session. 
 */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Archive {
     /**
      * Defines values returned by the {@link Archive#getStatus} method.
@@ -35,10 +37,16 @@ public class Archive {
          */
         STOPPED,
         /**
-         * The archive file is available at the target S3 bucket you set at the
+         * The archive file is available at the target Amazon S3 bucket
+         * or Windows Azure container you set at the
          * <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>.
          */
-        UPLOADED;
+        UPLOADED,
+
+        /**
+         * The archive file is no longer available at the OpenTok cloud.
+         */
+        EXPIRED;
 
         @JsonValue public String toString() {
             return super.toString().toLowerCase();
