@@ -37,11 +37,15 @@ public class Archive {
          */
         STOPPED,
         /**
-         * The archive file is available at the target S3 bucket you set at the
+         * The archive file is available at the target Amazon S3 bucket
+         * or Windows Azure container you set at the
          * <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>.
          */
         UPLOADED,
 
+        /**
+         * The archive file is no longer available at the OpenTok cloud.
+         */
         EXPIRED;
 
         @JsonValue public String toString() {
