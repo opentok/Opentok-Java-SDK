@@ -85,11 +85,6 @@ public class SessionProperties {
        *     feature, which lets you record, save, and retrieve OpenTok sessions.</li>
        * </ul>
        *
-       * <p>
-       * You will be billed for streamed minutes if you use the OpenTok Media Router or if the
-       * session uses the OpenTok TURN server to relay streams. For information on pricing, see the
-       * <a href="http://www.tokbox.com/pricing" target="_top">OpenTok pricing page</a>.
-       *
        * @param mediaMode Set to a value defined in the {@link MediaMode} enum.
        *
        * @return The SessionProperties.Builder object with the media mode setting.
