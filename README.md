@@ -79,6 +79,7 @@ the `getSessionId()` method, is useful to get an identifier that can be saved to
 (such as a database).
 
 ```java
+import com.opentok.MediaMode;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 
