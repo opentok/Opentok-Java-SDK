@@ -59,7 +59,8 @@ In order to create a release, the following should be completed in order.
    them run `git checkout -- docs/`. Then stage the remaining files and commit with the message
    "Begin development on next version".
 1. Push the changes to the source repository: `git push origin master; git push --tags origin`
-1. Find the latest .jar in the build directory and upload this as an attached to the latest GitHub Release.
+1. Find the latest .jar in the build directory and upload this as an attached to the latest GitHub Release. Add release
+   notes with a description of changes and fixes.
 
 ### IDE Integration
 
