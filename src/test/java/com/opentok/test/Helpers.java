@@ -12,11 +12,21 @@ import org.apache.commons.codec.binary.Base64;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
+import com.opentok.util.Crypto;;
 
 public class Helpers {
 
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
+    public static boolean validateSessionId(String sessionId) {
+        try {
+            Crypto.decodeSessionId(sessionId);
+            return true;
+        } catch(UnsupportedEncodingException e) {
+            return false;
+        }
+    }
+    
     public static Map<String, String> decodeToken(String token) throws UnsupportedEncodingException {
         Map<String, String> tokenData = new HashMap<String, String>();
         token = token.substring(4);
