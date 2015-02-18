@@ -20,7 +20,8 @@ Next, start the server using Gradle (which handles dependencies and setting up t
 $ gradle :sample/HelloWorld:run
 ```
 
-Or if you are using the Gradle Wrapper that is distributed with the project:
+Or if you are using the Gradle Wrapper that is distributed with the project, from the root project
+directory:
 
 ```
 $ ./gradlew :sample/HelloWorld:run
@@ -56,7 +57,7 @@ Next, we set up a main class for the application.
 
 ```java
 public class HelloWorldServer {
-  
+
   // We will set up some class variables here
 
   public static void main(String[] args) throws OpenTokException {
@@ -93,10 +94,11 @@ a static class variable.
 public class HelloWorldServer {
 
   // ...
-  private static final OpenTok opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
+  private static OpenTok opentok;
 
   public static void main(String[] args) throws OpenTokException {
     // ...
+    opentok = new OpenTok(Integer.parseInt(apiKey), apiSecret);
   }
 }
 ```
@@ -211,7 +213,7 @@ returning an instance of `ModelAndView` that groups this map with the name of a 
 
 ### Main Template (src/main/resources/com/example/freemarker/index.ftl)
 
-This file simply sets up the HTML page for the JavaScript application to run, imports the
+This file simply sets up the HTML page for the JavaScript application to run, imports the OpenTok.js
 JavaScript library, and passes the values created by the server into the JavaScript application
 inside `public/js/helloworld.js`
 

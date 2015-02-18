@@ -9,15 +9,24 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 group = 'com.tokbox'
-archivesBaseName = 'opentok'
+archivesBaseName = 'opentok-server-sdk'
 // TODO: how do we increment this before/after a release for deployment and development?
-version = '2.2.0-pre'
+version = '2.2.3-alpha.1'
 
 sourceCompatibility = 1.6
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
+}
+javadoc {
+    title = 'OpenTok Java SDK Reference'
+    destinationDir = file('docs')
+    exclude '**/util/**', '**/constants/**'
+    options {
+        locale 'en_US'
+        setMemberLevel JavadocMemberLevel.PUBLIC
+    }
 }
 
 task sourcesJar(type: Jar) {
@@ -31,12 +40,12 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '1.45'
-    testCompile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-    compile group: 'com.ning', name: 'async-http-client', version: '1.6.1'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.3.1'
-    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '[1.45,1.99999)'
+    testCompile group: 'commons-lang', name: 'commons-lang', version: '[2.6,2.99999)'
+    compile group: 'com.ning', name: 'async-http-client', version: '[1.6.1,1.9)'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '[2.3.1,2.99999)'
+    compile group: 'commons-validator', name: 'commons-validator', version: '[1.4.0,1.99999)'
+    compile group: 'commons-codec', name: 'commons-codec', version: '[1.9,1.99999]'
     // TODO: find out how to initialize these dependencies properly, or remove them
     //compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
@@ -58,18 +67,18 @@ signing {
     sign configurations.archives
 }
 
-ext.ossrhUsername = hasProperty('ossrhUsername') ? ossrhPassword : 'dummyuser'
+ext.ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : 'dummyuser'
 ext.ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : 'dummypass'
 uploadArchives {
     repositories {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
               authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
               authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 

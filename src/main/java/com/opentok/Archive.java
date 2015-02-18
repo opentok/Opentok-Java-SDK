@@ -8,6 +8,7 @@
 package com.opentok;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,37 +16,44 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
 * Represents an archive of an OpenTok session. 
 */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Archive {
     /**
      * Defines values returned by the {@link Archive#getStatus} method.
      */
     public enum Status {
         /**
-         * The archive file is AVAILABLE for download from the OpenTok cloud. You can get the URL of
+         * The archive file is available for download from the OpenTok cloud. You can get the URL of
          * the download file by calling the {@link Archive#getUrl} method.
          */
         AVAILABLE,
         /**
-         * The archive file has been DELETED.
+         * The archive file has been deleted.
          */
         DELETED,
         /**
-         * The recording of the archive FAILED.
+         * The recording of the archive failed.
          */
         FAILED,
         /**
-         * The archive recording has STARTED and is in progress.
+         * The archive recording has started and is in progress.
          */
         STARTED,
         /**
-         * The archive recording has STOPPED, but the file is not AVAILABLE.
+         * The archive recording has stopped, but the file is not available.
          */
         STOPPED,
         /**
-         * The archive file is AVAILABLE at the target S3 bucket you specified using the
-         * REST API.
+         * The archive file is available at the target Amazon S3 bucket
+         * or Windows Azure container you set at the
+         * <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>.
          */
-        UPLOADED;
+        UPLOADED,
+
+        /**
+         * The archive file is no longer available at the OpenTok cloud.
+         */
+        EXPIRED;
 
         @JsonValue public String toString() {
             return super.toString().toLowerCase();
@@ -72,7 +80,7 @@ public class Archive {
     }
 
     /**
-     * The time at which the archive was created, in milliseconds since the UNIX epoch.
+     * The time at which the archive was created, in milliseconds since the Unix epoch.
      */
     public long getCreatedAt() {
         return createdAt;
@@ -107,8 +115,9 @@ public class Archive {
     }
 
     /**
-     * For archives with the status "STOPPED", this can be set to "90 mins exceeded", "failure", "session ended",
-     * or "user initiated". For archives with the status "FAILED", this can be set to "system failure".
+     * For archives with the status of Status.STOPPED, this can be set to "90 mins exceeded",
+     * "failure", "session ended", or "user initiated". For archives with the status of
+     * Status.FAILED, this can be set to "system failure".
      */
     public String getReason() {
         return reason;
@@ -136,10 +145,12 @@ public class Archive {
     }
 
     /**
-     * The download URL of the AVAILABLE MP4 file. This is only set for an archive with the status set to "AVAILABLE";
-     * for other archives, (including archives wit the status "UPLOADED") this method returns null. The download URL is
-     * obfuscated, and the file is only AVAILABLE from the URL for 10 minutes. To generate a new URL, call
-     * the {@link com.opentok.OpenTok#listArchives()} or {@link com.opentok.OpenTok#getArchive(String)} method.
+     * The download URL of the available MP4 file. This is only set for an archive with the status
+     * set to Status.AVAILABLE; for other archives, (including archives with the status of 
+     * Status.UPLOADED) this method returns null. The download URL is obfuscated, and the file
+     * is only available from the URL for 10 minutes. To generate a new URL, call the
+     * {@link com.opentok.OpenTok#listArchives()} or {@link com.opentok.OpenTok#getArchive(String)}
+     * method.
      */
     public String getUrl() {
         return url;

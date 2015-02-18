@@ -5,7 +5,4 @@
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
-/**
- * Defines values for token roles and peer-to-peer settings.
- */
 package com.opentok.constants;

@@ -1,14 +1,16 @@
 # OpenTok Java SDK
 
-**TODO**: change this to opentok fork instead of aoberoi
-
-[![Build Status](https://travis-ci.org/aoberoi/Opentok-Java-SDK.svg?branch=modernization)](https://travis-ci.org/aoberoi/Opentok-Java-SDK)
+[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg)](https://travis-ci.org/opentok/Opentok-Java-SDK)
 
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications that run on the JVM. This version of the SDK also includes support for working with OpenTok
-2.0 archives.
+applications that run on the JVM. This version of the SDK also includes support for working
+with [OpenTok 2.0 archives](http://tokbox.com/#archiving).
+
+If you are updating from a previous version of this SDK, see
+[Important changes since v2.2.0](#important-changes-since-v220).
+
 
 # Installation
 
@@ -23,9 +25,9 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 
 ```xml
 <dependency>
-    <groupId>com.opentok</groupId>
+    <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.2</version>
 </dependency>
 ```
 
@@ -35,13 +37,17 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.opentok', name: 'opentok-server-sdk', version: '2.2.0'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '2.2.2'
 }
 ```
 
 ## Manually:
 
-**TODO**: download from releases page?
+Download the jar file for the latest release from the
+[Releases](https://github.com/opentok/opentok-java-sdk/releases) page. Include it in the classpath
+for your own project by
+[using the JDK directly](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/classpath.html)
+or in your IDE of choice.
 
 # Usage
 
@@ -62,28 +68,35 @@ OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ## Creating Sessions
 
 To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`
-method. The `properties` parameter is optional and it is used to specify whether you are creating a
-p2p Session and specifying a location hint. An instance can be initialized using the
-`com.opentok.SessionProperties.Builder` class. The `sessionId` property of the returned `com.opentok.Session`
-instance, which you can read using the `getSessionId()` method, is useful to get a sessionId that can
-be saved to a persistent store (e.g. database).
+method. The `properties` parameter is optional and it is used to specify two things:
+
+* Whether the session uses the OpenTok Media Router
+* A location hint for the OpenTok server.
+
+An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
+The `sessionId` property of the returned `com.opentok.Session` instance, which you can read using
+the `getSessionId()` method, is useful to get an identifier that can be saved to a persistent store
+(such as a database).
 
 ```java
+import com.opentok.MediaMode;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 
-// Just a plain Session
+// A session that attempts to stream media directly between clients:
 Session session = opentok.createSession();
-// A p2p Session
+
+// A session that uses the OpenTok Media Router:
 Session session = opentok.createSession(new SessionProperties.Builder()
-  .p2p(true)
+  .mediaMode(MediaMode.ROUTED)
   .build());
-// A Session with a location hint
+
+// A Session with a location hint:
 Session session = opentok.createSession(new SessionProperties.Builder()
   .location("12.34.56.78")
   .build());
 
-// Store this sessionId in the database for later use
+// Store this sessionId in the database for later use:
 String sessionId = session.getSessionId();
 ```
 
@@ -98,7 +111,7 @@ instance can be initialized using the `TokenOptions.Builder` class.
 
 ```java
 import com.opentok.TokenOptions;
-import com.opentok.Roles;
+import com.opentok.Role;
 
 // Generate a token from just a sessionId (fetched from a database)
 String token = opentok.generateToken(sessionId);
@@ -107,7 +120,7 @@ String token = session.generateToken();
 
 // Set some options in a token
 String token = session.generateToken(new TokenOptions.Builder()
-  .role(Roles.MODERATOR)
+  .role(Role.MODERATOR)
   .expireTime((System.currentTimeMillis() / 1000L) + (7 * 24 * 60 * 60)) // in one week
   .data("name=Johnny")
   .build());
@@ -169,9 +182,18 @@ List<Archive> archives = opentok.listArchives(0, 50);
 List<Archive> archives = opentok.listArchives(50, 50);
 ```
 
+# Samples
+
+There are two sample applications included with the SDK. To get going as fast as possible, clone the whole
+repository and follow the Walkthroughs:
+
+*  [HelloWorld](sample/HelloWorld/README.md)
+*  [Archiving](sample/Archiving/README.md)
+
 # Documentation
 
-**TODO**: Reference documentation is available at <http://opentok.github.io/opentok-java-sdk/>
+Reference documentation is available at <http://www.tokbox.com/opentok/libraries/server/java/reference/index.html> and in the
+docs directory of the SDK.
 
 # Requirements
 
@@ -180,26 +202,47 @@ You need an OpenTok API key and API secret, which you can obtain at <https://das
 The OpenTok Java SDK requires JDK 6 or greater to compile. Runtime requires Java SE 6 or greater.
 This project is tested on both OpenJDK and Oracle implementations.
 
+
 # Release Notes
 
-**TODO**: See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
+See the [Releases](https://github.com/opentok/opentok-java-sdk/releases) page for details
 about each release.
 
-## Important changes in v2.0
+# Important changes since v2.2.0
+
+**Changes in v2.2.1:**
+
+The default setting for the `createSession()` method is to create a session with the media mode set
+to relayed. In previous versions of the SDK, the default setting was to use the OpenTok Media Router
+(with the media mode set to routed in v2.2.0, or with p2p.preference="disabled" in previous
+versions). In a relayed session, clients will attempt to send streams directly between each other
+(peer to peer); and if clients cannot connect due to firewall restrictions, the session uses the
+OpenTok TURN server to relay audio-video streams.
+
+**Changes in v2.2.0:**
 
 This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
 work with OpenTok 1.0 archives.)
 
+This version of the SDK includes a number of improvements in the API design. These include a number
+of API changes. See the OpenTok 2.2 SDK Reference for details on the new API.
+
+The API_Config class has been removed. Store your OpenTok API key and API secret in code outside of the SDK files.
+
+The `create_session()` method has been renamed `createSession()`. Also, the method has changed to
+take one parameter: a SessionProperties object. You now generate a SessionProperties object using a Builder pattern.
+
+The `generate_token()` method has been renamed `generateToken()`. Also, the method has changed to
+take two parameters: the session ID and a TokenOptions object.
+
 # Development and Contributing
 
-Interested in contributing? We <3 pull requests! File a new
-[Issue](https://github.com/opentok/opentok-java-sdk/issues) or take a look at the existing ones. If
-you are going to send us a pull request, please try to run the test suite first and also include
-tests for your changes.
+Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and
+[Contribution](CONTRIBUTING.md) guidelines.
 
 # Support
 
-See <http://tokbox.com/opentok/support/> for all our support options.
+See <https://support.tokbox.com> for all our support options.
 
 Find a bug? File it on the [Issues](https://github.com/opentok/opentok-java-sdk/issues) page. Hint:
 test cases are really helpful!

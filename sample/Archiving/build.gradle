@@ -1,0 +1,16 @@
+apply plugin:'application'
+mainClassName = "com.example.ArchivingServer"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':')
+    compile group: 'com.github.codingricky', name: 'spark-core-16', version: '1.1'
+    compile group: 'org.freemarker', name: 'freemarker', version: '2.3.19'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.6'
+}
+
+run.systemProperty 'API_KEY', ''
+run.systemProperty 'API_SECRET', ''

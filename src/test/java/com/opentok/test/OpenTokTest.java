@@ -5,12 +5,6 @@
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
-/*
- * These unit tests require the opentok Java SDK.
- * https://github.com/opentok/Opentok-Java-SDK.git
- * 
- */
-
 package com.opentok.test;
 
 import java.io.UnsupportedEncodingException;
@@ -84,17 +78,17 @@ public class OpenTokTest {
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertFalse(session.getProperties().isP2p());
+        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
-                // TODO: add p2p.preference=disabled
+                .withRequestBody(matching(".*p2p.preference=enabled.*"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
     @Test
-    public void testCreateP2pSession() throws OpenTokException {
+    public void testCreateRoutedSession() throws OpenTokException {
         String sessionId = "SESSIONID";
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
@@ -105,19 +99,19 @@ public class OpenTokTest {
                                 "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
 
         SessionProperties properties = new SessionProperties.Builder()
-                .p2p(true)
+                .mediaMode(MediaMode.ROUTED)
                 .build();
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertTrue(session.getProperties().isP2p());
+        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
-                // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-                .withRequestBody(matching(".*p2p.preference=enabled.*"))
+                // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+                .withRequestBody(matching(".*p2p.preference=disabled.*"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
@@ -142,7 +136,7 @@ public class OpenTokTest {
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
-        assertFalse(session.getProperties().isP2p());
+        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
         assertEquals(locationHint, session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
@@ -561,4 +555,53 @@ public class OpenTokTest {
 
     // TODO: test delete archive failure scenarios
 
+    // NOTE: this test is pretty sloppy
+    @Test public void testGetExpiredArchive() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395187836000,\n" +
+                                "          \"duration\" : 62,\n" +
+                                "          \"id\" : \"" + archiveId + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 8347554,\n" +
+                                "          \"status\" : \"expired\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.getArchive(archiveId);
+        assertNotNull(archive);
+        assertEquals(Archive.Status.EXPIRED, archive.getStatus());
+    }
+
+    @Test public void testGetArchiveWithUnknownProperties() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395187836000,\n" +
+                                "          \"duration\" : 62,\n" +
+                                "          \"id\" : \"" + archiveId + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 8347554,\n" +
+                                "          \"status\" : \"expired\",\n" +
+                                "          \"url\" : null,\n" +
+                                "          \"thisisnotaproperty\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.getArchive(archiveId);
+
+        assertNotNull(archive);
+    }
 }
