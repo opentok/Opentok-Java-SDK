@@ -3,6 +3,7 @@ jdk:
 - openjdk7
 - openjdk6
 - oraclejdk7
+- oraclejdk8
 notifications:
   slack:
     secure: fGRoClN1IQiZvokEiqmKOrF7EeaNQDHDHqUMaT4n7d3qW2fMe3N8ZLxlIDlzgJ2pv09VWqK7rmPgdhJR8yVG7OE4QQ5kzR59xD8ePN0j0jf6W6eOBPq3a9UUarnny21LFsShvRMZ/BaXcvTox1zMVltpMGFw2K4ijH8+ZvdkNz8=
