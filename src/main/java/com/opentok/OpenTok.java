@@ -368,7 +368,11 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
-    
+
+    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+        return startArchive(sessionId, name, true, true);
+    }
+
     /**
      * Starts archiving an OpenTok 2.0 session.
      *
@@ -386,12 +390,12 @@ public class OpenTok {
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
-    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+    public Archive startArchive(String sessionId, String name, boolean hasVideo, boolean hasAudio) throws OpenTokException {
         if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
         // TODO: do validation on sessionId and name
-        String archive = this.client.startArchive(sessionId, name);
+        String archive = this.client.startArchive(sessionId, name, hasVideo, hasAudio);
         try {
             return archiveReader.readValue(archive);
         } catch (Exception e) {

@@ -7,10 +7,7 @@
  */
 package com.opentok;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -70,6 +67,8 @@ public class Archive {
     @JsonProperty private int size = 0;
     @JsonProperty private Status status;
     @JsonProperty private String url;
+    @JsonProperty private boolean hasVideo = true;
+    @JsonProperty private boolean hasAudio = true;
 
     protected Archive() {
     }
@@ -154,6 +153,20 @@ public class Archive {
      */
     public String getUrl() {
         return url;
+    }
+
+    /**
+     * Whether the archive has an video track (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasVideo() {
+        return hasVideo;
+    }
+
+    /**
+     * Whether the archive has an audio track (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasAudio() {
+        return hasAudio;
     }
 
     @Override

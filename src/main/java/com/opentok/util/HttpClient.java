@@ -9,13 +9,14 @@ package com.opentok.util;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ning.http.client.*;
 import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
@@ -161,21 +162,25 @@ public class HttpClient extends AsyncHttpClient {
         return responseString;
     }
 
-    public String startArchive(String sessionId, String name) throws OpenTokException, RequestException {
+    public String startArchive(String sessionId, String name, boolean hasVideo, boolean hasAudio)
+            throws OpenTokException {
         String responseString = null;
         Future<Response> request = null;
         String requestBody = null;
         // TODO: maybe use a StringBuilder?
         String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
 
-        ObjectMapper mapper = new ObjectMapper();
-        HashMap<String, String> jsonBody = new HashMap<String, String>();
-        jsonBody.put("sessionId", sessionId);
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        requestJson.put("sessionId", sessionId);
+        requestJson.put("hasVideo", hasVideo);
+        requestJson.put("hasAudio", hasAudio);
+
         if (name != null) {
-            jsonBody.put("name", name);
+            requestJson.put("name", name);
         }
         try {
-            requestBody = mapper.writeValueAsString(jsonBody);
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
             throw new OpenTokException("Could not start an OpenTok Archive. The JSON body encoding failed.", e);
         }
