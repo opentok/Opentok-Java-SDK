@@ -12,7 +12,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.opentok.*;
@@ -26,6 +25,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import static org.hamcrest.CoreMatchers.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -371,7 +372,7 @@ public class OpenTokTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\n" +
-                                "          \"count\" : 6,\n" +
+                                "          \"count\" : 60,\n" +
                                 "          \"items\" : [ {\n" +
                                 "            \"createdAt\" : 1395187930000,\n" +
                                 "            \"duration\" : 22,\n" +
@@ -453,11 +454,13 @@ public class OpenTokTest {
                                 "          } ]\n" +
                                 "        }")));
 
-        List<Archive> archives = sdk.listArchives();
+        ArchiveList archives = sdk.listArchives();
 
-        // NOTE: what about archive totalCount (total number of archives for API Key)?
         assertNotNull(archives);
         assertEquals(6, archives.size());
+        assertEquals(60, archives.getTotalCount());
+        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
                 .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
