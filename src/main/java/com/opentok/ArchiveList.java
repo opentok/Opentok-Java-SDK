@@ -28,6 +28,7 @@ public class ArchiveList extends ArrayList<Archive> {
     }
 
     private void setItems(List<Archive> archives) {
+        this.clear();
         this.addAll(archives);
     }
 
