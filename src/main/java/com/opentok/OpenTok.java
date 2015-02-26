@@ -411,12 +411,12 @@ public class OpenTok {
      *
      * @param hasVideo Whether the archive will include an audio track (<code>true</code>) or not
      * <code>false</code>). The default value is <code>true</code> (an audio track is included). If you set
-     * both  <code>hasAudio</code> and <code>hasAudio</code> to <code>false</code>, the call to the
+     * both  <code>hasAudio</code> and <code>hasVideo</code> to <code>false</code>, the call to the
      * <code>startArchive()</code> method results in an error.
      *
      * @param hasAudio Whether the archive will include a video track (<code>true</code>) or not
      * <code>false</code>). The default value is <code>true</code> (a video track is included). If you set
-     * both  <code>hasAudio</code> and <code>hasAudio</code> to <code>false</code>, the call to the
+     * both  <code>hasAudio</code> and <code>hasVideo</code> to <code>false</code>, the call to the
      * <code>startArchive()</code> method results in an error.
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
