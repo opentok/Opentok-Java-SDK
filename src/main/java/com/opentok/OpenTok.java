@@ -369,12 +369,9 @@ public class OpenTok {
         }
     }
 
-    public Archive startArchive(String sessionId, String name) throws OpenTokException {
-        return startArchive(sessionId, name, true, true);
-    }
-
     /**
-     * Starts archiving an OpenTok 2.0 session.
+     * Starts archiving an OpenTok session. This version of the <code>startArchive()</code> method
+     * lets you disable audio or video recording.
      *
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start recording an archive.
@@ -385,8 +382,42 @@ public class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param sessionId The session ID of the OpenTok session to archive.
+     *
      * @param name The name of the archive. You can use this name to identify the archive. It is a property
-     * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
+     * of the Archive object, and it is a property of archive-related events in the OpenTok client libraries.
+     *
+     * @return The Archive object. This object includes properties defining the archive, including the archive ID.
+     */
+    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+        return startArchive(sessionId, name, true, true);
+    }
+
+    /**
+     * Starts archiving an OpenTok session. This version of the <code>startArchive()</code> method
+     * lets you disable audio or video recording.
+     *
+     * <p>
+     * Clients must be actively connected to the OpenTok session for you to successfully start recording an archive.
+     * <p>
+     * You can only record one archive at a time for a given session. You can only record archives
+     * of sessions that use the OpenTok Media Router (sessions with the
+     * <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+     * set to routed); you cannot archive sessions with the media mode set to relayed.
+     *
+     * @param sessionId The session ID of the OpenTok session to archive.
+     *
+     * @param name The name of the archive. You can use this name to identify the archive. It is a property
+     * of the Archive object, and it is a property of archive-related events in the OpenTok client libraries.
+     *
+     * @param hasVideo Whether the archive will include an audio track (<code>true</code>) or not
+     * <code>false</code>). The default value is <code>true</code> (an audio track is included). If you set
+     * both  <code>hasAudio</code> and <code>hasAudio</code> to <code>false</code>, the call to the
+     * <code>startArchive()</code> method results in an error.
+     *
+     * @param hasAudio Whether the archive will include a video track (<code>true</code>) or not
+     * <code>false</code>). The default value is <code>true</code> (a video track is included). If you set
+     * both  <code>hasAudio</code> and <code>hasAudio</code> to <code>false</code>, the call to the
+     * <code>startArchive()</code> method results in an error.
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
@@ -410,7 +441,7 @@ public class OpenTok {
      * session being archived.
      *
      * @param archiveId The archive ID of the archive you want to stop recording.
-     * @return The Archive object corresponding to the archive being STOPPED.
+     * @return The Archive object corresponding to the archive being stopped.
      */
     public Archive stopArchive(String archiveId) throws OpenTokException {
 
