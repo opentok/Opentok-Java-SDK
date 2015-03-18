@@ -57,6 +57,25 @@ public class Archive {
         }
     }
 
+    /**
+     * Defines values returned by the {@link Archive#getOutputMode} method.
+     */
+    public enum OutputMode {
+        /**
+         * The archive file is available for download from the OpenTok cloud. You can get the URL of
+         * the download file by calling the {@link Archive#getUrl} method.
+         */
+        COMPOSED,
+        /**
+         * The archive file has been deleted.
+         */
+        INDIVIDUAL;
+
+        @JsonValue public String toString() {
+            return super.toString().toLowerCase();
+        }
+    }
+
     @JsonProperty private long createdAt;
     @JsonProperty private int duration = 0;
     @JsonProperty private String id;
@@ -69,6 +88,7 @@ public class Archive {
     @JsonProperty private String url;
     @JsonProperty private boolean hasVideo = true;
     @JsonProperty private boolean hasAudio = true;
+    @JsonProperty private OutputMode outputMode = OutputMode.COMPOSED;
 
     protected Archive() {
     }
@@ -167,6 +187,13 @@ public class Archive {
      */
     public boolean hasAudio() {
         return hasAudio;
+    }
+
+    /**
+     * The output mode to be generated for this archive: <code>composed</code> or <code>individual</code>. 
+     */
+    public OutputMode getOutputMode() {
+        return outputMode;
     }
 
     @Override

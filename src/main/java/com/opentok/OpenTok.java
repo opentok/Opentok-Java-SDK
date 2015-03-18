@@ -369,8 +369,8 @@ public class OpenTok {
         }
     }
 
-    public Archive startArchive(String sessionId, String name) throws OpenTokException {
-        return startArchive(sessionId, name, true, true);
+    public Archive startArchive(String sessionId) throws OpenTokException {
+        return startArchive(sessionId, new ArchiveProperties.Builder().build());
     }
 
     /**
@@ -385,17 +385,16 @@ public class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param sessionId The session ID of the OpenTok session to archive.
-     * @param name The name of the archive. You can use this name to identify the archive. It is a property
-     * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
+     * @param properties This ArchiveProperties object defines options for the archive.
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
-    public Archive startArchive(String sessionId, String name, boolean hasVideo, boolean hasAudio) throws OpenTokException {
+    public Archive startArchive(String sessionId, ArchiveProperties properties) throws OpenTokException {
         if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
         // TODO: do validation on sessionId and name
-        String archive = this.client.startArchive(sessionId, name, hasVideo, hasAudio);
+        String archive = this.client.startArchive(sessionId, properties);
         try {
             return archiveReader.readValue(archive);
         } catch (Exception e) {

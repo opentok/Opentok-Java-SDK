@@ -143,7 +143,9 @@ public class ArchivingServer {
 
                 Archive archive = null;
                 try {
-                    archive = opentok.startArchive(sessionId, "Java Archiving Sample App");
+                    ArchiveProperties properties = new ArchiveProperties.Builder()
+                                            .name("Java Archiving Sample App").build();
+                    archive = opentok.startArchive(sessionId, properties);
                 } catch (OpenTokException e) {
                     e.printStackTrace();
                     return null;
