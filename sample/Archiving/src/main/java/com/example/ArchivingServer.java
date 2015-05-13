@@ -3,11 +3,15 @@ package com.example;
 import static spark.Spark.*;
 
 import com.opentok.*;
+import com.opentok.Archive.OutputMode;
+
 import spark.*;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.opentok.exception.OpenTokException;
 
@@ -137,14 +141,31 @@ public class ArchivingServer {
             }
         });
 
-        get(new Route("/start") {
+        post(new Route("/start") {
             @Override
             public Object handle(Request request, Response response) {
 
                 Archive archive = null;
+                HttpServletRequest req = request.raw();
+                boolean hasAudio = req.getParameterMap().containsKey("hasAudio");
+                boolean hasVideo = req.getParameterMap().containsKey("hasVideo");
+                OutputMode outputMode = OutputMode.COMPOSED;
+                if (req.getParameterMap().containsKey("outputMode")) {
+                    switch(req.getParameter("outputMode")) {
+                    case "individual": 
+                        outputMode = OutputMode.INDIVIDUAL; 
+                        break;
+                    case "composed": 
+                    default: 
+                        outputMode = OutputMode.COMPOSED;
+                    }
+                }
                 try {
                     ArchiveProperties properties = new ArchiveProperties.Builder()
-                                            .name("Java Archiving Sample App").build();
+                                            .name("Java Archiving Sample App")
+                                            .hasAudio(hasAudio)
+                                            .hasVideo(hasVideo)
+                                            .outputMode(outputMode).build();
                     archive = opentok.startArchive(sessionId, properties);
                 } catch (OpenTokException e) {
                     e.printStackTrace();
