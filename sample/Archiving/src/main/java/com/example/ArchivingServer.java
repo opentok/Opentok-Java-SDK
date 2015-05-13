@@ -150,15 +150,8 @@ public class ArchivingServer {
                 boolean hasAudio = req.getParameterMap().containsKey("hasAudio");
                 boolean hasVideo = req.getParameterMap().containsKey("hasVideo");
                 OutputMode outputMode = OutputMode.COMPOSED;
-                if (req.getParameterMap().containsKey("outputMode")) {
-                    switch(req.getParameter("outputMode")) {
-                    case "individual": 
-                        outputMode = OutputMode.INDIVIDUAL; 
-                        break;
-                    case "composed": 
-                    default: 
-                        outputMode = OutputMode.COMPOSED;
-                    }
+                if (req.getParameter("outputMode").equals("individual")) {
+                    outputMode = OutputMode.INDIVIDUAL;
                 }
                 try {
                     ArchiveProperties properties = new ArchiveProperties.Builder()
