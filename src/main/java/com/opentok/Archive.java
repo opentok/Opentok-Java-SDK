@@ -32,6 +32,9 @@ public class Archive {
          * The recording of the archive failed.
          */
         FAILED,
+
+        PAUSED,
+
         /**
          * The archive recording has started and is in progress.
          */

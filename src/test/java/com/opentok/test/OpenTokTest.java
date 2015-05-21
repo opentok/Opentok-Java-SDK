@@ -730,6 +730,31 @@ public class OpenTokTest {
         assertEquals(Archive.Status.EXPIRED, archive.getStatus());
     }
 
+    // NOTE: this test is pretty sloppy
+    @Test public void testGetPausedArchive() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395187836000,\n" +
+                                "          \"duration\" : 62,\n" +
+                                "          \"id\" : \"" + archiveId + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 8347554,\n" +
+                                "          \"status\" : \"paused\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.getArchive(archiveId);
+        assertNotNull(archive);
+        assertEquals(Archive.Status.PAUSED, archive.getStatus());
+    }
+
     @Test public void testGetArchiveWithUnknownProperties() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         stubFor(get(urlEqualTo("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
