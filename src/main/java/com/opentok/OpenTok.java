@@ -373,6 +373,11 @@ public class OpenTok {
         return startArchive(sessionId, new ArchiveProperties.Builder().build());
     }
 
+    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+        ArchiveProperties properties = new ArchiveProperties.Builder().name(name).build();
+        return startArchive(sessionId, properties);
+    }
+
     /**
      * Starts archiving an OpenTok 2.0 session.
      *

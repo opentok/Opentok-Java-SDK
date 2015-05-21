@@ -508,6 +508,41 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testStartArchiveWithName() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String name = "archive_name";
+
+        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"archive_name\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.startArchive(sessionId, name);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertEquals(name, archive.getName());
+        assertNotNull(archive.getId());
+
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    @Test
     public void testStartVoiceOnlyArchive() throws OpenTokException {
         String sessionId = "SESSIONID";
 
