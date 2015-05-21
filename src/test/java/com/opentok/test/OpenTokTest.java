@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.opentok.*;
+import com.opentok.Archive.OutputMode;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.opentok.constants.Version;
@@ -24,11 +26,11 @@ import com.opentok.exception.InvalidArgumentException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
-
 import static org.hamcrest.CoreMatchers.*;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 public class OpenTokTest {
@@ -492,9 +494,45 @@ public class OpenTokTest {
                                 "          \"url\" : null\n" +
                                 "        }")));
 
-        Archive archive = sdk.startArchive(sessionId, null);
+        ArchiveProperties properties = new ArchiveProperties.Builder().name(null).build();
+        Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
+        assertNotNull(archive.getId());
+
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    @Test
+    public void testStartArchiveWithName() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String name = "archive_name";
+
+        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"archive_name\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        Archive archive = sdk.startArchive(sessionId, name);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertEquals(name, archive.getName());
         assertNotNull(archive.getId());
 
         verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
@@ -526,11 +564,85 @@ public class OpenTokTest {
                                 "          \"hasVideo\" : false,\n" +
                                 "          \"hasAudio\" : true\n" +
                                 "        }")));
+        ArchiveProperties properties = new ArchiveProperties.Builder().hasVideo(false).build();
 
-        Archive archive = sdk.startArchive(sessionId, null, false, true);
+        Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
+
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    @Test
+    public void testStartComposedArchive() throws OpenTokException {
+        String sessionId = "SESSIONID";
+
+        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null,\n" +
+                                "          \"outputMode\" : \"composed\"\n" +
+                                "        }")));
+        ArchiveProperties properties = new ArchiveProperties.Builder().outputMode(OutputMode.COMPOSED).build();
+
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertNotNull(archive.getId());
+        assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
+
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+    }
+
+    @Test
+    public void testStartIndividualArchive() throws OpenTokException {
+        String sessionId = "SESSIONID";
+
+        stubFor(post(urlEqualTo("/v2/partner/"+this.apiKey+"/archive"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null,\n" +
+                                "          \"outputMode\" : \"individual\"\n" +
+                                "        }")));
+
+        ArchiveProperties properties = new ArchiveProperties.Builder().outputMode(OutputMode.INDIVIDUAL).build();
+
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertNotNull(archive.getId());
+        assertEquals(OutputMode.INDIVIDUAL, archive.getOutputMode());
 
         verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
                 // TODO: find a way to match JSON without caring about spacing

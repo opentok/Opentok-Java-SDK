@@ -21,7 +21,7 @@ import com.ning.http.client.*;
 import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
 import com.ning.http.client.filter.RequestFilter;
-
+import com.opentok.ArchiveProperties;
 import com.opentok.constants.Version;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
@@ -162,7 +162,7 @@ public class HttpClient extends AsyncHttpClient {
         return responseString;
     }
 
-    public String startArchive(String sessionId, String name, boolean hasVideo, boolean hasAudio)
+    public String startArchive(String sessionId, ArchiveProperties properties)
             throws OpenTokException {
         String responseString = null;
         Future<Response> request = null;
@@ -173,11 +173,12 @@ public class HttpClient extends AsyncHttpClient {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
-        requestJson.put("hasVideo", hasVideo);
-        requestJson.put("hasAudio", hasAudio);
+        requestJson.put("hasVideo", properties.hasVideo());
+        requestJson.put("hasAudio", properties.hasAudio());
+        requestJson.put("outputMode", properties.outputMode().toString());
 
-        if (name != null) {
-            requestJson.put("name", name);
+        if (properties.name() != null) {
+            requestJson.put("name", properties.name());
         }
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
