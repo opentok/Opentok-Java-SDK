@@ -179,7 +179,7 @@ public class Archive {
     }
 
     /**
-     * Whether the archive has an video track (<code>true</code>) or not (<code>false</code>).
+     * Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
      */
     public boolean hasVideo() {
         return hasVideo;

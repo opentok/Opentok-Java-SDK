@@ -5,8 +5,8 @@
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications that run on the JVM. This version of the SDK also includes support for working
-with [OpenTok 2.0 archives](http://tokbox.com/#archiving).
+applications that run on the JVM. The SDK also includes support for working with
+[OpenTok archives](http://tokbox.com/opentok/tutorials/archiving).
 
 If you are updating from a previous version of this SDK, see
 [Important changes since v2.2.0](#important-changes-since-v220).
@@ -143,6 +143,19 @@ Archive archive = opentok.startArchive(sessionId, null);
 String archiveId = archive.getId();
 ```
 
+You can also disable audio or video recording by setting the `hasAudio` or `hasVideo` parameters of
+the `startArchive(String sessionId, String name, boolean hasVideo, boolean hasAudio` method to `false`:
+
+```java
+import com.opentok.Archive;
+
+// Start an audio-only archive
+Archive archive = opentok.startArchive(sessionId, null, false, true);
+
+// Store this archiveId in the database for later use
+String archiveId = archive.getId();
+```
+
 You can stop the recording of a started Archive using a `com.opentok.Archive` instance's
 `stopArchive(String archiveId)` method.
 
@@ -221,8 +234,7 @@ OpenTok TURN server to relay audio-video streams.
 
 **Changes in v2.2.0:**
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
-work with OpenTok 1.0 archives.)
+This version of the SDK includes support for working with OpenTok archives.
 
 This version of the SDK includes a number of improvements in the API design. These include a number
 of API changes. See the OpenTok 2.2 SDK Reference for details on the new API.

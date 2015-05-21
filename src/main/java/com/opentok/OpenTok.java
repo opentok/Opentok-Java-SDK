@@ -369,17 +369,9 @@ public class OpenTok {
         }
     }
 
-    public Archive startArchive(String sessionId) throws OpenTokException {
-        return startArchive(sessionId, new ArchiveProperties.Builder().build());
-    }
-
-    public Archive startArchive(String sessionId, String name) throws OpenTokException {
-        ArchiveProperties properties = new ArchiveProperties.Builder().name(name).build();
-        return startArchive(sessionId, properties);
-    }
-
     /**
-     * Starts archiving an OpenTok 2.0 session.
+     * Starts archiving an OpenTok session. This version of the <code>startArchive()</code> method
+     * lets you disable audio or video recording.
      *
      * <p>
      * Clients must be actively connected to the OpenTok session for you to successfully start recording an archive.
@@ -390,6 +382,7 @@ public class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      *
      * @param sessionId The session ID of the OpenTok session to archive.
+     * 
      * @param properties This ArchiveProperties object defines options for the archive.
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
@@ -407,6 +400,15 @@ public class OpenTok {
         }
     }
 
+	public Archive startArchive(String sessionId) throws OpenTokException {
+        return startArchive(sessionId, new ArchiveProperties.Builder().build());
+    }
+
+    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+        ArchiveProperties properties = new ArchiveProperties.Builder().name(name).build();
+        return startArchive(sessionId, properties);
+    }
+
     /**
      * Stops an OpenTok archive that is being recorded.
      * <p>
@@ -414,7 +416,7 @@ public class OpenTok {
      * session being archived.
      *
      * @param archiveId The archive ID of the archive you want to stop recording.
-     * @return The Archive object corresponding to the archive being STOPPED.
+     * @return The Archive object corresponding to the archive being stopped.
      */
     public Archive stopArchive(String archiveId) throws OpenTokException {
 
