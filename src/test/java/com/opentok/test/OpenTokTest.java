@@ -82,11 +82,13 @@ public class OpenTokTest {
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
+        assertEquals(ArchiveMode.MANUAL, session.getProperties().archiveMode());
         assertNull(session.getProperties().getLocation());
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 .withRequestBody(matching(".*p2p.preference=enabled.*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
+                .withRequestBody(matching(".*archiveMode=manual.*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey + ":" + this.apiSecret))
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
@@ -149,12 +151,51 @@ public class OpenTokTest {
                 .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
     }
 
+    @Test
+    public void testCreateAlwaysArchivedSession() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String locationHint = "12.34.56.78";
+        stubFor(post(urlEqualTo("/session/create"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/xml")
+                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
+                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
+                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+
+        SessionProperties properties = new SessionProperties.Builder()
+                .archiveMode(ArchiveMode.ALWAYS)
+                .build();
+        Session session = sdk.createSession(properties);
+
+        assertNotNull(session);
+        assertEquals(this.apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+        assertEquals(ArchiveMode.ALWAYS, session.getProperties().archiveMode());
+
+
+        verify(postRequestedFor(urlMatching("/session/create"))
+                // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+                .withRequestBody(matching(".*archiveMode=always.*"))
+                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey + ":" + this.apiSecret))
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/" + Version.VERSION + ".*")));
+    }
+
     @Test(expected = InvalidArgumentException.class)
     public void testCreateBadSession() throws OpenTokException {
-            SessionProperties properties = new SessionProperties.Builder()
-                    .location("NOT A VALID IP")
-                    .build();
+        SessionProperties properties = new SessionProperties.Builder()
+                .location("NOT A VALID IP")
+                .build();
     }
+
+//    This is not part of the API because it would introduce a backwards incompatible change.
+//    @Test(expected = InvalidArgumentException.class)
+//    public void testCreateInvalidAlwaysArchivedAndRelayedSession() throws OpenTokException {
+//        SessionProperties properties = new SessionProperties.Builder()
+//                .mediaMode(MediaMode.RELAYED)
+//                .archiveMode(ArchiveMode.ALWAYS)
+//                .build();
+//    }
 
     // TODO: test session creation conditions that result in errors
 
