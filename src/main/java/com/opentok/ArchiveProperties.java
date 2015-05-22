@@ -37,9 +37,9 @@ public class ArchiveProperties {
     }
 
     /**
-     * Use this class to create a SessionProperties object.
+     * Use this class to create a ArchiveProperties object.
      *
-     * @see SessionProperties
+     * @see ArchiveProperties
      */
     public static class Builder {
         private String name = null;

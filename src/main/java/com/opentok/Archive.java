@@ -33,6 +33,14 @@ public class Archive {
          */
         FAILED,
 
+        /**
+         * The archive is in progress and no clients are publishing streams to the session.
+         * When an archive is in progress and any client publishes a stream, the status is STARTED.
+         * When an archive is PAUSED, nothing is recorded. When a client starts publishing a stream,
+         * the recording starts (or resumes). If all clients disconnect from a session that is being
+         * archived, the status changes to PAUSED, and after 60 seconds the archive recording stops
+         * (and the status changes to STOPPED).
+         */
         PAUSED,
 
         /**
@@ -61,16 +69,17 @@ public class Archive {
     }
 
     /**
-     * Defines values returned by the {@link Archive#getOutputMode} method.
+     * Defines values used in the
+     * {@link ArchiveProperties.Builder#outputMode(com.opentok.Archive.OutputMode)} method
+     * and returned by the {@link Archive#getOutputMode} method.
      */
     public enum OutputMode {
         /**
-         * The archive file is available for download from the OpenTok cloud. You can get the URL of
-         * the download file by calling the {@link Archive#getUrl} method.
+         * All streams in the archive are recorded to a single (composed) file.
          */
         COMPOSED,
         /**
-         * The archive file has been deleted.
+         * Each stream in the archive is recorded to its own individual file.
          */
         INDIVIDUAL;
 
