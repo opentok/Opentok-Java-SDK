@@ -72,6 +72,7 @@ method. The `properties` parameter is optional and it is used to specify two thi
 
 * Whether the session uses the OpenTok Media Router
 * A location hint for the OpenTok server.
+* Whether the session is automatically archived.
 
 An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
 The `sessionId` property of the returned `com.opentok.Session` instance, which you can read using
@@ -80,6 +81,7 @@ the `getSessionId()` method, is useful to get an identifier that can be saved to
 
 ```java
 import com.opentok.MediaMode;
+import com.opentok.ArchiveMode;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 
@@ -94,6 +96,12 @@ Session session = opentok.createSession(new SessionProperties.Builder()
 // A Session with a location hint:
 Session session = opentok.createSession(new SessionProperties.Builder()
   .location("12.34.56.78")
+  .build());
+
+// A session that is automatically archived (it must used the routed media mode)
+Session session = opentok.createSession(new SessionProperties.Builder()
+  .mediaMode(MediaMode.ROUTED)
+  .archiveMode(ArchiveMode.ALWAYS)
   .build());
 
 // Store this sessionId in the database for later use:
