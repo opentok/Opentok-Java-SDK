@@ -149,8 +149,8 @@ String archiveId = archive.getId();
 ```
 
 You can also disable audio or video recording by calling the `hasAudio(false)` or `hasVideo(false)`
-methods of an `AchiveProperties` object you pass into the `OpenTok.startArchive(String sessionId,
-ArchiveProperties properties)` method:
+methods of an `ArchiveProperties` builder, and passing the built object into the
+`OpenTok.startArchive(String sessionId, ArchiveProperties properties)` method:
 
 ```java
 import com.opentok.Archive;
@@ -223,8 +223,8 @@ List<Archive> archives = opentok.listArchives(50, 50);
 ```
 
 Note that you can also create an automatically archived session, by passing `ArchiveMode.ALWAYS`
-into the `archiveMode()` method of the SessionPropertiesBuilder object you use to build the
-`sessionProperties` parameter passed into the `OpenTok->createSession()` method (see "Creating
+into the `archiveMode()` method of the `SessionProperties.Builder` object you use to build the
+`sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
 Sessions," above).
 
 For more information on archiving, see the
