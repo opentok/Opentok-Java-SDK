@@ -8,9 +8,6 @@ The OpenTok Java SDK lets you generate
 applications that run on the JVM. The SDK also includes support for working with
 [OpenTok archives](http://tokbox.com/opentok/tutorials/archiving).
 
-If you are updating from a previous version of this SDK, see
-[Important changes since v2.2.0](#important-changes-since-v220).
-
 
 # Installation
 
@@ -151,18 +148,40 @@ Archive archive = opentok.startArchive(sessionId, null);
 String archiveId = archive.getId();
 ```
 
-You can also disable audio or video recording by setting the `hasAudio` or `hasVideo` parameters of
-the `startArchive(String sessionId, String name, boolean hasVideo, boolean hasAudio` method to `false`:
+You can also disable audio or video recording by calling the `hasAudio(false)` or `hasVideo(false)`
+methods of an `AchiveProperties` object you pass into the `OpenTok.startArchive(String sessionId,
+ArchiveProperties properties)` method:
 
 ```java
 import com.opentok.Archive;
+import com.opentok.ArchiveProperties;
 
 // Start an audio-only archive
-Archive archive = opentok.startArchive(sessionId, null, false, true);
+Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
+  .hasVideo(false)
+  .build()););
 
 // Store this archiveId in the database for later use
 String archiveId = archive.getId();
 ```
+
+Setting the output mode to `Archive.OutputMode.INDIVIDUAL` setting causes each stream in the archive
+to be recorded to its own individual file:
+
+```java
+import com.opentok.Archive;
+import com.opentok.ArchiveProperties;
+
+Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
+  .archiveMode(Archive.OutputMode.INDIVIDUAL)
+  .build()););
+
+// Store this archiveId in the database for later use
+String archiveId = archive.getId();
+```
+
+The `Archive.OutputMode.COMPOSED` setting (the default) causes all streams in the archive to be
+recorded to a single (composed) file.
 
 You can stop the recording of a started Archive using a `com.opentok.Archive` instance's
 `stopArchive(String archiveId)` method.
@@ -202,6 +221,15 @@ List<Archive> archives = opentok.listArchives(0, 50);
 // Get a list of the next 50 archives
 List<Archive> archives = opentok.listArchives(50, 50);
 ```
+
+Note that you can also create an automatically archived session, by passing `ArchiveMode.ALWAYS`
+into the `archiveMode()` method of the SessionPropertiesBuilder object you use to build the
+`sessionProperties` parameter passed into the `OpenTok->createSession()` method (see "Creating
+Sessions," above).
+
+For more information on archiving, see the
+[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+
 
 # Samples
 
