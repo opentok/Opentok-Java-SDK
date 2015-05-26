@@ -180,7 +180,7 @@ Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder(
 String archiveId = archive.getId();
 ```
 
-The `Archive.OutputMode.COMPOSED` setting (the default) causes all streams in the archive are
+The `Archive.OutputMode.COMPOSED` setting (the default) causes all streams in the archive to be
 recorded to a single (composed) file.
 
 You can stop the recording of a started Archive using a `com.opentok.Archive` instance's
