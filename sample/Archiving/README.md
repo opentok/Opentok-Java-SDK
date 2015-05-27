@@ -81,13 +81,25 @@ generates the three strings that the client (JavaScript) needs to connect to the
 URL. The route handler for this URL is shown below:
 
 ```java
-get(new Route("/start") {
+post(new Route("/start") {
     @Override
     public Object handle(Request request, Response response) {
 
         Archive archive = null;
+        HttpServletRequest req = request.raw();
+        boolean hasAudio = req.getParameterMap().containsKey("hasAudio");
+        boolean hasVideo = req.getParameterMap().containsKey("hasVideo");
+        OutputMode outputMode = OutputMode.COMPOSED;
+        if (req.getParameter("outputMode").equals("individual")) {
+            outputMode = OutputMode.INDIVIDUAL;
+        }
         try {
-            archive = opentok.startArchive(sessionId, "Java Archiving Sample App");
+            ArchiveProperties properties = new ArchiveProperties.Builder()
+                                    .name("Java Archiving Sample App")
+                                    .hasAudio(hasAudio)
+                                    .hasVideo(hasVideo)
+                                    .outputMode(outputMode).build();
+            archive = opentok.startArchive(sessionId, properties);
         } catch (OpenTokException e) {
             e.printStackTrace();
             return null;
@@ -98,8 +110,11 @@ get(new Route("/start") {
 ```
 
 In this handler, the `startArchive()` method of the `opentok` instance is called with the `sessionId`
-for the session that needs to be archived. The optional second argument is `name`, which is stored with
-the archive and can be read later. In this case, as in the HelloWorld sample app, there is
+for the session that needs to be archived. An ArchiveProperties object is instantiated. It defines
+optional properties for the archive. The `name` is stored with the archive and can be read later.
+The `hasAudio`, `hasVideo`, and `outputMode` values are read from the request body; these define
+whether the archive will record audio and video, and whether it will record streams individually or
+to a single file composed of all streams. In this case, as in the HelloWorld sample app, there is
 only one session created and it is used here and for the participant view. This will trigger the
 recording to begin. The response sent back to the client's XHR request will be the JSON
 representation of the archive, which is returned from the `toString()` method. The client is also
