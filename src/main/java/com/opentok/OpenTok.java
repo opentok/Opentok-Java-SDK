@@ -368,35 +368,49 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
-    
+
     /**
-     * Starts archiving an OpenTok 2.0 session.
-     *
+     * Starts archiving an OpenTok session. This version of the <code>startArchive()</code> method
+     * lets you disable audio or video recording.
      * <p>
-     * Clients must be actively connected to the OpenTok session for you to successfully start recording an archive.
+     * Clients must be actively connected to the OpenTok session for you to successfully start
+     * recording an archive.
      * <p>
      * You can only record one archive at a time for a given session. You can only record archives
      * of sessions that use the OpenTok Media Router (sessions with the
      * <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
      * set to routed); you cannot archive sessions with the media mode set to relayed.
-     *
+     * <p>
+     * For more information on archiving, see the
+     * <a href="https://tokbox.com/opentok/tutorials/archiving/">OpenTok archiving</a>
+     * programming guide.
+     * 
      * @param sessionId The session ID of the OpenTok session to archive.
-     * @param name The name of the archive. You can use this name to identify the archive. It is a property
-     * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
+     * 
+     * @param properties This ArchiveProperties object defines options for the archive.
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
-    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+    public Archive startArchive(String sessionId, ArchiveProperties properties) throws OpenTokException {
         if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
         // TODO: do validation on sessionId and name
-        String archive = this.client.startArchive(sessionId, name);
+        String archive = this.client.startArchive(sessionId, properties);
         try {
             return archiveReader.readValue(archive);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
+    }
+
+	public Archive startArchive(String sessionId) throws OpenTokException {
+        return startArchive(sessionId, new ArchiveProperties.Builder().build());
+    }
+
+    public Archive startArchive(String sessionId, String name) throws OpenTokException {
+        ArchiveProperties properties = new ArchiveProperties.Builder().name(name).build();
+        return startArchive(sessionId, properties);
     }
 
     /**
@@ -406,7 +420,7 @@ public class OpenTok {
      * session being archived.
      *
      * @param archiveId The archive ID of the archive you want to stop recording.
-     * @return The Archive object corresponding to the archive being STOPPED.
+     * @return The Archive object corresponding to the archive being stopped.
      */
     public Archive stopArchive(String archiveId) throws OpenTokException {
 

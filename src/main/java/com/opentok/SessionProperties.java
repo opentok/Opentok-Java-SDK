@@ -27,10 +27,12 @@ public class SessionProperties {
 
     private String location = null;
     private MediaMode mediaMode;
+    private ArchiveMode archiveMode;
 
     private SessionProperties(Builder builder) {
         this.location = builder.location;
         this.mediaMode = builder.mediaMode;
+        this.archiveMode = builder.archiveMode;
     }
 
     /**
@@ -41,6 +43,7 @@ public class SessionProperties {
     public static class Builder {
         private String location = null;
         private MediaMode mediaMode = MediaMode.RELAYED;
+        private ArchiveMode archiveMode = ArchiveMode.MANUAL;
         
 
         /**
@@ -73,8 +76,9 @@ public class SessionProperties {
        * streams.
        *
        * <p>
-       * The <a href="http://tokbox.com/#multiparty" target="_top">OpenTok Media Router</a>
-       * provides the following benefits:
+       * The
+       * <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+       * OpenTok Media Router</a> provides the following benefits:
        *
        * <ul>
        *   <li>The OpenTok Media Router can decrease bandwidth usage in multiparty sessions.
@@ -82,13 +86,13 @@ public class SessionProperties {
        *       each client must send a separate audio-video stream to each client subscribing to
        *       it.)</li>
        *   <li>The OpenTok Media Router can improve the quality of the user experience through
-       *     <a href="http://tokbox.com/#iqc" target="_top">Intelligent Quality Control</a>. With
-       *     Intelligent Quality Control, if a client's connectivity degrades to a degree that
+       *     <a href="https://tokbox.com/platform/fallback" target="_top">audio fallback and video
+       *     recovery</a>. With these features, if a client's connectivity degrades to a degree that
        *     it does not support video for a stream it's subscribing to, the video is dropped on
        *     that client (without affecting other clients), and the client receives audio only.
        *     If the client's connectivity improves, the video returns.</li>
        *   <li>The OpenTok Media Router supports the
-       *     <a href="http://tokbox.com/#archiving" target="_top">archiving and playback</a>
+       *     <a href="http://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
        *     feature, which lets you record, save, and retrieve OpenTok sessions.</li>
        * </ul>
        *
@@ -102,11 +106,30 @@ public class SessionProperties {
         }
 
         /**
+         * Call this method to determine whether the session will be automatically archived (<code>ArchiveMode.ALWAYS</code>)
+         * or not (<code>ArchiveMode.MANUAL</code>).
+         *
+         * Using an always archived session also requires the routed media mode (<code>MediaMode.ROUTED</code>).
+         *
+         * @param archiveMode
+         *
+         * @return The SessionProperties.Builder object with the archive mode setting.
+         */
+        public Builder archiveMode(ArchiveMode archiveMode) {
+            this.archiveMode = archiveMode;
+            return this;
+        }
+
+        /**
          * Builds the SessionProperties object.
          *
          * @return The SessionProperties object.
          */
         public SessionProperties build() {
+            // Would throw in this case, but would introduce a backwards incompatible change.
+            //if (this.archiveMode == ArchiveMode.ALWAYS && this.mediaMode != MediaMode.ROUTED) {
+            //    throw new InvalidArgumentException("A session with always archive mode must also have the routed media mode.");
+            //}
             return new SessionProperties(this);
         }
     }
@@ -127,6 +150,15 @@ public class SessionProperties {
     }
 
     /**
+     * Defines whether the session will be automatically archived (<code>ArchiveMode.ALWAYS</code>)
+     * or not (<code>ArchiveMode.MANUAL</code>). See
+     * {@link com.opentok.SessionProperties.Builder#archiveMode(ArchiveMode archiveMode)}
+     */
+    public ArchiveMode archiveMode() {
+        return archiveMode;
+    }
+
+    /**
      * Returns the session properties as a Map.
      */
     public Map<String, Collection<String>> toMap() {
@@ -136,9 +168,14 @@ public class SessionProperties {
             valueList.add(location);
             params.put("location", valueList);
         }
-        ArrayList<String> valueList = new ArrayList<String>();
-        valueList.add(mediaMode.toString());
-        params.put("p2p.preference", valueList);
+
+        ArrayList<String> mediaModeValueList = new ArrayList<String>();
+        mediaModeValueList.add(mediaMode.toString());
+        params.put("p2p.preference", mediaModeValueList);
+
+        ArrayList<String> archiveModeValueList = new ArrayList<String>();
+        archiveModeValueList.add(archiveMode.toString());
+        params.put("archiveMode", archiveModeValueList);
 
         return params;
     }

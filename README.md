@@ -5,11 +5,8 @@
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications that run on the JVM. This version of the SDK also includes support for working
-with [OpenTok 2.0 archives](http://tokbox.com/#archiving).
-
-If you are updating from a previous version of this SDK, see
-[Important changes since v2.2.0](#important-changes-since-v220).
+applications that run on the JVM. The SDK also includes support for working with
+[OpenTok archives](http://tokbox.com/opentok/tutorials/archiving).
 
 
 # Installation
@@ -72,6 +69,7 @@ method. The `properties` parameter is optional and it is used to specify two thi
 
 * Whether the session uses the OpenTok Media Router
 * A location hint for the OpenTok server.
+* Whether the session is automatically archived.
 
 An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
 The `sessionId` property of the returned `com.opentok.Session` instance, which you can read using
@@ -80,6 +78,7 @@ the `getSessionId()` method, is useful to get an identifier that can be saved to
 
 ```java
 import com.opentok.MediaMode;
+import com.opentok.ArchiveMode;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 
@@ -94,6 +93,12 @@ Session session = opentok.createSession(new SessionProperties.Builder()
 // A Session with a location hint:
 Session session = opentok.createSession(new SessionProperties.Builder()
   .location("12.34.56.78")
+  .build());
+
+// A session that is automatically archived (it must used the routed media mode)
+Session session = opentok.createSession(new SessionProperties.Builder()
+  .mediaMode(MediaMode.ROUTED)
+  .archiveMode(ArchiveMode.ALWAYS)
   .build());
 
 // Store this sessionId in the database for later use:
@@ -143,6 +148,41 @@ Archive archive = opentok.startArchive(sessionId, null);
 String archiveId = archive.getId();
 ```
 
+You can also disable audio or video recording by calling the `hasAudio(false)` or `hasVideo(false)`
+methods of an `ArchiveProperties` builder, and passing the built object into the
+`OpenTok.startArchive(String sessionId, ArchiveProperties properties)` method:
+
+```java
+import com.opentok.Archive;
+import com.opentok.ArchiveProperties;
+
+// Start an audio-only archive
+Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
+  .hasVideo(false)
+  .build()););
+
+// Store this archiveId in the database for later use
+String archiveId = archive.getId();
+```
+
+Setting the output mode to `Archive.OutputMode.INDIVIDUAL` setting causes each stream in the archive
+to be recorded to its own individual file:
+
+```java
+import com.opentok.Archive;
+import com.opentok.ArchiveProperties;
+
+Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
+  .archiveMode(Archive.OutputMode.INDIVIDUAL)
+  .build()););
+
+// Store this archiveId in the database for later use
+String archiveId = archive.getId();
+```
+
+The `Archive.OutputMode.COMPOSED` setting (the default) causes all streams in the archive to be
+recorded to a single (composed) file.
+
 You can stop the recording of a started Archive using a `com.opentok.Archive` instance's
 `stopArchive(String archiveId)` method.
 
@@ -181,6 +221,15 @@ List<Archive> archives = opentok.listArchives(0, 50);
 // Get a list of the next 50 archives
 List<Archive> archives = opentok.listArchives(50, 50);
 ```
+
+Note that you can also create an automatically archived session, by passing `ArchiveMode.ALWAYS`
+into the `archiveMode()` method of the `SessionProperties.Builder` object you use to build the
+`sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
+Sessions," above).
+
+For more information on archiving, see the
+[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+
 
 # Samples
 
@@ -221,8 +270,7 @@ OpenTok TURN server to relay audio-video streams.
 
 **Changes in v2.2.0:**
 
-This version of the SDK includes support for working with OpenTok 2.0 archives. (This API does not
-work with OpenTok 1.0 archives.)
+This version of the SDK includes support for working with OpenTok archives.
 
 This version of the SDK includes a number of improvements in the API design. These include a number
 of API changes. See the OpenTok 2.2 SDK Reference for details on the new API.

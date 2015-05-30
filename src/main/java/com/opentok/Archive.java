@@ -7,10 +7,7 @@
  */
 package com.opentok;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -35,6 +32,17 @@ public class Archive {
          * The recording of the archive failed.
          */
         FAILED,
+
+        /**
+         * The archive is in progress and no clients are publishing streams to the session.
+         * When an archive is in progress and any client publishes a stream, the status is STARTED.
+         * When an archive is PAUSED, nothing is recorded. When a client starts publishing a stream,
+         * the recording starts (or resumes). If all clients disconnect from a session that is being
+         * archived, the status changes to PAUSED, and after 60 seconds the archive recording stops
+         * (and the status changes to STOPPED).
+         */
+        PAUSED,
+
         /**
          * The archive recording has started and is in progress.
          */
@@ -60,6 +68,26 @@ public class Archive {
         }
     }
 
+    /**
+     * Defines values used in the
+     * {@link ArchiveProperties.Builder#outputMode(com.opentok.Archive.OutputMode)} method
+     * and returned by the {@link Archive#getOutputMode} method.
+     */
+    public enum OutputMode {
+        /**
+         * All streams in the archive are recorded to a single (composed) file.
+         */
+        COMPOSED,
+        /**
+         * Each stream in the archive is recorded to its own individual file.
+         */
+        INDIVIDUAL;
+
+        @JsonValue public String toString() {
+            return super.toString().toLowerCase();
+        }
+    }
+
     @JsonProperty private long createdAt;
     @JsonProperty private int duration = 0;
     @JsonProperty private String id;
@@ -70,6 +98,9 @@ public class Archive {
     @JsonProperty private int size = 0;
     @JsonProperty private Status status;
     @JsonProperty private String url;
+    @JsonProperty private boolean hasVideo = true;
+    @JsonProperty private boolean hasAudio = true;
+    @JsonProperty private OutputMode outputMode = OutputMode.COMPOSED;
 
     protected Archive() {
     }
@@ -154,6 +185,27 @@ public class Archive {
      */
     public String getUrl() {
         return url;
+    }
+
+    /**
+     * Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasVideo() {
+        return hasVideo;
+    }
+
+    /**
+     * Whether the archive has an audio track (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasAudio() {
+        return hasAudio;
+    }
+
+    /**
+     * The output mode to be generated for this archive: <code>composed</code> or <code>individual</code>. 
+     */
+    public OutputMode getOutputMode() {
+        return outputMode;
     }
 
     @Override

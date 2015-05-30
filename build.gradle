@@ -119,3 +119,7 @@ uploadArchives {
         }
     }
 }
+
+test {
+    maxHeapSize = "1024m"
+}
