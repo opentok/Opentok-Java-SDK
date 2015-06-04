@@ -11,7 +11,7 @@ apply plugin: 'eclipse'
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 // TODO: how do we increment this before/after a release for deployment and development?
-version = '2.2.3-alpha.1'
+version = '2.3.0'
 
 sourceCompatibility = 1.6
 
