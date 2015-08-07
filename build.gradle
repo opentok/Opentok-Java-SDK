@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.+'
+    testCompile group: 'junit', name: 'junit', version: '[4.3,5.0['
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '[1.45,1.99999)'
     testCompile group: 'commons-lang', name: 'commons-lang', version: '[2.6,2.99999)'
     compile group: 'com.ning', name: 'async-http-client', version: '[1.6.1,1.9)'
