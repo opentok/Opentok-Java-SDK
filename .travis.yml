@@ -10,3 +10,4 @@ notifications:
 before_script:
   - echo $JAVA_OPTS
   - export JAVA_OPTS="$JAVA_OPTS -Xmx1024m"
+  - export GRADLE_OPTS=-Xmx1024m
