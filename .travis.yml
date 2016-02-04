@@ -1,13 +1,21 @@
 language: java
 jdk:
 - openjdk7
-- openjdk6
 - oraclejdk7
 - oraclejdk8
+
 notifications:
   slack:
     secure: fGRoClN1IQiZvokEiqmKOrF7EeaNQDHDHqUMaT4n7d3qW2fMe3N8ZLxlIDlzgJ2pv09VWqK7rmPgdhJR8yVG7OE4QQ5kzR59xD8ePN0j0jf6W6eOBPq3a9UUarnny21LFsShvRMZ/BaXcvTox1zMVltpMGFw2K4ijH8+ZvdkNz8=
+
 before_script:
   - echo $JAVA_OPTS
   - export JAVA_OPTS="$JAVA_OPTS -Xmx1024m"
   - export GRADLE_OPTS=-Xmx1024m
+
+# workaround for https://github.com/travis-ci/travis-ci/issues/5227
+before_install:
+  - cat /etc/hosts # optionally check the content *before*
+  - sudo hostname "$(hostname | cut -c1-63)"
+  - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
+  - cat /etc/hosts # optionally check the content *after*
