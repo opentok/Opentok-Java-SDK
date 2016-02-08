@@ -14,11 +14,17 @@ import java.security.SignatureException;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.opentok.constants.Version;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 
 public class Helpers {
 
@@ -44,6 +50,16 @@ public class Helpers {
         String[] decodedParts = decoded.split(":");
         String signature = decodeToken(token).get("sig");
         return (signature.equals(signData(decodedParts[1], apiSecret)));
+    }
+
+    public static void verifyPartnerAuth(int apiKey, String apiSecret) {
+        verify(RequestPatternBuilder.allRequests()
+                .withHeader("X-TB-PARTNER-AUTH", matching(apiKey + ":" + apiSecret)));
+    }
+
+    public static void verifyUserAgent() {
+        verify(RequestPatternBuilder.allRequests()
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/" + Version.VERSION + ".*JRE/" + System.getProperty("java.version") + ".*")));
     }
 
     private static Map<String, String> decodeFormData(String formData) throws UnsupportedEncodingException {

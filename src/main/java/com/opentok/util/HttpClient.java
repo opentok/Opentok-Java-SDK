@@ -300,7 +300,7 @@ public class HttpClient extends AsyncHttpClient {
 
         public HttpClient build() {
             this.config = new AsyncHttpClientConfig.Builder()
-                    .setUserAgent("Opentok-Java-SDK/"+Version.VERSION)
+                    .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
                     .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret))
                     .build();
             // NOTE: not thread-safe, config could be modified by another thread here?
