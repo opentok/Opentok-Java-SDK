@@ -87,9 +87,9 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 .withRequestBody(matching(".*p2p.preference=enabled.*"))
-                .withRequestBody(matching(".*archiveMode=manual.*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey + ":" + this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+                .withRequestBody(matching(".*archiveMode=manual.*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -116,9 +116,9 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-                .withRequestBody(matching(".*p2p.preference=disabled.*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+                .withRequestBody(matching(".*p2p.preference=disabled.*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -146,9 +146,9 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-                .withRequestBody(matching(".*location="+locationHint+".*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+                .withRequestBody(matching(".*location="+locationHint+".*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -176,9 +176,9 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching("/session/create"))
                 // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-                .withRequestBody(matching(".*archiveMode=always.*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey + ":" + this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/" + Version.VERSION + ".*")));
+                .withRequestBody(matching(".*archiveMode=always.*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test(expected = InvalidArgumentException.class)
@@ -400,9 +400,9 @@ public class OpenTokTest {
         assertEquals("http://tokbox.com.archive2.s3.amazonaws.com/123456%2F"+archiveId +"%2Farchive.mp4?Expires=13951" +
                 "94362&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", archive.getUrl());
 
-        verify(getRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        verify(getRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId)));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     // TODO: test get archive failure scenarios
@@ -505,9 +505,9 @@ public class OpenTokTest {
         assertThat(archives.get(0), instanceOf(Archive.class));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
-        verify(getRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        verify(getRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     // TODO: test list archives with count and offset
@@ -541,11 +541,11 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive")));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -576,11 +576,11 @@ public class OpenTokTest {
         assertEquals(name, archive.getName());
         assertNotNull(archive.getId());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive")));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -612,11 +612,11 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive")));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -648,11 +648,11 @@ public class OpenTokTest {
         assertNotNull(archive.getId());
         assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive")));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -685,11 +685,11 @@ public class OpenTokTest {
         assertNotNull(archive.getId());
         assertEquals(OutputMode.INDIVIDUAL, archive.getOutputMode());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive"))
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive")));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     // TODO: test start archive with name
@@ -722,9 +722,9 @@ public class OpenTokTest {
         assertEquals("SESSIONID", archive.getSessionId());
         assertEquals(archiveId, archive.getId());
 
-        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId+"/stop"))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        verify(postRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId+"/stop")));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     // TODO: test stop archive failure scenarios
@@ -739,9 +739,9 @@ public class OpenTokTest {
 
         sdk.deleteArchive(archiveId);
 
-        verify(deleteRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId))
-                .withHeader("X-TB-PARTNER-AUTH", matching(this.apiKey+":"+this.apiSecret))
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"+ Version.VERSION+".*")));
+        verify(deleteRequestedFor(urlMatching("/v2/partner/"+this.apiKey+"/archive/"+archiveId)));
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
     }
 
     // TODO: test delete archive failure scenarios
@@ -820,4 +820,5 @@ public class OpenTokTest {
 
         assertNotNull(archive);
     }
+
 }
