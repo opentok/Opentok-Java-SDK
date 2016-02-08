@@ -10,10 +10,7 @@ apply plugin: 'eclipse'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-// TODO: how do we increment this before/after a release for deployment and development?
 version = '2.3.2-alpha.1'
-
-sourceCompatibility = 1.6
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
@@ -85,7 +82,7 @@ uploadArchives {
             pom.project {
                 name 'OpenTok Java SDK'
                 packaging 'jar'
-                description 'The OpenTok Ruby SDK lets you generate sessions and tokens for OpenTok applications. This version of the SDK also includes support for working with OpenTok 2.0 archives.'
+                description 'The OpenTok Java SDK lets you generate sessions and tokens for OpenTok applications. This version of the SDK also includes support for working with OpenTok 2.0 archives.'
                 url 'http://www.tokbox.com/opentok'
 
                 scm {
@@ -122,4 +119,17 @@ uploadArchives {
 
 test {
     maxHeapSize = "1024m"
+}
+
+sourceCompatibility = 1.7
+// credit: http://stackoverflow.com/a/22681854/305340
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+    doFirst {
+        if (System.env.JDK7_HOME != null) {
+            options.bootClasspath = "$System.env.JDK7_HOME/jre/lib/rt.jar"
+            options.bootClasspath += "$File.pathSeparator$System.env.JDK7_HOME/jre/lib/jce.jar"
+            // and other specific JDK jars
+        }
+    }
 }
