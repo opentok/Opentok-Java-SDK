@@ -241,8 +241,8 @@ repository and follow the Walkthroughs:
 
 # Documentation
 
-Reference documentation is available at <http://www.tokbox.com/opentok/libraries/server/java/reference/index.html> and in the
-docs directory of the SDK.
+Reference documentation is available at
+<https://tokbox.com/developer/sdks/java/reference/index.html>.
 
 # Requirements
 
