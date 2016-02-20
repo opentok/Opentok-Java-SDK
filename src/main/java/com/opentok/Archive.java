@@ -146,9 +146,9 @@ public class Archive {
     }
 
     /**
-     * For archives with the status of Status.STOPPED, this can be set to "90 mins exceeded",
-     * "failure", "session ended", or "user initiated". For archives with the status of
-     * Status.FAILED, this can be set to "system failure".
+     * For archives with the status of Status.STOPPED, this can be set to "maximum duration
+     * exceeded", "maximum idle time exceeded", "session ended", "user initiated". For archives
+     * with the status of Status.FAILED, this can be set to "failure".
      */
     public String getReason() {
         return reason;
