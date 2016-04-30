@@ -135,7 +135,7 @@ String token = session.generateToken(new TokenOptions.Builder()
 
 ## Working with Archives
 
-**Important:** You can only archive sessions that use the OpenTok Media Router
+You can only archive sessions that use the OpenTok Media Router
 (sessions with the media mode set to routed).
 
 You can start the recording of an OpenTok Session using a `com.opentok.OpenTok` instance's
