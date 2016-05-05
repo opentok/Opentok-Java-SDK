@@ -287,10 +287,16 @@ public class HttpClient extends AsyncHttpClient {
         private final String apiSecret;
         private String apiUrl;
         private AsyncHttpClientConfig config;
+        private AsyncHttpClientConfig configPrototype;
 
-        public Builder(int apiKey, String apiSecret) {
+        public Builder(int apiKey, String apiSecret, AsyncHttpClientConfig prototype) {
             this.apiKey = apiKey;
             this.apiSecret = apiSecret;
+            this.configPrototype = prototype;
+        }
+    
+        public Builder(int apiKey, String apiSecret) {
+            this(apiKey, apiSecret, null);
         }
 
         public Builder apiUrl(String apiUrl) {
@@ -299,7 +305,14 @@ public class HttpClient extends AsyncHttpClient {
         }
 
         public HttpClient build() {
-            this.config = new AsyncHttpClientConfig.Builder()
+            AsyncHttpClientConfig.Builder builder;
+            if (null != this.configPrototype) {
+                builder = new AsyncHttpClientConfig.Builder(this.configPrototype); 
+            } else {
+                builder = new AsyncHttpClientConfig.Builder();
+            }
+        
+            this.config = builder
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
                     .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret))
                     .build();

@@ -7,6 +7,25 @@
  */
 package com.opentok.test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -14,24 +33,30 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.opentok.*;
-import com.opentok.Archive.OutputMode;
-
 import org.apache.commons.lang.StringUtils;
-
-import com.opentok.constants.Version;
-import com.opentok.exception.OpenTokException;
-import com.opentok.exception.InvalidArgumentException;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ProxyServer;
+import com.ning.http.client.ProxyServerSelector;
+import com.ning.http.client.uri.Uri;
+import com.opentok.Archive;
+import com.opentok.Archive.OutputMode;
+import com.opentok.ArchiveList;
+import com.opentok.ArchiveMode;
+import com.opentok.ArchiveProperties;
+import com.opentok.MediaMode;
+import com.opentok.OpenTok;
+import com.opentok.Role;
+import com.opentok.Session;
+import com.opentok.SessionProperties;
+import com.opentok.TokenOptions;
+import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.OpenTokException;
+import com.opentok.util.HttpClient;
 
 public class OpenTokTest {
 
@@ -77,7 +102,6 @@ public class OpenTokTest {
                                 "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
 
         Session session = sdk.createSession();
-
         assertNotNull(session);
         assertEquals(this.apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
@@ -821,4 +845,31 @@ public class OpenTokTest {
         assertNotNull(archive);
     }
 
+    @Test
+    public void testProxyConfigWithHttpClientPrototype() {
+        String dummyProxyHost = "localhost";
+        int dummyProxyPort = 8888;
+        ProxyServer dummyProxy = new ProxyServer(dummyProxyHost, dummyProxyPort);
+        AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
+                .setProxyServer(dummyProxy)
+                .build();
+        TransparentOpenTok mySDK = new TransparentOpenTok(this.apiKey, this.apiSecret, this.apiUrl, config);
+        ProxyServerSelector dummyProxySelector = mySDK.getHttpClient().getConfig().getProxyServerSelector();
+        assertNotNull(dummyProxySelector);
+        ProxyServer selectedProxy = dummyProxySelector.select(Uri.create("https://www.tokbox.com"));
+        assertEquals(selectedProxy.getHost(), dummyProxyHost);
+        assertEquals(selectedProxy.getPort(), dummyProxyPort);
+    }
+    
+    // needed for testing http client configuration
+    private class TransparentOpenTok extends OpenTok {
+        public TransparentOpenTok(int apiKey, String apiSecret, String apiUrl,
+                AsyncHttpClientConfig httpConfig) {
+            super(apiKey, apiSecret, apiUrl, httpConfig);
+        }
+
+        public HttpClient getHttpClient() {
+            return this.client;
+        }
+    }
 }

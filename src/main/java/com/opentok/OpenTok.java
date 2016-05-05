@@ -29,6 +29,8 @@ import com.opentok.util.HttpClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.ning.http.client.AsyncHttpClientConfig;
+
 import org.xml.sax.InputSource;
 
 /**
@@ -64,9 +66,13 @@ public class OpenTok {
     }
 
     public OpenTok(int apiKey, String apiSecret, String apiUrl) {
+        this(apiKey, apiSecret, apiUrl, null);
+    }
+    
+    public OpenTok(int apiKey, String apiSecret, String apiUrl, AsyncHttpClientConfig httpConfig) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        this.client = new HttpClient.Builder(apiKey, apiSecret)
+        this.client = new HttpClient.Builder(apiKey, apiSecret, httpConfig)
                 .apiUrl(apiUrl)
                 .build();
     }
