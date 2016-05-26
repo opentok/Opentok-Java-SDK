@@ -7,31 +7,62 @@
  */
 package com.opentok.test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.opentok.*;
-import com.opentok.Archive.OutputMode;
-
 import org.apache.commons.lang.StringUtils;
-
-import com.opentok.constants.Version;
-import com.opentok.exception.OpenTokException;
-import com.opentok.exception.InvalidArgumentException;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.opentok.Archive;
+import com.opentok.Archive.OutputMode;
+import com.opentok.constants.Version;
+import com.opentok.ArchiveList;
+import com.opentok.ArchiveMode;
+import com.opentok.ArchiveProperties;
+import com.opentok.MediaMode;
+import com.opentok.OpenTok;
+import com.opentok.Role;
+import com.opentok.Session;
+import com.opentok.SessionProperties;
+import com.opentok.TokenOptions;
+import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.OpenTokException;
 
 public class OpenTokTest {
 
@@ -819,6 +850,45 @@ public class OpenTokTest {
         Archive archive = sdk.getArchive(archiveId);
 
         assertNotNull(archive);
+    }
+    
+    @Test
+    public void testCreateSessionWithProxy() throws OpenTokException, UnknownHostException {
+        WireMockConfiguration proxyConfig = WireMockConfiguration.wireMockConfig();
+        proxyConfig.dynamicPort();
+        WireMockServer proxyingService = new WireMockServer(proxyConfig);
+        proxyingService.start();
+        WireMock proxyingServiceAdmin = new WireMock(proxyingService.port());
+                
+        String targetServiceBaseUrl = "http://localhost:" + wireMockRule.port();
+        proxyingServiceAdmin.register(any(urlMatching(".*")).atPriority(10)
+                .willReturn(aResponse()
+                .proxiedFrom(targetServiceBaseUrl)));
+        
+        String sessionId = "SESSIONID";
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLocalHost(), proxyingService.port()));
+
+        sdk = new OpenTok(apiKey, apiSecret, apiUrl, proxy);
+        stubFor(post(urlEqualTo("/session/create"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/xml")
+                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
+                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
+                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")
+                        ));
+
+        Session session = sdk.createSession();
+
+        assertNotNull(session);
+        assertEquals(this.apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+
+        verify(postRequestedFor(urlMatching("/session/create")));
+        
+        Helpers.verifyPartnerAuth(this.apiKey, this.apiSecret);
+        Helpers.verifyUserAgent();
+
     }
 
 }

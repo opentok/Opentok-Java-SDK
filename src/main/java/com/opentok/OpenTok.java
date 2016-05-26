@@ -10,6 +10,7 @@ package com.opentok;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.Proxy;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class OpenTok {
             .reader(Archive.class);
     static protected ObjectReader archiveListReader = new ObjectMapper()
             .reader(ArchiveList.class);
+    static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
      * Creates an OpenTok object.
@@ -60,15 +62,25 @@ public class OpenTok {
      * page.)
      */
     public OpenTok(int apiKey, String apiSecret) {
-        this(apiKey, apiSecret, "https://api.opentok.com");
+        this(apiKey, apiSecret, defaultApiUrl);
     }
 
     public OpenTok(int apiKey, String apiSecret, String apiUrl) {
+        this(apiKey, apiSecret, apiUrl, null);
+    }
+
+    public OpenTok(int apiKey, String apiSecret, String apiUrl, Proxy proxy) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        this.client = new HttpClient.Builder(apiKey, apiSecret)
-                .apiUrl(apiUrl)
-                .build();
+        if (apiUrl == null) {
+            apiUrl = defaultApiUrl;
+        }
+        HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret)
+                .apiUrl(apiUrl);
+        if (proxy != null) {
+            clientBuilder.proxy(proxy);
+        }
+        this.client = clientBuilder.build();
     }
 
     /**

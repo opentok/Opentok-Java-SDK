@@ -8,6 +8,9 @@
 package com.opentok.util;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -285,6 +288,7 @@ public class HttpClient extends AsyncHttpClient {
     public static class Builder {
         private final int apiKey;
         private final String apiSecret;
+        private Proxy proxy;
         private String apiUrl;
         private AsyncHttpClientConfig config;
 
@@ -298,14 +302,47 @@ public class HttpClient extends AsyncHttpClient {
             return this;
         }
 
+        public Builder proxy(Proxy proxy) {
+            this.proxy = proxy;
+            return this;
+        }
+
         public HttpClient build() {
-            this.config = new AsyncHttpClientConfig.Builder()
+            AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder()
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
-                    .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret))
-                    .build();
+                    .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret));
+            if (this.proxy != null) {
+                configBuilder.setProxyServer(createProxyServer(this.proxy));
+            }
+            this.config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
             HttpClient client = new HttpClient(this);
             return client;
+        }
+
+        // credit: https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
+        static ProxyServer createProxyServer(final Proxy proxy) {
+            if (proxy.type().equals(Proxy.Type.DIRECT)) {
+                return null;
+            }
+
+            if (!proxy.type().equals(Proxy.Type.HTTP)) {
+                throw new IllegalArgumentException("Only DIRECT and HTTP Proxies are supported!");
+            }
+
+            final SocketAddress sa = proxy.address();
+
+            if (!(sa instanceof InetSocketAddress)) {
+                throw new IllegalArgumentException("Only Internet Address sockets are supported!");
+            }
+
+            InetSocketAddress isa = (InetSocketAddress) sa;
+
+            if (isa.isUnresolved()) {
+                return new ProxyServer(isa.getHostName(), isa.getPort());
+            } else {
+                return new ProxyServer(isa.getAddress().getHostAddress(), isa.getPort());
+            }
         }
     }
 
