@@ -10,7 +10,7 @@ apply plugin: 'eclipse'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '3.0.0-beta.2'
+version = '3.0.0-beta.3'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
