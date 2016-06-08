@@ -61,15 +61,15 @@ public class OpenTok {
      * @param apiSecret Your OpenTok API secret. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
      * page.)
      */
-    public OpenTok(int apiKey, String apiSecret) {
+    private OpenTok(int apiKey, String apiSecret) {
         this(apiKey, apiSecret, defaultApiUrl);
     }
 
-    public OpenTok(int apiKey, String apiSecret, String apiUrl) {
+    private OpenTok(int apiKey, String apiSecret, String apiUrl) {
         this(apiKey, apiSecret, apiUrl, null);
     }
 
-    public OpenTok(int apiKey, String apiSecret, String apiUrl, Proxy proxy) {
+    private OpenTok(int apiKey, String apiSecret, String apiUrl, Proxy proxy) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
         if (apiUrl == null) {
@@ -456,4 +456,56 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
+    
+    public static class Builder
+    {
+    	 private int apiKey;
+    	    private String apiSecret;
+    	   private String apiUrl;
+    	   private Proxy proxy;
+    	   
+    	   public Builder(int apiKey, String apiSecret) {
+               this.apiKey = apiKey;
+               this.apiSecret = apiSecret;
+           }
+    	   
+    	   public Builder apiKey(int apiKey)
+    	   {
+    		   this.apiKey=apiKey;
+    		   return this;
+    	   }
+    	   public Builder apiSecret(String apiSecret)
+    	   {
+    		   this.apiSecret=apiSecret;
+    		   return this;
+    	   }
+    	   public Builder apiUrl(String apiUrl)
+    	   {
+    		   this.apiUrl=apiUrl;
+    		   return this;
+    	   }
+    	   public Builder proxy(Proxy proxy)
+    	   {
+    		   this.proxy=proxy;
+    		   return this;
+    	   }
+    	   
+    	   public OpenTok build()
+    	   {
+    		   if(this.apiUrl!=null && this.proxy!=null)
+    		   {
+    			   return new OpenTok(apiKey, apiSecret, apiUrl, proxy);
+    		   }
+    		   else if(this.apiUrl!=null)
+    		   {
+    			   return new OpenTok(apiKey, apiSecret, apiUrl);
+    		   }
+    		   else
+    			   return new OpenTok(apiKey, apiSecret);
+    	   }
+     
+    	
+    	
+    }
+
 }

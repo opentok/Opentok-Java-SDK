@@ -93,7 +93,7 @@ public class OpenTokTest {
             apiKey = anApiKey;
             apiSecret = anApiSecret;
         }
-        sdk = new OpenTok(apiKey, apiSecret, apiUrl);
+        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
     }
 
     @Test
@@ -237,7 +237,7 @@ public class OpenTokTest {
 
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret).build();
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
 
         String token = opentok.generateToken(sessionId);
@@ -258,7 +258,7 @@ public class OpenTokTest {
 
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret).build();;
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
         Role role = Role.SUBSCRIBER;
 
@@ -286,7 +286,7 @@ public class OpenTokTest {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret).build();;
         long now = System.currentTimeMillis() / 1000L;
         long inOneHour = now + (60*60);
         long inOneDay = now + (60*60*24);
@@ -337,7 +337,7 @@ public class OpenTokTest {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret).build();;
         // purposely contains some exotic characters
         String actualData = "{\"name\":\"%foo ç &\"}";
         Exception tooLongException = null;
@@ -370,7 +370,7 @@ public class OpenTokTest {
     public void testTokenBadSessionId() throws OpenTokException {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret).build();;
         ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
         try {
@@ -868,7 +868,9 @@ public class OpenTokTest {
         String sessionId = "SESSIONID";
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLocalHost(), proxyingService.port()));
 
-        sdk = new OpenTok(apiKey, apiSecret, apiUrl, proxy);
+    
+        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(targetServiceBaseUrl).proxy(proxy).build();
+        
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
                         .withStatus(200)
