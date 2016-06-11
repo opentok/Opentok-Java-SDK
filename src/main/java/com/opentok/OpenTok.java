@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.opentok.exception.OpenTokException;
+import com.opentok.constants.DefaultApiUrl;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
@@ -52,7 +53,7 @@ public class OpenTok {
 	private HttpClient client;
 	static protected ObjectReader archiveReader = new ObjectMapper().reader(Archive.class);
 	static protected ObjectReader archiveListReader = new ObjectMapper().reader(ArchiveList.class);
-	static final String defaultApiUrl = "https://api.opentok.com";
+	
 
 	/**
 	 * Creates an OpenTok object.
@@ -67,17 +68,23 @@ public class OpenTok {
 	 *            page.)
 	 */
 	public OpenTok(int apiKey, String apiSecret) {
+		
 		this.apiKey = apiKey;
 		this.apiSecret = apiSecret;
 
-		HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret).apiUrl(this.defaultApiUrl);
+		HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret).apiUrl(DefaultApiUrl.DEFAULT_API_URI);
 
 		this.client = clientBuilder.build();
 	}
-
-	public void setClient(HttpClient client) {
-		this.client = client;
+	
+	private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
+		
+		this.apiKey = apiKey;
+		this.apiSecret = apiSecret;
+		this.client=httpClient;
+		
 	}
+
 
 	/**
 	 * Creates a token for connecting to an OpenTok session. In order to
@@ -496,7 +503,6 @@ public class OpenTok {
 		private String apiUrl;
 		private Proxy proxy;
 
-		
 		public Builder(int apiKey, String apiSecret) {
 			this.apiKey = apiKey;
 			this.apiSecret = apiSecret;
@@ -513,23 +519,19 @@ public class OpenTok {
 		}
 
 		public OpenTok build() {
-			if (this.apiUrl != null && this.proxy != null) {
-				OpenTok openTok = new OpenTok(apiKey, apiSecret);
+			
+			HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
+			
+			if (this.apiUrl != null) {
+				clientBuilder.apiUrl(this.apiUrl);
+			}
+			if(this.proxy!=null)
+			{
+				clientBuilder.proxy(this.proxy);
+			}
 
-				HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret).apiUrl(apiUrl)
-						.proxy(proxy);
+			return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
 
-				openTok.setClient(clientBuilder.build());
-				return openTok;
-			} else if (this.apiUrl != null) {
-				OpenTok openTok = new OpenTok(apiKey, apiSecret);
-
-				HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret).apiUrl(apiUrl);
-
-				openTok.setClient(clientBuilder.build());
-				return openTok;
-			} else
-				return new OpenTok(apiKey, apiSecret);
 
 		}
 
