@@ -71,10 +71,7 @@ public class OpenTok {
 		
 		this.apiKey = apiKey;
 		this.apiSecret = apiSecret;
-
-		HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret).apiUrl(DefaultApiUrl.DEFAULT_API_URI);
-
-		this.client = clientBuilder.build();
+		this.client = new HttpClient.Builder(apiKey, apiSecret).build();
 	}
 	
 	private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
@@ -525,8 +522,7 @@ public class OpenTok {
 			if (this.apiUrl != null) {
 				clientBuilder.apiUrl(this.apiUrl);
 			}
-			if(this.proxy!=null)
-			{
+			if (this.proxy!=null) {
 				clientBuilder.proxy(this.proxy);
 			}
 
