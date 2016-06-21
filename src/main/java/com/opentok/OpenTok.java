@@ -53,7 +53,6 @@ public class OpenTok {
 	private HttpClient client;
 	static protected ObjectReader archiveReader = new ObjectMapper().reader(Archive.class);
 	static protected ObjectReader archiveListReader = new ObjectMapper().reader(ArchiveList.class);
-	
 
 	/**
 	 * Creates an OpenTok object.
@@ -68,20 +67,17 @@ public class OpenTok {
 	 *            page.)
 	 */
 	public OpenTok(int apiKey, String apiSecret) {
-		
 		this.apiKey = apiKey;
 		this.apiSecret = apiSecret;
 		this.client = new HttpClient.Builder(apiKey, apiSecret).build();
 	}
-	
+
 	private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
-		
 		this.apiKey = apiKey;
 		this.apiSecret = apiSecret;
-		this.client=httpClient;
-		
-	}
+		this.client = httpClient;
 
+	}
 
 	/**
 	 * Creates a token for connecting to an OpenTok session. In order to
@@ -114,7 +110,8 @@ public class OpenTok {
 	 * 		String role = Role.SUBSCRIBER;
 	 *
 	 * 		// Generate a token:
-	 * 		TokenOptions options = new TokenOptions.Buider().role(role).data(connectionMetadata).build();
+	 * 		TokenOptions options = new TokenOptions.Buider().role(role).data(connectionMetadata)
+	 * 			.build();
 	 * 		String token = sdk.generateToken(sessionId, options);
 	 * 		System.out.println(token);
 	 * 	}
@@ -142,7 +139,8 @@ public class OpenTok {
 	 *
 	 * @return The token string.
 	 */
-	public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
+	public String generateToken(String sessionId, TokenOptions tokenOptions)
+		throws OpenTokException {
 		List<String> sessionIdParts = null;
 		if (sessionId == null || sessionId == "") {
 			throw new InvalidArgumentException("Session not valid");
@@ -243,7 +241,8 @@ public class OpenTok {
 	 * 		String API_SECRET = ""; // Replace with your OpenTok API secret.
 	 * 		OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
 	 *
-	 * 		SessionProperties sp = new SessionProperties().Builder().mediaMode(MediaMode.RELAYED).build();
+	 * 		SessionProperties sp = new SessionProperties().Builder().mediaMode(MediaMode.RELAYED)
+	 * 			.build();
 	 *
 	 * 		Session session = sdk.createSession(sp);
 	 * 		System.out.println(session.getSessionId());
@@ -294,7 +293,8 @@ public class OpenTok {
 				return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
 			}
 		} catch (XPathExpressionException e) {
-			throw new OpenTokException("Cannot create session. Could not read the response: " + xmlResponse);
+			throw new OpenTokException(
+				"Cannot create session. Could not read the response: " + xmlResponse);
 		}
 	}
 
@@ -437,7 +437,8 @@ public class OpenTok {
 	 * @return The Archive object. This object includes properties defining the
 	 *         archive, including the archive ID.
 	 */
-	public Archive startArchive(String sessionId, ArchiveProperties properties) throws OpenTokException {
+	public Archive startArchive(String sessionId, ArchiveProperties properties)
+		throws OpenTokException {
 		if (sessionId == null || sessionId == "") {
 			throw new InvalidArgumentException("Session not valid");
 		}
@@ -516,18 +517,16 @@ public class OpenTok {
 		}
 
 		public OpenTok build() {
-			
 			HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
-			
+
 			if (this.apiUrl != null) {
 				clientBuilder.apiUrl(this.apiUrl);
 			}
-			if (this.proxy!=null) {
+			if (this.proxy != null) {
 				clientBuilder.proxy(this.proxy);
 			}
 
 			return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
-
 
 		}
 

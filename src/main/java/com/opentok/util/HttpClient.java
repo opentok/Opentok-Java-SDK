@@ -31,344 +31,377 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 
 public class HttpClient extends AsyncHttpClient {
-    
-    private final String apiUrl;
-    private final int apiKey;
 
-    private HttpClient(Builder builder) {
-        super(builder.config);
-        this.apiKey = builder.apiKey;
-        this.apiUrl = builder.apiUrl;
-    }
+	private final String apiUrl;
+	private final int apiKey;
 
-    public String createSession(Map<String, Collection<String>> params) throws RequestException {
-        String responseString = null;
-        Response response = null;
-        FluentStringsMap paramsString = new FluentStringsMap().addAll(params);
+	private HttpClient(Builder builder) {
+		super(builder.config);
+		this.apiKey = builder.apiKey;
+		this.apiUrl = builder.apiUrl;
+	}
 
-        Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
-                .setFormParams(paramsString)
-                .execute();
+	public String createSession(Map<String, Collection<String>> params) throws RequestException {
+		String responseString = null;
+		Response response = null;
+		FluentStringsMap paramsString = new FluentStringsMap().addAll(params);
 
-        try {
-            response = request.get();
-            switch (response.getStatusCode()) {
-                case 200:
-                    responseString = response.getResponseBody();
-                    break;
-                default:
-                    throw new RequestException("Could not create an OpenTok Session. The server response was invalid." +
-                            " response code: " + response.getStatusCode());
-            }
+		Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
+			.setFormParams(paramsString).execute();
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not create an OpenTok Session", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not create an OpenTok Session", e);
-        } catch (IOException e) {
-            throw new RequestException("Could not create an OpenTok Session", e);
-        }
-        return responseString;
-    }
+		try {
+			response = request.get();
+			switch (response.getStatusCode()) {
+			case 200:
+				responseString = response.getResponseBody();
+				break;
+			default:
+				throw new RequestException(
+					"Could not create an OpenTok Session. The server response was invalid."
+						+ " response code: " + response.getStatusCode());
+			}
 
-    public String getArchive(String archiveId) throws RequestException {
-        String responseString = null;
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
-        Future<Response> request = this.prepareGet(url).execute();
+			// if we only wanted Java 7 and above, we could DRY this into one
+			// catch clause
+		} catch (InterruptedException e) {
+			throw new RequestException("Could not create an OpenTok Session", e);
+		} catch (ExecutionException e) {
+			throw new RequestException("Could not create an OpenTok Session", e);
+		} catch (IOException e) {
+			throw new RequestException("Could not create an OpenTok Session", e);
+		}
+		return responseString;
+	}
 
-        try {
-            Response response = request.get();
-            switch (response.getStatusCode()) {
-                case 200:
-                    responseString = response.getResponseBody();
-                    break;
-                case 400:
-                    throw new RequestException("Could not get an OpenTok Archive. The archiveId was invalid. " +
-                            "archiveId: " + archiveId);
-                case 403:
-                    throw new RequestException("Could not get an OpenTok Archive. The request was not authorized.");
-                case 500:
-                    throw new RequestException("Could not get an OpenTok Archive. A server error occurred.");
-                default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
-                            " response code: " + response.getStatusCode());
-            }
+	public String getArchive(String archiveId) throws RequestException {
+		String responseString = null;
+		String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
+		Future<Response> request = this.prepareGet(url).execute();
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not get an OpenTok Archive", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not get an OpenTok Archive", e);
-        } catch (IOException e) {
-            throw new RequestException("Could not  get an OpenTok Archive", e);
-        }
+		try {
+			Response response = request.get();
+			switch (response.getStatusCode()) {
+			case 200:
+				responseString = response.getResponseBody();
+				break;
+			case 400:
+				throw new RequestException(
+					"Could not get an OpenTok Archive. The archiveId was invalid. " + "archiveId: "
+						+ archiveId);
+			case 403:
+				throw new RequestException(
+					"Could not get an OpenTok Archive. The request was not authorized.");
+			case 500:
+				throw new RequestException(
+					"Could not get an OpenTok Archive. A server error occurred.");
+			default:
+				throw new RequestException(
+					"Could not get an OpenTok Archive. The server response was invalid."
+						+ " response code: " + response.getStatusCode());
+			}
 
-        return responseString;
-    }
+			// if we only wanted Java 7 and above, we could DRY this into one
+			// catch clause
+		} catch (InterruptedException e) {
+			throw new RequestException("Could not get an OpenTok Archive", e);
+		} catch (ExecutionException e) {
+			throw new RequestException("Could not get an OpenTok Archive", e);
+		} catch (IOException e) {
+			throw new RequestException("Could not  get an OpenTok Archive", e);
+		}
 
-    public String getArchives(int offset, int count) throws RequestException {
-        String responseString = null;
-        // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
-        if (offset != 0 || count != 1000) {
-            url += "?";
-            if (offset != 0) {
-                url += ("offset=" + Integer.toString(offset) + '&');
-            }
-            if (count != 1000) {
-                url += ("count=" + Integer.toString(count));
-            }
-        }
+		return responseString;
+	}
 
-        Future<Response> request = this.prepareGet(url).execute();
+	public String getArchives(int offset, int count) throws RequestException {
+		String responseString = null;
+		// TODO: maybe use a StringBuilder?
+		String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
+		if (offset != 0 || count != 1000) {
+			url += "?";
+			if (offset != 0) {
+				url += ("offset=" + Integer.toString(offset) + '&');
+			}
+			if (count != 1000) {
+				url += ("count=" + Integer.toString(count));
+			}
+		}
 
-        try {
-            Response response = request.get();
-            switch (response.getStatusCode()) {
-                case 200:
-                    responseString = response.getResponseBody();
-                    break;
-                case 403:
-                    throw new RequestException("Could not get OpenTok Archives. The request was not authorized.");
-                case 500:
-                    throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
-                default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
-                            " response code: " + response.getStatusCode());
-            }
+		Future<Response> request = this.prepareGet(url).execute();
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not get OpenTok Archives", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not get OpenTok Archives", e);
-        } catch (IOException e) {
-            throw new RequestException("Could not get OpenTok Archives", e);
-        }
+		try {
+			Response response = request.get();
+			switch (response.getStatusCode()) {
+			case 200:
+				responseString = response.getResponseBody();
+				break;
+			case 403:
+				throw new RequestException(
+					"Could not get OpenTok Archives. The request was not authorized.");
+			case 500:
+				throw new RequestException(
+					"Could not get OpenTok Archives. A server error occurred.");
+			default:
+				throw new RequestException(
+					"Could not get an OpenTok Archive. The server response was invalid."
+						+ " response code: " + response.getStatusCode());
+			}
 
-        return responseString;
-    }
+			// if we only wanted Java 7 and above, we could DRY this into one
+			// catch clause
+		} catch (InterruptedException e) {
+			throw new RequestException("Could not get OpenTok Archives", e);
+		} catch (ExecutionException e) {
+			throw new RequestException("Could not get OpenTok Archives", e);
+		} catch (IOException e) {
+			throw new RequestException("Could not get OpenTok Archives", e);
+		}
 
-    public String startArchive(String sessionId, ArchiveProperties properties)
-            throws OpenTokException {
-        String responseString = null;
-        String requestBody = null;
-        // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
+		return responseString;
+	}
 
-        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-        ObjectNode requestJson = nodeFactory.objectNode();
-        requestJson.put("sessionId", sessionId);
-        requestJson.put("hasVideo", properties.hasVideo());
-        requestJson.put("hasAudio", properties.hasAudio());
-        requestJson.put("outputMode", properties.outputMode().toString());
+	public String startArchive(String sessionId, ArchiveProperties properties)
+		throws OpenTokException {
+		String responseString = null;
+		String requestBody = null;
+		// TODO: maybe use a StringBuilder?
+		String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
 
-        if (properties.name() != null) {
-            requestJson.put("name", properties.name());
-        }
-        try {
-            requestBody = new ObjectMapper().writeValueAsString(requestJson);
-        } catch (JsonProcessingException e) {
-            throw new OpenTokException("Could not start an OpenTok Archive. The JSON body encoding failed.", e);
-        }
-        Future<Response> request = this.preparePost(url)
-                .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+		JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+		ObjectNode requestJson = nodeFactory.objectNode();
+		requestJson.put("sessionId", sessionId);
+		requestJson.put("hasVideo", properties.hasVideo());
+		requestJson.put("hasAudio", properties.hasAudio());
+		requestJson.put("outputMode", properties.outputMode().toString());
 
-        try {
-            Response response = request.get();
-            switch (response.getStatusCode()) {
-                case 200:
-                    responseString = response.getResponseBody();
-                    break;
-                case 403:
-                    throw new RequestException("Could not start an OpenTok Archive. The request was not authorized.");
-                case 404:
-                    throw new RequestException("Could not start an OpenTok Archive. The sessionId does not exist. " +
-                            "sessionId = " + sessionId);
-                case 409:
-                    throw new RequestException("Could not start an OpenTok Archive. The session is either " +
-                            "peer-to-peer or already recording. sessionId = " + sessionId);
-                case 500:
-                    throw new RequestException("Could not start an OpenTok Archive. A server error occurred.");
-                default:
-                    throw new RequestException("Could not start an OpenTok Archive. The server response was invalid." +
-                            " response code: " + response.getStatusCode());
-            }
+		if (properties.name() != null) {
+			requestJson.put("name", properties.name());
+		}
+		try {
+			requestBody = new ObjectMapper().writeValueAsString(requestJson);
+		} catch (JsonProcessingException e) {
+			throw new OpenTokException(
+				"Could not start an OpenTok Archive. The JSON body encoding failed.", e);
+		}
+		Future<Response> request = this.preparePost(url).setBody(requestBody)
+			.setHeader("Content-Type", "application/json").execute();
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not start an OpenTok Archive.", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not start an OpenTok Archive.", e);
-        } catch (IOException e) {
-            throw new RequestException("Could not start an OpenTok Archive.", e);
-        }
-        return responseString;
-    }
+		try {
+			Response response = request.get();
+			switch (response.getStatusCode()) {
+			case 200:
+				responseString = response.getResponseBody();
+				break;
+			case 403:
+				throw new RequestException(
+					"Could not start an OpenTok Archive. The request was not authorized.");
+			case 404:
+				throw new RequestException(
+					"Could not start an OpenTok Archive. The sessionId does not exist. "
+						+ "sessionId = " + sessionId);
+			case 409:
+				throw new RequestException(
+					"Could not start an OpenTok Archive. The session is either "
+						+ "peer-to-peer or already recording. sessionId = " + sessionId);
+			case 500:
+				throw new RequestException(
+					"Could not start an OpenTok Archive. A server error occurred.");
+			default:
+				throw new RequestException(
+					"Could not start an OpenTok Archive. The server response was invalid."
+						+ " response code: " + response.getStatusCode());
+			}
 
-    public String stopArchive(String archiveId) throws RequestException {
-        String responseString = null;
-        // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop";
-        Future<Response> request = this.preparePost(url).execute();
+			// if we only wanted Java 7 and above, we could DRY this into one
+			// catch clause
+		} catch (InterruptedException e) {
+			throw new RequestException("Could not start an OpenTok Archive.", e);
+		} catch (ExecutionException e) {
+			throw new RequestException("Could not start an OpenTok Archive.", e);
+		} catch (IOException e) {
+			throw new RequestException("Could not start an OpenTok Archive.", e);
+		}
+		return responseString;
+	}
 
-        try {
-            Response response = request.get();
-            switch (response.getStatusCode()) {
-                case 200:
-                    responseString = response.getResponseBody();
-                    break;
-                case 400:
-                    // NOTE: the REST api spec talks about sessionId and action, both of which aren't required.
-                    //       see: https://github.com/opentok/OpenTok-2.0-archiving-samples/blob/master/REST-API.md#stop_archive
-                    throw new RequestException("Could not stop an OpenTok Archive.");
-                case 403:
-                    throw new RequestException("Could not stop an OpenTok Archive. The request was not authorized.");
-                case 404:
-                    throw new RequestException("Could not stop an OpenTok Archive. The archiveId does not exist. " +
-                            "archiveId = " + archiveId);
-                case 409:
-                    throw new RequestException("Could not stop an OpenTok Archive. The archive is not being recorded. " +
-                            "archiveId = " + archiveId);
-                case 500:
-                    throw new RequestException("Could not stop an OpenTok Archive. A server error occurred.");
-                default:
-                    throw new RequestException("Could not stop an OpenTok Archive. The server response was invalid." +
-                            " response code: " + response.getStatusCode());
-            }
+	public String stopArchive(String archiveId) throws RequestException {
+		String responseString = null;
+		// TODO: maybe use a StringBuilder?
+		String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop";
+		Future<Response> request = this.preparePost(url).execute();
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not stop an OpenTok Archive.", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not stop an OpenTok Archive.", e);
-        } catch (IOException e) {
-            throw new RequestException("Could not stop an OpenTok Archive.", e);
-        }
-        return responseString;
-    }
+		try {
+			Response response = request.get();
+			switch (response.getStatusCode()) {
+			case 200:
+				responseString = response.getResponseBody();
+				break;
+			case 400:
+				// NOTE: the REST api spec talks about sessionId and action,
+				// both of which aren't required.
+				// see:
+				// https://github.com/opentok/OpenTok-2.0-archiving-samples/blob/master/REST-API.md#stop_archive
+				throw new RequestException("Could not stop an OpenTok Archive.");
+			case 403:
+				throw new RequestException(
+					"Could not stop an OpenTok Archive. The request was not authorized.");
+			case 404:
+				throw new RequestException(
+					"Could not stop an OpenTok Archive. The archiveId does not exist. "
+						+ "archiveId = " + archiveId);
+			case 409:
+				throw new RequestException(
+					"Could not stop an OpenTok Archive. The archive is not being recorded. "
+						+ "archiveId = " + archiveId);
+			case 500:
+				throw new RequestException(
+					"Could not stop an OpenTok Archive. A server error occurred.");
+			default:
+				throw new RequestException(
+					"Could not stop an OpenTok Archive. The server response was invalid."
+						+ " response code: " + response.getStatusCode());
+			}
 
-    public String deleteArchive(String archiveId) throws RequestException {
-        String responseString = null;
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
-        Future<Response> request = this.prepareDelete(url).execute();
+			// if we only wanted Java 7 and above, we could DRY this into one
+			// catch clause
+		} catch (InterruptedException e) {
+			throw new RequestException("Could not stop an OpenTok Archive.", e);
+		} catch (ExecutionException e) {
+			throw new RequestException("Could not stop an OpenTok Archive.", e);
+		} catch (IOException e) {
+			throw new RequestException("Could not stop an OpenTok Archive.", e);
+		}
+		return responseString;
+	}
 
-        try {
-            Response response = request.get();
-            switch (response.getStatusCode()) {
-                case 204:
-                    responseString = response.getResponseBody();
-                    break;
-                case 403:
-                    throw new RequestException("Could not delete an OpenTok Archive. The request was not authorized.");
-                case 409:
-                    throw new RequestException("Could not delete an OpenTok Archive. The status was not \"uploaded\"," +
-                            " \"available\", or \"deleted\". archiveId = " + archiveId);
-                case 500:
-                    throw new RequestException("Could not delete an OpenTok Archive. A server error occurred.");
-                default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
-                            " response code: " + response.getStatusCode());
-            }
+	public String deleteArchive(String archiveId) throws RequestException {
+		String responseString = null;
+		String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
+		Future<Response> request = this.prepareDelete(url).execute();
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
-        } catch (IOException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
-        }
+		try {
+			Response response = request.get();
+			switch (response.getStatusCode()) {
+			case 204:
+				responseString = response.getResponseBody();
+				break;
+			case 403:
+				throw new RequestException(
+					"Could not delete an OpenTok Archive. The request was not authorized.");
+			case 409:
+				throw new RequestException(
+					"Could not delete an OpenTok Archive. The status was not \"uploaded\","
+						+ " \"available\", or \"deleted\". archiveId = " + archiveId);
+			case 500:
+				throw new RequestException(
+					"Could not delete an OpenTok Archive. A server error occurred.");
+			default:
+				throw new RequestException(
+					"Could not get an OpenTok Archive. The server response was invalid."
+						+ " response code: " + response.getStatusCode());
+			}
 
-        return responseString;
-    }
+			// if we only wanted Java 7 and above, we could DRY this into one
+			// catch clause
+		} catch (InterruptedException e) {
+			throw new RequestException(
+				"Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+		} catch (ExecutionException e) {
+			throw new RequestException(
+				"Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+		} catch (IOException e) {
+			throw new RequestException(
+				"Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+		}
 
-    public static class Builder {
-        private final int apiKey;
-        private final String apiSecret;
-        private Proxy proxy;
-        private String apiUrl;
-        private AsyncHttpClientConfig config;
+		return responseString;
+	}
 
-        public Builder(int apiKey, String apiSecret) {
-            this.apiKey = apiKey;
-            this.apiSecret = apiSecret;
-        }
+	public static class Builder {
+		private final int apiKey;
+		private final String apiSecret;
+		private Proxy proxy;
+		private String apiUrl;
+		private AsyncHttpClientConfig config;
 
-        public Builder apiUrl(String apiUrl) {
-            this.apiUrl = apiUrl;
-            return this;
-        }
+		public Builder(int apiKey, String apiSecret) {
+			this.apiKey = apiKey;
+			this.apiSecret = apiSecret;
+		}
 
-        public Builder proxy(Proxy proxy) {
-            this.proxy = proxy;
-            return this;
-        }
+		public Builder apiUrl(String apiUrl) {
+			this.apiUrl = apiUrl;
+			return this;
+		}
 
-        public HttpClient build() {
-            AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder()
-                    .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
-                    .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret));
-          
-            if (this.apiUrl==null) {
-        	   this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
-            }
-        	   
-            if (this.proxy != null) {
-                configBuilder.setProxyServer(createProxyServer(this.proxy));
-            }
-            
-            this.config = configBuilder.build();
-            // NOTE: not thread-safe, config could be modified by another thread here?
-            HttpClient client = new HttpClient(this);
-            return client;
-        }
+		public Builder proxy(Proxy proxy) {
+			this.proxy = proxy;
+			return this;
+		}
 
-        // credit: https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
-        static ProxyServer createProxyServer(final Proxy proxy) {
-            if (proxy.type().equals(Proxy.Type.DIRECT)) {
-                return null;
-            }
+		public HttpClient build() {
+			AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder()
+				.setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/"
+					+ System.getProperty("java.version"))
+				.addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret));
 
-            if (!proxy.type().equals(Proxy.Type.HTTP)) {
-                throw new IllegalArgumentException("Only DIRECT and HTTP Proxies are supported!");
-            }
+			if (this.apiUrl == null) {
+				this.apiUrl = DefaultApiUrl.DEFAULT_API_URI;
+			}
 
-            final SocketAddress sa = proxy.address();
+			if (this.proxy != null) {
+				configBuilder.setProxyServer(createProxyServer(this.proxy));
+			}
 
-            if (!(sa instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException("Only Internet Address sockets are supported!");
-            }
+			this.config = configBuilder.build();
+			// NOTE: not thread-safe, config could be modified by another thread
+			// here?
+			HttpClient client = new HttpClient(this);
+			return client;
+		}
 
-            InetSocketAddress isa = (InetSocketAddress) sa;
+		// credit:
+		// https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
+		static ProxyServer createProxyServer(final Proxy proxy) {
+			if (proxy.type().equals(Proxy.Type.DIRECT)) {
+				return null;
+			}
 
-            if (isa.isUnresolved()) {
-                return new ProxyServer(isa.getHostName(), isa.getPort());
-            } else {
-                return new ProxyServer(isa.getAddress().getHostAddress(), isa.getPort());
-            }
-        }
-    }
+			if (!proxy.type().equals(Proxy.Type.HTTP)) {
+				throw new IllegalArgumentException("Only DIRECT and HTTP Proxies are supported!");
+			}
 
-    static class PartnerAuthRequestFilter implements RequestFilter {
+			final SocketAddress sa = proxy.address();
 
-        private int apiKey;
-        private String apiSecret;
+			if (!(sa instanceof InetSocketAddress)) {
+				throw new IllegalArgumentException("Only Internet Address sockets are supported!");
+			}
 
-        public PartnerAuthRequestFilter(int apiKey, String apiSecret) {
-            this.apiKey = apiKey;
-            this.apiSecret = apiSecret;
-        }
+			InetSocketAddress isa = (InetSocketAddress) sa;
 
-        public FilterContext filter(FilterContext ctx) throws FilterException {
-            return new FilterContext.FilterContextBuilder(ctx)
-                    .request(new RequestBuilder(ctx.getRequest())
-                            .addHeader("X-TB-PARTNER-AUTH", this.apiKey+":"+this.apiSecret)
-                            .build())
-                    .build();
-        }
-    }
+			if (isa.isUnresolved()) {
+				return new ProxyServer(isa.getHostName(), isa.getPort());
+			} else {
+				return new ProxyServer(isa.getAddress().getHostAddress(), isa.getPort());
+			}
+		}
+	}
+
+	static class PartnerAuthRequestFilter implements RequestFilter {
+
+		private int apiKey;
+		private String apiSecret;
+
+		public PartnerAuthRequestFilter(int apiKey, String apiSecret) {
+			this.apiKey = apiKey;
+			this.apiSecret = apiSecret;
+		}
+
+		public FilterContext filter(FilterContext ctx) throws FilterException {
+			return new FilterContext.FilterContextBuilder(ctx)
+				.request(new RequestBuilder(ctx.getRequest())
+					.addHeader("X-TB-PARTNER-AUTH", this.apiKey + ":" + this.apiSecret).build())
+				.build();
+		}
+	}
 }
