@@ -237,7 +237,7 @@ public class OpenTokTest {
 
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey,apiSecret);
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
 
         String token = opentok.generateToken(sessionId);
@@ -258,7 +258,7 @@ public class OpenTokTest {
 
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey,apiSecret);
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
         Role role = Role.SUBSCRIBER;
 
@@ -286,7 +286,7 @@ public class OpenTokTest {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        OpenTok opentok = new OpenTok(apiKey,apiSecret);
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         long now = System.currentTimeMillis() / 1000L;
         long inOneHour = now + (60*60);
         long inOneDay = now + (60*60*24);
@@ -337,7 +337,7 @@ public class OpenTokTest {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        OpenTok opentok = new OpenTok(apiKey,apiSecret);
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         // purposely contains some exotic characters
         String actualData = "{\"name\":\"%foo ç &\"}";
         Exception tooLongException = null;
@@ -370,7 +370,7 @@ public class OpenTokTest {
     public void testTokenBadSessionId() throws OpenTokException {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey,apiSecret);
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
         try {
