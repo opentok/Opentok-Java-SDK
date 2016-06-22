@@ -33,12 +33,6 @@ public class SessionProperties {
         this.location = builder.location;
         this.mediaMode = builder.mediaMode;
         this.archiveMode = builder.archiveMode;
-        //this is my comment
-    }
-    
-    public void testWhiteSpacing()
-    {
-    	// this should show white spacing in commented area
     }
 
     /**
