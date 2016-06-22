@@ -62,25 +62,15 @@ public class OpenTok {
      * page.)
      */
     public OpenTok(int apiKey, String apiSecret) {
-        this(apiKey, apiSecret, defaultApiUrl);
-    }
-
-    public OpenTok(int apiKey, String apiSecret, String apiUrl) {
-        this(apiKey, apiSecret, apiUrl, null);
-    }
-
-    public OpenTok(int apiKey, String apiSecret, String apiUrl, Proxy proxy) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        if (apiUrl == null) {
-            apiUrl = defaultApiUrl;
-        }
-        HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret)
-                .apiUrl(apiUrl);
-        if (proxy != null) {
-            clientBuilder.proxy(proxy);
-        }
-        this.client = clientBuilder.build();
+        this.client = new HttpClient.Builder(apiKey, apiSecret).build();
+    }
+    
+    private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
+        this.apiKey = apiKey;
+        this.apiSecret = apiSecret.trim();
+        this.client = httpClient;
     }
 
     /**
@@ -135,7 +125,7 @@ public class OpenTok {
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
         List<String> sessionIdParts = null;
-        if(sessionId == null || sessionId == "") {
+        if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
 
@@ -255,7 +245,7 @@ public class OpenTok {
         String xpathQuery = "/sessions/Session/session_id";
 
         // NOTE: doing this null check twice is kind of ugly
-        if(properties != null) {
+        if (properties != null) {
             params = properties.toMap();
         } else {
             params = new SessionProperties.Builder().build().toMap();
@@ -324,7 +314,7 @@ public class OpenTok {
         InputSource source = new InputSource(new StringReader(xml));
         return xpath.evaluate(xpathQuery, source);
     }
-    
+
     /**
      * Gets an {@link Archive} object for the given archive ID.
      *
@@ -456,4 +446,39 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
+    
+    public static class Builder {
+        private int apiKey;
+        private String apiSecret;
+        private String apiUrl;
+        private Proxy proxy;
+        
+        public Builder(int apiKey, String apiSecret) {
+            this.apiKey = apiKey;
+            this.apiSecret = apiSecret;
+        }
+        
+        public Builder apiUrl(String apiUrl) {
+            this.apiUrl = apiUrl;
+            return this;
+        }
+        
+        public Builder proxy(Proxy proxy) {
+            this.proxy = proxy;
+            return this;
+        }
+        
+        public OpenTok build() {
+            HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
+            
+            if (this.apiUrl != null) {
+                clientBuilder.apiUrl(this.apiUrl);
+            }
+            if (this.proxy != null) {
+                clientBuilder.proxy(this.proxy);
+            }
+            
+            return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
+        }
+  }
 }
