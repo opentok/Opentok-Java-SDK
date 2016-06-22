@@ -61,7 +61,7 @@ public class OpenTok {
      * @param apiSecret Your OpenTok API secret. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
      * page.)
      */
-    public OpenTok(int apiKey, String apiSecret) {
+	public OpenTok(int apiKey, String apiSecret) {
 		this.apiKey = apiKey;
 		this.apiSecret = apiSecret;
 		this.client = new HttpClient.Builder(apiKey, apiSecret).build();
@@ -124,7 +124,8 @@ public class OpenTok {
      *
      * @return The token string.
      */
-    public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
+    public String generateToken(String sessionId, TokenOptions tokenOptions)
+        throws OpenTokException {
         List<String> sessionIdParts = null;
         if(sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
@@ -246,14 +247,13 @@ public class OpenTok {
         String xpathQuery = "/sessions/Session/session_id";
 
         // NOTE: doing this null check twice is kind of ugly
-        if(properties != null) {
+        if (properties != null) {
             params = properties.toMap();
         } else {
             params = new SessionProperties.Builder().build().toMap();
         }
-        
-        String xmlResponse = this.client.createSession(params);
 
+        String xmlResponse = this.client.createSession(params);
 
         // NOTE: doing this null check twice is kind of ugly
         try {
@@ -263,7 +263,8 @@ public class OpenTok {
                 return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
             }
         } catch (XPathExpressionException e) {
-            throw new OpenTokException("Cannot create session. Could not read the response: " + xmlResponse);
+            throw new OpenTokException(
+                "Cannot create session. Could not read the response: " + xmlResponse);
         }
     }
 
@@ -315,7 +316,7 @@ public class OpenTok {
         InputSource source = new InputSource(new StringReader(xml));
         return xpath.evaluate(xpathQuery, source);
     }
-    
+
     /**
      * Gets an {@link Archive} object for the given archive ID.
      *
@@ -434,7 +435,7 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
-    
+
     /**
      * Deletes an OpenTok archive.
      * <p>
@@ -484,5 +485,4 @@ public class OpenTok {
 		}
 
 	}
-
 }
