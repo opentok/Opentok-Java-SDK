@@ -313,11 +313,13 @@ public class HttpClient extends AsyncHttpClient {
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
                     .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret));
             if (this.apiUrl == null) {
-            	this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
+                this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
             }
+            
             if (this.proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(this.proxy));
             }
+            
             this.config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
             HttpClient client = new HttpClient(this);

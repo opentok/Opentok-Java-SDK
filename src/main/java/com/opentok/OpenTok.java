@@ -61,18 +61,17 @@ public class OpenTok {
      * @param apiSecret Your OpenTok API secret. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
      * page.)
      */
-	public OpenTok(int apiKey, String apiSecret) {
-		this.apiKey = apiKey;
-		this.apiSecret = apiSecret;
-		this.client = new HttpClient.Builder(apiKey, apiSecret).build();
-	}
-
-	private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
-		this.apiKey = apiKey;
-		this.apiSecret = apiSecret;
-		this.client = httpClient;
-
-	}
+    public OpenTok(int apiKey, String apiSecret) {
+        this.apiKey = apiKey;
+        this.apiSecret = apiSecret.trim();
+        this.client = new HttpClient.Builder(apiKey, apiSecret).build();
+    }
+    
+    private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
+        this.apiKey = apiKey;
+        this.apiSecret = apiSecret.trim();
+        this.client = httpClient;
+    }
 
     /**
      * Creates a token for connecting to an OpenTok session. In order to authenticate a user
@@ -124,10 +123,9 @@ public class OpenTok {
      *
      * @return The token string.
      */
-    public String generateToken(String sessionId, TokenOptions tokenOptions)
-        throws OpenTokException {
+    public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
         List<String> sessionIdParts = null;
-        if(sessionId == null || sessionId == "") {
+        if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
 
@@ -252,8 +250,9 @@ public class OpenTok {
         } else {
             params = new SessionProperties.Builder().build().toMap();
         }
-
+        
         String xmlResponse = this.client.createSession(params);
+
 
         // NOTE: doing this null check twice is kind of ugly
         try {
@@ -263,8 +262,7 @@ public class OpenTok {
                 return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
             }
         } catch (XPathExpressionException e) {
-            throw new OpenTokException(
-                "Cannot create session. Could not read the response: " + xmlResponse);
+            throw new OpenTokException("Cannot create session. Could not read the response: " + xmlResponse);
         }
     }
 
@@ -435,7 +433,7 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
-
+    
     /**
      * Deletes an OpenTok archive.
      * <p>
@@ -450,39 +448,37 @@ public class OpenTok {
     }
     
     public static class Builder {
-		private int apiKey;
-		private String apiSecret;
-		private String apiUrl;
-		private Proxy proxy;
-
-		public Builder(int apiKey, String apiSecret) {
-			this.apiKey = apiKey;
-			this.apiSecret = apiSecret;
-		}
-
-		public Builder apiUrl(String apiUrl) {
-			this.apiUrl = apiUrl;
-			return this;
-		}
-
-		public Builder proxy(Proxy proxy) {
-			this.proxy = proxy;
-			return this;
-		}
-
-		public OpenTok build() {
-			HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
-
-			if (this.apiUrl != null) {
-				clientBuilder.apiUrl(this.apiUrl);
-			}
-			if (this.proxy != null) {
-				clientBuilder.proxy(this.proxy);
-			}
-
-			return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
-
-		}
-
-	}
+        private int apiKey;
+        private String apiSecret;
+        private String apiUrl;
+        private Proxy proxy;
+        
+        public Builder(int apiKey, String apiSecret) {
+            this.apiKey = apiKey;
+            this.apiSecret = apiSecret;
+        }
+        
+        public Builder apiUrl(String apiUrl) {
+            this.apiUrl = apiUrl;
+            return this;
+        }
+        
+        public Builder proxy(Proxy proxy) {
+            this.proxy = proxy;
+            return this;
+        }
+        
+        public OpenTok build() {
+            HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
+            
+            if (this.apiUrl != null) {
+                clientBuilder.apiUrl(this.apiUrl);
+            }
+            if (this.proxy != null) {
+                clientBuilder.proxy(this.proxy);
+            }
+            
+            return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
+        }
+  }
 }
