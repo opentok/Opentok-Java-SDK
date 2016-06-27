@@ -25,6 +25,7 @@ import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
 import com.ning.http.client.filter.RequestFilter;
 import com.opentok.ArchiveProperties;
+import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
@@ -275,9 +276,14 @@ public class HttpClient extends AsyncHttpClient {
             AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder()
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
                     .addRequestFilter(new TokenAuthRequestFilter(this.apiKey, this.apiSecret));
+            if (this.apiUrl == null) {
+                this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
+            }
+            
             if (this.proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(this.proxy));
             }
+            
             this.config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
             HttpClient client = new HttpClient(this);

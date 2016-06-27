@@ -98,7 +98,7 @@ public class OpenTokTest {
             apiKey = anApiKey;
             apiSecret = anApiSecret;
         }
-        sdk = new OpenTok(apiKey, apiSecret, apiUrl);
+        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
         token = sdk.generateToken(sessionId);
     }
 
@@ -862,8 +862,10 @@ public class OpenTokTest {
         String sessionId = "SESSIONID";
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLocalHost(), proxyingService.port()));
 
-        sdk = new OpenTok(apiKey, apiSecret, apiUrl, proxy);
-        stubFor(post(urlEqualTo(SESSION_CREATE))
+    
+        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(targetServiceBaseUrl).proxy(proxy).build();
+        
+        stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/xml")
