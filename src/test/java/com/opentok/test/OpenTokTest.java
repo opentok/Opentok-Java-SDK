@@ -24,9 +24,7 @@ import com.opentok.SessionProperties;
 import com.opentok.TokenOptions;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
-import com.opentok.util.TokenGenerator;
 import org.apache.commons.lang.StringUtils;
-import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,12 +65,9 @@ public class OpenTokTest {
 
     private final String SESSION_CREATE = "/session/create";
     private int apiKey = 123456;
-    private final String archivePath = "/v2/partner/" + apiKey + "/archive";
+    private String archivePath = "/v2/partner/" + apiKey + "/archive";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
-    private final String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR" +
-                               "-MC40OTAxMzAyNX4";
-    private String token;
     private OpenTok sdk;
 
 
@@ -97,9 +92,9 @@ public class OpenTokTest {
             // TODO: figure out when to turn mocking off based on this
             apiKey = anApiKey;
             apiSecret = anApiSecret;
+            archivePath = "/v2/partner/" + apiKey + "/archive";
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
-        token = sdk.generateToken(sessionId);
     }
 
     @Test
@@ -125,8 +120,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
                 .withRequestBody(matching(".*p2p.preference=enabled.*"))
                 .withRequestBody(matching(".*archiveMode=manual.*")));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(SESSION_CREATE))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
 
@@ -155,8 +150,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
                 // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
                 .withRequestBody(matching(".*p2p.preference=disabled.*")));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(SESSION_CREATE))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
 
@@ -186,8 +181,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
                 // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
                 .withRequestBody(matching(".*location="+locationHint+".*")));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(SESSION_CREATE))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
 
@@ -217,8 +212,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
                 // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
                 .withRequestBody(matching(".*archiveMode=always.*")));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(SESSION_CREATE))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
 
@@ -243,76 +238,93 @@ public class OpenTokTest {
     @Test
     public void testTokenDefault() throws
             OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
-            SignatureException, InvalidKeyException, InvalidJwtException {
+            SignatureException, InvalidKeyException {
 
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+
+        String token = opentok.generateToken(sessionId);
         assertNotNull(token);
-        assertTrue(Helpers.verifyTokenSignature(token, apiKey, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
 
-        Map<String, Object> tokenData = Helpers.decodeToken(token, apiKey, apiSecret);
-        assertEquals(Integer.toString(apiKey), tokenData.get(TokenGenerator.ISSUER));
-        assertNotNull(tokenData.get(TokenGenerator.ISSUED_AT));;
+        Map<String, String> tokenData = Helpers.decodeToken(token);
+        assertEquals(Integer.toString(apiKey), tokenData.get("partner_id"));
+        assertNotNull(tokenData.get("create_time"));
+        assertNotNull(tokenData.get("nonce"));
     }
 
     @Test
     public void testTokenRoles() throws
-            OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException, SignatureException,
-            InvalidKeyException, InvalidJwtException {
+            OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
+            SignatureException, InvalidKeyException {
 
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
         Role role = Role.SUBSCRIBER;
+
+        String defaultToken = opentok.generateToken(sessionId);
         String roleToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
                 .role(role)
                 .build());
 
-        assertNotNull(token);
+        assertNotNull(defaultToken);
         assertNotNull(roleToken);
-        assertTrue(Helpers.verifyTokenSignature(token, apiKey, apiSecret));
-        assertTrue(Helpers.verifyTokenSignature(roleToken, apiKey, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(roleToken, apiSecret));
 
-        Map<String, Object> defaultTokenData = Helpers.decodeToken(token, apiKey, apiSecret);
-        assertEquals("publisher", defaultTokenData.get(TokenGenerator.ROLE));
-        Map<String, Object> roleTokenData = Helpers.decodeToken(roleToken,  apiKey, apiSecret);
-        assertEquals(role.toString(), roleTokenData.get(TokenGenerator.ROLE));
+        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
+        assertEquals("publisher", defaultTokenData.get("role"));
+        Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
+        assertEquals(role.toString(), roleTokenData.get("role"));
     }
 
     @Test
     public void testTokenExpireTime() throws
             OpenTokException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
-            UnsupportedEncodingException, InvalidJwtException {
+            UnsupportedEncodingException {
 
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         long now = System.currentTimeMillis() / 1000L;
         long inOneHour = now + (60 * 60);
         long inOneDay = now + (60 * 60 * 24);
         long inThirtyDays = now + (60 * 60 * 24 * 30);
         ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
-
-        String oneHourToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+        String defaultToken = opentok.generateToken(sessionId);
+        String oneHourToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
             .expireTime(inOneHour)
             .build());
         try {
-            String earlyExpireTimeToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+            String earlyExpireTimeToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
             .expireTime(now - 10)
             .build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
         try {
-            String lateExpireTimeToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+            String lateExpireTimeToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
                 .expireTime(inThirtyDays + (60 * 60 * 24) /* 31 days */)
                 .build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
 
-        assertNotNull(token);
+        assertNotNull(defaultToken);
         assertNotNull(oneHourToken);
-        assertTrue(Helpers.verifyTokenSignature(token, apiKey, apiSecret));
-        assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiKey, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiSecret));
 
-        Map<String, Object> defaultTokenData = Helpers.decodeToken(token, apiKey, apiSecret);
-        assertEquals(inOneDay, (Long) defaultTokenData.get(TokenGenerator.EXP), 30);
-        Map<String, Object> oneHourTokenData = Helpers.decodeToken(oneHourToken, apiKey, apiSecret);
-        assertEquals(inOneHour, (Long) oneHourTokenData.get(TokenGenerator.EXP), 30);
+        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
+        assertEquals(Long.toString(inOneDay), defaultTokenData.get("expire_time"));
+        Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
+        assertEquals(Long.toString(inOneHour), oneHourTokenData.get("expire_time"));
         assertEquals(2, exceptions.size());
         for (Exception e : exceptions) {
             assertEquals(InvalidArgumentException.class, e.getClass());
@@ -323,18 +335,22 @@ public class OpenTokTest {
     @Test
     public void testTokenConnectionData() throws
             OpenTokException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
-            UnsupportedEncodingException, InvalidJwtException {
+            UnsupportedEncodingException {
 
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         // purposely contains some exotic characters
         String actualData = "{\"name\":\"%foo ç &\"}";
         Exception tooLongException = null;
 
-        String defaultToken = sdk.generateToken(sessionId);
-        String dataBearingToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+        String defaultToken = opentok.generateToken(sessionId);
+        String dataBearingToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
             .data(actualData)
             .build());
         try {
-            String dataTooLongToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+            String dataTooLongToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
                     .data(StringUtils.repeat("x", 1001))
                     .build());
         } catch (InvalidArgumentException e) {
@@ -343,32 +359,36 @@ public class OpenTokTest {
 
         assertNotNull(defaultToken);
         assertNotNull(dataBearingToken);
-        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiKey, apiSecret));
-        assertTrue(Helpers.verifyTokenSignature(dataBearingToken, apiKey, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
+        assertTrue(Helpers.verifyTokenSignature(dataBearingToken, apiSecret));
 
-        Map<String, Object> defaultTokenData = Helpers.decodeToken(defaultToken, apiKey, apiSecret);
-        assertNull(defaultTokenData.get(TokenGenerator.CONNECTION_DATA));
-        Map<String, Object> dataBearingTokenData = Helpers.decodeToken(dataBearingToken, apiKey, apiSecret);
-        assertEquals(actualData, dataBearingTokenData.get(TokenGenerator.CONNECTION_DATA));
+        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
+        assertNull(defaultTokenData.get("connection_data"));
+        Map<String, String> dataBearingTokenData = Helpers.decodeToken(dataBearingToken);
+        assertEquals(actualData, dataBearingTokenData.get("connection_data"));
         assertEquals(InvalidArgumentException.class, tooLongException.getClass());
     }
 
+
     @Test
     public void testTokenBadSessionId() throws OpenTokException {
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
         try {
-            String nullSessionToken = sdk.generateToken(null);
+            String nullSessionToken = opentok.generateToken(null);
         } catch (Exception e) {
             exceptions.add(e);
         }
         try {
-            String emptySessionToken = sdk.generateToken("");
+            String emptySessionToken = opentok.generateToken("");
         } catch (Exception e) {
             exceptions.add(e);
         }
         try {
-            String invalidSessionToken = sdk.generateToken("NOT A VALID SESSION ID");
+            String invalidSessionToken = opentok.generateToken("NOT A VALID SESSION ID");
         } catch (Exception e) {
             exceptions.add(e);
         }
@@ -416,8 +436,8 @@ public class OpenTokTest {
                 "94362&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", archive.getUrl());
 
         verify(getRequestedFor(urlMatching(archivePath + "/" + archiveId)));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(getRequestedFor(urlMatching(archivePath + "/" + archiveId))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
         Helpers.verifyUserAgent();
     }
 
@@ -522,8 +542,8 @@ public class OpenTokTest {
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlMatching(archivePath)));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(getRequestedFor(urlMatching(archivePath))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
     }
 
@@ -561,8 +581,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(archivePath)));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(archivePath))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
     }
 
@@ -597,8 +617,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(archivePath)));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(archivePath))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
     }
 
@@ -634,8 +654,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(archivePath)));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(archivePath))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
     }
 
@@ -673,8 +693,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(archivePath)));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(archivePath))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
     }
 
@@ -711,8 +731,8 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(archivePath)));
                 // TODO: find a way to match JSON without caring about spacing
                 //.withRequestBody(matching(".*"+".*"))
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(archivePath))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
     }
 
@@ -747,8 +767,8 @@ public class OpenTokTest {
         assertEquals(archiveId, archive.getId());
 
         verify(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop")));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop"))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop")))));
         Helpers.verifyUserAgent();
     }
 
@@ -765,8 +785,8 @@ public class OpenTokTest {
         sdk.deleteArchive(archiveId);
 
         verify(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)));
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
         Helpers.verifyUserAgent();
     }
 
@@ -861,10 +881,7 @@ public class OpenTokTest {
 
         String sessionId = "SESSIONID";
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLocalHost(), proxyingService.port()));
-
-    
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(targetServiceBaseUrl).proxy(proxy).build();
-        
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -882,10 +899,8 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching(SESSION_CREATE)));
 
-        Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(SESSION_CREATE))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
-
     }
-
 }

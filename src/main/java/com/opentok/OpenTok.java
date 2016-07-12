@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
+import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import com.opentok.util.TokenGenerator;
 import org.xml.sax.InputSource;
@@ -22,8 +23,10 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,9 +120,24 @@ public class OpenTok {
      *
      * @return The token string.
      */
-    public String generateToken(String sessionId, TokenOptions tokenOptions)
-            throws OpenTokException {
-        return TokenGenerator.generateToken(sessionId, tokenOptions, apiKey, apiSecret);
+    public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
+        List<String> sessionIdParts = null;
+        if (sessionId == null || sessionId == "") {
+            throw new InvalidArgumentException("Session not valid");
+        }
+
+        try {
+            sessionIdParts = Crypto.decodeSessionId(sessionId);
+        } catch (UnsupportedEncodingException e) {
+            throw new InvalidArgumentException("Session ID was not valid");
+        }
+        if (!sessionIdParts.contains(Integer.toString(this.apiKey))) {
+            throw new InvalidArgumentException("Session ID was not valid");
+        }
+
+        // NOTE: kind of wasteful of a Session instance
+        Session session = new Session(sessionId, apiKey, apiSecret);
+        return session.generateToken(tokenOptions);
     }
 
     /**

@@ -8,7 +8,17 @@
 package com.opentok;
 
 import com.opentok.exception.OpenTokException;
-import com.opentok.util.TokenGenerator;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.util.Random;
+
+import com.opentok.exception.InvalidArgumentException;
+import com.opentok.util.Crypto;
+import org.apache.commons.codec.binary.Base64;
+
 
 /**
 * Represents an OpenTok session. Use the {@link OpenTok#createSession(SessionProperties properties)}
@@ -93,6 +103,88 @@ public class Session {
      * @return The token string.
      */
     public String generateToken(TokenOptions tokenOptions) throws OpenTokException {
-        return TokenGenerator.generateToken(sessionId, tokenOptions, apiKey, apiSecret);
+        // Token format
+        //
+        // | ------------------------------  tokenStringBuilder ----------------------------- |
+        // | "T1=="+Base64Encode(| --------------------- innerBuilder --------------------- |)|
+        //                       | "partner_id={apiKey}&sig={sig}:| -- dataStringBuilder -- |
+
+        if (tokenOptions == null) {
+            throw new InvalidArgumentException("Token options cannot be null");
+        }
+
+        Role role = tokenOptions.getRole();
+        double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
+        String data = tokenOptions.getData();             // will be null if nothing was explicitly set
+        Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
+
+        StringBuilder dataStringBuilder = new StringBuilder();
+        Random random = new Random();
+        int nonce = random.nextInt();
+        dataStringBuilder.append("session_id=");
+        dataStringBuilder.append(sessionId);
+        dataStringBuilder.append("&create_time=");
+        dataStringBuilder.append(create_time);
+        dataStringBuilder.append("&nonce=");
+        dataStringBuilder.append(nonce);
+        dataStringBuilder.append("&role=");
+        dataStringBuilder.append(role);
+
+        double now = System.currentTimeMillis() / 1000L;
+        if (expireTime == 0) {
+            expireTime = now + (60*60*24); // 1 day
+        } else if(expireTime < now-1) {
+            throw new InvalidArgumentException(
+                    "Expire time must be in the future. relative time: "+ (expireTime - now));
+        } else if(expireTime > (now + (60*60*24*30) /* 30 days */)) {
+            throw new InvalidArgumentException(
+                    "Expire time must be in the next 30 days. too large by "+ (expireTime - (now + (60*60*24*30))));
+        }
+        // NOTE: Double.toString() would print the value with scientific notation
+        dataStringBuilder.append(String.format("&expire_time=%.0f", expireTime));
+
+        if (data != null) {
+            if(data.length() > 1000) {
+                throw new InvalidArgumentException(
+                        "Connection data must be less than 1000 characters. length: " + data.length());
+            }
+            dataStringBuilder.append("&connection_data=");
+            try {
+                dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new InvalidArgumentException(
+                        "Error during URL encode of your connection data: " +  e.getMessage());
+            }
+        }
+
+
+        StringBuilder tokenStringBuilder = new StringBuilder();
+        try {
+            tokenStringBuilder.append("T1==");
+
+            StringBuilder innerBuilder = new StringBuilder();
+            innerBuilder.append("partner_id=");
+            innerBuilder.append(this.apiKey);
+
+            innerBuilder.append("&sig=");
+
+            innerBuilder.append(Crypto.signData(dataStringBuilder.toString(), this.apiSecret));
+            innerBuilder.append(":");
+            innerBuilder.append(dataStringBuilder.toString());
+
+            tokenStringBuilder.append(
+                    Base64.encodeBase64String(
+                            innerBuilder.toString().getBytes("UTF-8")
+                    )
+                            .replace("+", "-")
+                            .replace("/", "_")
+            );
+
+        } catch (SignatureException | NoSuchAlgorithmException
+                | InvalidKeyException | UnsupportedEncodingException e) {
+            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
+        }
+
+        return tokenStringBuilder.toString();
     }
 }
