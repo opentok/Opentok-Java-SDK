@@ -60,13 +60,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not create an OpenTok Session. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not create an OpenTok Session", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not create an OpenTok Session", e);
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not create an OpenTok Session", e);
         }
         return responseString;
@@ -94,13 +88,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not get an OpenTok Archive", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not get an OpenTok Archive", e);
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not  get an OpenTok Archive", e);
         }
 
@@ -137,13 +125,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not get OpenTok Archives", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not get OpenTok Archives", e);
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not get OpenTok Archives", e);
         }
 
@@ -197,13 +179,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not start an OpenTok Archive.", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not start an OpenTok Archive.", e);
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not start an OpenTok Archive.", e);
         }
         return responseString;
@@ -239,13 +215,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not stop an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not stop an OpenTok Archive.", e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not stop an OpenTok Archive.", e);
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not stop an OpenTok Archive.", e);
         }
         return responseString;
@@ -273,13 +243,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (InterruptedException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
-        } catch (ExecutionException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
         }
 
@@ -311,7 +275,7 @@ public class HttpClient extends AsyncHttpClient {
         public HttpClient build() {
             AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder()
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
-                    .addRequestFilter(new PartnerAuthRequestFilter(this.apiKey, this.apiSecret));
+                    .addRequestFilter(new TokenAuthRequestFilter(this.apiKey, this.apiSecret));
             if (this.apiUrl == null) {
                 this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
             }
@@ -352,22 +316,29 @@ public class HttpClient extends AsyncHttpClient {
         }
     }
 
-    static class PartnerAuthRequestFilter implements RequestFilter {
+    static class TokenAuthRequestFilter implements RequestFilter {
 
         private int apiKey;
         private String apiSecret;
+        private final String authHeader = "X-OPENTOK-AUTH";
 
-        public PartnerAuthRequestFilter(int apiKey, String apiSecret) {
+        public TokenAuthRequestFilter(int apiKey, String apiSecret) {
             this.apiKey = apiKey;
             this.apiSecret = apiSecret;
         }
 
         public FilterContext filter(FilterContext ctx) throws FilterException {
-            return new FilterContext.FilterContextBuilder(ctx)
-                    .request(new RequestBuilder(ctx.getRequest())
-                            .addHeader("X-TB-PARTNER-AUTH", this.apiKey+":"+this.apiSecret)
-                            .build())
-                    .build();
+            try {
+                return new FilterContext.FilterContextBuilder(ctx)
+                        .request(new RequestBuilder(ctx.getRequest())
+                                .addHeader(authHeader,
+                                        TokenGenerator.generateToken(apiKey, apiSecret))
+                                .build())
+                        .build();
+            } catch (OpenTokException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 }

@@ -7,30 +7,24 @@
  */
 package com.opentok;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.Proxy;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.OpenTokException;
+import com.opentok.exception.RequestException;
+import com.opentok.util.HttpClient;
+import com.opentok.util.TokenGenerator;
+import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.opentok.exception.OpenTokException;
-import com.opentok.exception.InvalidArgumentException;
-import com.opentok.exception.RequestException;
-import com.opentok.util.Crypto;
-import com.opentok.util.HttpClient;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import org.xml.sax.InputSource;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.Proxy;
+import java.util.Collection;
+import java.util.Map;
 
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -48,9 +42,9 @@ public class OpenTok {
     private String apiSecret;
     protected HttpClient client;
     static protected ObjectReader archiveReader = new ObjectMapper()
-            .reader(Archive.class);
+            .readerFor(Archive.class);
     static protected ObjectReader archiveListReader = new ObjectMapper()
-            .reader(ArchiveList.class);
+            .readerFor(ArchiveList.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -123,24 +117,9 @@ public class OpenTok {
      *
      * @return The token string.
      */
-    public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
-        List<String> sessionIdParts = null;
-        if (sessionId == null || sessionId == "") {
-            throw new InvalidArgumentException("Session not valid");
-        }
-
-        try {
-            sessionIdParts = Crypto.decodeSessionId(sessionId);
-        } catch (UnsupportedEncodingException e) {
-            throw new InvalidArgumentException("Session ID was not valid");
-        }
-        if (!sessionIdParts.contains(Integer.toString(this.apiKey))) {
-            throw new InvalidArgumentException("Session ID was not valid");
-        }
-
-        // NOTE: kind of wasteful of a Session instance
-        Session session = new Session(sessionId, apiKey, apiSecret);
-        return session.generateToken(tokenOptions);
+    public String generateToken(String sessionId, TokenOptions tokenOptions)
+            throws OpenTokException {
+        return TokenGenerator.generateToken(sessionId, tokenOptions, apiKey, apiSecret);
     }
 
     /**
@@ -245,11 +224,8 @@ public class OpenTok {
         String xpathQuery = "/sessions/Session/session_id";
 
         // NOTE: doing this null check twice is kind of ugly
-        if (properties != null) {
-            params = properties.toMap();
-        } else {
-            params = new SessionProperties.Builder().build().toMap();
-        }
+        params = properties != null ? properties.toMap() :
+                new SessionProperties.Builder().build().toMap();
         
         String xmlResponse = this.client.createSession(params);
 
@@ -358,12 +334,6 @@ public class OpenTok {
         String archives = this.client.getArchives(offset, count);
         try {
             return archiveListReader.readValue(archives);
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (JsonMappingException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (JsonParseException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (IOException e) {

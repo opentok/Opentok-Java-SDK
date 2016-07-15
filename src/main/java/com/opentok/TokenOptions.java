@@ -9,6 +9,8 @@ package com.opentok;
 
 import com.opentok.exception.InvalidArgumentException;
 
+import java.util.List;
+
 /**
  * Defines values for the <code>tokenOptions</code> parameter of the
  * {@link OpenTok#generateToken(String sessionId, TokenOptions tokenOptions)} method
@@ -19,8 +21,9 @@ import com.opentok.exception.InvalidArgumentException;
 public class TokenOptions {
 
     private Role role;
-    private double expireTime;
+    private long expireTime;
     private String data;
+    private List<String> initialLayoutClassList;
 
     private TokenOptions(Builder builder) {
         this.role = builder.role != null ? builder.role : Role.PUBLISHER;
@@ -30,6 +33,9 @@ public class TokenOptions {
 
         // default value of null means to omit the key "connection_data" from the token
         this.data = builder.data;
+
+        // default value of null means to omit the key "initialLayoutClassList" from the token
+        this.initialLayoutClassList = builder.initialLayoutClassList;
     }
 
     /**
@@ -41,9 +47,9 @@ public class TokenOptions {
 
     /**
     * Returns the expiration time the token, as the number of seconds since the UNIX epoch.
-    * See {@link TokenOptions.Builder#expireTime(double expireTime)}.
+    * See {@link TokenOptions.Builder#expireTime(long expireTime)}.
     */
-    public double getExpireTime() {
+    public long getExpireTime() {
         return expireTime;
     }
 
@@ -55,6 +61,10 @@ public class TokenOptions {
         return data;
     }
 
+    public List<String> getInitialLayoutClassList() {
+        return initialLayoutClassList;
+    }
+
     /**
      * Use this class to create a TokenOptions object.
      *
@@ -62,8 +72,9 @@ public class TokenOptions {
      */
     public static class Builder {
         private Role role;
-        private double expireTime = 0;
+        private long expireTime = 0;
         private String data;
+        private List<String> initialLayoutClassList;
 
         /**
          * Sets the role for the token. Each role defines a set of permissions granted to the token.
@@ -93,7 +104,7 @@ public class TokenOptions {
          * the default expiration time of 24 hours after the token creation time. The maximum
          * expiration time is 30 days after the creation time.
          */
-        public Builder expireTime(double expireTime) {
+        public Builder expireTime(long expireTime) {
             // NOTE: since this object can be stored/cached, validation should occur at token generation time
             this.expireTime = expireTime;
             return this;
@@ -113,6 +124,11 @@ public class TokenOptions {
                 throw new InvalidArgumentException(
                         "The given connection data is too long, limit is 1000 characters: " + data.length());
             }
+            return this;
+        }
+
+        public Builder initialLayoutClassList (List<String> initialLayoutClassList) {
+            this.initialLayoutClassList = initialLayoutClassList;
             return this;
         }
 
