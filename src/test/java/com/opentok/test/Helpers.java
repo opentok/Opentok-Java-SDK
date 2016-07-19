@@ -7,28 +7,39 @@
  */
 package com.opentok.test;
 
+import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.opentok.constants.Version;
+import org.apache.commons.codec.binary.Base64;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+
+import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
-import com.opentok.constants.Version;
-import org.apache.commons.codec.binary.Base64;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.net.URLDecoder;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.opentok.util.Crypto.signData;
+import static com.opentok.util.TokenGenerator.ISSUED_AT;
+import static com.opentok.util.TokenGenerator.ISSUER;
+import static com.opentok.util.TokenGenerator.ISSUER_TYPE;
+import static com.opentok.util.TokenGenerator.PROJECT_ISSUER_TYPE;
+import static org.junit.Assert.assertTrue;
 
 public class Helpers {
 
-    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+    public static final String JTI = "jti";
 
     public static Map<String, String> decodeToken(String token) throws UnsupportedEncodingException {
         Map<String, String> tokenData = new HashMap<String, String>();
@@ -52,14 +63,19 @@ public class Helpers {
         return (signature.equals(signData(decodedParts[1], apiSecret)));
     }
 
-    public static void verifyPartnerAuth(int apiKey, String apiSecret) {
-        verify(RequestPatternBuilder.allRequests()
-                .withHeader("X-TB-PARTNER-AUTH", matching(apiKey + ":" + apiSecret)));
+    public static boolean verifyTokenAuth(Integer apiKey, String apiSecret, List<LoggedRequest> requests) {
+        for (Request request: requests) {
+            if (!verifyJWTClaims(request.getHeader("X-OPENTOK-AUTH"), apiKey, apiSecret)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static void verifyUserAgent() {
         verify(RequestPatternBuilder.allRequests()
-                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/" + Version.VERSION + ".*JRE/" + System.getProperty("java.version") + ".*")));
+                .withHeader("User-Agent", matching(".*Opentok-Java-SDK/"
+                        + Version.VERSION + ".*JRE/" + System.getProperty("java.version") + ".*")));
     }
 
     private static Map<String, String> decodeFormData(String formData) throws UnsupportedEncodingException {
@@ -74,6 +90,21 @@ public class Helpers {
         return decodedFormData;
     }
 
+    private static Map<String, Object> getClaims(final String token, final Integer apiKey,
+                                                 final String apiSecret)
+            throws InvalidJwtException {
+        final SecretKeySpec key = new SecretKeySpec(apiSecret.getBytes(),
+                AlgorithmIdentifiers.HMAC_SHA256);
+
+        final JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                .setRequireExpirationTime()
+                .setAllowedClockSkewInSeconds(30)
+                .setExpectedIssuer(apiKey.toString())
+                .setVerificationKey(key)
+                .build();
+        return jwtConsumer.processToClaims(token).getClaimsMap();
+    }
+
     // -- credit: https://gist.github.com/ishikawa/88599
 
     private static String toHexString(byte[] bytes) {
@@ -84,12 +115,16 @@ public class Helpers {
         return formatter.toString();
     }
 
-    private static String signData(String data, String key)
-            throws SignatureException, NoSuchAlgorithmException, InvalidKeyException
-    {
-        SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
-        Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-        mac.init(signingKey);
-        return toHexString(mac.doFinal(data.getBytes()));
+    public static boolean verifyJWTClaims(String token, Integer apiKey, String apiSecret) {
+        try {
+            Map<String, Object> tokenData = getClaims(token, apiKey, apiSecret);
+            return apiKey.toString().equals(tokenData.get(ISSUER))
+                    && PROJECT_ISSUER_TYPE.equals(tokenData.get(ISSUER_TYPE))
+                    && System.currentTimeMillis() / 1000 >= (long) tokenData.get(ISSUED_AT)
+                    && null != tokenData.get(JTI);
+        } catch (InvalidJwtException e) {
+            return false;
+        }
     }
+
 }
