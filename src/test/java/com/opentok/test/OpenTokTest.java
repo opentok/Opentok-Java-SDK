@@ -7,39 +7,6 @@
  */
 package com.opentok.test;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.opentok.Archive;
-import com.opentok.Archive.OutputMode;
-import com.opentok.ArchiveList;
-import com.opentok.ArchiveMode;
-import com.opentok.ArchiveProperties;
-import com.opentok.MediaMode;
-import com.opentok.OpenTok;
-import com.opentok.Role;
-import com.opentok.Session;
-import com.opentok.SessionProperties;
-import com.opentok.TokenOptions;
-import com.opentok.exception.InvalidArgumentException;
-import com.opentok.exception.OpenTokException;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.Map;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
@@ -61,11 +28,61 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.opentok.Archive;
+import com.opentok.Archive.OutputMode;
+import com.opentok.ArchiveList;
+import com.opentok.ArchiveMode;
+import com.opentok.ArchiveProperties;
+import com.opentok.Callback;
+import com.opentok.CallbackEvent;
+import com.opentok.CallbackGroup;
+import com.opentok.CallbackList;
+import com.opentok.MediaMode;
+import com.opentok.OpenTok;
+import com.opentok.Role;
+import com.opentok.Session;
+import com.opentok.SessionProperties;
+import com.opentok.Signal;
+import com.opentok.TokenOptions;
+import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.OpenTokException;
+
 public class OpenTokTest {
 
     private final String SESSION_CREATE = "/session/create";
     private int apiKey = 123456;
+    private final String SESSION_ID = "SESSION_ID";
+    private final String CONNECTION_ID = "CONNECTION_ID";
+    private final String CALLBACK_ID = "CALLBACK_ID";
+    private final CallbackGroup callbackGroup = CallbackGroup.CONNECTION;
+    private final CallbackEvent callbackEvent = CallbackEvent.CREATED;
+    private final String callbackUrl = "https://";
     private String archivePath = "/v2/partner/" + apiKey + "/archive";
+    private String callbacksPath = "/v2/partner/" + apiKey + "/callback";
+    private String callbackPath = "/v2/partner/" + apiKey + "/callback/" + CALLBACK_ID;
+    private String moderationPath = "/v2/partner/" + apiKey + "/session/" + SESSION_ID + "/connection/" + CONNECTION_ID;
+    private String signalSessionPath = "/v2/partner/" + apiKey + "/session/" + SESSION_ID + "/signal";
+    private String signalConnectionPath = "/v2/partner/" + apiKey + "/session/" + SESSION_ID + "/connection/" + CONNECTION_ID + "/signal";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
@@ -793,7 +810,8 @@ public class OpenTokTest {
     // TODO: test delete archive failure scenarios
 
     // NOTE: this test is pretty sloppy
-    @Test public void testGetExpiredArchive() throws OpenTokException {
+    @Test
+    public void testGetExpiredArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         stubFor(get(urlEqualTo(archivePath + "/" + archiveId))
                 .willReturn(aResponse()
@@ -818,7 +836,8 @@ public class OpenTokTest {
     }
 
     // NOTE: this test is pretty sloppy
-    @Test public void testGetPausedArchive() throws OpenTokException {
+    @Test
+    public void testGetPausedArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         stubFor(get(urlEqualTo(archivePath + "/" + archiveId))
                 .willReturn(aResponse()
@@ -842,7 +861,8 @@ public class OpenTokTest {
         assertEquals(Archive.Status.PAUSED, archive.getStatus());
     }
 
-    @Test public void testGetArchiveWithUnknownProperties() throws OpenTokException {
+    @Test
+    public void testGetArchiveWithUnknownProperties() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         stubFor(get(urlEqualTo(archivePath + "/" + archiveId))
                 .willReturn(aResponse()
@@ -864,6 +884,136 @@ public class OpenTokTest {
 
         Archive archive = sdk.getArchive(archiveId);
         assertNotNull(archive);
+    }
+
+    @Test
+    public void testRegisterCallback() throws OpenTokException {
+        stubFor(post(urlEqualTo(callbacksPath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"group\" : \"" + callbackGroup.toString() + "\",\n" +
+                                "          \"event\" : \"" + callbackEvent.toString() + "\",\n" +
+                                "          \"url\" : \"" + callbackUrl + "\"\n" +
+                                "        }")));
+
+        Callback callback = sdk.registerCallback(CallbackGroup.CONNECTION,  CallbackEvent.CREATED, callbackUrl);
+
+        assertNotNull(callback);
+        assertNotNull(callback.getId());
+        assertEquals(callbackGroup, callback.getGroup());
+        assertEquals(callbackEvent, callback.getEvent());
+        assertEquals(callbackUrl, callbackUrl);
+
+        verify(postRequestedFor(urlMatching(callbacksPath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(callbacksPath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testUnregisterCallback() throws OpenTokException {
+        stubFor(delete(urlEqualTo(callbackPath))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        sdk.unregisterCallback(CALLBACK_ID);
+
+        verify(deleteRequestedFor(urlMatching(callbackPath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(callbackPath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testGetCallbacks() throws OpenTokException {
+        stubFor(get(urlEqualTo(callbacksPath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"group\" : \"" + callbackGroup.toString() + "\",\n" +
+                                "          \"event\" : \"" + callbackEvent.toString() + "\",\n" +
+                                "          \"url\" : \"" + callbackUrl + "\"\n" +
+                                "        }]")));
+
+        CallbackList callbacks = sdk.getCallbacks();
+
+        assertNotNull(callbacks);
+        assertEquals(1, callbacks.size());
+        assertNotNull(callbacks.get(0).getId());
+        assertEquals(1395183243556L, callbacks.get(0).getCreatedAt());
+        assertEquals(callbackGroup, callbacks.get(0).getGroup());
+        assertEquals(callbackEvent, callbacks.get(0).getEvent());
+        assertEquals(callbackUrl, callbacks.get(0).getUrl());
+
+        verify(getRequestedFor(urlMatching(callbacksPath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(callbacksPath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testForceDisconnect() throws OpenTokException {
+        stubFor(delete(urlEqualTo(moderationPath))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        sdk.forceDisconnect(SESSION_ID, CONNECTION_ID);
+
+        verify(deleteRequestedFor(urlMatching(moderationPath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(moderationPath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testSignalSession() throws OpenTokException {
+        stubFor(post(urlEqualTo(signalSessionPath))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        Signal signal = new Signal();
+        signal.setData("DATA");
+        sdk.signal(SESSION_ID, signal);
+
+        verify(postRequestedFor(urlMatching(signalSessionPath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(signalSessionPath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testSignalConnection() throws OpenTokException {
+        stubFor(post(urlEqualTo(signalConnectionPath))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        Signal signal = new Signal();
+        signal.setData("DATA");
+        sdk.signal(SESSION_ID, CONNECTION_ID, signal);
+
+        verify(postRequestedFor(urlMatching(signalConnectionPath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(signalConnectionPath)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test

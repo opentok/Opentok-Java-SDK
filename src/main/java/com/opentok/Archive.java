@@ -7,11 +7,14 @@
  */
 package com.opentok;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
-* Represents an archive of an OpenTok session. 
+* Represents an archive of an OpenTok session.
 */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Archive {
@@ -161,7 +164,7 @@ public class Archive {
         return sessionId;
     }
 
-    /** 
+    /**
      * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
      */
     public int getSize() {
@@ -177,7 +180,7 @@ public class Archive {
 
     /**
      * The download URL of the available MP4 file. This is only set for an archive with the status
-     * set to Status.AVAILABLE; for other archives, (including archives with the status of 
+     * set to Status.AVAILABLE; for other archives, (including archives with the status of
      * Status.UPLOADED) this method returns null. The download URL is obfuscated, and the file
      * is only available from the URL for 10 minutes. To generate a new URL, call the
      * {@link com.opentok.OpenTok#listArchives()} or {@link com.opentok.OpenTok#getArchive(String)}
@@ -202,7 +205,7 @@ public class Archive {
     }
 
     /**
-     * The output mode to be generated for this archive: <code>composed</code> or <code>individual</code>. 
+     * The output mode to be generated for this archive: <code>composed</code> or <code>individual</code>.
      */
     public OutputMode getOutputMode() {
         return outputMode;
@@ -215,7 +218,7 @@ public class Archive {
         } catch (Exception e) {
             return "";
         }
-        
+
     }
 
 }
