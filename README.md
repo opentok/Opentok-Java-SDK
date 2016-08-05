@@ -238,6 +238,7 @@ repository and follow the Walkthroughs:
 
 *  [HelloWorld](sample/HelloWorld/README.md)
 *  [Archiving](sample/Archiving/README.md)
+*  [Session Monitoring & Management](sample/Monitoring/README.md)
 
 # Documentation
 

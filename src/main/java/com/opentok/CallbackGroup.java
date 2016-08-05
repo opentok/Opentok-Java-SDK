@@ -8,26 +8,31 @@
 package com.opentok;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Defines values for the archiveMode parameter of the
- * {@link SessionProperties.Builder#archiveMode(CallbackGroup archiveMode)} method.
+ * Defines values for the group attribute of the
+ * {@link Callback} class.
  */
 public enum CallbackGroup {
 
     /**
-     * The session is not archived automatically. To archive the session, you can call the
-     * OpenTok.StartArchive() method.
+     * This group represents all the events related to connections (right now created and destroyed events).
      */
     @JsonProperty("connection")
     CONNECTION,
 
     /**
-     * The session is archived automatically (as soon as there are clients publishing streams
-     * to the session).
+     * This group represents all the events related to streams (right now created and destroyed events).
      */
     @JsonProperty("stream")
-    STREAM;
+    STREAM,
+
+    /**
+     * This group represents all the events related to archives (right now status events).
+     */
+    @JsonProperty("archive")
+    ARCHIVE;
 
     @Override
     public String toString() {

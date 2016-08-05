@@ -13,7 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
-* Represents a callback of an OpenTok session.
+* Represents a callback registered for an OpenTok Cloud API event.
+ *
+ * @see OpenTok#registerCallback()
 */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Callback {
@@ -33,7 +35,7 @@ public class Callback {
     }
 
     /**
-     * The time at which the archive was created, in milliseconds since the Unix epoch.
+     * The time at which the callback was created, in milliseconds since the Unix epoch.
      */
     public long getCreatedAt() {
         return createdAt;
@@ -47,26 +49,21 @@ public class Callback {
     }
 
     /**
-     * The name of the archive.
+     *  The group of events this callback is registered for.
      */
     public CallbackGroup getGroup() {
         return group;
     }
 
     /**
-     * The name of the archive.
+     * The event this callback is registered for.
      */
     public CallbackEvent getEvent() {
         return event;
     }
 
     /**
-     * The download URL of the available MP4 file. This is only set for an archive with the status
-     * set to Status.AVAILABLE; for other archives, (including archives with the status of
-     * Status.UPLOADED) this method returns null. The download URL is obfuscated, and the file
-     * is only available from the URL for 10 minutes. To generate a new URL, call the
-     * {@link com.opentok.OpenTok#listArchives()} or {@link com.opentok.OpenTok#getArchive(String)}
-     * method.
+     * The registered callback URL.
      */
     public String getUrl() {
         return url;
@@ -81,5 +78,4 @@ public class Callback {
         }
 
     }
-
 }

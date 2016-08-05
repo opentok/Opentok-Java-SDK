@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.opentok.exception.InvalidArgumentException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
@@ -46,14 +47,18 @@ public class OpenTok {
     private String apiSecret;
     protected HttpClient client;
     static protected ObjectMapper mapper = new ObjectMapper();
-    static protected ObjectReader archiveReader = mapper.readerFor(Archive.class);
-    static protected ObjectReader archiveListReader = mapper.readerFor(ArchiveList.class);
-    static protected ObjectReader callbackReader = mapper.readerFor(Callback.class);
-    static protected ObjectReader callbackListReader = mapper.readerFor(CallbackList.class);
+    static protected ObjectReader archiveReader;
+    static protected ObjectReader archiveListReader;
+    static protected ObjectReader callbackReader;
+    static protected ObjectReader callbackListReader;
     static final String defaultApiUrl = "https://api.opentok.com";
 
     static {
-        // mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        archiveReader = mapper.readerFor(Archive.class);
+        archiveListReader = mapper.readerFor(ArchiveList.class);
+        callbackReader = mapper.readerFor(Callback.class);
+        callbackListReader = mapper.readerFor(CallbackList.class);
     }
 
     /**
@@ -441,6 +446,25 @@ public class OpenTok {
         this.client.deleteArchive(archiveId);
     }
 
+    /**
+     * Register an OpenTok callback.
+     * <p>
+     * Register a callback URL for a specific group and event to receive OpenTok
+     * events (webhooks) for your OpenTok API key.
+     * <p>
+     * To unregister a callback, use the {@link #unregisterCallback(String)} method)() method.
+     *
+     * @param group The group of events you are interested in. It can be set to 'archive',
+     * 'connection' or 'stream'.
+     *
+     * @param event The specific event from the group you are interested on receiving
+     *   callbacks for.  It can be set to 'status' for 'archive', and it can be set to 'created' or
+     *    'destroyed' for the connection and stream groups.
+     *
+     * @param url The URL that will receive the events.
+     *
+     * @return The Callback object corresponding to the callback being registered.
+     */
     public Callback registerCallback(CallbackGroup group, CallbackEvent event, String url) throws OpenTokException {
         if (group == null || event == null || url == null || "".equals(url)) {
             throw new InvalidArgumentException("Session not valid");
@@ -453,6 +477,13 @@ public class OpenTok {
         }
     }
 
+    /**
+     * Unegister an OpenTok callback.
+     * <p>
+     * To unregister a callback, use the {@link #registerCallback(String)} method)() method.
+     *
+     * @param callbackId The callback ID of the callback to be unregistered.
+     */
     public void unregisterCallback(String callbackId) throws OpenTokException {
         if (callbackId == null || "".equals(callbackId)) {
             throw new InvalidArgumentException("Callback Id not valid");
@@ -460,7 +491,13 @@ public class OpenTok {
         this.client.unregisterCallback(callbackId);
     }
 
-    public CallbackList getCallbacks() throws OpenTokException {
+    /**
+     * Returns a List of {@link Callback} objects, representing callbacks that are
+     * registered for your API key.
+     *
+     * @return A List of {@link Callback} objects.
+     */
+    public CallbackList listCallbacks() throws OpenTokException {
         String response = this.client.getCallbacks();
         try {
             return callbackListReader.readValue(response);
@@ -469,6 +506,16 @@ public class OpenTok {
         }
     }
 
+    /**
+     * Sends a signal to all the connections in a session.
+     * <p>
+     * This is the server-side equivalent to the signal() method in the OpenTok client SDKs:
+     *    https://www.tokbox.com/developer/guides/signaling/js/.
+     *
+     * @param sessionId The session ID for the OpenTok session to send the signal to.
+     *
+     * @param signal An object with optional signal type and signal data fields.
+     */
     public void signal(String sessionId, Signal signal) throws OpenTokException {
         if (sessionId == null || "".equals(sessionId)) {
             throw new InvalidArgumentException("SessionId not valid");
@@ -479,6 +526,18 @@ public class OpenTok {
         this.client.signal(sessionId, null, signal);
     }
 
+    /**
+     * Sends a signal to a specific connection in a session.
+     * <p>
+     * This is the server-side equivalent to the signal() method in the OpenTok client SDKs:
+     *    https://www.tokbox.com/developer/guides/signaling/js/.
+     *
+     * @param sessionId The session ID for the OpenTok session to send the signal to.
+     *
+     * @param connectionId The connection ID of a client connected to the session.
+     *
+     * @param signal An object with optional signal type and signal data fields.
+     */
     public void signal(String sessionId, String connectionId, Signal signal) throws OpenTokException {
         if (connectionId == null || "".equals(connectionId)) {
             throw new InvalidArgumentException("SessionId not valid");
@@ -492,6 +551,16 @@ public class OpenTok {
         this.client.signal(sessionId, connectionId, signal);
     }
 
+    /**
+     * Disconnects a participant from an OpenTok session.
+     * <p>
+     * This is the server-side equivalent to the forceDisconnect() method in OpenTok.js:
+     *    https://www.tokbox.com/developer/guides/moderation/js/#force_disconnect
+     *
+     * @param sessionId The session ID for the OpenTok session to send the signal to.
+     *
+     * @param connectionId The connection ID of a client connected to the session.
+     */
     public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException {
         if (connectionId == null || "".equals(connectionId)) {
             throw new InvalidArgumentException("SessionId not valid");

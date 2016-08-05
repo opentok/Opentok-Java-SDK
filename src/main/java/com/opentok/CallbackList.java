@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
- * Represents an list of archives of OpenTok session(s).
+ * Represents an array of Callback objects.
+ *
+ * @see OpenTok#getCallbacks()
  */
 @JsonFormat(shape=JsonFormat.Shape.ARRAY)
 public class CallbackList extends ArrayList<Callback> {

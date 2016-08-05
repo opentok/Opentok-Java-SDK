@@ -20,18 +20,26 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.ning.http.client.*;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.FluentStringsMap;
+import com.ning.http.client.ProxyServer;
+import com.ning.http.client.RequestBuilder;
+import com.ning.http.client.Response;
 import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
 import com.ning.http.client.filter.RequestFilter;
 import com.opentok.ArchiveProperties;
+import com.opentok.CallbackEvent;
+import com.opentok.CallbackGroup;
+import com.opentok.Signal;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 
 public class HttpClient extends AsyncHttpClient {
-    
+
     private final String apiUrl;
     private final int apiKey;
 
@@ -122,7 +130,7 @@ public class HttpClient extends AsyncHttpClient {
                 case 500:
                     throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
                 default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
+                    throw new RequestException("Could not get OpenTok Archives. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException | IOException e) {
@@ -250,6 +258,188 @@ public class HttpClient extends AsyncHttpClient {
         return responseString;
     }
 
+    public String registerCallback(CallbackGroup group, CallbackEvent event, String callbackUrl) throws OpenTokException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/callback";
+
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        requestJson.put("group", group.toString());
+        requestJson.put("event", event.toString());
+        requestJson.put("url", callbackUrl);
+
+        String requestBody;
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not start an OpenTok Archive. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            if (response.getStatusCode() / 100 == 2) {
+                responseString = response.getResponseBody();
+            } else {
+                switch (response.getStatusCode()) {
+                    case 400:
+                        throw new RequestException("Could not register an OpenTok Callback.");
+                    case 403:
+                        throw new RequestException("Could not register an OpenTok Callback. The request was not authorized.");
+                    case 500:
+                        throw new RequestException("Could not register an OpenTok Callback. A server error occurred.");
+                    default:
+                        throw new RequestException("Could not register an OpenTok Callback. The server response was invalid." +
+                                " response code: " + response.getStatusCode());
+                }
+            }
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            throw new RequestException("Could not register an OpenTok Callback.", e);
+        }
+        return responseString;
+    }
+
+    public void unregisterCallback(String callbackId) throws OpenTokException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/callback/" + callbackId;
+
+
+        Future<Response> request = this.prepareDelete(url).execute();
+
+        try {
+            Response response = request.get();
+            if (response.getStatusCode() / 100 != 2) {
+                switch (response.getStatusCode()) {
+                    case 400:
+                        throw new RequestException("Could not unregister an OpenTok Callback.");
+                    case 404:
+                        throw new RequestException("Could not unregister an OpenTok Callback. The callback was not found.");
+                    case 403:
+                        throw new RequestException("Could not unregister an OpenTok Callback. The request was not authorized.");
+                    case 500:
+                        throw new RequestException("Could not unregister an OpenTok Callback. A server error occurred.");
+                    default:
+                        throw new RequestException("Could not unregister an OpenTok Callback. The server response was invalid." +
+                                " response code: " + response.getStatusCode());
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not unregister an OpenTok Callback.", e);
+        }
+    }
+
+    public String getCallbacks() throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/callback";
+
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            if (response.getStatusCode() / 100 == 2) {
+                responseString = response.getResponseBody();
+            } else {
+                switch (response.getStatusCode()) {
+                    case 403:
+                        throw new RequestException("Could not get OpenTok Callbacks. The request was not authorized.");
+                    case 500:
+                        throw new RequestException("Could not get OpenTok Callbacks. A server error occurred.");
+                    default:
+                        throw new RequestException("Could not get OpenTok Callbacks. The server response was invalid." +
+                                " response code: " + response.getStatusCode());
+                }
+            }
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            throw new RequestException("Could not get OpenTok Archives", e);
+        }
+
+        return responseString;
+    }
+
+    public void signal(String sessionId, String connectionId, Signal payload) throws OpenTokException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/session/" + sessionId;
+        if (connectionId != null) {
+            url += "/connection/" + connectionId;
+        }
+        url += "/signal";
+
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        if (payload.getType() != null) {
+            requestJson.put("type", payload.getType());
+        }
+        if (payload.getData() != null) {
+            requestJson.put("data", payload.getData());
+        }
+
+        String requestBody;
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not start an OpenTok Archive. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            if (response.getStatusCode() / 100 != 2) {
+                switch (response.getStatusCode()) {
+                    case 400:
+                        throw new RequestException("Could not send a signal.");
+                    case 404:
+                        throw new RequestException("Could not send a signal. The connection or session was not found.");
+                    case 403:
+                        throw new RequestException("Could not send a signal. The request was not authorized.");
+                    case 500:
+                        throw new RequestException("Could not send a signal. A server error occurred.");
+                    default:
+                        throw new RequestException("Could not send a signal. The server response was invalid." +
+                                " response code: " + response.getStatusCode());
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not register an OpenTok Callback.", e);
+        }
+    }
+
+
+    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/session/" + sessionId + "/connection/" + connectionId;
+
+        Future<Response> request = this.prepareDelete(url)
+                .execute();
+
+        try {
+            Response response = request.get();
+            if (response.getStatusCode() / 100 != 2) {
+                switch (response.getStatusCode()) {
+                    case 400:
+                        throw new RequestException("Could not force a disconnect.");
+                    case 404:
+                        throw new RequestException("Could not force a disconnect. The connection or session was not found.");
+                    case 403:
+                        throw new RequestException("Could not force a disconnect. The request was not authorized.");
+                    case 500:
+                        throw new RequestException("Could not force a disconnect. A server error occurred.");
+                    default:
+                        throw new RequestException("Could not force a disconnect. The server response was invalid." +
+                                " response code: " + response.getStatusCode());
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not register an OpenTok Callback.", e);
+        }
+    }
+
+
     public static class Builder {
         private final int apiKey;
         private final String apiSecret;
@@ -279,11 +469,11 @@ public class HttpClient extends AsyncHttpClient {
             if (this.apiUrl == null) {
                 this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
             }
-            
+
             if (this.proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(this.proxy));
             }
-            
+
             this.config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
             HttpClient client = new HttpClient(this);
