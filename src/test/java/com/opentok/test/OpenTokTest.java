@@ -933,7 +933,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testGetCallbacks() throws OpenTokException {
+    public void testListCallbacks() throws OpenTokException {
         stubFor(get(urlEqualTo(callbacksPath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -946,7 +946,7 @@ public class OpenTokTest {
                                 "          \"url\" : \"" + callbackUrl + "\"\n" +
                                 "        }]")));
 
-        CallbackList callbacks = sdk.getCallbacks();
+        CallbackList callbacks = sdk.listCallbacks();
 
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
