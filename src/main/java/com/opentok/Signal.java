@@ -10,7 +10,7 @@ package com.opentok;
 /**
  * Defines the fields of a signal to be sent to an OpenTok session or connection.
  *
- * @see OpenTok#signal()
+ * @see OpenTok#signal(String, String, Signal)
 */
 public class Signal {
     private String type;

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
 * Represents a callback registered for an OpenTok Cloud API event.
  *
- * @see OpenTok#registerCallback()
+ * @see OpenTok#registerCallback(CallbackGroup, CallbackEvent, String)
 */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Callback {

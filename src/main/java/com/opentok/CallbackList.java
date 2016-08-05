@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 /**
  * Represents an array of Callback objects.
  *
- * @see OpenTok#getCallbacks()
+ * @see OpenTok#listCallbacks()
  */
 @JsonFormat(shape=JsonFormat.Shape.ARRAY)
 public class CallbackList extends ArrayList<Callback> {

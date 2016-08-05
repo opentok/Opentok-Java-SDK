@@ -22,10 +22,10 @@ import javax.xml.xpath.XPathFactory;
 import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.opentok.exception.InvalidArgumentException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
@@ -480,7 +480,8 @@ public class OpenTok {
     /**
      * Unegister an OpenTok callback.
      * <p>
-     * To unregister a callback, use the {@link #registerCallback(String)} method)() method.
+     * To unregister a callback, use the
+     * {@link #registerCallback(CallbackGroup, CallbackEvent, String)} method)() method.
      *
      * @param callbackId The callback ID of the callback to be unregistered.
      */
