@@ -103,10 +103,11 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo(SESSION_CREATE))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/xml")
-                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
-                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
-                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                "\"partner_id\":\"123456\"," +
+                                "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                "\"media_server_url\":\"\"}]")));
 
         Session session = sdk.createSession();
 
@@ -131,10 +132,11 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo(SESSION_CREATE))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/xml")
-                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
-                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
-                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                "\"partner_id\":\"123456\"," +
+                                "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                "\"media_server_url\":\"\"}]")));
 
         SessionProperties properties = new SessionProperties.Builder()
                 .mediaMode(MediaMode.ROUTED)
@@ -162,10 +164,11 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo(SESSION_CREATE))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/xml")
-                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
-                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
-                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                "\"partner_id\":\"123456\"," +
+                                "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                "\"media_server_url\":\"\"}]")));
 
         SessionProperties properties = new SessionProperties.Builder()
                 .location(locationHint)
@@ -193,10 +196,11 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo(SESSION_CREATE))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/xml")
-                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
-                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
-                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")));
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                "\"partner_id\":\"123456\"," +
+                                "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                "\"media_server_url\":\"\"}]")));
 
         SessionProperties properties = new SessionProperties.Builder()
                 .archiveMode(ArchiveMode.ALWAYS)
@@ -885,11 +889,11 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/xml")
-                        .withBody("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><sessions><Session><" +
-                                "session_id>" + sessionId + "</session_id><partner_id>123456</partner_id><create_dt>" +
-                                "Mon Mar 17 00:41:31 PDT 2014</create_dt></Session></sessions>")
-                        ));
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                "\"partner_id\":\"123456\"," +
+                                "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                "\"media_server_url\":\"\"}]")));
 
         Session session = sdk.createSession();
 

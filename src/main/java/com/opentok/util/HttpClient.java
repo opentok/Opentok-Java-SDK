@@ -48,6 +48,7 @@ public class HttpClient extends AsyncHttpClient {
 
         Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
                 .setFormParams(paramsString)
+                .addHeader("Accept", "application/json") // XML version is deprecated
                 .execute();
 
         try {
