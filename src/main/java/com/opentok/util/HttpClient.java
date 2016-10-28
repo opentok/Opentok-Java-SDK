@@ -293,12 +293,11 @@ public class HttpClient extends AsyncHttpClient {
 
         // credit: https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
         static ProxyServer createProxyServer(final Proxy proxy) {
-            if (proxy.type().equals(Proxy.Type.DIRECT)) {
-                return null;
-            }
-
-            if (!proxy.type().equals(Proxy.Type.HTTP)) {
-                throw new IllegalArgumentException("Only DIRECT and HTTP Proxies are supported!");
+            switch (proxy.type()) {
+                case DIRECT:
+                    return null;
+                case SOCKS:
+                    throw new IllegalArgumentException("Only DIRECT and HTTP Proxies are supported!");
             }
 
             final SocketAddress sa = proxy.address();
@@ -309,18 +308,15 @@ public class HttpClient extends AsyncHttpClient {
 
             InetSocketAddress isa = (InetSocketAddress) sa;
 
-            if (isa.isUnresolved()) {
-                return new ProxyServer(isa.getHostName(), isa.getPort());
-            } else {
-                return new ProxyServer(isa.getAddress().getHostAddress(), isa.getPort());
-            }
+            final String isaHost = isa.isUnresolved() ? isa.getHostName() : isa.getAddress().getHostAddress();
+            return new ProxyServer(isaHost, isa.getPort());
         }
     }
 
     static class TokenAuthRequestFilter implements RequestFilter {
 
-        private int apiKey;
-        private String apiSecret;
+        private final int apiKey;
+        private final String apiSecret;
         private final String authHeader = "X-OPENTOK-AUTH";
 
         public TokenAuthRequestFilter(int apiKey, String apiSecret) {
@@ -332,8 +328,7 @@ public class HttpClient extends AsyncHttpClient {
             try {
                 return new FilterContext.FilterContextBuilder(ctx)
                         .request(new RequestBuilder(ctx.getRequest())
-                                .addHeader(authHeader,
-                                        TokenGenerator.generateToken(apiKey, apiSecret))
+                                .addHeader(authHeader, TokenGenerator.generateToken(apiKey, apiSecret))
                                 .build())
                         .build();
             } catch (OpenTokException e) {
