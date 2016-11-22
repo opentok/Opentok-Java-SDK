@@ -31,9 +31,10 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 
 public class HttpClient extends AsyncHttpClient {
-    
+
     private final String apiUrl;
     private final int apiKey;
+    private static String sessionId;
 
     private HttpClient(Builder builder) {
         super(builder.config);
@@ -139,6 +140,7 @@ public class HttpClient extends AsyncHttpClient {
         // TODO: maybe use a StringBuilder?
         String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
 
+        this.sessionId = sessionId;
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
@@ -250,6 +252,10 @@ public class HttpClient extends AsyncHttpClient {
         return responseString;
     }
 
+    public static String getSessionId() {
+        return sessionId;
+    }
+
     public static class Builder {
         private final int apiKey;
         private final String apiSecret;
@@ -266,6 +272,7 @@ public class HttpClient extends AsyncHttpClient {
             this.apiUrl = apiUrl;
             return this;
         }
+
 
         public Builder proxy(Proxy proxy) {
             this.proxy = proxy;
@@ -332,7 +339,7 @@ public class HttpClient extends AsyncHttpClient {
                 return new FilterContext.FilterContextBuilder(ctx)
                         .request(new RequestBuilder(ctx.getRequest())
                                 .addHeader(authHeader,
-                                        TokenGenerator.generateToken(apiKey, apiSecret))
+                                        TokenGenerator.generateToken(apiKey, apiSecret, HttpClient.getSessionId()))
                                 .build())
                         .build();
             } catch (OpenTokException e) {

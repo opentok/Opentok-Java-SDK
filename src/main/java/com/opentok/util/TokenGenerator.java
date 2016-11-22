@@ -27,7 +27,7 @@ public class TokenGenerator {
 
 
     // Used by the REST Endpoints
-    public static String generateToken(final Integer apiKey, final String apiSecret)
+    public static String generateToken(final Integer apiKey, final String apiSecret, final String sessionId)
             throws OpenTokException {
 
         //This is the default expire time we use for rest endpoints.
@@ -35,6 +35,7 @@ public class TokenGenerator {
                 + TimeUnit.MINUTES.toSeconds(3);
         final JwtClaims claims = new JwtClaims();
         claims.setIssuer(apiKey.toString());
+        claims.setSubject(sessionId);
         claims.setStringClaim(ISSUER_TYPE, PROJECT_ISSUER_TYPE);
         claims.setGeneratedJwtId(); // JTI a unique identifier for the JWT.
 
