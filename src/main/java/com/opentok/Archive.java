@@ -146,9 +146,8 @@ public class Archive {
     }
 
     /**
-     * For archives with the status of Status.STOPPED, this can be set to "maximum duration
-     * exceeded", "maximum idle time exceeded", "session ended", "user initiated". For archives
-     * with the status of Status.FAILED, this can be set to "failure".
+     * For archives with the status Status.STOPPED or Status.FAILED, this string describes the
+     * reason the archive stopped (such as "maximum duration exceeded") or failed.
      */
     public String getReason() {
         return reason;
