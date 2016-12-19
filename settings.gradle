@@ -1,2 +1,3 @@
 include 'sample/HelloWorld'
 include 'sample/Archiving'
+include 'sample/Monitoring'
