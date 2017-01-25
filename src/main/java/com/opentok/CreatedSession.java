@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreatedSession {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @JsonProperty("session_id")
     private String sessionId;
 
@@ -25,7 +27,7 @@ public class CreatedSession {
     private String projectId;
 
     @JsonProperty("partner_id")
-    private String partner_id;
+    private String partnerId;
 
     @JsonProperty("create_dt")
     private String createDt;
@@ -50,7 +52,7 @@ public class CreatedSession {
     }
 
     public String getPartnerId() {
-        return partner_id;
+        return partnerId;
     }
 
     public String getCreateDt() {
@@ -64,7 +66,7 @@ public class CreatedSession {
     @Override
     public String toString() {
         try {
-            return new ObjectMapper().writeValueAsString(this);
+            return OBJECT_MAPPER.writeValueAsString(this);
         } catch (Exception e) {
             return "";
         }
