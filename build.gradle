@@ -7,6 +7,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'license'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
@@ -49,7 +50,6 @@ dependencies {
     //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
 }
 
-apply plugin: 'license'
 license {
     header rootProject.file('codequality/HEADER')
     ext.year = Calendar.getInstance().get(Calendar.YEAR)

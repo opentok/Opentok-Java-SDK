@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2016 TokBox, Inc.
+ * Copyright (C) 2017 TokBox, Inc.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -15,14 +15,8 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
-import com.opentok.util.TokenGenerator;
-import org.xml.sax.InputSource;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.util.Collection;
@@ -48,6 +42,8 @@ public class OpenTok {
             .readerFor(Archive.class);
     static protected ObjectReader archiveListReader = new ObjectMapper()
             .readerFor(ArchiveList.class);
+    static protected ObjectReader createdSessionReader = new ObjectMapper()
+            .readerFor(CreatedSession[].class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -238,25 +234,19 @@ public class OpenTok {
      * session. You will use this session ID in the client SDKs to identify the session.
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
-        Map<String, Collection<String>> params;
-        String xpathQuery = "/sessions/Session/session_id";
+        final SessionProperties _properties = properties != null ? properties : new SessionProperties.Builder().build();
+        final Map<String, Collection<String>> params = _properties.toMap();
+        final String response = this.client.createSession(params);
 
-        // NOTE: doing this null check twice is kind of ugly
-        params = properties != null ? properties.toMap() :
-                new SessionProperties.Builder().build().toMap();
-        
-        String xmlResponse = this.client.createSession(params);
-
-
-        // NOTE: doing this null check twice is kind of ugly
         try {
-            if (properties != null) {
-                return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret, properties);
-            } else {
-                return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
+            CreatedSession[] sessions = createdSessionReader.readValue(response);
+            // A bit ugly, but API response should include an array with one session
+            if (sessions.length != 1) {
+                throw new OpenTokException(String.format("Unexpected number of sessions created %d", sessions.length));
             }
-        } catch (XPathExpressionException e) {
-            throw new OpenTokException("Cannot create session. Could not read the response: " + xmlResponse);
+            return new Session(sessions[0].getId(), apiKey, apiSecret, _properties);
+        } catch (IOException e) {
+            throw new OpenTokException("Cannot create session. Could not read the response: " + response);
         }
     }
 
@@ -300,13 +290,6 @@ public class OpenTok {
      */
     public Session createSession() throws OpenTokException {
         return createSession(null);
-    }
-
-    private static String readXml(String xpathQuery, String xml) throws XPathExpressionException {
-        XPathFactory xpathFactory = XPathFactory.newInstance();
-        XPath xpath = xpathFactory.newXPath();
-        InputSource source = new InputSource(new StringReader(xml));
-        return xpath.evaluate(xpathQuery, source);
     }
 
     /**

@@ -135,7 +135,7 @@ String token = session.generateToken(new TokenOptions.Builder()
 
 You can start the recording of an OpenTok Session using a `com.opentok.OpenTok` instance's
 `startArchive(String sessionId, String name)` method. This will return a `com.opentok.Archive` instance.
-The parameter `name` is a optional and used to assign a name for the Archive. Note that you can
+The parameter `name` is optional and used to assign a name for the Archive. Note that you can
 only start an Archive on a Session that has clients connected.
 
 ```java
