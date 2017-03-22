@@ -65,7 +65,7 @@ public class OpenTokTest {
 
     private final String SESSION_CREATE = "/session/create";
     private int apiKey = 123456;
-    private String archivePath = "/v2/partner/" + apiKey + "/archive";
+    private String archivePath = "/v2/project/" + apiKey + "/archive";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
@@ -92,7 +92,7 @@ public class OpenTokTest {
             // TODO: figure out when to turn mocking off based on this
             apiKey = anApiKey;
             apiSecret = anApiSecret;
-            archivePath = "/v2/partner/" + apiKey + "/archive";
+            archivePath = "/v2/project/" + apiKey + "/archive";
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
     }

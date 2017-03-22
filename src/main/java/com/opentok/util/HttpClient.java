@@ -69,7 +69,7 @@ public class HttpClient extends AsyncHttpClient {
 
     public String getArchive(String archiveId) throws RequestException {
         String responseString = null;
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId;
         Future<Response> request = this.prepareGet(url).execute();
 
         try {
@@ -99,7 +99,7 @@ public class HttpClient extends AsyncHttpClient {
     public String getArchives(int offset, int count) throws RequestException {
         String responseString = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive";
         if (offset != 0 || count != 1000) {
             url += "?";
             if (offset != 0) {
@@ -138,7 +138,7 @@ public class HttpClient extends AsyncHttpClient {
         String responseString = null;
         String requestBody = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive";
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive";
 
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
@@ -189,7 +189,7 @@ public class HttpClient extends AsyncHttpClient {
     public String stopArchive(String archiveId) throws RequestException {
         String responseString = null;
         // TODO: maybe use a StringBuilder?
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId + "/stop";
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/stop";
         Future<Response> request = this.preparePost(url).execute();
 
         try {
@@ -224,7 +224,7 @@ public class HttpClient extends AsyncHttpClient {
 
     public String deleteArchive(String archiveId) throws RequestException {
         String responseString = null;
-        String url = this.apiUrl + "/v2/partner/" + this.apiKey + "/archive/" + archiveId;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId;
         Future<Response> request = this.prepareDelete(url).execute();
 
         try {
