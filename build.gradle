@@ -120,6 +120,7 @@ uploadArchives {
 
 test {
     maxHeapSize = "1024m"
+    jvmArgs '-XX:MaxPermSize=1024m'
 }
 
 sourceCompatibility = 1.7
