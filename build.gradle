@@ -9,6 +9,8 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'license'
 
+apply plugin: 'checkstyle'
+
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '3.0.0-beta.3'
@@ -121,6 +123,11 @@ uploadArchives {
 test {
     maxHeapSize = "1024m"
 }
+
+checkstyle {
+    toolVersion = "6.19"
+}
+
 
 sourceCompatibility = 1.7
 // credit: http://stackoverflow.com/a/22681854/305340
