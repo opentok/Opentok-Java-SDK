@@ -8,6 +8,7 @@ apply plugin: 'signing'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'license'
+apply plugin: 'jacoco'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
@@ -24,6 +25,13 @@ javadoc {
     options {
         locale 'en_US'
         setMemberLevel JavadocMemberLevel.PUBLIC
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
     }
 }
 

@@ -12,10 +12,11 @@ before_script:
   - echo $JAVA_OPTS
   - export JAVA_OPTS="$JAVA_OPTS -Xmx1024m"
   - export GRADLE_OPTS=-Xmx1024m
+after_success:
+- bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
 
 # workaround for https://github.com/travis-ci/travis-ci/issues/5227
 addons:
   hosts:
     - myshorthost
   hostname: myshorthost
-

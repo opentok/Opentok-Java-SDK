@@ -1,7 +1,7 @@
 # OpenTok Java SDK
 
 [![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=master)](https://travis-ci.org/opentok/Opentok-Java-SDK)
-
+[![codecov](https://codecov.io/gh/opentok/Opentok-Java-SDK/branch/master/graph/badge.svg)](https://codecov.io/gh/opentok/Opentok-Java-SDK)
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
