@@ -62,6 +62,12 @@ String apiSecret = "YOUR API SECRET";
 OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ```
 
+And make sure you call `close` when you are done to prevent leaked file descriptors.
+
+```java
+opentok.close();
+```
+
 ## Creating Sessions
 
 To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`

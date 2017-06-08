@@ -451,5 +451,9 @@ public class OpenTok {
             
             return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
         }
-  }
+    }
+
+    public void close() {
+        this.client.close();
+    }
 }
