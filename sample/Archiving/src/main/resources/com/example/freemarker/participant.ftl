@@ -1,5 +1,5 @@
 <#include "header.ftl">
-  <script src="//static.opentok.com/webrtc/v2.2/js/opentok.min.js"></script>
+  <script src="https://static.opentok.com/webrtc/v2/js/opentok.min.js"></script>
 
   <div class="container bump-me">
 

@@ -73,7 +73,9 @@ opentok.close();
 To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`
 method. The `properties` parameter is optional and it is used to specify two things:
 
-* Whether the session uses the OpenTok Media Router
+* Whether the session uses the [OpenTok Media
+  Router](https://tokbox.com/developer/guides/create-session/#media-mode),
+  which is required for some OpenTok features (such as archiving)
 * A location hint for the OpenTok server.
 * Whether the session is automatically archived.
 
@@ -91,7 +93,7 @@ import com.opentok.SessionProperties;
 // A session that attempts to stream media directly between clients:
 Session session = opentok.createSession();
 
-// A session that uses the OpenTok Media Router:
+// A session that uses the OpenTok Media Router (which is required for archiving):
 Session session = opentok.createSession(new SessionProperties.Builder()
   .mediaMode(MediaMode.ROUTED)
   .build());
@@ -138,6 +140,9 @@ String token = session.generateToken(new TokenOptions.Builder()
 ```
 
 ## Working with Archives
+
+You can only archive sessions that use the OpenTok Media Router
+(sessions with the media mode set to routed).
 
 You can start the recording of an OpenTok Session using a `com.opentok.OpenTok` instance's
 `startArchive(String sessionId, String name)` method. This will return a `com.opentok.Archive` instance.
