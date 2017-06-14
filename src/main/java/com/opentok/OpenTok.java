@@ -27,7 +27,7 @@ import java.util.Map;
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
 * <p>
 * To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
-* and the API secret from <a href="https://dashboard.tokbox.com">the OpenTok dashboard</a>. Do not publicly share
+* and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not publicly share
 * your API secret. You will use it with the OpenTok constructor (only on your web
 * server) to create OpenTok sessions.
 * <p>
@@ -49,10 +49,8 @@ public class OpenTok {
     /**
      * Creates an OpenTok object.
      *
-     * @param apiKey Your OpenTok API key. (See the <a href="https://dashboard.tokbox.com">OpenTok
-     * dashboard</a> page.)
-     * @param apiSecret Your OpenTok API secret. (See the <a href="https://dashboard.tokbox.com">OpenTok dashboard</a>
-     * page.)
+     * @param apiKey Your OpenTok API key. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
+     * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
      */
     public OpenTok(int apiKey, String apiSecret) {
         this.apiKey = apiKey;
@@ -79,7 +77,7 @@ public class OpenTok {
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
-     *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+     *         int API_KEY = 0; // Replace with your OpenTok API key (see https://tokbox.com/account).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
      *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
@@ -100,8 +98,7 @@ public class OpenTok {
      * }
      * </pre>
      * <p>
-     * For testing, you can also use the <a href="https://dashboard.tokbox.com/projects">OpenTok
-     * dashboard</a> page to generate test tokens.
+     * For testing, you can also generate tokens by logging in to your <a href="https://tokbox.com/account">TokBox account</a>.
      *
      * @param sessionId The session ID corresponding to the session to which the user will connect.
      *
@@ -154,7 +151,7 @@ public class OpenTok {
      *
      * class Test {
      *     public static void main(String argv[]) throws OpenTokException {
-     *         int API_KEY = 0; // Replace with your OpenTok API key (see http://dashboard.tokbox.com).
+     *         int API_KEY = 0; // Replace with your OpenTok API key (see https://tokbox.com/account).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
      *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
      *
@@ -217,7 +214,8 @@ public class OpenTok {
      * </pre>
      *
      * You can also create a session using the <a href="http://www.tokbox.com/opentok/api/#session_id_production">OpenTok
-     * REST API</a> or the <a href="https://dashboard.tokbox.com/projects">OpenTok dashboard</a>.
+     * REST API</a> or or by logging in to your
+     * <a href="https://tokbox.com/account">TokBox account</a>.
      *
      * @param properties This SessionProperties object defines options for the session.
      * These include the following:
