@@ -1,12 +1,13 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2016 TokBox, Inc.
+ * Copyright (C) 2017 TokBox, Inc.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok;
 
+import com.opentok.exception.OpenTokException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -18,7 +19,6 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.util.Crypto;
 import org.apache.commons.codec.binary.Base64;
 
-import com.opentok.exception.OpenTokException;
 
 /**
 * Represents an OpenTok session. Use the {@link OpenTok#createSession(SessionProperties properties)}
@@ -103,7 +103,6 @@ public class Session {
      * @return The token string.
      */
     public String generateToken(TokenOptions tokenOptions) throws OpenTokException {
-
         // Token format
         //
         // | ------------------------------  tokenStringBuilder ----------------------------- |
@@ -177,18 +176,12 @@ public class Session {
                     Base64.encodeBase64String(
                             innerBuilder.toString().getBytes("UTF-8")
                     )
-                    .replace("+", "-")
-                    .replace("/", "_")
+                            .replace("+", "-")
+                            .replace("/", "_")
             );
 
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (SignatureException e) {
-            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
-        } catch (InvalidKeyException e) {
-            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (SignatureException | NoSuchAlgorithmException
+                | InvalidKeyException | UnsupportedEncodingException e) {
             throw new OpenTokException("Could not generate token, a signing error occurred.", e);
         }
 

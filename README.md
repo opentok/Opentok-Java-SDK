@@ -1,7 +1,7 @@
 # OpenTok Java SDK
 
-[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg)](https://travis-ci.org/opentok/Opentok-Java-SDK)
-
+[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=master)](https://travis-ci.org/opentok/Opentok-Java-SDK)
+[![codecov](https://codecov.io/gh/opentok/Opentok-Java-SDK/branch/master/graph/badge.svg)](https://codecov.io/gh/opentok/Opentok-Java-SDK)
 The OpenTok Java SDK lets you generate
 [sessions](http://tokbox.com/opentok/tutorials/create-session/) and
 [tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
@@ -60,6 +60,12 @@ import com.opentok.OpenTok;
 int apiKey = 000000; // YOUR API KEY
 String apiSecret = "YOUR API SECRET";
 OpenTok opentok = new OpenTok(apiKey, apiSecret)
+```
+
+And make sure you call `close` when you are done to prevent leaked file descriptors.
+
+```java
+opentok.close();
 ```
 
 ## Creating Sessions
@@ -135,7 +141,7 @@ String token = session.generateToken(new TokenOptions.Builder()
 
 You can start the recording of an OpenTok Session using a `com.opentok.OpenTok` instance's
 `startArchive(String sessionId, String name)` method. This will return a `com.opentok.Archive` instance.
-The parameter `name` is a optional and used to assign a name for the Archive. Note that you can
+The parameter `name` is optional and used to assign a name for the Archive. Note that you can
 only start an Archive on a Session that has clients connected.
 
 ```java

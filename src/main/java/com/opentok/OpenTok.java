@@ -1,35 +1,27 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2016 TokBox, Inc.
+ * Copyright (C) 2017 TokBox, Inc.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.opentok.exception.OpenTokException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import org.xml.sax.InputSource;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.Proxy;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
 * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -47,9 +39,12 @@ public class OpenTok {
     private String apiSecret;
     protected HttpClient client;
     static protected ObjectReader archiveReader = new ObjectMapper()
-            .reader(Archive.class);
+            .readerFor(Archive.class);
     static protected ObjectReader archiveListReader = new ObjectMapper()
-            .reader(ArchiveList.class);
+            .readerFor(ArchiveList.class);
+    static protected ObjectReader createdSessionReader = new ObjectMapper()
+            .readerFor(CreatedSession[].class);
+    static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
      * Creates an OpenTok object.
@@ -58,15 +53,15 @@ public class OpenTok {
      * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
      */
     public OpenTok(int apiKey, String apiSecret) {
-        this(apiKey, apiSecret, "https://api.opentok.com");
-    }
-
-    public OpenTok(int apiKey, String apiSecret, String apiUrl) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
-        this.client = new HttpClient.Builder(apiKey, apiSecret)
-                .apiUrl(apiUrl)
-                .build();
+        this.client = new HttpClient.Builder(apiKey, apiSecret).build();
+    }
+    
+    private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
+        this.apiKey = apiKey;
+        this.apiSecret = apiSecret.trim();
+        this.client = httpClient;
     }
 
     /**
@@ -120,7 +115,7 @@ public class OpenTok {
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
         List<String> sessionIdParts = null;
-        if(sessionId == null || sessionId == "") {
+        if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
 
@@ -237,28 +232,19 @@ public class OpenTok {
      * session. You will use this session ID in the client SDKs to identify the session.
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
-        Map<String, Collection<String>> params;
-        String xpathQuery = "/sessions/Session/session_id";
+        final SessionProperties _properties = properties != null ? properties : new SessionProperties.Builder().build();
+        final Map<String, Collection<String>> params = _properties.toMap();
+        final String response = this.client.createSession(params);
 
-        // NOTE: doing this null check twice is kind of ugly
-        if(properties != null) {
-            params = properties.toMap();
-        } else {
-            params = new SessionProperties.Builder().build().toMap();
-        }
-        
-        String xmlResponse = this.client.createSession(params);
-
-
-        // NOTE: doing this null check twice is kind of ugly
         try {
-            if (properties != null) {
-                return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret, properties);
-            } else {
-                return new Session(readXml(xpathQuery, xmlResponse), apiKey, apiSecret);
+            CreatedSession[] sessions = createdSessionReader.readValue(response);
+            // A bit ugly, but API response should include an array with one session
+            if (sessions.length != 1) {
+                throw new OpenTokException(String.format("Unexpected number of sessions created %d", sessions.length));
             }
-        } catch (XPathExpressionException e) {
-            throw new OpenTokException("Cannot create session. Could not read the response: " + xmlResponse);
+            return new Session(sessions[0].getId(), apiKey, apiSecret, _properties);
+        } catch (IOException e) {
+            throw new OpenTokException("Cannot create session. Could not read the response: " + response);
         }
     }
 
@@ -304,13 +290,6 @@ public class OpenTok {
         return createSession(null);
     }
 
-    private static String readXml(String xpathQuery, String xml) throws XPathExpressionException {
-        XPathFactory xpathFactory = XPathFactory.newInstance();
-        XPath xpath = xpathFactory.newXPath();
-        InputSource source = new InputSource(new StringReader(xml));
-        return xpath.evaluate(xpathQuery, source);
-    }
-    
     /**
      * Gets an {@link Archive} object for the given archive ID.
      *
@@ -354,12 +333,6 @@ public class OpenTok {
         String archives = this.client.getArchives(offset, count);
         try {
             return archiveListReader.readValue(archives);
-
-        // if we only wanted Java 7 and above, we could DRY this into one catch clause
-        } catch (JsonMappingException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (JsonParseException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (IOException e) {
@@ -441,5 +414,44 @@ public class OpenTok {
      */
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
+    }
+    
+    public static class Builder {
+        private int apiKey;
+        private String apiSecret;
+        private String apiUrl;
+        private Proxy proxy;
+        
+        public Builder(int apiKey, String apiSecret) {
+            this.apiKey = apiKey;
+            this.apiSecret = apiSecret;
+        }
+        
+        public Builder apiUrl(String apiUrl) {
+            this.apiUrl = apiUrl;
+            return this;
+        }
+        
+        public Builder proxy(Proxy proxy) {
+            this.proxy = proxy;
+            return this;
+        }
+        
+        public OpenTok build() {
+            HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
+            
+            if (this.apiUrl != null) {
+                clientBuilder.apiUrl(this.apiUrl);
+            }
+            if (this.proxy != null) {
+                clientBuilder.proxy(this.proxy);
+            }
+            
+            return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
+        }
+    }
+
+    public void close() {
+        this.client.close();
     }
 }
