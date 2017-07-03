@@ -12,7 +12,7 @@ apply plugin: 'jacoco'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '3.0.0-beta.3'
+version = '3.0.0'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'

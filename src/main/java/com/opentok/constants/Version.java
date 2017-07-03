@@ -8,5 +8,5 @@
 package com.opentok.constants;
 
 public class Version {
-    public static final String VERSION = "3.0.0-beta.3";
+    public static final String VERSION = "3.0.0";
 }
