@@ -255,6 +255,8 @@ public class HttpClient extends AsyncHttpClient {
         private final int apiKey;
         private final String apiSecret;
         private Proxy proxy;
+        private String principal;
+        private String password;
         private String apiUrl;
         private AsyncHttpClientConfig config;
 
@@ -269,7 +271,14 @@ public class HttpClient extends AsyncHttpClient {
         }
 
         public Builder proxy(Proxy proxy) {
+            proxy(proxy, null, null);
+            return this;
+        }
+        
+        public Builder proxy(Proxy proxy, String principal, String password) {
             this.proxy = proxy;
+            this.principal = principal;
+            this.password = password;
             return this;
         }
 
@@ -283,6 +292,17 @@ public class HttpClient extends AsyncHttpClient {
             
             if (this.proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(this.proxy));
+            }
+            
+            if (this.principal != null) {
+                Realm.RealmBuilder rb = new Realm.RealmBuilder();
+                rb.setScheme(Realm.AuthScheme.BASIC);
+                rb.setUsePreemptiveAuth(true);
+                rb.setTargetProxy(true);
+                rb.setPrincipal(this.principal);
+                rb.setPassword(this.password);
+
+                configBuilder.setRealm(rb.build());
             }
             
             this.config = configBuilder.build();
@@ -307,7 +327,7 @@ public class HttpClient extends AsyncHttpClient {
             }
 
             InetSocketAddress isa = (InetSocketAddress) sa;
-
+            
             final String isaHost = isa.isUnresolved() ? isa.getHostName() : isa.getAddress().getHostAddress();
             return new ProxyServer(isaHost, isa.getPort());
         }
