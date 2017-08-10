@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ning.http.client.*;
+import com.ning.http.client.Realm.AuthScheme;
 import com.ning.http.client.filter.FilterContext;
 import com.ning.http.client.filter.FilterException;
 import com.ning.http.client.filter.RequestFilter;
@@ -250,11 +251,19 @@ public class HttpClient extends AsyncHttpClient {
 
         return responseString;
     }
+    
+    public static enum ProxyAuthScheme {
+        AUTO,
+        BASIC,
+        DIGEST,
+        NTLM
+    }
 
     public static class Builder {
         private final int apiKey;
         private final String apiSecret;
         private Proxy proxy;
+        private ProxyAuthScheme proxyAuthScheme;
         private String principal;
         private String password;
         private String apiUrl;
@@ -271,12 +280,13 @@ public class HttpClient extends AsyncHttpClient {
         }
 
         public Builder proxy(Proxy proxy) {
-            proxy(proxy, null, null);
+            proxy(proxy, null, null, null);
             return this;
         }
         
-        public Builder proxy(Proxy proxy, String principal, String password) {
+        public Builder proxy(Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
             this.proxy = proxy;
+            this.proxyAuthScheme = proxyAuthScheme;
             this.principal = principal;
             this.password = password;
             return this;
@@ -295,9 +305,29 @@ public class HttpClient extends AsyncHttpClient {
             }
             
             if (this.principal != null) {
+                Realm.AuthScheme authScheme = null;
+                if (this.proxyAuthScheme != null) {
+                    switch (this.proxyAuthScheme) {
+                    case AUTO:
+                        authScheme = null;
+                        break;
+                    case DIGEST:
+                        authScheme = AuthScheme.DIGEST;
+                        break;
+                    case NTLM:
+                        authScheme = AuthScheme.NTLM;
+                        break;
+                    case BASIC:
+                    default:
+                        authScheme = AuthScheme.BASIC;
+                    }
+                }
+                
                 Realm.RealmBuilder rb = new Realm.RealmBuilder();
-                rb.setScheme(Realm.AuthScheme.BASIC);
-                rb.setUsePreemptiveAuth(true);
+                if (authScheme != null) {
+                    rb.setScheme(authScheme);
+                    rb.setUsePreemptiveAuth(true);
+                }
                 rb.setTargetProxy(true);
                 rb.setPrincipal(this.principal);
                 rb.setPassword(this.password);
