@@ -11,27 +11,38 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.Realm;
+import org.asynchttpclient.Realm.AuthScheme;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.filter.FilterContext;
+import org.asynchttpclient.filter.FilterException;
+import org.asynchttpclient.filter.RequestFilter;
+import org.asynchttpclient.proxy.ProxyServer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.ning.http.client.*;
-import com.ning.http.client.Realm.AuthScheme;
-import com.ning.http.client.filter.FilterContext;
-import com.ning.http.client.filter.FilterException;
-import com.ning.http.client.filter.RequestFilter;
 import com.opentok.ArchiveProperties;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 
-public class HttpClient extends AsyncHttpClient {
+public class HttpClient extends DefaultAsyncHttpClient {
     
     private final String apiUrl;
     private final int apiKey;
@@ -45,10 +56,16 @@ public class HttpClient extends AsyncHttpClient {
     public String createSession(Map<String, Collection<String>> params) throws RequestException {
         String responseString = null;
         Response response = null;
-        FluentStringsMap paramsString = new FluentStringsMap().addAll(params);
+        Map<String, List<String>> paramsWithList = null;
+        if (params != null) {
+            paramsWithList = new HashMap<>();
+            for (Entry<String, Collection<String>> entry : params.entrySet()) {
+                paramsWithList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+        }
 
         Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
-                .setFormParams(paramsString)
+                .setFormParams(paramsWithList)
                 .addHeader("Accept", "application/json") // XML version is deprecated
                 .execute();
 
@@ -62,7 +79,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not create an OpenTok Session. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not create an OpenTok Session", e);
         }
         return responseString;
@@ -90,7 +107,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not  get an OpenTok Archive", e);
         }
 
@@ -127,7 +144,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get OpenTok Archives", e);
         }
 
@@ -181,7 +198,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not start an OpenTok Archive.", e);
         }
         return responseString;
@@ -217,7 +234,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not stop an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not stop an OpenTok Archive.", e);
         }
         return responseString;
@@ -245,7 +262,7 @@ public class HttpClient extends AsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
         }
 
@@ -293,7 +310,7 @@ public class HttpClient extends AsyncHttpClient {
         }
 
         public HttpClient build() {
-            AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder()
+            DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder()
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
                     .addRequestFilter(new TokenAuthRequestFilter(this.apiKey, this.apiSecret));
             if (this.apiUrl == null) {
@@ -323,14 +340,11 @@ public class HttpClient extends AsyncHttpClient {
                     }
                 }
                 
-                Realm.RealmBuilder rb = new Realm.RealmBuilder();
+                Realm.Builder rb = new Realm.Builder(this.principal, this.password);
                 if (authScheme != null) {
                     rb.setScheme(authScheme);
                     rb.setUsePreemptiveAuth(true);
                 }
-                rb.setTargetProxy(true);
-                rb.setPrincipal(this.principal);
-                rb.setPassword(this.password);
 
                 configBuilder.setRealm(rb.build());
             }
@@ -359,7 +373,7 @@ public class HttpClient extends AsyncHttpClient {
             InetSocketAddress isa = (InetSocketAddress) sa;
             
             final String isaHost = isa.isUnresolved() ? isa.getHostName() : isa.getAddress().getHostAddress();
-            return new ProxyServer(isaHost, isa.getPort());
+            return new ProxyServer.Builder(isaHost, isa.getPort()).build();
         }
     }
 
@@ -374,9 +388,10 @@ public class HttpClient extends AsyncHttpClient {
             this.apiSecret = apiSecret;
         }
 
-        public FilterContext filter(FilterContext ctx) throws FilterException {
+        @Override
+        public <T> FilterContext<T> filter(FilterContext<T> ctx) throws FilterException {
             try {
-                return new FilterContext.FilterContextBuilder(ctx)
+                return new FilterContext.FilterContextBuilder<T>(ctx)
                         .request(new RequestBuilder(ctx.getRequest())
                                 .addHeader(authHeader, TokenGenerator.generateToken(apiKey, apiSecret))
                                 .build())
