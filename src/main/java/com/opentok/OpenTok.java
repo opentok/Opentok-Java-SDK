@@ -340,6 +340,23 @@ public class OpenTok {
         }
     }
 
+    /***
+     * Returns a List of {@link Archive} objects, representing archives that are both both completed and in-progress,
+     * for your API key.
+     *
+     * @param sessionId
+     *            The sessionId for which archives should be retrieved.
+     * @return A List of {@link Archive} objects.
+     */
+    public ArchiveList listArchives(String sessionId) throws RequestException {
+        String archives = this.client.getArchives(sessionId);
+        try {
+            return archiveListReader.readValue(archives);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
     /**
      * Starts archiving an OpenTok session. This version of the <code>startArchive()</code> method
      * lets you disable audio or video recording.
