@@ -270,10 +270,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
     
     public static enum ProxyAuthScheme {
-        AUTO,
         BASIC,
         DIGEST,
-        NTLM
+        NTLM,
+        SPNEGO,
+        KERBEROS
     }
 
     public static class Builder {
@@ -318,35 +319,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
             
             if (this.proxy != null) {
-                configBuilder.setProxyServer(createProxyServer(this.proxy));
-            }
-            
-            if (this.principal != null) {
-                Realm.AuthScheme authScheme = null;
-                if (this.proxyAuthScheme != null) {
-                    switch (this.proxyAuthScheme) {
-                    case AUTO:
-                        authScheme = null;
-                        break;
-                    case DIGEST:
-                        authScheme = AuthScheme.DIGEST;
-                        break;
-                    case NTLM:
-                        authScheme = AuthScheme.NTLM;
-                        break;
-                    case BASIC:
-                    default:
-                        authScheme = AuthScheme.BASIC;
-                    }
-                }
-                
-                Realm.Builder rb = new Realm.Builder(this.principal, this.password);
-                if (authScheme != null) {
-                    rb.setScheme(authScheme);
-                    rb.setUsePreemptiveAuth(true);
-                }
-
-                configBuilder.setRealm(rb.build());
+                configBuilder.setProxyServer(createProxyServer(this.proxy, this.proxyAuthScheme, this.principal, this.password));
             }
             
             this.config = configBuilder.build();
@@ -356,7 +329,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
 
         // credit: https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
-        static ProxyServer createProxyServer(final Proxy proxy) {
+        static ProxyServer createProxyServer(final Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
             switch (proxy.type()) {
                 case DIRECT:
                     return null;
@@ -373,7 +346,35 @@ public class HttpClient extends DefaultAsyncHttpClient {
             InetSocketAddress isa = (InetSocketAddress) sa;
             
             final String isaHost = isa.isUnresolved() ? isa.getHostName() : isa.getAddress().getHostAddress();
-            return new ProxyServer.Builder(isaHost, isa.getPort()).build();
+            ProxyServer.Builder builder = new ProxyServer.Builder(isaHost, isa.getPort());
+
+            if (principal != null) {
+                Realm.AuthScheme authScheme = null;
+                switch (proxyAuthScheme) {
+                case BASIC:
+                    authScheme = AuthScheme.BASIC;
+                    break;
+                case DIGEST:
+                    authScheme = AuthScheme.DIGEST;
+                    break;
+                case NTLM:
+                    authScheme = AuthScheme.NTLM;
+                    break;
+                case KERBEROS:
+                    authScheme = AuthScheme.KERBEROS;
+                    break;
+                case SPNEGO:
+                    authScheme = AuthScheme.SPNEGO;
+                    break;
+                }
+                
+                Realm.Builder rb = new Realm.Builder(principal, password);
+                rb.setScheme(authScheme);
+                
+                builder.setRealm(rb.build());
+            }
+            
+            return builder.build();
         }
     }
 
