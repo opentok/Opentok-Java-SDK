@@ -38,7 +38,7 @@ Common tasks:
 In order to create a release, the following should be completed in order.
 
 1. Ensure all the tests are passing (`gradle check`) and that there is enough test coverage.
-1. Make sure you are on the `master` branch of the repository, with all changes merged/commited already.
+1. Make sure you are on the `dev` branch of the repository, with all changes merged/commited already.
 1. Update the version number in the source code and the README. See [Versioning](#versioning) for information
    about selecting an appropriate version number. Files to change:
    - src/main/java/com/opentok/constants/Version.java
@@ -58,7 +58,7 @@ In order to create a release, the following should be completed in order.
    adding "-alpha.1" in each file except the README. Building may have generated the docs files once again, so to clear
    them run `git checkout -- docs/`. Then stage the remaining files and commit with the message
    "Begin development on next version".
-1. Push the changes to the source repository: `git push origin master; git push --tags origin`
+1. Push the changes to the source repository: `git push origin dev; git push --tags origin`
 1. Find the latest .jar in the build directory and upload this as an attached to the latest GitHub Release. Add release
    notes with a description of changes and fixes.
 
@@ -81,7 +81,8 @@ During development the version number should end in "-alpha.x" or "-beta.x", whe
 
 ### Branches
 
-*  `master` - the main development branch.
+*  `dev` - the main development branch.
+*  `master` - reflects the latest stable release.
 *  `feat.foo` - feature branches. these are used for longer running tasks that cannot be accomplished in one commit.
    once merged into master, these branches should be deleted.
 *  `vx.x.x` - if development for a future version/milestone has begun while master is working towards a sooner
