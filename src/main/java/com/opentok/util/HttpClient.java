@@ -140,15 +140,15 @@ public class HttpClient extends AsyncHttpClient {
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {
-            case 200:
-                return response.getResponseBody();
-            case 403:
-                throw new RequestException("Could not get OpenTok Archives. The request was not authorized.");
-            case 500:
-                throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
-            default:
-                throw new RequestException("Could not get an OpenTok Archive. The server response was invalid."
-                        + " response code: " + response.getStatusCode());
+                case 200:
+                    return response.getResponseBody();
+                case 403:
+                    throw new RequestException("Could not get OpenTok Archives. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid."
+                            + " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException("Could not get OpenTok Archives", e);
