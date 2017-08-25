@@ -168,7 +168,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid."
                             + " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get OpenTok Archives", e);
         }
     }
