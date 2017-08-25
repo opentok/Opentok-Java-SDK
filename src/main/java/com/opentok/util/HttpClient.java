@@ -151,6 +151,28 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
+    public String getArchives(String sessionId) throws RequestException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive?sessionId=" + sessionId;
+
+        Future<Response> request = this.prepareGet(url).execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 403:
+                    throw new RequestException("Could not get OpenTok Archives. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid."
+                            + " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            throw new RequestException("Could not get OpenTok Archives", e);
+        }
+    }
+
     public String startArchive(String sessionId, ArchiveProperties properties)
             throws OpenTokException {
         String responseString = null;
