@@ -2,12 +2,8 @@ dist: trusty
 language: java
 matrix:
   include:
-  - dist: precise
-    jdk: openjdk7
-  - dist: precise
-    jdk: oraclejdk7
-  - jdk: openjdk8
   - jdk: oraclejdk8
+  - jdk: openjdk8
 
 notifications:
   slack:

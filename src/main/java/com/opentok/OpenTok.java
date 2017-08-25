@@ -15,6 +15,7 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
+import com.opentok.util.HttpClient.ProxyAuthScheme;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -438,6 +439,9 @@ public class OpenTok {
         private String apiSecret;
         private String apiUrl;
         private Proxy proxy;
+        private ProxyAuthScheme proxyAuthScheme;
+        private String principal;
+        private String password;
         
         public Builder(int apiKey, String apiSecret) {
             this.apiKey = apiKey;
@@ -450,7 +454,15 @@ public class OpenTok {
         }
         
         public Builder proxy(Proxy proxy) {
+            proxy(proxy, null, null, null);
+            return this;
+        }
+        
+        public Builder proxy(Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
             this.proxy = proxy;
+            this.proxyAuthScheme = proxyAuthScheme;
+            this.principal = principal;
+            this.password = password;
             return this;
         }
         
@@ -461,7 +473,7 @@ public class OpenTok {
                 clientBuilder.apiUrl(this.apiUrl);
             }
             if (this.proxy != null) {
-                clientBuilder.proxy(this.proxy);
+                clientBuilder.proxy(this.proxy, proxyAuthScheme, principal, password);
             }
             
             return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
