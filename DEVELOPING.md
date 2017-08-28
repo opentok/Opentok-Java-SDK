@@ -52,7 +52,7 @@ In order to create a release, the following should be completed in order.
     - `signing.keyId`
     - `signing.password`
     - `signing.secretKeyRingFile`
-1. Run `gradle uploadArchives` to create a staging release.
+1. Run `./publish.sh` to create a staging release.
 1. Login to [OSSRH](https://oss.sonatype.org/) and promote the staging release to a public release.
 1. Change the version number for future development by incrementing the patch number and
    adding "-alpha.1" in each file except the README. Building may have generated the docs files once again, so to clear
