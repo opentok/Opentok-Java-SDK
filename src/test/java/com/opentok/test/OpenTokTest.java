@@ -273,7 +273,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testToken() throws
+    public void testTokenRoles() throws
             OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException {
 
