@@ -3,6 +3,10 @@ package com.opentok;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ *  Represents a <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">layout configuration</a>
+ *  for a composed archive
+ */
 @JsonFormat(shape= JsonFormat.Shape.OBJECT)
 public class ArchiveLayout {
     private Type type;

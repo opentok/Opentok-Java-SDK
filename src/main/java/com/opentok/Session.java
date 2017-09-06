@@ -130,8 +130,8 @@ public class Session {
         dataStringBuilder.append(nonce);
         dataStringBuilder.append("&role=");
         dataStringBuilder.append(role);
-        dataStringBuilder.append("&initial_layout_class_list=");
         if(tokenOptions.getInitialLayoutClassList() != null ){
+            dataStringBuilder.append("&initial_layout_class_list=");
             dataStringBuilder.append(tokenOptions.getInitialLayoutClassList().stream().collect(Collectors.joining(" ")));
         }
 

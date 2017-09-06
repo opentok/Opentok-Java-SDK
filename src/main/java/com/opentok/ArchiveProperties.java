@@ -100,6 +100,13 @@ public class ArchiveProperties {
             return this;
         }
 
+        /**
+         * Call this method to customize the layout for a composed archive
+         *
+         * @param layout An object of type {@link ArchiveLayout} .
+         *
+         * @return The ArchiveProperties.Builder object with the output mode setting.
+         */
         public Builder layout(ArchiveLayout layout){
             this.layout = layout;
             return this;
@@ -141,6 +148,9 @@ public class ArchiveProperties {
         return outputMode;
     }
 
+    /**
+     * Optionally set a custom layout (composed archives only)
+     */
     public ArchiveLayout layout() {
         return layout;
     }
@@ -166,6 +176,11 @@ public class ArchiveProperties {
         valueList = new ArrayList<String>();
         valueList.add(outputMode.toString());
         params.put("outputMode", valueList);
+
+        valueList = new ArrayList<String>();
+        valueList.add(layout.toString());
+        params.put("layout", valueList);
+
 
         return params;
     }
