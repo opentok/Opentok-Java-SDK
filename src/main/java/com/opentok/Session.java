@@ -14,6 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.util.Crypto;
@@ -129,6 +130,10 @@ public class Session {
         dataStringBuilder.append(nonce);
         dataStringBuilder.append("&role=");
         dataStringBuilder.append(role);
+        dataStringBuilder.append("&initial_layout_class_list=");
+        if(tokenOptions.getInitialLayoutClassList() != null ){
+            dataStringBuilder.append(tokenOptions.getInitialLayoutClassList().stream().collect(Collectors.joining(" ")));
+        }
 
         double now = System.currentTimeMillis() / 1000L;
         if (expireTime == 0) {

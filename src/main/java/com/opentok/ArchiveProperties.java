@@ -28,12 +28,14 @@ public class ArchiveProperties {
     private boolean hasAudio;
     private boolean hasVideo;
     private OutputMode outputMode;
+    private ArchiveLayout layout;
 
     private ArchiveProperties(Builder builder) {
         this.name = builder.name;
         this.hasAudio = builder.hasAudio;
         this.hasVideo = builder.hasVideo;
         this.outputMode = builder.outputMode;
+        this.layout = builder.layout;
     }
 
     /**
@@ -46,6 +48,7 @@ public class ArchiveProperties {
         private boolean hasAudio = true;
         private boolean hasVideo = true;
         private OutputMode outputMode = OutputMode.COMPOSED;
+        private ArchiveLayout layout = new ArchiveLayout(ArchiveLayout.Type.BESTFIT);
         
 
         /**
@@ -97,6 +100,11 @@ public class ArchiveProperties {
             return this;
         }
 
+        public Builder layout(ArchiveLayout layout){
+            this.layout = layout;
+            return this;
+        }
+
         /**
          * Builds the ArchiveProperties object.
          *
@@ -131,6 +139,10 @@ public class ArchiveProperties {
      */
     public OutputMode outputMode() {
         return outputMode;
+    }
+
+    public ArchiveLayout layout() {
+        return layout;
     }
 
     /**

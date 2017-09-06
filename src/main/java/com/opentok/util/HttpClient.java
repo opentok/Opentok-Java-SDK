@@ -186,7 +186,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         requestJson.put("hasVideo", properties.hasVideo());
         requestJson.put("hasAudio", properties.hasAudio());
         requestJson.put("outputMode", properties.outputMode().toString());
-
+        ObjectNode layout = requestJson.putObject("layout");
+        layout.put("type", properties.layout().getType().toString());
+        layout.put("stylesheet", properties.layout().getStylesheet());
         if (properties.name() != null) {
             requestJson.put("name", properties.name());
         }
