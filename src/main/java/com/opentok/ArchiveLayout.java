@@ -1,3 +1,10 @@
+/**
+ * OpenTok Java SDK
+ * Copyright (C) 2017 TokBox, Inc.
+ * http://www.tokbox.com
+ *
+ * Licensed under The MIT License (MIT). See LICENSE file for more information.
+ */
 package com.opentok;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
