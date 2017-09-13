@@ -28,12 +28,14 @@ public class ArchiveProperties {
     private boolean hasAudio;
     private boolean hasVideo;
     private OutputMode outputMode;
+    private ArchiveLayout layout;
 
     private ArchiveProperties(Builder builder) {
         this.name = builder.name;
         this.hasAudio = builder.hasAudio;
         this.hasVideo = builder.hasVideo;
         this.outputMode = builder.outputMode;
+        this.layout = builder.layout;
     }
 
     /**
@@ -46,6 +48,7 @@ public class ArchiveProperties {
         private boolean hasAudio = true;
         private boolean hasVideo = true;
         private OutputMode outputMode = OutputMode.COMPOSED;
+        private ArchiveLayout layout = new ArchiveLayout(ArchiveLayout.Type.BESTFIT);
         
 
         /**
@@ -98,6 +101,18 @@ public class ArchiveProperties {
         }
 
         /**
+         * Call this method to customize the layout for a composed archive
+         *
+         * @param layout An object of type {@link ArchiveLayout} .
+         *
+         * @return The ArchiveProperties.Builder object with the output mode setting.
+         */
+        public Builder layout(ArchiveLayout layout){
+            this.layout = layout;
+            return this;
+        }
+
+        /**
          * Builds the ArchiveProperties object.
          *
          * @return The ArchiveProperties object.
@@ -134,6 +149,13 @@ public class ArchiveProperties {
     }
 
     /**
+     * Optionally set a custom layout (composed archives only)
+     */
+    public ArchiveLayout layout() {
+        return layout;
+    }
+
+    /**
      * Returns the archive properties as a Map.
      */
     public Map<String, Collection<String>> toMap() {
@@ -154,6 +176,11 @@ public class ArchiveProperties {
         valueList = new ArrayList<String>();
         valueList.add(outputMode.toString());
         params.put("outputMode", valueList);
+
+        valueList = new ArrayList<String>();
+        valueList.add(layout.toString());
+        params.put("layout", valueList);
+
 
         return params;
     }

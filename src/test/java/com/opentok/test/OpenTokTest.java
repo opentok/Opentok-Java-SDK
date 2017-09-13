@@ -11,17 +11,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.opentok.Archive;
+import com.opentok.*;
 import com.opentok.Archive.OutputMode;
-import com.opentok.ArchiveList;
-import com.opentok.ArchiveMode;
-import com.opentok.ArchiveProperties;
-import com.opentok.MediaMode;
-import com.opentok.OpenTok;
-import com.opentok.Role;
-import com.opentok.Session;
-import com.opentok.SessionProperties;
-import com.opentok.TokenOptions;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +29,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -257,6 +249,27 @@ public class OpenTokTest {
         assertEquals(Integer.toString(apiKey), tokenData.get("partner_id"));
         assertNotNull(tokenData.get("create_time"));
         assertNotNull(tokenData.get("nonce"));
+    }
+
+    @Test
+    public void testTokenLayoutClass() throws
+            OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
+            SignatureException, InvalidKeyException {
+
+        int apiKey = 123456;
+        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
+
+        String token = sdk.generateToken(sessionId, new TokenOptions.Builder()
+                .initialLayoutClassList(Arrays.asList("full", "focus"))
+                .build());
+
+        assertNotNull(token);
+        assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
+
+        Map<String, String> tokenData = Helpers.decodeToken(token);
+        assertEquals("full focus", tokenData.get("initial_layout_class_list"));
     }
 
     @Test
@@ -686,6 +699,46 @@ public class OpenTokTest {
                                 "        }")));
         ArchiveProperties properties = new ArchiveProperties.Builder()
                 .outputMode(OutputMode.COMPOSED)
+                .build();
+
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertNotNull(archive.getId());
+        assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
+
+        verify(postRequestedFor(urlMatching(archivePath)));
+                // TODO: find a way to match JSON without caring about spacing
+                //.withRequestBody(matching(".*"+".*"))
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartComposedArchiveWithLayout() throws OpenTokException {
+        String sessionId = "SESSIONID";
+
+        stubFor(post(urlEqualTo(archivePath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null,\n" +
+                                "          \"outputMode\" : \"composed\"\n" +
+                                "        }")));
+        ArchiveProperties properties = new ArchiveProperties.Builder()
+                .outputMode(OutputMode.COMPOSED)
+                .layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM, "stream { position: absolute; }"))
                 .build();
 
         Archive archive = sdk.startArchive(sessionId, properties);
