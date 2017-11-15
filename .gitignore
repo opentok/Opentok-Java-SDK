@@ -23,3 +23,5 @@ bin
 .settings
 .classpath
 .project
+
+/secret.sh

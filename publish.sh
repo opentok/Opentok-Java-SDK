@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. ./secret.sh
+
 ./gradlew uploadArchives \
   -PisReleaseVersion=1 \
   -Psigning.keyId="${GPG_KEYID}" \
