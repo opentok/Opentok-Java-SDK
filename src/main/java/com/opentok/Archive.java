@@ -101,6 +101,7 @@ public class Archive {
     @JsonProperty private boolean hasVideo = true;
     @JsonProperty private boolean hasAudio = true;
     @JsonProperty private OutputMode outputMode = OutputMode.COMPOSED;
+    @JsonProperty private String password;
 
     protected Archive() {
     }
@@ -205,6 +206,13 @@ public class Archive {
      */
     public OutputMode getOutputMode() {
         return outputMode;
+    }
+    
+    /**
+     * The encrypted password if an archive storage was configured to use an encryption key
+     */
+    public String getPassword() {
+        return password;
     }
 
     @Override
