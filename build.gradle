@@ -12,7 +12,7 @@ apply plugin: 'jacoco'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '4.2.0'
+version = '4.2.1-alpha.1'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
@@ -48,7 +48,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '[4.3,5.0['
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '[1.45,1.99999)'
     compile group: 'commons-lang', name: 'commons-lang', version: '[2.6,2.99999)'
-    compile group: 'org.asynchttpclient', name: 'async-http-client', version: '2.0.34'
+    compile group: 'org.asynchttpclient', name: 'async-http-client', version: '[2.0,2.99999)'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '[2.3.1,2.99999)'
     compile group: 'commons-validator', name: 'commons-validator', version: '[1.4.0,1.99999)'
     compile group: 'commons-codec', name: 'commons-codec', version: '[1.9,1.99999]'
