@@ -32,20 +32,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
+
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -59,12 +49,12 @@ public class OpenTokTest {
     private int apiKey = 123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-    private String apiUrl = "http://localhost:8080";
+    private String apiUrl = "http://localhost:8090";
     private OpenTok sdk;
 
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8080);
+    public WireMockRule wireMockRule = new WireMockRule(8090);
 
     @Before
     public void setUp() throws OpenTokException {
@@ -89,6 +79,55 @@ public class OpenTokTest {
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
     }
 
+    @Test
+    public void testSignalAllConnections() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(204)));
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        sdk.signal(sessionId, properties);
+
+        verify(postRequestedFor(urlMatching(path)));
+        verify(postRequestedFor(urlMatching(path))
+        .withHeader("Content-Type", equalTo("application/json")));
+
+        verify(postRequestedFor(urlMatching(path))
+            .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(path)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testSignalSingleConnection() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String connectionId = "CONNECTIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(204)));
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        sdk.signal(sessionId, connectionId, properties);
+
+        verify(postRequestedFor(urlMatching(path)));
+        verify(postRequestedFor(urlMatching(path))
+                .withHeader("Content-Type", equalTo("application/json")));
+
+        verify(postRequestedFor(urlMatching(path))
+                .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(path)))));
+        Helpers.verifyUserAgent();
+//
+//
+//        SignalProperties properties = new SignalProperties.Builder().type("test").data("This is a test string for one connection " + connectionId + new java.util.Date().toString()).build();
+//        sdk.signal(sessionId, connectionId, properties);
+
+
+    }
     @Test
     public void testCreateDefaultSession() throws OpenTokException {
         String sessionId = "SESSIONID";
@@ -960,4 +999,7 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
+
+
+
 }

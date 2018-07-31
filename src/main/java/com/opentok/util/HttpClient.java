@@ -100,7 +100,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
-            throw new OpenTokException("Could not start an OpenTok Archive. The JSON body encoding failed.", e);
+            throw new OpenTokException("Could not send a signal. The JSON body encoding failed.", e);
         }
         Future<Response> request = this.preparePost(url)
                 .setBody(requestBody)
