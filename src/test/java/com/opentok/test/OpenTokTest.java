@@ -15,6 +15,7 @@ import com.opentok.*;
 import com.opentok.Archive.OutputMode;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
+import com.opentok.exception.RequestException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -101,6 +102,39 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
     @Test
+    public void testSignalWithNullSessionID() throws OpenTokException {
+        String sessionId = "";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+
+        try {
+            sdk.signal(sessionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session string null or empty");
+        }
+
+
+    }
+    @Test
+    public void testSignalWithEmoji() throws OpenTokException  {
+        String sessionId = "SESSIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
+        Boolean exceptionThrown = false;
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("\uD83D\uDE01").build();
+
+        try {
+            sdk.signal(sessionId, properties);
+        } catch (RequestException e) {
+            exceptionThrown = true;
+
+        }
+
+        assertTrue(exceptionThrown);
+    }
+    @Test
     public void testSignalSingleConnection() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
@@ -121,12 +155,54 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(path)))));
         Helpers.verifyUserAgent();
-//
-//
-//        SignalProperties properties = new SignalProperties.Builder().type("test").data("This is a test string for one connection " + connectionId + new java.util.Date().toString()).build();
-//        sdk.signal(sessionId, connectionId, properties);
+    }
+
+    @Test
+    public void testSignalWithNullConnectionID() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String connectionId = "";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session or Connection string null or empty");
+        }
 
 
+    }
+    @Test
+    public void testSignalWithConnectionIDAndNullSessionID() throws OpenTokException {
+        String sessionId = "";
+        String connectionId = "CONNECTIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session or Connection string null or empty");
+        }
+    }
+    @Test
+    public void testSignalWithNullSessionAndConnectionID() throws OpenTokException {
+        String sessionId = "";
+        String connectionId = "";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session or Connection string null or empty");
+        }
     }
     @Test
     public void testCreateDefaultSession() throws OpenTokException {

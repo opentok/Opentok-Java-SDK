@@ -126,7 +126,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not start an OpenTok Archive.", e);
+            throw new RequestException("Could not send a signal.", e);
         }
         return responseString;
     }
