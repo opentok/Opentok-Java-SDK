@@ -45,6 +45,10 @@ public class OpenTok {
             .readerFor(ArchiveList.class);
     static protected ObjectReader createdSessionReader = new ObjectMapper()
             .readerFor(CreatedSession[].class);
+    static protected ObjectReader streamReader = new ObjectMapper()
+            .readerFor(Stream.class);
+    static protected ObjectReader streamListReader = new ObjectMapper()
+            .readerFor(StreamList.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -433,7 +437,46 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
-    
+
+    /**
+     * Gets an {@link Stream} object for the given archive ID.
+     *
+     * @param sessionId The session ID.
+     * @param streamId The stream ID.
+     * @return The {@link Stream} object.
+     */
+    public Stream getStream(String sessionId, String streamId) throws OpenTokException {
+        String stream = this.client.getStream(sessionId, streamId);
+        try {
+            Stream s = streamReader.readValue(stream);
+            return s;
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }   /**
+     * Gets an {@link Stream} object for the given archive ID.
+     *
+     * @param sessionId The session ID.
+     *
+     * @return The {@link Stream} object.
+     */
+    public StreamList getStreams(String sessionId) throws OpenTokException {
+        String streams = this.client.getStreams(sessionId);
+        try {
+            StreamList a = streamListReader.readValue(streams);
+            return a;
+
+            //return streamListReader.readValue(streams);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+
+
+
     public static class Builder {
         private int apiKey;
         private String apiSecret;

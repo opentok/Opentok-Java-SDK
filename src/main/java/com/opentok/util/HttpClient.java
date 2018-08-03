@@ -294,7 +294,71 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         return responseString;
     }
-    
+
+    public String getStream(String sessionId, String streamId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId;
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not get stream information. The stream or session id may be invalid. "
+                           + "sessionId: " + sessionId +  "streamId: " + streamId);
+                case 403:
+                    throw new RequestException("Could not get stream information. The request was not authorized.");
+
+                case 408:
+                    throw new RequestException("Could not get stream information. The stream id may be invalid. " +
+                            "streamId: " + streamId);
+                case 500:
+                    throw new RequestException("Could not get stream information. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get stream information. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get stream information", e);
+        }
+
+        return responseString;
+    }
+
+    public String getStreams(String sessionId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream" ;
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not get streams information. The  session id may be invalid. "
+                            + "sessionId: " + sessionId );
+                case 403:
+                    throw new RequestException("Could not get streams information. The request was not authorized.");
+
+                case 408:
+                    throw new RequestException("Could not get streams information. The session id may be invalid. ");
+                case 500:
+                    throw new RequestException("Could not get streams information. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get streams information. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get streams information", e);
+        }
+
+        return responseString;
+    }
     public static enum ProxyAuthScheme {
         BASIC,
         DIGEST,

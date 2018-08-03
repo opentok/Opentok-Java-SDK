@@ -56,10 +56,10 @@ import static org.junit.Assert.assertTrue;
 public class OpenTokTest {
 
     private final String SESSION_CREATE = "/session/create";
-    private int apiKey = 123456;
+    private int apiKey = 100 ; //123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
-    private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-    private String apiUrl = "http://localhost:8080";
+    private String apiSecret = "19f149fdf697474f915f13de40e0ad53" ;   //"1234567890abcdef1234567890abcdef1234567890";
+    private String apiUrl =  "https://api.opentok.com";    //"http://localhost:8080";
     private OpenTok sdk;
 
 
@@ -924,6 +924,24 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testGetStreamWithId() throws OpenTokException {
+        try
+        {
+            sdk.getStream("1_MX4xMDB-fjE1MzMzMzQwOTU0Mzl-MTZTbTJWbG13dWNKM2tzbko0TjEyV2J0fn4","e490e934-e802-4f3c-8234-74d1354d77fc");
+        } catch (Exception e) {
+
+        }
+    }
+    @Test
+    public void testGetStreams() throws OpenTokException {
+        try
+        {
+            sdk.getStreams("1_MX4xMDB-fjE1MzMzMzQwOTU0Mzl-MTZTbTJWbG13dWNKM2tzbko0TjEyV2J0fn4");
+        } catch (Exception e) {
+
+        }
+    }
+    @Test
     public void testCreateSessionWithProxy() throws OpenTokException, UnknownHostException {
         WireMockConfiguration proxyConfig = WireMockConfiguration.wireMockConfig();
         proxyConfig.dynamicPort();
@@ -960,4 +978,6 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
+
+
 }
