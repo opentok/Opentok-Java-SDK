@@ -38,11 +38,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OpenTokTest {
 
@@ -50,12 +46,12 @@ public class OpenTokTest {
     private int apiKey = 123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-    private String apiUrl = "http://localhost:8090";
+    private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
 
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(8090);
+    public WireMockRule wireMockRule = new WireMockRule(8080);
 
     @Before
     public void setUp() throws OpenTokException {
@@ -83,40 +79,45 @@ public class OpenTokTest {
     @Test
     public void testSignalAllConnections() throws OpenTokException {
         String sessionId = "SESSIONID";
+        Boolean exceptionThrown = false;
+
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
         stubFor(post(urlEqualTo(path))
                 .willReturn(aResponse()
                         .withStatus(204)));
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
-        sdk.signal(sessionId, properties);
+        try {
+            sdk.signal(sessionId, properties);
+            verify(postRequestedFor(urlMatching(path)));
+            verify(postRequestedFor(urlMatching(path))
+                    .withHeader("Content-Type", equalTo("application/json")));
 
-        verify(postRequestedFor(urlMatching(path)));
-        verify(postRequestedFor(urlMatching(path))
-        .withHeader("Content-Type", equalTo("application/json")));
-
-        verify(postRequestedFor(urlMatching(path))
-            .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+            verify(postRequestedFor(urlMatching(path))
+                    .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(postRequestedFor(urlMatching(path)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
     }
+
     @Test
-    public void testSignalWithNullSessionID() throws OpenTokException {
+    public void testSignalWithEmptySessionID() throws OpenTokException {
         String sessionId = "";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
-
         try {
             sdk.signal(sessionId, properties);
         } catch (InvalidArgumentException e) {
 
             assertEquals(e.getMessage(),"Session string null or empty");
         }
-
-
     }
+
     @Test
     public void testSignalWithEmoji() throws OpenTokException  {
         String sessionId = "SESSIONID";
@@ -124,64 +125,64 @@ public class OpenTokTest {
         Boolean exceptionThrown = false;
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("\uD83D\uDE01").build();
-
         try {
             sdk.signal(sessionId, properties);
         } catch (RequestException e) {
             exceptionThrown = true;
-
         }
-
         assertTrue(exceptionThrown);
     }
     @Test
     public void testSignalSingleConnection() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
+        Boolean exceptionThrown = false;
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
         stubFor(post(urlEqualTo(path))
                 .willReturn(aResponse()
                         .withStatus(204)));
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
-        sdk.signal(sessionId, connectionId, properties);
+        try {
+            sdk.signal(sessionId, connectionId, properties);
 
-        verify(postRequestedFor(urlMatching(path)));
-        verify(postRequestedFor(urlMatching(path))
-                .withHeader("Content-Type", equalTo("application/json")));
+            verify(postRequestedFor(urlMatching(path)));
+            verify(postRequestedFor(urlMatching(path))
+                    .withHeader("Content-Type", equalTo("application/json")));
 
-        verify(postRequestedFor(urlMatching(path))
-                .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(postRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+            verify(postRequestedFor(urlMatching(path))
+                    .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(postRequestedFor(urlMatching(path)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
     }
 
     @Test
-    public void testSignalWithNullConnectionID() throws OpenTokException {
+    public void testSignalWithEmptyConnectionID() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
-
         try {
             sdk.signal(sessionId, connectionId, properties);
         } catch (InvalidArgumentException e) {
 
             assertEquals(e.getMessage(),"Session or Connection string null or empty");
         }
-
-
     }
+
     @Test
-    public void testSignalWithConnectionIDAndNullSessionID() throws OpenTokException {
+    public void testSignalWithConnectionIDAndEmptySessionID() throws OpenTokException {
         String sessionId = "";
         String connectionId = "CONNECTIONID";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
-
         try {
             sdk.signal(sessionId, connectionId, properties);
         } catch (InvalidArgumentException e) {
@@ -189,21 +190,21 @@ public class OpenTokTest {
             assertEquals(e.getMessage(),"Session or Connection string null or empty");
         }
     }
+
     @Test
-    public void testSignalWithNullSessionAndConnectionID() throws OpenTokException {
+    public void testSignalWithEmptySessionAndConnectionID() throws OpenTokException {
         String sessionId = "";
         String connectionId = "";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
-
         try {
             sdk.signal(sessionId, connectionId, properties);
         } catch (InvalidArgumentException e) {
-
             assertEquals(e.getMessage(),"Session or Connection string null or empty");
         }
     }
+
     @Test
     public void testCreateDefaultSession() throws OpenTokException {
         String sessionId = "SESSIONID";
