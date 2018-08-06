@@ -47,19 +47,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OpenTokTest {
 
     private final String SESSION_CREATE = "/session/create";
-    private int apiKey = 100 ; //123456;
+    private int apiKey = 123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
-    private String apiSecret = "19f149fdf697474f915f13de40e0ad53" ;   //"1234567890abcdef1234567890abcdef1234567890";
-    private String apiUrl =  "https://api.opentok.com";    //"http://localhost:8080";
+    private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+    private String apiUrl =  "http://localhost:8080";
     private OpenTok sdk;
 
 
@@ -924,22 +920,85 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testGetStreamWithId() throws OpenTokException {
-        try
-        {
-            sdk.getStream("1_MX4xMDB-fjE1MzMzMzQwOTU0Mzl-MTZTbTJWbG13dWNKM2tzbko0TjEyV2J0fn4","e490e934-e802-4f3c-8234-74d1354d77fc");
-        } catch (Exception e) {
+    public void testGetStreamWithId()  {
+        String sessionID = "SESSIONID";
+        String streamID = "STREAMID";
+        Boolean exceptionThrown = false;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream/" + streamID;
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"" + streamID + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"camera\",\n" +
+                                "          \"layoutClassList\" : \" []\"\n" +
+                                "        }")));
+        try {
+            Stream stream = sdk.getStream(sessionID, streamID);
+            assertNotNull(stream);
+            assertEquals(streamID, stream.getId());
+            assertEquals("", stream.getName());
+            assertEquals("camera", stream.getVideoType());
 
+
+            verify(getRequestedFor(urlMatching(url)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(getRequestedFor(urlMatching(url)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
         }
+        assertTrue(exceptionThrown);
+
     }
     @Test
     public void testGetStreams() throws OpenTokException {
-        try
-        {
-            sdk.getStreams("1_MX4xMDB-fjE1MzMzMzQwOTU0Mzl-MTZTbTJWbG13dWNKM2tzbko0TjEyV2J0fn4");
-        } catch (Exception e) {
+        String sessionID = "SESSIONID";
+        Boolean exceptionThrown = false;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"count\" : 2,\n" +
+                                "          \"items\" : [ {\n" +
+                                "          \"id\" : \"" + 1234 + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"camera\",\n" +
+                                "          \"layoutClassList\" : \" []\"\n" +
+                                "          }, {\n" +
+                                "          \"id\" : \"" + 5678 + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"screen\",\n" +
+                                "          \"layoutClassList\" : \" []\"\n" +
+                                "          } ]\n" +
+                                "        }")));
+        try {
+            StreamList streams = sdk.listStreams(sessionID);
+            assertNotNull(streams);
+            assertEquals(2,streams.getTotalCount());
+            Stream stream1 = streams.get(0);
+            Stream stream2 = streams.get(1);
+            assertEquals(1234, stream1.getId());
+            assertEquals("", stream1.getName());
+            assertEquals("camera", stream1.getVideoType());
+            assertEquals(5678, stream2.getId());
+            assertEquals("", stream2.getName());
+            assertEquals("screen", stream2.getVideoType());
 
+
+
+            verify(getRequestedFor(urlMatching(url)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(getRequestedFor(urlMatching(url)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
         }
+        assertTrue(exceptionThrown);
     }
     @Test
     public void testCreateSessionWithProxy() throws OpenTokException, UnknownHostException {

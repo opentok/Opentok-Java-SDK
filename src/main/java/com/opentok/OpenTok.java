@@ -439,7 +439,7 @@ public class OpenTok {
     }
 
     /**
-     * Gets an {@link Stream} object for the given archive ID.
+     * Gets an {@link Stream} object for the given sessionId and streamId.
      *
      * @param sessionId The session ID.
      * @param streamId The stream ID.
@@ -448,25 +448,23 @@ public class OpenTok {
     public Stream getStream(String sessionId, String streamId) throws OpenTokException {
         String stream = this.client.getStream(sessionId, streamId);
         try {
-            Stream s = streamReader.readValue(stream);
-            return s;
+            return  streamReader.readValue(stream);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
-    }   /**
-     * Gets an {@link Stream} object for the given archive ID.
+    }
+
+    /**
+     * Gets a list of {@link Stream} object for the given session ID.
      *
      * @param sessionId The session ID.
      *
-     * @return The {@link Stream} object.
+     * @return The list of {@link Stream} objects.
      */
-    public StreamList getStreams(String sessionId) throws OpenTokException {
+    public StreamList listStreams(String sessionId) throws OpenTokException {
         String streams = this.client.getStreams(sessionId);
         try {
-            StreamList a = streamListReader.readValue(streams);
-            return a;
-
-            //return streamListReader.readValue(streams);
+            return streamListReader.readValue(streams);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (IOException e) {
