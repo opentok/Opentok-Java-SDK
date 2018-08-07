@@ -236,6 +236,36 @@ Sessions," above).
 For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
 
+## Signaling
+
+You can send signals to all the connections in your session or to a specific connection.
+
+The two API's are:
+
+- `public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException `
+
+- `public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException`
+
+The `SignalProperties` builder helps you to fill in the signal data and type as shown below:
+
+
+```Java
+        SignalProperties properties = new SignalProperties.Builder()
+        .type("test")
+        .data("This is a test string")
+        .build();
+       
+        opentok.signal(sessionId, properties);
+        opentok.signal(sessionId, connectionId, properties);
+```
+
+Make sure that the  type string does not exceed the maximum length (128 bytes), or the data string does not exceeds the maximum size (8 kB). 
+The `SignalProperties` builder does not check for these limitations currently.
+
+For more information on signaling and exception codes, refer
+[OpenTok signaling](https://tokbox.com/developer/rest/#send_signal) programming guide for REST API's.
+
+
 
 # Samples
 
