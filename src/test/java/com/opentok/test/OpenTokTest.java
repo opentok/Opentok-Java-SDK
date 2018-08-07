@@ -1018,6 +1018,4 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
-
-
 }
