@@ -32,32 +32,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class OpenTokTest {
-
     private final String SESSION_CREATE = "/session/create";
     private int apiKey = 123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl =  "http://localhost:8080";
     private OpenTok sdk;
-
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8080);
@@ -84,7 +70,6 @@ public class OpenTokTest {
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
     }
-
     @Test
     public void testCreateDefaultSession() throws OpenTokException {
         String sessionId = "SESSIONID";
@@ -918,13 +903,12 @@ public class OpenTokTest {
         Archive archive = sdk.getArchive(archiveId);
         assertNotNull(archive);
     }
-
     @Test
     public void testGetStreamWithId()  {
         String sessionID = "SESSIONID";
         String streamID = "STREAMID";
         Boolean exceptionThrown = false;
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream/" + streamID;
+        String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream/" + streamID;
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -933,7 +917,7 @@ public class OpenTokTest {
                                 "          \"id\" : \"" + streamID + "\",\n" +
                                 "          \"name\" : \"\",\n" +
                                 "          \"videoType\" : \"camera\",\n" +
-                                "          \"layoutClassList\" : \" []\"\n" +
+                                "          \"layoutClassList\" : [] \n" +
                                 "        }")));
         try {
             Stream stream = sdk.getStream(sessionID, streamID);
@@ -942,7 +926,6 @@ public class OpenTokTest {
             assertEquals("", stream.getName());
             assertEquals("camera", stream.getVideoType());
 
-
             verify(getRequestedFor(urlMatching(url)));
             assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                     findAll(getRequestedFor(urlMatching(url)))));
@@ -950,14 +933,13 @@ public class OpenTokTest {
         } catch (Exception e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
-
+        assertFalse(exceptionThrown);
     }
     @Test
-    public void testGetStreams() throws OpenTokException {
+    public void testGetStreams()  {
         String sessionID = "SESSIONID";
         Boolean exceptionThrown = false;
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
+        String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -968,12 +950,12 @@ public class OpenTokTest {
                                 "          \"id\" : \"" + 1234 + "\",\n" +
                                 "          \"name\" : \"\",\n" +
                                 "          \"videoType\" : \"camera\",\n" +
-                                "          \"layoutClassList\" : \" []\"\n" +
+                                "          \"layoutClassList\" : [] \n" +
                                 "          }, {\n" +
                                 "          \"id\" : \"" + 5678 + "\",\n" +
                                 "          \"name\" : \"\",\n" +
                                 "          \"videoType\" : \"screen\",\n" +
-                                "          \"layoutClassList\" : \" []\"\n" +
+                                "          \"layoutClassList\" : [] \n" +
                                 "          } ]\n" +
                                 "        }")));
         try {
@@ -982,14 +964,12 @@ public class OpenTokTest {
             assertEquals(2,streams.getTotalCount());
             Stream stream1 = streams.get(0);
             Stream stream2 = streams.get(1);
-            assertEquals(1234, stream1.getId());
+            assertEquals("1234", stream1.getId());
             assertEquals("", stream1.getName());
             assertEquals("camera", stream1.getVideoType());
-            assertEquals(5678, stream2.getId());
+            assertEquals("5678", stream2.getId());
             assertEquals("", stream2.getName());
             assertEquals("screen", stream2.getVideoType());
-
-
 
             verify(getRequestedFor(urlMatching(url)));
             assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -998,8 +978,9 @@ public class OpenTokTest {
         } catch (Exception e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
+        assertFalse(exceptionThrown);
     }
+
     @Test
     public void testCreateSessionWithProxy() throws OpenTokException, UnknownHostException {
         WireMockConfiguration proxyConfig = WireMockConfiguration.wireMockConfig();
