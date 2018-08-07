@@ -462,7 +462,7 @@ public class OpenTok {
      * @return The list of {@link Stream} objects.
      */
     public StreamList listStreams(String sessionId) throws OpenTokException {
-        String streams = this.client.getStreams(sessionId);
+        String streams = this.client.listStreams(sessionId);
         try {
             return streamListReader.readValue(streams);
         } catch (JsonProcessingException e) {

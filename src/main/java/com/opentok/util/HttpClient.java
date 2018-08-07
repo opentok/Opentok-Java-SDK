@@ -328,7 +328,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String getStreams(String sessionId) throws RequestException {
+    public String listStreams(String sessionId) throws RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream" ;
         Future<Response> request = this.prepareGet(url).execute();

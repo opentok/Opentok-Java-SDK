@@ -936,7 +936,7 @@ public class OpenTokTest {
         assertFalse(exceptionThrown);
     }
     @Test
-    public void testGetStreams()  {
+    public void testListStreams()  {
         String sessionID = "SESSIONID";
         Boolean exceptionThrown = false;
         String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
