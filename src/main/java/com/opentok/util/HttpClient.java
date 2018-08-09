@@ -294,7 +294,34 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         return responseString;
     }
-    
+
+    public String forceDisconnect(String sessionId, String connectionId) throws   OpenTokException , RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/"+ connectionId ;
+        Future<Response> request = this.prepareDelete(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 204:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not force disconnect. One of the arguments — sessionId or connectionId — is invalid.");
+                case 403:
+                    throw new RequestException("Could not force disconnect. The request was not authorized.");
+                case 404:
+                    throw new RequestException("Could not force disconnect. The client specified by the connectionId property is not connected to the session.");
+                default:
+                    throw new RequestException("Could not force disconnect. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not force disconnect", e);
+        }
+
+        return responseString;
+    }
     public static enum ProxyAuthScheme {
         BASIC,
         DIGEST,

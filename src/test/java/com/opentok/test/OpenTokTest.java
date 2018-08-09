@@ -47,11 +47,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OpenTokTest {
 
@@ -61,6 +57,7 @@ public class OpenTokTest {
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
+
 
 
     @Rule
@@ -921,6 +918,31 @@ public class OpenTokTest {
 
         Archive archive = sdk.getArchive(archiveId);
         assertNotNull(archive);
+    }
+
+    @Test
+    public void testforceDisconnect() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String connectionId = "CONNECTIONID";
+        Boolean exceptionThrown = false;
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId ;
+
+        stubFor(delete(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(204)
+                        .withHeader("Content-Type", "application/json")));
+
+        try {
+            sdk.forceDisconnect(sessionId,connectionId);
+            verify(deleteRequestedFor(urlMatching(path)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(deleteRequestedFor(urlMatching(path)))));
+            Helpers.verifyUserAgent();
+
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
     }
 
     @Test

@@ -433,7 +433,28 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
-    
+
+    /**
+     * Disconnect a client from an OpenTok session
+     * <p>
+     * Use this API to forcibly terminate a connection of a session.
+     *
+     * @param sessionId The session ID of the connection
+     * @param  connectionId The connection ID to disconnect
+     */
+    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException , InvalidArgumentException, RequestException {
+        if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+        try {
+            this.client.forceDisconnect(sessionId, connectionId);
+
+        } catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
     public static class Builder {
         private int apiKey;
         private String apiSecret;
