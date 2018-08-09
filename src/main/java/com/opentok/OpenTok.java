@@ -291,6 +291,35 @@ public class OpenTok {
         return createSession(null);
     }
 
+    public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
+
+        if (sessionId == null || sessionId.isEmpty() ) {
+            throw new InvalidArgumentException("Session string null or empty");
+        }
+        try {
+            this.client.signal(sessionId,null,props);
+
+        } catch (Exception e)
+        {
+            throw e;
+        }
+
+    }
+
+    public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
+
+        if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+        try {
+            this.client.signal(sessionId, connectionId, props);
+
+        } catch (Exception e)
+        {
+            throw e;
+        }
+
+    }
     /**
      * Gets an {@link Archive} object for the given archive ID.
      *
@@ -433,7 +462,7 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
-    
+
     public static class Builder {
         private int apiKey;
         private String apiSecret;
