@@ -448,7 +448,7 @@ public class OpenTok {
     public Stream getStream(String sessionId, String streamId) throws OpenTokException {
         String stream = this.client.getStream(sessionId, streamId);
         try {
-            return  streamReader.readValue(stream);
+            return streamReader.readValue(stream);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
@@ -471,9 +471,6 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
-
-
-
 
     public static class Builder {
         private int apiKey;
