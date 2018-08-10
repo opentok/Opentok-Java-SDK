@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.opentok.SignalProperties;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -81,6 +82,51 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not create an OpenTok Session", e);
+        }
+        return responseString;
+    }
+
+    public String signal(String sessionId, String connectionId, SignalProperties properties) throws   OpenTokException , RequestException {
+        String responseString = null;
+        String requestBody = null;
+
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + (connectionId != null && connectionId.length() > 0 ? "/connection/"+ connectionId : "") +  "/signal";
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+
+        requestJson.put("type", properties.type());
+        requestJson.put("data", properties.data());
+
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not send a signal. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 204:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not send a signal. One of the signal properties is invalid.");
+                case 403:
+                    throw new RequestException("Could not send a signal. The request was not authorized.");
+                case 404:
+                    throw new RequestException("Could not send a signal. The client specified by the connectionId property is not connected to the session.");
+                case 413:
+                    throw new RequestException("Could not send a signal. The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB)");
+                default:
+                    throw new RequestException("Could not send a signal " +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not send a signal.", e);
         }
         return responseString;
     }
