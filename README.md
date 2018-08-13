@@ -236,8 +236,20 @@ Sessions," above).
 For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
 
-## Signaling
+## Force Disconnect
 
+Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect(sessionId, connectionId)`
+method of the `com.opentok.OpenTok` instance. 
+
+```java
+    opentok.forceDisconnect(sessionId, connectionId);
+```
+
+The `connectionId` parameter is used to specify the connection ID of a client connection to the session.
+
+For more information on the force disconnect functionality and exception codes, please see the [REST API documentation](https://tokbox.com/developer/rest/#forceDisconnect).
+
+## Signaling
 You can send signals to all the connections in your session or to a specific connection.
 
 The two API's are:
@@ -249,7 +261,7 @@ The two API's are:
 The `SignalProperties` builder helps you to fill in the signal data and type as shown below:
 
 
-```Java
+```java
         SignalProperties properties = new SignalProperties.Builder()
         .type("test")
         .data("This is a test string")
