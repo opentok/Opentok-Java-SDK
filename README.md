@@ -265,7 +265,31 @@ The `SignalProperties` builder does not check for these limitations currently.
 For more information on signaling and exception codes, refer
 [OpenTok signaling](https://tokbox.com/developer/rest/#send_signal) programming guide for REST API's.
 
+## Working with Streams
 
+You can get information about a stream by calling the `getStream(sessionId, streamId)` method of the `com.opentok.OpenTok` instance. 
+
+```java
+
+// Get stream info from just a sessionId (fetched from a database)
+Stream stream = opentok.getStream(sessionId, streamId);
+
+// Stream Properties
+stream.getId(); // string with the stream ID
+stream.getVideoType(); // string with the video type
+stream.getName(); // string with the name
+stream.layoutClassList(); // List with the layout class list
+```
+
+You can get information about all of the streams in a session by calling the `listStreams(sessionId)` method of the `com.opentok.OpenTok` instance.
+
+```java
+
+// Get list of strems from just a sessionId (fetched from a database)
+StreamList streamList = opentok.listStreams(sessionId);
+
+streamList.getTotalCount(); // total count
+```
 
 # Samples
 

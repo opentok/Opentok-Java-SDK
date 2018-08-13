@@ -340,7 +340,69 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         return responseString;
     }
-    
+
+    public String getStream(String sessionId, String streamId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId;
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID. "
+                           + "sessionId: " + sessionId +  "streamId: " + streamId);
+                case 403:
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
+
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID." +
+                            "streamId: " + streamId);
+                case 500:
+                    throw new RequestException("OpenTok server error.");
+                default:
+                    throw new RequestException("Could not get stream information. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get stream information", e);
+        }
+
+        return responseString;
+    }
+
+    public String listStreams(String sessionId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream" ;
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID" );
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
+                case 408:
+                    throw new RequestException("Could not get information for streams. The session Id may be invalid.");
+                case 500:
+                    throw new RequestException("Could not get information for streams. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get information for streams. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get streams information", e);
+        }
+
+        return responseString;
+    }
     public static enum ProxyAuthScheme {
         BASIC,
         DIGEST,
