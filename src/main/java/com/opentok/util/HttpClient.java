@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.opentok.SignalProperties;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -81,6 +82,51 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not create an OpenTok Session", e);
+        }
+        return responseString;
+    }
+
+    public String signal(String sessionId, String connectionId, SignalProperties properties) throws   OpenTokException , RequestException {
+        String responseString = null;
+        String requestBody = null;
+
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + (connectionId != null && connectionId.length() > 0 ? "/connection/"+ connectionId : "") +  "/signal";
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+
+        requestJson.put("type", properties.type());
+        requestJson.put("data", properties.data());
+
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not send a signal. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 204:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not send a signal. One of the signal properties is invalid.");
+                case 403:
+                    throw new RequestException("Could not send a signal. The request was not authorized.");
+                case 404:
+                    throw new RequestException("Could not send a signal. The client specified by the connectionId property is not connected to the session.");
+                case 413:
+                    throw new RequestException("Could not send a signal. The type string exceeds the maximum length (128 bytes), or the data string exceeds the maximum size (8 kB)");
+                default:
+                    throw new RequestException("Could not send a signal " +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not send a signal.", e);
         }
         return responseString;
     }
@@ -318,6 +364,69 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not force disconnect", e);
+        }
+
+        return responseString;
+    }
+
+    public String getStream(String sessionId, String streamId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId;
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID. "
+                           + "sessionId: " + sessionId +  "streamId: " + streamId);
+                case 403:
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
+
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID." +
+                            "streamId: " + streamId);
+                case 500:
+                    throw new RequestException("OpenTok server error.");
+                default:
+                    throw new RequestException("Could not get stream information. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get stream information", e);
+        }
+
+        return responseString;
+    }
+
+    public String listStreams(String sessionId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream" ;
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID" );
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
+                case 408:
+                    throw new RequestException("Could not get information for streams. The session Id may be invalid.");
+                case 500:
+                    throw new RequestException("Could not get information for streams. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get information for streams. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get streams information", e);
         }
 
         return responseString;

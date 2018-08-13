@@ -15,6 +15,7 @@ import com.opentok.*;
 import com.opentok.Archive.OutputMode;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
+import com.opentok.exception.RequestException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
@@ -46,6 +48,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -55,15 +60,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 public class OpenTokTest {
-
     private final String SESSION_CREATE = "/session/create";
     private int apiKey = 123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
-
-
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8080);
@@ -89,6 +91,134 @@ public class OpenTokTest {
             archivePath = "/v2/project/" + apiKey + "/archive";
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
+    }
+    @Test
+    public void testSignalAllConnections() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        Boolean exceptionThrown = false;
+
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(204)));
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        try {
+            sdk.signal(sessionId, properties);
+            verify(postRequestedFor(urlMatching(path)));
+            verify(postRequestedFor(urlMatching(path))
+                    .withHeader("Content-Type", equalTo("application/json")));
+
+            verify(postRequestedFor(urlMatching(path))
+                    .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(postRequestedFor(urlMatching(path)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
+
+    @Test
+    public void testSignalWithEmptySessionID() throws OpenTokException {
+        String sessionId = "";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        try {
+            sdk.signal(sessionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session string null or empty");
+        }
+    }
+
+    @Test
+    public void testSignalWithEmoji() throws OpenTokException  {
+        String sessionId = "SESSIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
+        Boolean exceptionThrown = false;
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("\uD83D\uDE01").build();
+        try {
+            sdk.signal(sessionId, properties);
+        } catch (RequestException e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+    @Test
+    public void testSignalSingleConnection() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String connectionId = "CONNECTIONID";
+        Boolean exceptionThrown = false;
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(204)));
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+
+            verify(postRequestedFor(urlMatching(path)));
+            verify(postRequestedFor(urlMatching(path))
+                    .withHeader("Content-Type", equalTo("application/json")));
+
+            verify(postRequestedFor(urlMatching(path))
+                    .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(postRequestedFor(urlMatching(path)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
+
+    @Test
+    public void testSignalWithEmptyConnectionID() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String connectionId = "";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session or Connection string null or empty");
+        }
+    }
+
+    @Test
+    public void testSignalWithConnectionIDAndEmptySessionID() throws OpenTokException {
+        String sessionId = "";
+        String connectionId = "CONNECTIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+        } catch (InvalidArgumentException e) {
+
+            assertEquals(e.getMessage(),"Session or Connection string null or empty");
+        }
+    }
+
+    @Test
+    public void testSignalWithEmptySessionAndConnectionID() throws OpenTokException {
+        String sessionId = "";
+        String connectionId = "";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId +"/signal";
+
+        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        try {
+            sdk.signal(sessionId, connectionId, properties);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Session or Connection string null or empty");
+        }
     }
 
     @Test
@@ -924,6 +1054,83 @@ public class OpenTokTest {
         Archive archive = sdk.getArchive(archiveId);
         assertNotNull(archive);
     }
+    @Test
+    public void testGetStreamWithId()  {
+        String sessionID = "SESSIONID";
+        String streamID = "STREAMID";
+        Boolean exceptionThrown = false;
+        String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream/" + streamID;
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"" + streamID + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"camera\",\n" +
+                                "          \"layoutClassList\" : [] \n" +
+                                "        }")));
+        try {
+            Stream stream = sdk.getStream(sessionID, streamID);
+            assertNotNull(stream);
+            assertEquals(streamID, stream.getId());
+            assertEquals("", stream.getName());
+            assertEquals("camera", stream.getVideoType());
+
+            verify(getRequestedFor(urlMatching(url)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(getRequestedFor(urlMatching(url)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
+    @Test
+    public void testListStreams()  {
+        String sessionID = "SESSIONID";
+        Boolean exceptionThrown = false;
+        String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"count\" : 2,\n" +
+                                "          \"items\" : [ {\n" +
+                                "          \"id\" : \"" + 1234 + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"camera\",\n" +
+                                "          \"layoutClassList\" : [] \n" +
+                                "          }, {\n" +
+                                "          \"id\" : \"" + 5678 + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"screen\",\n" +
+                                "          \"layoutClassList\" : [] \n" +
+                                "          } ]\n" +
+                                "        }")));
+        try {
+            StreamList streams = sdk.listStreams(sessionID);
+            assertNotNull(streams);
+            assertEquals(2,streams.getTotalCount());
+            Stream stream1 = streams.get(0);
+            Stream stream2 = streams.get(1);
+            assertEquals("1234", stream1.getId());
+            assertEquals("", stream1.getName());
+            assertEquals("camera", stream1.getVideoType());
+            assertEquals("5678", stream2.getId());
+            assertEquals("", stream2.getName());
+            assertEquals("screen", stream2.getVideoType());
+
+            verify(getRequestedFor(urlMatching(url)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(getRequestedFor(urlMatching(url)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
 
     @Test
     public void testforceDisconnect() throws OpenTokException {
@@ -987,4 +1194,7 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
+
+
+
 }

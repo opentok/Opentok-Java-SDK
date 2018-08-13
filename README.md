@@ -255,6 +255,59 @@ The  connection id refers to a valid connection of the ongoing session, which in
 For more information on force disconnect and exception codes, refer
 [OpenTok force disconnect](https://tokbox.com/developer/rest/#forceDisconnect) programming guide for REST API's.
 
+## Signaling
+You can send signals to all the connections in your session or to a specific connection.
+
+The two API's are:
+
+- `public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException `
+
+- `public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException`
+
+The `SignalProperties` builder helps you to fill in the signal data and type as shown below:
+
+
+```Java
+        SignalProperties properties = new SignalProperties.Builder()
+        .type("test")
+        .data("This is a test string")
+        .build();
+       
+        opentok.signal(sessionId, properties);
+        opentok.signal(sessionId, connectionId, properties);
+```
+
+Make sure that the  type string does not exceed the maximum length (128 bytes), or the data string does not exceeds the maximum size (8 kB). 
+The `SignalProperties` builder does not check for these limitations currently.
+
+For more information on signaling and exception codes, refer
+[OpenTok signaling](https://tokbox.com/developer/rest/#send_signal) programming guide for REST API's.
+
+## Working with Streams
+
+You can get information about a stream by calling the `getStream(sessionId, streamId)` method of the `com.opentok.OpenTok` instance. 
+
+```java
+
+// Get stream info from just a sessionId (fetched from a database)
+Stream stream = opentok.getStream(sessionId, streamId);
+
+// Stream Properties
+stream.getId(); // string with the stream ID
+stream.getVideoType(); // string with the video type
+stream.getName(); // string with the name
+stream.layoutClassList(); // List with the layout class list
+```
+
+You can get information about all of the streams in a session by calling the `listStreams(sessionId)` method of the `com.opentok.OpenTok` instance.
+
+```java
+
+// Get list of strems from just a sessionId (fetched from a database)
+StreamList streamList = opentok.listStreams(sessionId);
+
+streamList.getTotalCount(); // total count
+```
 
 # Samples
 

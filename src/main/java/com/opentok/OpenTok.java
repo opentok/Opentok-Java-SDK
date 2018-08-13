@@ -45,6 +45,10 @@ public class OpenTok {
             .readerFor(ArchiveList.class);
     static protected ObjectReader createdSessionReader = new ObjectMapper()
             .readerFor(CreatedSession[].class);
+    static protected ObjectReader streamReader = new ObjectMapper()
+            .readerFor(Stream.class);
+    static protected ObjectReader streamListReader = new ObjectMapper()
+            .readerFor(StreamList.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -291,6 +295,35 @@ public class OpenTok {
         return createSession(null);
     }
 
+    public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
+
+        if (sessionId == null || sessionId.isEmpty() ) {
+            throw new InvalidArgumentException("Session string null or empty");
+        }
+        try {
+            this.client.signal(sessionId,null,props);
+
+        } catch (Exception e)
+        {
+            throw e;
+        }
+
+    }
+
+    public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
+
+        if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+        try {
+            this.client.signal(sessionId, connectionId, props);
+
+        } catch (Exception e)
+        {
+            throw e;
+        }
+
+    }
     /**
      * Gets an {@link Archive} object for the given archive ID.
      *
@@ -452,6 +485,41 @@ public class OpenTok {
         } catch (Exception e)
         {
             throw e;
+        }
+    }
+
+
+    /**
+     * Gets an {@link Stream} object for the given sessionId and streamId.
+     *
+     * @param sessionId The session ID.
+     * @param streamId The stream ID.
+     * @return The {@link Stream} object.
+     */
+    public Stream getStream(String sessionId, String streamId) throws OpenTokException {
+        String stream = this.client.getStream(sessionId, streamId);
+        try {
+            return streamReader.readValue(stream);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gets a list of {@link Stream} object for the given session ID.
+     *
+     * @param sessionId The session ID.
+     *
+     * @return The list of {@link Stream} objects.
+     */
+    public StreamList listStreams(String sessionId) throws OpenTokException {
+        String streams = this.client.listStreams(sessionId);
+        try {
+            return streamListReader.readValue(streams);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
 
