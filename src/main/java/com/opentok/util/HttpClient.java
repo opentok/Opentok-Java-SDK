@@ -353,16 +353,16 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     responseString = response.getResponseBody();
                     break;
                 case 400:
-                    throw new RequestException("Could not get stream information. The stream or session id may be invalid. "
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID. "
                            + "sessionId: " + sessionId +  "streamId: " + streamId);
                 case 403:
-                    throw new RequestException("Could not get stream information. The request was not authorized.");
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
 
                 case 408:
-                    throw new RequestException("Could not get stream information. The stream id may be invalid. " +
+                    throw new RequestException("You passed in an invalid stream ID." +
                             "streamId: " + streamId);
                 case 500:
-                    throw new RequestException("Could not get stream information. A server error occurred.");
+                    throw new RequestException("OpenTok server error.");
                 default:
                     throw new RequestException("Could not get stream information. The server response was invalid." +
                             " response code: " + response.getStatusCode());
@@ -386,17 +386,15 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     responseString = response.getResponseBody();
                     break;
                 case 400:
-                    throw new RequestException("Could not get streams information. The  session id may be invalid. "
-                            + "sessionId: " + sessionId );
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID" );
                 case 403:
-                    throw new RequestException("Could not get streams information. The request was not authorized.");
-
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
                 case 408:
-                    throw new RequestException("Could not get streams information. The session id may be invalid. ");
+                    throw new RequestException("Could not get information for streams. The session Id may be invalid.");
                 case 500:
-                    throw new RequestException("Could not get streams information. A server error occurred.");
+                    throw new RequestException("Could not get information for streams. A server error occurred.");
                 default:
-                    throw new RequestException("Could not get streams information. The server response was invalid." +
+                    throw new RequestException("Could not get information for streams. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
