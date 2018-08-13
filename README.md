@@ -238,22 +238,16 @@ For more information on archiving, see the
 
 ## Force Disconnect
 
-You can forcibily disconnect a connection of a session. This is typically used for moderation purposes. 
-Refer [OpenTok moderation](https://tokbox.com/developer/guides/moderation/js/).
+Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect(sessionId, connectionId)`
+method of the `com.opentok.OpenTok` instance. 
 
-The API is:
-
-- `public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException , InvalidArgumentException, RequestException`
-
-The  connection id refers to a valid connection of the ongoing session, which in turn is specified by the session id.
-
-**Usuage:**
 ```Java
-    opentok.forceDisconnect(sessionId,connectionId);
+    opentok.forceDisconnect(sessionId, connectionId);
 ```
 
-For more information on force disconnect and exception codes, refer
-[OpenTok force disconnect](https://tokbox.com/developer/rest/#forceDisconnect) programming guide for REST API's.
+The `connectionId` parameter is used to specify the connection ID of a client connection to the session.
+
+For more information on the force disconnect functionality and exception codes, please see the [REST API documentation](https://tokbox.com/developer/rest/#forceDisconnect).
 
 ## Signaling
 You can send signals to all the connections in your session or to a specific connection.

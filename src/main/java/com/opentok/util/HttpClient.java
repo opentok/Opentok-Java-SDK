@@ -355,7 +355,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 400:
                     throw new RequestException("Could not force disconnect. One of the arguments — sessionId or connectionId — is invalid.");
                 case 403:
-                    throw new RequestException("Could not force disconnect. The request was not authorized.");
+                    throw new RequestException("Could not force disconnect. You are not authorized to forceDisconnect, check your authentication credentials.");
                 case 404:
                     throw new RequestException("Could not force disconnect. The client specified by the connectionId property is not connected to the session.");
                 default:
