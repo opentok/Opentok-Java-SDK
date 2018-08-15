@@ -857,15 +857,53 @@ public class OpenTokTest {
 
     @Test
     public void testListArchivesWithEmptySessionID() throws OpenTokException {
+        int exceptionCount = 0;
+        int testCount = 2;
         try {
             ArchiveList archives = sdk.listArchives("");
         } catch (InvalidArgumentException e) {
             assertEquals(e.getMessage(),"Session string null or empty");
+            exceptionCount++;
         }
+        try {
+            ArchiveList archives = sdk.listArchives(null);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Session string null or empty");
+            exceptionCount++;
+        }
+        assertTrue(exceptionCount == testCount);
     }
-    // TODO: test list archives with count and offset
 
-    // TODO: test list archives failure scenarios
+    @Test
+    public void testListArchivesWithWrongOffsetCountValues() throws OpenTokException {
+        int exceptionCount = 0;
+        int testCount = 4;
+        try {
+            ArchiveList archives = sdk.listArchives(-2,0);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+            exceptionCount++;
+        }
+        try {
+            ArchiveList archives = sdk.listArchives(0,1200);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+            exceptionCount++;
+        }
+        try {
+            ArchiveList archives = sdk.listArchives(-10,12);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+            exceptionCount++;
+        }
+        try {
+            ArchiveList archives = sdk.listArchives(-10,1200);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+            exceptionCount++;
+        }
+        assertTrue(exceptionCount == testCount);
+    }
 
     @Test
     public void testStartArchive() throws OpenTokException {
