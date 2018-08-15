@@ -697,6 +697,54 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testListArchivesWithOffSetCount() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        int offset = 1;
+        int count = 1;
+        Boolean exceptionThrown = false;
+        String url = archivePath + "?offset=" + offset + "&count=" + count;
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"count\" : 60,\n" +
+                                "          \"items\" : [ {\n" +
+                                "            \"createdAt\" : 1395187930000,\n" +
+                                "            \"duration\" : 22,\n" +
+                                "            \"id\" : \"ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d\",\n" +
+                                "            \"name\" : \"\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 2909274,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
+                                "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          }]\n" +
+                                "        }")));
+
+        try {
+            ArchiveList archives = sdk.listArchives(offset, count);
+
+            assertNotNull(archives);
+            assertEquals(1, archives.size());
+            assertEquals(60, archives.getTotalCount());
+            assertThat(archives.get(0), instanceOf(Archive.class));
+            assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
+
+            verify(getRequestedFor(urlEqualTo(url)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(getRequestedFor(urlMatching(url)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
+
+    @Test
     public void testListArchivesWithSessionIdOffSetCount() throws OpenTokException {
         String sessionId = "SESSIONID";
         int offset = 1;
