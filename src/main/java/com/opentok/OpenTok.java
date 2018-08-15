@@ -349,22 +349,7 @@ public class OpenTok {
      * @return A List of {@link Archive} objects.
      */
     public ArchiveList listArchives() throws OpenTokException {
-        return listArchives(0, 1000);
-    }
-
-    /**
-     * Returns a List of {@link Archive} objects, representing archives that are both
-     * both completed and in-progress, for your API key.
-     *
-     * @param offset The index offset of the first archive. 0 is offset of the most recently started
-     * archive.
-     * 1 is the offset of the archive that started prior to the most recent archive.
-     * @param count The number of archives to be returned. The maximum number of archives returned
-     * is 1000.
-     * @return A List of {@link Archive} objects.
-     */
-    public ArchiveList listArchives(int offset, int count) throws OpenTokException {
-        return listArchives(offset,count,"");
+        return listArchives("", 0, 1000);
     }
 
     /**
@@ -379,8 +364,24 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty() ) {
             throw new InvalidArgumentException("Session string null or empty");
         }
-        return listArchives(0,1000,sessionId);
+        return listArchives(sessionId, 0, 1000);
     }
+
+    /**
+     * Returns a List of {@link Archive} objects, representing archives that are both
+     * both completed and in-progress, for your API key.
+     *
+     * @param offset The index offset of the first archive. 0 is offset of the most recently started
+     * archive.
+     * 1 is the offset of the archive that started prior to the most recent archive.
+     * @param count The number of archives to be returned. The maximum number of archives returned
+     * is 1000.
+     * @return A List of {@link Archive} objects.
+     */
+    public ArchiveList listArchives(int offset, int count) throws OpenTokException {
+        return listArchives("", offset, count);
+    }
+
     /**
      * Returns a List of {@link Archive} objects, representing archives that are both
      * both completed and in-progress, for your API key.
@@ -391,12 +392,11 @@ public class OpenTok {
      * @param count The number of archives to be returned. The maximum number of archives returned
      * is 1000.
      * @param sessionId The sessionid of the session which started or automatically enabled archiving.
-     *                  If the session is null or empty it will be omitted.
      *
      * @return A List of {@link Archive} objects.
      */
-    public ArchiveList listArchives(int offset, int count, String sessionId) throws OpenTokException {
-        String archives = this.client.getArchives(offset, count, sessionId);
+    public ArchiveList listArchives(String sessionId, int offset, int count) throws OpenTokException {
+        String archives = this.client.getArchives(sessionId, offset, count);
         try {
             return archiveListReader.readValue(archives);
         } catch (JsonProcessingException e) {

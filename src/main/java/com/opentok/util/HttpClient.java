@@ -158,7 +158,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String getArchives(int offset, int count, String sessionId) throws RequestException {
+    public String getArchives(String sessionId, int offset, int count) throws RequestException {
         String responseString = null;
         // TODO: maybe use a StringBuilder?
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive";
