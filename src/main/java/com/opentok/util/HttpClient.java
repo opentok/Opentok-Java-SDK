@@ -15,6 +15,7 @@ import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
+import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import org.asynchttpclient.AsyncHttpClientConfig;
@@ -158,9 +159,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String getArchives(String sessionId, int offset, int count) throws RequestException {
-        String responseString = null;
-        // TODO: maybe use a StringBuilder?
+    public String getArchives(String sessionId, int offset, int count) throws OpenTokException {
+        if(offset < 0 || count < 0 || count > 1000)  {
+            throw new InvalidArgumentException("Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+        }
+
+        String responseString;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive";
         if (offset != 0 || count != 1000) {
             url += "?";
@@ -188,7 +192,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 500:
                     throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
                 default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
+                    throw new RequestException("Could not get OpenTok Archives. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
