@@ -364,29 +364,44 @@ public class OpenTok {
      * @return A List of {@link Archive} objects.
      */
     public ArchiveList listArchives(int offset, int count) throws OpenTokException {
-        String archives = this.client.getArchives(offset, count);
+        return listArchives(offset,count,"");
+    }
+
+    /**
+     * Returns a List of {@link Archive} objects, representing archives that are both
+     * both completed and in-progress, for your API key.
+     *
+     * @param sessionId The sessionid of the session which started or automatically enabled archiving.
+     *                  If the session is null or empty it will be omitted.
+     * @return A List of {@link Archive} objects.
+     */
+    public ArchiveList listArchives(String sessionId) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty() ) {
+            throw new InvalidArgumentException("Session string null or empty");
+        }
+        return listArchives(0,1000,sessionId);
+    }
+    /**
+     * Returns a List of {@link Archive} objects, representing archives that are both
+     * both completed and in-progress, for your API key.
+     *
+     * @param offset The index offset of the first archive. 0 is offset of the most recently started
+     * archive.
+     * 1 is the offset of the archive that started prior to the most recent archive.
+     * @param count The number of archives to be returned. The maximum number of archives returned
+     * is 1000.
+     * @param sessionId The sessionid of the session which started or automatically enabled archiving.
+     *                  If the session is null or empty it will be omitted.
+     *
+     * @return A List of {@link Archive} objects.
+     */
+    public ArchiveList listArchives(int offset, int count, String sessionId) throws OpenTokException {
+        String archives = this.client.getArchives(offset, count, sessionId);
         try {
             return archiveListReader.readValue(archives);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         } catch (IOException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
-        }
-    }
-
-    /***
-     * Returns a List of {@link Archive} objects, representing archives that are both both completed and in-progress,
-     * for your API key.
-     *
-     * @param sessionId
-     *            The sessionId for which archives should be retrieved.
-     * @return A List of {@link Archive} objects.
-     */
-    public ArchiveList listArchives(String sessionId) throws RequestException {
-        String archives = this.client.getArchives(sessionId);
-        try {
-            return archiveListReader.readValue(archives);
-        } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }

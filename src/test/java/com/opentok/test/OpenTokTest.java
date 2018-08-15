@@ -696,6 +696,119 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
 
+    @Test
+    public void testListArchivesWithSessionID() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        int offset = 1;
+        int count = 1;
+        Boolean exceptionThrown = false;
+        String url = archivePath + "?sessionId=" + sessionId;
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"count\" : 60,\n" +
+                                "          \"items\" : [ {\n" +
+                                "            \"createdAt\" : 1395187930000,\n" +
+                                "            \"duration\" : 22,\n" +
+                                "            \"id\" : \"ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d\",\n" +
+                                "            \"name\" : \"\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 2909274,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
+                                "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          }, {\n" +
+                                "            \"createdAt\" : 1395187910000,\n" +
+                                "            \"duration\" : 14,\n" +
+                                "            \"id\" : \"5350f06f-0166-402e-bc27-09ba54948512\",\n" +
+                                "            \"name\" : \"\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 1952651,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F5350f06" +
+                                "f-0166-402e-bc27-09ba54948512%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          }, {\n" +
+                                "            \"createdAt\" : 1395187836000,\n" +
+                                "            \"duration\" : 62,\n" +
+                                "            \"id\" : \"f6e7ee58-d6cf-4a59-896b-6d56b158ec71\",\n" +
+                                "            \"name\" : \"\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 8347554,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Ff6e7ee5" +
+                                "8-d6cf-4a59-896b-6d56b158ec71%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          }, {\n" +
+                                "            \"createdAt\" : 1395183243000,\n" +
+                                "            \"duration\" : 544,\n" +
+                                "            \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "            \"name\" : \"\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 78499758,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F30b3ebf" +
+                                "1-ba36-4f5b-8def-6f70d9986fe9%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          }, {\n" +
+                                "            \"createdAt\" : 1394396753000,\n" +
+                                "            \"duration\" : 24,\n" +
+                                "            \"id\" : \"b8f64de1-e218-4091-9544-4cbf369fc238\",\n" +
+                                "            \"name\" : \"showtime again\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 2227849,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fb8f64de" +
+                                "1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          }, {\n" +
+                                "            \"createdAt\" : 1394321113000,\n" +
+                                "            \"duration\" : 1294,\n" +
+                                "            \"id\" : \"832641bf-5dbf-41a1-ad94-fea213e59a92\",\n" +
+                                "            \"name\" : \"showtime\",\n" +
+                                "            \"partnerId\" : 123456,\n" +
+                                "            \"reason\" : \"\",\n" +
+                                "            \"sessionId\" : \"SESSIONID\",\n" +
+                                "            \"size\" : 42165242,\n" +
+                                "            \"status\" : \"available\",\n" +
+                                "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F832641b" +
+                                "f-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
+                                "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                                "          } ]\n" +
+                                "        }")));
+
+        try {
+            ArchiveList archives = sdk.listArchives(sessionId);
+
+            assertNotNull(archives);
+            assertEquals(6, archives.size());
+            assertEquals(60, archives.getTotalCount());
+            assertThat(archives.get(0), instanceOf(Archive.class));
+            assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
+
+            verify(getRequestedFor(urlEqualTo(url)));
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(getRequestedFor(urlMatching(url)))));
+            Helpers.verifyUserAgent();
+        } catch (Exception e) {
+               exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
+
     // TODO: test list archives with count and offset
 
     // TODO: test list archives failure scenarios
