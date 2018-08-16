@@ -736,6 +736,47 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testStartArchiveWithResolution() throws OpenTokException {
+        boolean exceptionThrown = false;
+        String sessionId = "SESSIONID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().resolution("1280x720").build();
+
+        stubFor(post(urlEqualTo(archivePath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+        try {
+            Archive archive = sdk.startArchive(sessionId, properties);
+            assertNotNull(archive);
+            assertEquals(sessionId, archive.getSessionId());
+            assertNotNull(archive.getId());
+            assertEquals(archive.getResolution(),"1280x720");
+            verify(postRequestedFor(urlMatching(archivePath)));
+            // TODO: find a way to match JSON without caring about spacing
+            //.withRequestBody(matching(".*"+".*"))
+            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                    findAll(postRequestedFor(urlMatching(archivePath)))));
+            Helpers.verifyUserAgent();
+        } catch (OpenTokException e) {
+            exceptionThrown = true;
+        }
+        assertFalse(exceptionThrown);
+    }
+
+    @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
         String name = "archive_name";
