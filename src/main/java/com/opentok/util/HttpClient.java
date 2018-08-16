@@ -7,20 +7,16 @@
  */
 package com.opentok.util;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
+import com.opentok.constants.DefaultApiUrl;
+import com.opentok.constants.Version;
+import com.opentok.exception.OpenTokException;
+import com.opentok.exception.RequestException;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -33,15 +29,17 @@ import org.asynchttpclient.filter.FilterException;
 import org.asynchttpclient.filter.RequestFilter;
 import org.asynchttpclient.proxy.ProxyServer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.opentok.ArchiveProperties;
-import com.opentok.constants.DefaultApiUrl;
-import com.opentok.constants.Version;
-import com.opentok.exception.OpenTokException;
-import com.opentok.exception.RequestException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class HttpClient extends DefaultAsyncHttpClient {
     
@@ -240,6 +238,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.name() != null) {
             requestJson.put("name", properties.name());
         }
+        if (properties.resolution() != null) {
+            requestJson.put("resolution", properties.resolution());
+        }
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
@@ -256,6 +257,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     responseString = response.getResponseBody();
                     break;
+                case 400:
+                    throw new RequestException("Could not start an OpenTok Archive. A bad request, check input archive properties like resolution etc.");
                 case 403:
                     throw new RequestException("Could not start an OpenTok Archive. The request was not authorized.");
                 case 404:
