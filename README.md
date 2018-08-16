@@ -189,6 +189,16 @@ String archiveId = archive.getId();
 The `Archive.OutputMode.COMPOSED` setting (the default) causes all streams in the archive to be
 recorded to a single (composed) file.
 
+You can set the composed archive resolution to either "640x480" (SD, the default) or "1280x720" (HD) using the ArchiveProperties builder.
+Any other value will result in an exception.The property only applies to composed archives. 
+If you set this property and also set the outputMode property to "individual", the method results in an error.
+
+```java
+import com.opentok.ArchiveProperties;
+
+ArchiveProperties properties = new ArchiveProperties.Builder().resolution("1280x720").build();
+```
+
 You can stop the recording of a started Archive using a `com.opentok.Archive` instance's
 `stopArchive(String archiveId)` method.
 
@@ -215,7 +225,7 @@ opentok.deleteArchive(archiveId);
 You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
 done using a `com.opentok.OpenTok` instance's `listArchives(int offset, int count)` method. You may optionally
 paginate the Archives you receive using the offset and count parameters. This will return a
-`List<Archive>` type.
+`List<Archive>` type. If the offset or count is negative or if the count is greater than 1000 an `InvalidArgumentException` is thrown.
 
 ```java
 // Get a list with the first 1000 archives created by the API Key
@@ -227,7 +237,22 @@ List<Archive> archives = opentok.listArchives(0, 50);
 // Get a list of the next 50 archives
 List<Archive> archives = opentok.listArchives(50, 50);
 ```
+You can also fetch the list of archives for a specific session ID , and optionally 
+use the offset and count parameters as described above.
 
+```java
+// Get a list with the first 1000 archives for a specific session)
+ArchiveList archives = opentok.listArchives(sessionId);
+
+// Get a list of the first 50 archives  for a specific session
+ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
+
+// Get a list of the next 50 archives for a specific session
+ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
+```
+
+
+ 
 Note that you can also create an automatically archived session, by passing `ArchiveMode.ALWAYS`
 into the `archiveMode()` method of the `SessionProperties.Builder` object you use to build the
 `sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
