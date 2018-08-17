@@ -737,10 +737,8 @@ public class OpenTokTest {
 
     @Test
     public void testStartArchiveWithResolution() throws OpenTokException {
-        boolean exceptionThrown = false;
         String sessionId = "SESSIONID";
         ArchiveProperties properties = new ArchiveProperties.Builder().resolution("1280x720").build();
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -758,22 +756,14 @@ public class OpenTokTest {
                                 "          \"status\" : \"started\",\n" +
                                 "          \"url\" : null\n" +
                                 "        }")));
-        try {
-            Archive archive = sdk.startArchive(sessionId, properties);
-            assertNotNull(archive);
-            assertEquals(sessionId, archive.getSessionId());
-            assertNotNull(archive.getId());
-            assertEquals(archive.getResolution(),"1280x720");
-            verify(postRequestedFor(urlMatching(archivePath)));
-            // TODO: find a way to match JSON without caring about spacing
-            //.withRequestBody(matching(".*"+".*"))
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(postRequestedFor(urlMatching(archivePath)))));
-            Helpers.verifyUserAgent();
-        } catch (OpenTokException e) {
-            exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertEquals(archive.getResolution(),"1280x720");
+        verify(postRequestedFor(urlMatching(archivePath)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test
