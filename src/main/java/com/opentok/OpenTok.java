@@ -417,6 +417,10 @@ public class OpenTok {
         if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
+        Boolean hasResolution =  properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
+        if(properties != null && properties.outputMode().equals(Archive.OutputMode.INDIVIDUAL) && hasResolution) {
+            throw new InvalidArgumentException("Resolution must not be specified in individual output mode.");
+        }
         // TODO: do validation on sessionId and name
         String archive = this.client.startArchive(sessionId, properties);
         try {

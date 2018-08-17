@@ -767,6 +767,17 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testStartArchiveWithResolutionInIndividualMode() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().outputMode(OutputMode.INDIVIDUAL).resolution("1280x720").build();
+        try {
+            sdk.startArchive(sessionId, properties);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"Resolution must not be specified in individual output mode.");
+        }
+    }
+
+    @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
         String name = "archive_name";
