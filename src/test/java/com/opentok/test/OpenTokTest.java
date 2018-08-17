@@ -594,7 +594,6 @@ public class OpenTokTest {
 
     @Test
     public void testListArchives() throws OpenTokException {
-
         stubFor(get(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -681,15 +680,12 @@ public class OpenTokTest {
                                 "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
                                 "          } ]\n" +
                                 "        }")));
-
         ArchiveList archives = sdk.listArchives();
-
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
         assertThat(archives.get(0), instanceOf(Archive.class));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
-
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(getRequestedFor(urlMatching(archivePath)))));
@@ -699,10 +695,7 @@ public class OpenTokTest {
     @Test
     public void testListArchivesWithOffSetCount() throws OpenTokException {
         String sessionId = "SESSIONID";
-        int offset = 1;
-        int count = 1;
-        Boolean exceptionThrown = false;
-        String url = archivePath + "?offset=" + offset + "&count=" + count;
+        String url = archivePath + "?offset=1&count=1";
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -725,32 +718,23 @@ public class OpenTokTest {
                                 "          }]\n" +
                                 "        }")));
 
-        try {
-            ArchiveList archives = sdk.listArchives(offset, count);
+        ArchiveList archives = sdk.listArchives(1, 1);
+        assertNotNull(archives);
+        assertEquals(1, archives.size());
+        assertEquals(60, archives.getTotalCount());
+        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
-            assertNotNull(archives);
-            assertEquals(1, archives.size());
-            assertEquals(60, archives.getTotalCount());
-            assertThat(archives.get(0), instanceOf(Archive.class));
-            assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
-
-            verify(getRequestedFor(urlEqualTo(url)));
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(getRequestedFor(urlMatching(url)))));
-            Helpers.verifyUserAgent();
-        } catch (Exception e) {
-            exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        verify(getRequestedFor(urlEqualTo(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test
     public void testListArchivesWithSessionIdOffSetCount() throws OpenTokException {
         String sessionId = "SESSIONID";
-        int offset = 1;
-        int count = 1;
-        Boolean exceptionThrown = false;
-        String url = archivePath + "?offset=" + offset + "&count=" + count + "&sessionId=" + sessionId;
+        String url = archivePath + "?offset=1&count=1&sessionId=" + sessionId;
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -772,30 +756,21 @@ public class OpenTokTest {
                                 "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
                                 "          }]\n" +
                                 "        }")));
-
-        try {
-            ArchiveList archives = sdk.listArchives(sessionId, offset, count);
-
-            assertNotNull(archives);
-            assertEquals(1, archives.size());
-            assertEquals(60, archives.getTotalCount());
-            assertThat(archives.get(0), instanceOf(Archive.class));
-            assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
-
-            verify(getRequestedFor(urlEqualTo(url)));
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(getRequestedFor(urlMatching(url)))));
-            Helpers.verifyUserAgent();
-        } catch (Exception e) {
-               exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        ArchiveList archives = sdk.listArchives(sessionId, 1, 1);
+        assertNotNull(archives);
+        assertEquals(1, archives.size());
+        assertEquals(60, archives.getTotalCount());
+        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
+        verify(getRequestedFor(urlEqualTo(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test
     public void testListArchivesWithSessionId() throws OpenTokException {
         String sessionId = "SESSIONID";
-        Boolean exceptionThrown = false;
         String url = archivePath + "?sessionId=" + sessionId;
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
@@ -883,24 +858,16 @@ public class OpenTokTest {
                                 "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
                                 "          } ]\n" +
                                 "        }")));
-
-        try {
-            ArchiveList archives = sdk.listArchives(sessionId);
-
-            assertNotNull(archives);
-            assertEquals(6, archives.size());
-            assertEquals(60, archives.getTotalCount());
-            assertThat(archives.get(0), instanceOf(Archive.class));
-            assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
-
-            verify(getRequestedFor(urlEqualTo(url)));
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(getRequestedFor(urlMatching(url)))));
-            Helpers.verifyUserAgent();
-        } catch (Exception e) {
-            exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        ArchiveList archives = sdk.listArchives(sessionId);
+        assertNotNull(archives);
+        assertEquals(6, archives.size());
+        assertEquals(60, archives.getTotalCount());
+        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
+        verify(getRequestedFor(urlEqualTo(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test
@@ -956,7 +923,6 @@ public class OpenTokTest {
     @Test
     public void testStartArchive() throws OpenTokException {
         String sessionId = "SESSIONID";
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -973,16 +939,12 @@ public class OpenTokTest {
                                 "          \"status\" : \"started\",\n" +
                                 "          \"url\" : null\n" +
                                 "        }")));
-
         ArchiveProperties properties = new ArchiveProperties.Builder().name(null).build();
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
-
         verify(postRequestedFor(urlMatching(archivePath)));
-                // TODO: find a way to match JSON without caring about spacing
-                //.withRequestBody(matching(".*"+".*"))
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -992,7 +954,6 @@ public class OpenTokTest {
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
         String name = "archive_name";
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1015,10 +976,7 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertEquals(name, archive.getName());
         assertNotNull(archive.getId());
-
         verify(postRequestedFor(urlMatching(archivePath)));
-                // TODO: find a way to match JSON without caring about spacing
-                //.withRequestBody(matching(".*"+".*"))
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -1027,7 +985,6 @@ public class OpenTokTest {
     @Test
     public void testStartVoiceOnlyArchive() throws OpenTokException {
         String sessionId = "SESSIONID";
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1047,15 +1004,11 @@ public class OpenTokTest {
                                 "          \"hasAudio\" : true\n" +
                                 "        }")));
         ArchiveProperties properties = new ArchiveProperties.Builder().hasVideo(false).build();
-
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
-
         verify(postRequestedFor(urlMatching(archivePath)));
-                // TODO: find a way to match JSON without caring about spacing
-                //.withRequestBody(matching(".*"+".*"))
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -1064,7 +1017,6 @@ public class OpenTokTest {
     @Test
     public void testStartComposedArchive() throws OpenTokException {
         String sessionId = "SESSIONID";
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1085,16 +1037,12 @@ public class OpenTokTest {
         ArchiveProperties properties = new ArchiveProperties.Builder()
                 .outputMode(OutputMode.COMPOSED)
                 .build();
-
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
         assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
-
         verify(postRequestedFor(urlMatching(archivePath)));
-                // TODO: find a way to match JSON without caring about spacing
-                //.withRequestBody(matching(".*"+".*"))
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -1103,7 +1051,6 @@ public class OpenTokTest {
     @Test
     public void testStartComposedArchiveWithLayout() throws OpenTokException {
         String sessionId = "SESSIONID";
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1125,16 +1072,12 @@ public class OpenTokTest {
                 .outputMode(OutputMode.COMPOSED)
                 .layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM, "stream { position: absolute; }"))
                 .build();
-
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
         assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
-
         verify(postRequestedFor(urlMatching(archivePath)));
-                // TODO: find a way to match JSON without caring about spacing
-                //.withRequestBody(matching(".*"+".*"))
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -1143,7 +1086,6 @@ public class OpenTokTest {
     @Test
     public void testStartIndividualArchive() throws OpenTokException {
         String sessionId = "SESSIONID";
-
         stubFor(post(urlEqualTo(archivePath))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1161,18 +1103,13 @@ public class OpenTokTest {
                                 "          \"url\" : null,\n" +
                                 "          \"outputMode\" : \"individual\"\n" +
                                 "        }")));
-
         ArchiveProperties properties = new ArchiveProperties.Builder().outputMode(OutputMode.INDIVIDUAL).build();
-
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
         assertEquals(OutputMode.INDIVIDUAL, archive.getOutputMode());
-
         verify(postRequestedFor(urlMatching(archivePath)));
-                // TODO: find a way to match JSON without caring about spacing
-                //.withRequestBody(matching(".*"+".*"))
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -1185,7 +1122,6 @@ public class OpenTokTest {
     @Test
     public void testStopArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
-
         stubFor(post(urlEqualTo(archivePath + "/" + archiveId + "/stop"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1207,7 +1143,6 @@ public class OpenTokTest {
         assertNotNull(archive);
         assertEquals("SESSIONID", archive.getSessionId());
         assertEquals(archiveId, archive.getId());
-
         verify(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop")))));
@@ -1225,7 +1160,6 @@ public class OpenTokTest {
                         .withHeader("Content-Type", "application/json")));
 
         sdk.deleteArchive(archiveId);
-
         verify(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
@@ -1308,10 +1242,9 @@ public class OpenTokTest {
         assertNotNull(archive);
     }
     @Test
-    public void testGetStreamWithId()  {
+    public void testGetStreamWithId() throws OpenTokException {
         String sessionID = "SESSIONID";
         String streamID = "STREAMID";
-        Boolean exceptionThrown = false;
         String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream/" + streamID;
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
@@ -1323,26 +1256,21 @@ public class OpenTokTest {
                                 "          \"videoType\" : \"camera\",\n" +
                                 "          \"layoutClassList\" : [] \n" +
                                 "        }")));
-        try {
-            Stream stream = sdk.getStream(sessionID, streamID);
-            assertNotNull(stream);
-            assertEquals(streamID, stream.getId());
-            assertEquals("", stream.getName());
-            assertEquals("camera", stream.getVideoType());
+        Stream stream = sdk.getStream(sessionID, streamID);
+        assertNotNull(stream);
+        assertEquals(streamID, stream.getId());
+        assertEquals("", stream.getName());
+        assertEquals("camera", stream.getVideoType());
 
-            verify(getRequestedFor(urlMatching(url)));
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(getRequestedFor(urlMatching(url)))));
-            Helpers.verifyUserAgent();
-        } catch (Exception e) {
-            exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
     }
+    
     @Test
-    public void testListStreams()  {
+    public void testListStreams() throws OpenTokException {
         String sessionID = "SESSIONID";
-        Boolean exceptionThrown = false;
         String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
@@ -1362,52 +1290,38 @@ public class OpenTokTest {
                                 "          \"layoutClassList\" : [] \n" +
                                 "          } ]\n" +
                                 "        }")));
-        try {
-            StreamList streams = sdk.listStreams(sessionID);
-            assertNotNull(streams);
-            assertEquals(2,streams.getTotalCount());
-            Stream stream1 = streams.get(0);
-            Stream stream2 = streams.get(1);
-            assertEquals("1234", stream1.getId());
-            assertEquals("", stream1.getName());
-            assertEquals("camera", stream1.getVideoType());
-            assertEquals("5678", stream2.getId());
-            assertEquals("", stream2.getName());
-            assertEquals("screen", stream2.getVideoType());
+        StreamList streams = sdk.listStreams(sessionID);
+        assertNotNull(streams);
+        assertEquals(2,streams.getTotalCount());
+        Stream stream1 = streams.get(0);
+        Stream stream2 = streams.get(1);
+        assertEquals("1234", stream1.getId());
+        assertEquals("", stream1.getName());
+        assertEquals("camera", stream1.getVideoType());
+        assertEquals("5678", stream2.getId());
+        assertEquals("", stream2.getName());
+        assertEquals("screen", stream2.getVideoType());
 
-            verify(getRequestedFor(urlMatching(url)));
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(getRequestedFor(urlMatching(url)))));
-            Helpers.verifyUserAgent();
-        } catch (Exception e) {
-            exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test
     public void testforceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
-        Boolean exceptionThrown = false;
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId ;
-
         stubFor(delete(urlEqualTo(path))
                 .willReturn(aResponse()
                         .withStatus(204)
                         .withHeader("Content-Type", "application/json")));
-
-        try {
-            sdk.forceDisconnect(sessionId,connectionId);
-            verify(deleteRequestedFor(urlMatching(path)));
-            assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                    findAll(deleteRequestedFor(urlMatching(path)))));
-            Helpers.verifyUserAgent();
-
-        } catch (Exception e) {
-            exceptionThrown = true;
-        }
-        assertFalse(exceptionThrown);
+        sdk.forceDisconnect(sessionId,connectionId);
+        verify(deleteRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(path)))));
+        Helpers.verifyUserAgent();
     }
 
     @Test
