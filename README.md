@@ -191,7 +191,7 @@ recorded to a single (composed) file.
 
 You can set the composed archive resolution to either "640x480" (SD, the default) or "1280x720" (HD) using the ArchiveProperties builder.
 Any other value will result in an exception.The property only applies to composed archives. 
-If you set this property and also set the outputMode property to "individual", the method results in an error.
+If you set this property and also set the outputMode property to "individual", the method results in an `InvalidArgumentException`.
 
 ```java
 import com.opentok.ArchiveProperties;
