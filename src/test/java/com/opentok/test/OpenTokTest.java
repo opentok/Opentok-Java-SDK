@@ -544,6 +544,9 @@ public class OpenTokTest {
         }
     }
 
+    /* TODO: find a way to match JSON without caring about spacing
+    .withRequestBody(matching("."+".")) in the following archive tests   */
+    
     @Test
     public void testGetArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
