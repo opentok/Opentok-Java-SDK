@@ -7,20 +7,17 @@
  */
 package com.opentok.util;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
+import com.opentok.constants.DefaultApiUrl;
+import com.opentok.constants.Version;
+import com.opentok.exception.InvalidArgumentException;
+import com.opentok.exception.OpenTokException;
+import com.opentok.exception.RequestException;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -33,15 +30,17 @@ import org.asynchttpclient.filter.FilterException;
 import org.asynchttpclient.filter.RequestFilter;
 import org.asynchttpclient.proxy.ProxyServer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.opentok.ArchiveProperties;
-import com.opentok.constants.DefaultApiUrl;
-import com.opentok.constants.Version;
-import com.opentok.exception.OpenTokException;
-import com.opentok.exception.RequestException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class HttpClient extends DefaultAsyncHttpClient {
     
@@ -160,9 +159,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String getArchives(int offset, int count) throws RequestException {
-        String responseString = null;
-        // TODO: maybe use a StringBuilder?
+    public String getArchives(String sessionId, int offset, int count) throws OpenTokException {
+        if(offset < 0 || count < 0 || count > 1000)  {
+            throw new InvalidArgumentException("Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+        }
+
+        String responseString;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive";
         if (offset != 0 || count != 1000) {
             url += "?";
@@ -172,6 +174,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
             if (count != 1000) {
                 url += ("count=" + Integer.toString(count));
             }
+        }
+        if(sessionId != null && !sessionId.isEmpty())  {
+            url += (url.contains("?") ? "&" : "?") + "sessionId=" + sessionId;
         }
 
         Future<Response> request = this.prepareGet(url).execute();
@@ -187,7 +192,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 500:
                     throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
                 default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
+                    throw new RequestException("Could not get OpenTok Archives. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -195,28 +200,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
 
         return responseString;
-    }
-
-    public String getArchives(String sessionId) throws RequestException {
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive?sessionId=" + sessionId;
-
-        Future<Response> request = this.prepareGet(url).execute();
-        try {
-            Response response = request.get();
-            switch (response.getStatusCode()) {
-                case 200:
-                    return response.getResponseBody();
-                case 403:
-                    throw new RequestException("Could not get OpenTok Archives. The request was not authorized.");
-                case 500:
-                    throw new RequestException("Could not get OpenTok Archives. A server error occurred.");
-                default:
-                    throw new RequestException("Could not get an OpenTok Archive. The server response was invalid."
-                            + " response code: " + response.getStatusCode());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not get OpenTok Archives", e);
-        }
     }
 
     public String startArchive(String sessionId, ArchiveProperties properties)
