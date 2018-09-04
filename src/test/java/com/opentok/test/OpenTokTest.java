@@ -876,13 +876,13 @@ public class OpenTokTest {
         try {
             ArchiveList archives = sdk.listArchives("");
         } catch (InvalidArgumentException e) {
-            assertEquals(e.getMessage(),"Session string null or empty");
+            assertEquals(e.getMessage(),"Session Id cannot be null or empty");
             exceptionCount++;
         }
         try {
             ArchiveList archives = sdk.listArchives(null);
         } catch (InvalidArgumentException e) {
-            assertEquals(e.getMessage(),"Session string null or empty");
+            assertEquals(e.getMessage(),"Session Id cannot be null or empty");
             exceptionCount++;
         }
         assertTrue(exceptionCount == testCount);
