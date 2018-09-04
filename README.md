@@ -225,7 +225,8 @@ opentok.deleteArchive(archiveId);
 You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
 done using a `com.opentok.OpenTok` instance's `listArchives(int offset, int count)` method. You may optionally
 paginate the Archives you receive using the offset and count parameters. This will return a
-`List<Archive>` type. If the offset or count is negative or if the count is greater than 1000 an `InvalidArgumentException` is thrown.
+`List<Archive>` type.An `InvalidArgumentException` will be thrown if the offset or count are negative 
+or if the count is greater than 1000.
 
 ```java
 // Get a list with the first 1000 archives created by the API Key
@@ -248,7 +249,7 @@ ArchiveList archives = opentok.listArchives(sessionId);
 ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
 
 // Get a list of the next 50 archives for a specific session
-ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
+ArchiveList archives = sdk.listArchives(sessionId, 50, 50);
 ```
 
 

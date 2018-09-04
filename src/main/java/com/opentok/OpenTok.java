@@ -362,7 +362,7 @@ public class OpenTok {
      */
     public ArchiveList listArchives(String sessionId) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty() ) {
-            throw new InvalidArgumentException("Session string null or empty");
+            throw new InvalidArgumentException("Session Id cannot be null or empty");
         }
         return listArchives(sessionId, 0, 1000);
     }
