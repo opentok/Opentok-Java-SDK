@@ -183,12 +183,12 @@ public class ArchiveProperties {
      */
     public Map<String, Collection<String>> toMap() {
         Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
-        if (null != name) {
+        if (name != null) {
             ArrayList<String> valueList = new ArrayList<String>();
             valueList.add(name);
             params.put("name", valueList);
         }
-        if (null != resolution) {
+        if (resolution != null) {
             ArrayList<String> valueList = new ArrayList<String>();
             valueList.add(resolution);
             params.put("resolution", valueList);

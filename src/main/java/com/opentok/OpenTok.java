@@ -419,7 +419,7 @@ public class OpenTok {
         }
         Boolean hasResolution =  properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
         if(properties != null && properties.outputMode().equals(Archive.OutputMode.INDIVIDUAL) && hasResolution) {
-            throw new InvalidArgumentException("Resolution must not be specified in individual output mode.");
+            throw new InvalidArgumentException("The resolution cannot be specified for individual output mode.");
         }
         // TODO: do validation on sessionId and name
         String archive = this.client.startArchive(sessionId, properties);

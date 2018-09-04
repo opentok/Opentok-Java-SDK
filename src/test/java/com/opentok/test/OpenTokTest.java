@@ -773,7 +773,7 @@ public class OpenTokTest {
         try {
             sdk.startArchive(sessionId, properties);
         } catch (InvalidArgumentException e) {
-            assertEquals(e.getMessage(),"Resolution must not be specified in individual output mode.");
+            assertEquals(e.getMessage(),"The resolution cannot be specified for individual output mode.");
         }
     }
 
