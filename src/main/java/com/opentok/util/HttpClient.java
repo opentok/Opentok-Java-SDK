@@ -329,6 +329,33 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
+    public String setArchiveLayout(String archiveId, ArchiveProperties props) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        Future<Response> request = this.preparePut(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                case 403:
+                    throw new RequestException("Could not set the layout. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not set the layout. A server error occurred.");
+                default:
+                    throw new RequestException("Could not set the layout. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+        }
+        return responseString;
+    }
+
     public String forceDisconnect(String sessionId, String connectionId) throws   OpenTokException , RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/"+ connectionId ;

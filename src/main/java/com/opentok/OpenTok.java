@@ -485,6 +485,23 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
+    /**
+     * Sets the layout type for a composed archive. For a description of layout types, see
+     *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     *  the video layout for composed archives</a>.
+     *
+     * @param archiveId {String} The archive ID.
+     *
+     * @param properties This ArchiveProperties object defines options for the archive.
+     *
+     */
+    public void setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
+        if (archiveId.isEmpty()) {
+            throw new InvalidArgumentException("Session not valid");
+        }
+        this.client.setArchiveLayout(archiveId, properties);
+    }
+
 
     /**
      * Disconnect a client from an OpenTok session

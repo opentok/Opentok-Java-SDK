@@ -58,6 +58,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -991,6 +993,66 @@ public class OpenTokTest {
         }
     }
 
+    @Test
+    public void testSetArchiveLayoutPip() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.PIP)).build();
+        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+
+        sdk.setArchiveLayout(archiveId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testSetArchiveLayoutCustom() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM, "stream { position: absolute; }")).build();
+        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+
+        sdk.setArchiveLayout(archiveId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testSetArchiveLayoutCustomWithNoStyleSheet() throws OpenTokException {
+        boolean exception = false;
+        String archiveId = "ARCHIVEID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM)).build();
+        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        try {
+            sdk.setArchiveLayout(archiveId, properties);
+        } catch (RequestException e) {
+            exception = true;
+        }
+        assertTrue (exception);
+    }
+
+    @Test
+    public void testSetArchiveLayoutNonCustomWithStyleSheet() throws OpenTokException {
+        boolean exception = false;
+        String archiveId = "ARCHIVEID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.BESTFIT, "stream { position: absolute; }")).build();
+        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        try {
+            sdk.setArchiveLayout(archiveId, properties);
+        } catch (RequestException e) {
+            exception = true;
+        }
+        assertTrue (exception);
+    }
     @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
