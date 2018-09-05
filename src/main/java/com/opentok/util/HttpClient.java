@@ -223,6 +223,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.name() != null) {
             requestJson.put("name", properties.name());
         }
+        if (properties.resolution() != null) {
+            requestJson.put("resolution", properties.resolution());
+        }
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
@@ -239,6 +242,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     responseString = response.getResponseBody();
                     break;
+                case 400:
+                    throw new RequestException("Could not start an OpenTok Archive. A bad request, check input archive properties like resolution etc.");
                 case 403:
                     throw new RequestException("Could not start an OpenTok Archive. The request was not authorized.");
                 case 404:

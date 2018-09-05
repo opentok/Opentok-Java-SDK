@@ -950,6 +950,48 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testStartArchiveWithResolution() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().resolution("1280x720").build();
+        stubFor(post(urlEqualTo(archivePath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertEquals(archive.getResolution(),"1280x720");
+        verify(postRequestedFor(urlMatching(archivePath)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartArchiveWithResolutionInIndividualMode() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().outputMode(OutputMode.INDIVIDUAL).resolution("1280x720").build();
+        try {
+            sdk.startArchive(sessionId, properties);
+        } catch (InvalidArgumentException e) {
+            assertEquals(e.getMessage(),"The resolution cannot be specified for individual output mode.");
+        }
+    }
+
+    @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
         String name = "archive_name";

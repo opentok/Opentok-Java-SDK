@@ -25,6 +25,7 @@ public class ArchiveProperties {
 
 
     private String name = null;
+    private String resolution = null;
     private boolean hasAudio;
     private boolean hasVideo;
     private OutputMode outputMode;
@@ -32,6 +33,7 @@ public class ArchiveProperties {
 
     private ArchiveProperties(Builder builder) {
         this.name = builder.name;
+        this.resolution = builder.resolution;
         this.hasAudio = builder.hasAudio;
         this.hasVideo = builder.hasVideo;
         this.outputMode = builder.outputMode;
@@ -45,6 +47,7 @@ public class ArchiveProperties {
      */
     public static class Builder {
         private String name = null;
+        private String resolution = null;
         private boolean hasAudio = true;
         private boolean hasVideo = true;
         private OutputMode outputMode = OutputMode.COMPOSED;
@@ -63,7 +66,21 @@ public class ArchiveProperties {
             this.name = name;
             return this;
         }
-        
+
+        /**
+         * Call this method to set a name to the archive.
+         *
+         * @param resolution The resolution of the archive, either "640x480" (SD, the default) or "1280x720" (HD).
+         * This property only applies to composed archives.
+         * If you set this property and set the outputMode property to "individual", the call in the API method results in an error.
+         *
+         * @return The ArchiveProperties.Builder object with the name setting.
+         */
+        public Builder resolution(String resolution) {
+            this.resolution = resolution;
+            return this;
+        }
+
         /**
          * Call this method to include an audio track (<code>true</code>) or not <code>false</code>).
          *
@@ -128,6 +145,12 @@ public class ArchiveProperties {
         return name;
     }
     /**
+     * Returns the resolution of the archive
+     */
+    public String resolution() {
+        return resolution;
+    }
+    /**
      * Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
      */
     public boolean hasVideo() {
@@ -160,10 +183,15 @@ public class ArchiveProperties {
      */
     public Map<String, Collection<String>> toMap() {
         Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
-        if (null != name) {
+        if (name != null) {
             ArrayList<String> valueList = new ArrayList<String>();
             valueList.add(name);
             params.put("name", valueList);
+        }
+        if (resolution != null) {
+            ArrayList<String> valueList = new ArrayList<String>();
+            valueList.add(resolution);
+            params.put("resolution", valueList);
         }
         ArrayList<String> valueList = new ArrayList<String>();
         valueList.add(Boolean.toString(hasAudio));
