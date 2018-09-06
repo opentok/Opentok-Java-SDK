@@ -260,7 +260,7 @@ into the `archiveMode()` method of the `SessionProperties.Builder` object you us
 `sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
 Sessions," above).
 
-You can dynamically set the archive layout using the `setArchiveLayout(String archiveId, ArchiveProperties properties)` 
+You can dynamically set the archive layout (while the archive is being recorded)  using the `setArchiveLayout(String archiveId, ArchiveProperties properties)` 
 method. Refer [OpenTok documentation](https://tokbox.com/developer/rest/#change_composed_archive_layout) for more information.
 You can use the `ArchiveProperties` builder as follows:
 ```JAVA

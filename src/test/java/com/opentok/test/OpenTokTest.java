@@ -79,7 +79,6 @@ public class OpenTokTest {
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
 
-
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8080);
 
