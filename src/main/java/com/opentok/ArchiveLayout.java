@@ -43,7 +43,7 @@ public class ArchiveLayout {
 
         @JsonValue
         public String toString() {
-            return super.toString().toLowerCase();
+            return serialized;
         }
     }
 

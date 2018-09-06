@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
 import com.opentok.constants.DefaultApiUrl;
@@ -18,6 +19,7 @@ import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
+import org.apache.commons.lang.StringUtils;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -329,11 +331,38 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String setArchiveLayout(String archiveId, ArchiveProperties props) throws RequestException {
+    public String setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
+        if(properties.layout() == null) {
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        String type = properties.layout().getType().toString();
+        String stylesheet = properties.layout().getStylesheet();
+        if(StringUtils.isEmpty(type)) {
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        if ((type.equals(ArchiveLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
+            (!type.equals(ArchiveLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
         String responseString = null;
-        String url = this.apiUrl + "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
-        Future<Response> request = this.preparePut(url).execute();
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        requestJson.put("type", type);
+        if(type.equals(ArchiveLayout.Type.CUSTOM.toString())) {
+            requestJson.put("stylesheet", properties.layout().getStylesheet());
+        }
 
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePut(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {

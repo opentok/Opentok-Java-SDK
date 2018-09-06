@@ -16,6 +16,7 @@ import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import com.opentok.util.HttpClient.ProxyAuthScheme;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -496,8 +497,8 @@ public class OpenTok {
      *
      */
     public void setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
-        if (archiveId.isEmpty()) {
-            throw new InvalidArgumentException("Session not valid");
+        if (StringUtils.isEmpty(archiveId) || properties == null) {
+            throw new InvalidArgumentException("ArchiveId is not valid or properties are null");
         }
         this.client.setArchiveLayout(archiveId, properties);
     }

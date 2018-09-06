@@ -79,6 +79,7 @@ public class OpenTokTest {
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
 
+
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8080);
 
@@ -994,10 +995,10 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testSetArchiveLayoutPip() throws OpenTokException {
+    public void testSetArchiveLayoutVertical() throws OpenTokException {
         String archiveId = "ARCHIVEID";
-        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.PIP)).build();
-        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.VERTICAL)).build();
+        String url =  "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
         stubFor(put(urlEqualTo(url))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1013,7 +1014,7 @@ public class OpenTokTest {
     public void testSetArchiveLayoutCustom() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM, "stream { position: absolute; }")).build();
-        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        String url =  "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
         stubFor(put(urlEqualTo(url))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -1031,7 +1032,7 @@ public class OpenTokTest {
         boolean exception = false;
         String archiveId = "ARCHIVEID";
         ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM)).build();
-        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        String url =  "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
         try {
             sdk.setArchiveLayout(archiveId, properties);
         } catch (RequestException e) {
@@ -1045,7 +1046,7 @@ public class OpenTokTest {
         boolean exception = false;
         String archiveId = "ARCHIVEID";
         ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.BESTFIT, "stream { position: absolute; }")).build();
-        String url =  "/v2/project/&lt;" + this.apiKey + "&gt;/archive/&lt;" + archiveId + "&gt/layout";
+        String url =  "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
         try {
             sdk.setArchiveLayout(archiveId, properties);
         } catch (RequestException e) {
@@ -1053,6 +1054,20 @@ public class OpenTokTest {
         }
         assertTrue (exception);
     }
+
+    @Test
+    public void testSetArchiveLayoutWithNoProperties() throws OpenTokException {
+        boolean exception = false;
+        String archiveId = "ARCHIVEID";
+        String url =  "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
+        try {
+            sdk.setArchiveLayout(archiveId, null);
+        } catch (InvalidArgumentException e) {
+            exception = true;
+        }
+        assertTrue (exception);
+    }
+
     @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
