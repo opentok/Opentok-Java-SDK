@@ -495,6 +495,12 @@ public class OpenTok {
      *
      * @param properties This ArchiveProperties object defines options for the archive.
      *
+     * The ArchiveProperties values has the following constraints:
+     * Valid layout type values are "bestFit" (best fit), "custom" (custom), "horizontalPresentation" (horizontal presentation),
+     * "pip" (picture-in-picture), and "verticalPresentation" (vertical presentation)).
+     *  If you specify a "custom" layout type, set the stylesheet property to the stylesheet.
+     *  (For other layout types, do not set the stylesheet property.)
+     *  Refer https://tokbox.com/developer/rest/#change_composed_archive_layout for more details
      */
     public void setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
         if (StringUtils.isEmpty(archiveId) || properties == null) {
