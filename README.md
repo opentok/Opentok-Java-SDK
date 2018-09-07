@@ -245,6 +245,7 @@ use the offset and count parameters as described above.
 // Get a list with the first 1000 archives for a specific session)
 ArchiveList archives = opentok.listArchives(sessionId);
 
+
 // Get a list of the first 50 archives  for a specific session
 ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
 
@@ -258,6 +259,22 @@ Note that you can also create an automatically archived session, by passing `Arc
 into the `archiveMode()` method of the `SessionProperties.Builder` object you use to build the
 `sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
 Sessions," above).
+
+You can dynamically set the archive layout (while the archive is being recorded)  using the `setArchiveLayout(String archiveId, ArchiveProperties properties)` 
+method. Refer [OpenTok documentation](https://tokbox.com/developer/rest/#change_composed_archive_layout) for more information.
+You can use the `ArchiveProperties` builder as follows:
+```JAVA
+ArchiveProperties properties = new ArchiveProperties.Builder()
+.layout(new ArchiveLayout(ArchiveLayout.Type.VERTICAL))
+.build();
+opentok.setArchiveLayout(archiveId, properties);
+
+// For custom layouts the builder looks like:
+ArchiveProperties properties = new ArchiveProperties.Builder()
+.layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM, "stream { position: absolute; }"))
+.build();
+
+```
 
 For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.

@@ -16,6 +16,7 @@ import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import com.opentok.util.HttpClient.ProxyAuthScheme;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -485,6 +486,29 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         this.client.deleteArchive(archiveId);
     }
+    /**
+     * Sets the layout type for a composed archive. For a description of layout types, see
+     *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     *  the video layout for composed archives</a>.
+     *
+     * @param archiveId {String} The archive ID.
+     *
+     * @param properties This ArchiveProperties object defines options for the archive.
+     *
+     * The ArchiveProperties values has the following constraints:
+     * Valid layout type values are "bestFit" (best fit), "custom" (custom), "horizontalPresentation" (horizontal presentation),
+     * "pip" (picture-in-picture), and "verticalPresentation" (vertical presentation)).
+     *  If you specify a "custom" layout type, set the stylesheet property to the stylesheet.
+     *  (For other layout types, do not set the stylesheet property.)
+     *  Refer https://tokbox.com/developer/rest/#change_composed_archive_layout for more details
+     */
+    public void setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(archiveId) || properties == null) {
+            throw new InvalidArgumentException("ArchiveId is not valid or properties are null");
+        }
+        this.client.setArchiveLayout(archiveId, properties);
+    }
+
 
     /**
      * Disconnect a client from an OpenTok session
