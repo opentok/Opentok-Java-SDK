@@ -25,6 +25,8 @@ import com.opentok.SessionProperties;
 import com.opentok.SignalProperties;
 import com.opentok.Stream;
 import com.opentok.StreamList;
+import com.opentok.StreamListProperties;
+import com.opentok.StreamProperties;
 import com.opentok.TokenOptions;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
@@ -1053,7 +1055,6 @@ public class OpenTokTest {
         }
         assertTrue (exception);
     }
-
     @Test
     public void testSetArchiveLayoutWithNoProperties() throws OpenTokException {
         boolean exception = false;
@@ -1066,7 +1067,46 @@ public class OpenTokTest {
         }
         assertTrue (exception);
     }
+    @Test
+    public void testSetArchiveStreamsLayoutWithNoProps() throws OpenTokException {
+        boolean exception = false;
+        String sessionId = "SESSIONID";
+        String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+        try {
+            sdk.setArchiveStreamsLayout(sessionId, null);
+        } catch (InvalidArgumentException e) {
+            exception = true;
+        }
+        assertTrue (exception);
+    }
+    @Test
+    public void testSetArchiveStreamsLayoutWithNoSessionID() throws OpenTokException {
+        boolean exception = false;
+        String sessionId = "";
+        String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+        try {
+            sdk.setArchiveStreamsLayout(sessionId, new StreamListProperties.Builder().build());
+        } catch (InvalidArgumentException e) {
+            exception = true;
+        }
+        assertTrue (exception);
+    }
+    @Test
+    public void testSetArchiveStreamsLayoutWithOneFocusLayout() throws OpenTokException {
+        boolean exception = false;
+        String sessionId = "SESSIONID";
+        String streamId = "STREAMID";
 
+        StreamProperties streamProps = new StreamProperties.Builder().id(streamId).addLayoutClass("full").addLayoutClass("focus").build();
+        StreamProperties streamProps2 = new StreamProperties.Builder().id(streamId).addLayoutClass("full").addLayoutClass("focus").build();
+        StreamListProperties properties = new StreamListProperties.Builder().addStreamProperties(streamProps).addStreamProperties(streamProps2).build();
+        try {
+            sdk.setArchiveStreamsLayout(sessionId, properties);
+        } catch (InvalidArgumentException e) {
+            exception = true;
+        }
+        assertTrue (exception);
+    }
     @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";

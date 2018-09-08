@@ -9,11 +9,14 @@ package com.opentok.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
+import com.opentok.StreamListProperties;
+import com.opentok.StreamProperties;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
@@ -380,7 +383,54 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+            throw new RequestException("Could not set the layout, archiveId = " + archiveId, e);
+        }
+        return responseString;
+    }
+
+    public String setArchiveStreamLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
+        String responseString = null;
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        for(StreamProperties stream : properties.getStreamList()){
+            ObjectNode obj =  JsonNodeFactory.instance.objectNode();
+            obj.put("id", stream.id());
+            obj.put("layoutClassList",stream.getLayoutClassString());
+            array.add(obj);
+        }
+
+        ObjectNode requestJson = nodeFactory.objectNode();
+        requestJson.set("items", array);
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePut(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                case 403:
+                    throw new RequestException("Could not set the layout. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not set the layout. A server error occurred.");
+                default:
+                    throw new RequestException("Could not set the layout. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not delete an OpenTok Archive, sessionId = " + sessionId, e);
         }
         return responseString;
     }
