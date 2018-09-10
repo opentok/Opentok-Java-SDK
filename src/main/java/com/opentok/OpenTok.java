@@ -525,7 +525,7 @@ public class OpenTok {
      *  (For other layout types, do not set the stylesheet property.)
      *  Refer https://tokbox.com/developer/rest/#change_composed_archive_layout for more details
      */
-    public void setArchiveStreamsLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
+    public void setStreamsLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
         if (StringUtils.isEmpty(sessionId) || properties == null) {
             throw new InvalidArgumentException("SessionId is not valid or properties are null");
         }

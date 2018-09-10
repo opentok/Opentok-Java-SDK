@@ -1073,7 +1073,7 @@ public class OpenTokTest {
         String sessionId = "SESSIONID";
         String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
         try {
-            sdk.setArchiveStreamsLayout(sessionId, null);
+            sdk.setStreamsLayout(sessionId, null);
         } catch (InvalidArgumentException e) {
             exception = true;
         }
@@ -1085,7 +1085,7 @@ public class OpenTokTest {
         String sessionId = "";
         String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
         try {
-            sdk.setArchiveStreamsLayout(sessionId, new StreamListProperties.Builder().build());
+            sdk.setStreamsLayout(sessionId, new StreamListProperties.Builder().build());
         } catch (InvalidArgumentException e) {
             exception = true;
         }
@@ -1104,7 +1104,7 @@ public class OpenTokTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
-        sdk.setArchiveStreamsLayout(sessionId, properties);
+        sdk.setStreamsLayout(sessionId, properties);
         verify(putRequestedFor(urlMatching(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(putRequestedFor(urlMatching(url)))));
@@ -1122,7 +1122,7 @@ public class OpenTokTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
-        sdk.setArchiveStreamsLayout(sessionId, properties);
+        sdk.setStreamsLayout(sessionId, properties);
         verify(putRequestedFor(urlMatching(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(putRequestedFor(urlMatching(url)))));

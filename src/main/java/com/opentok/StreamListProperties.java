@@ -8,9 +8,9 @@ import java.util.Map;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#setArchiveStreamsLayout(String, StreamListProperties)}
+ * {@link OpenTok#setStreamsLayout(String, StreamListProperties)}
  *
- * @see OpenTok#setArchiveStreamsLayout(String, StreamListProperties) 
+ * @see OpenTok#setStreamsLayout(String, StreamListProperties)
  */
 public class StreamListProperties {
     private List<StreamProperties> streamList;
