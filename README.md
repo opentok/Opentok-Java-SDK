@@ -294,7 +294,7 @@ StreamListProperties properties = new StreamListProperties.Builder()
                                     .build();
 
 // Call to opentok sdk
-opentok.setArchiveStreamsLayout(sessionId, properties);
+opentok.setStreamsLayout(sessionId, properties);
 ```
 
 For more information on archiving, see the
