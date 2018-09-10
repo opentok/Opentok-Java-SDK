@@ -56,7 +56,8 @@ public class StreamProperties {
          * @return The StreamListProperties.Builder object.
          */
         public StreamProperties.Builder addLayoutClass(String layoutClass) {
-            this.layoutClassList.add(String.format("\"%s\"",layoutClass));
+            char quotes = '"';
+            this.layoutClassList.add(String.format("%s%s%s",quotes,layoutClass,quotes));
             return this;
         }
 
