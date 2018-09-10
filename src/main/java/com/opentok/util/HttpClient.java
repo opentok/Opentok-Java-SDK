@@ -406,6 +406,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         requestJson.set("items", array);
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
+            // ObjectNode adds escape characters on the original strings if it has double quotes (which getLayoutClassString has)
             //base64 is [^A-Za-z0-9+/=] , hence we never touch \, [ , ] in streamId or layoutclass names
             requestBody = requestBody.replaceAll("\\Q\\\\E","");
             requestBody = requestBody.replaceAll("\\Q\"[\\E","[");

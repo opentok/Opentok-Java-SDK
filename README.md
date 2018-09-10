@@ -275,6 +275,27 @@ ArchiveProperties properties = new ArchiveProperties.Builder()
 .build();
 
 ```
+You can also change the individual streams layout of a composed archive , as follows:
+```JAVA
+StreamProperties streamProps = new StreamProperties.Builder()
+                                    .id(streamId)
+                                    .addLayoutClass("full")
+                                    .addLayoutClass("focus")
+                                    .build();
+StreamListProperties properties = new StreamListProperties.Builder()
+                                    .addStreamProperties(streamProps)
+                                    .build();
+// If you want to effect multiple streams create as many StreamProperties objects 
+// as you want and add them to  StreamListProperties as follows:
+
+StreamListProperties properties = new StreamListProperties.Builder()
+                                    .addStreamProperties(streamProps1)
+                                    .addStreamProperties(streamProps2)
+                                    .build();
+
+// Call to opentok sdk
+opentok.setArchiveStreamsLayout(sessionId, properties);
+```
 
 For more information on archiving, see the
 [OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
