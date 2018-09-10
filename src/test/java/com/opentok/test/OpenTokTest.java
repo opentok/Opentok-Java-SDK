@@ -1092,20 +1092,41 @@ public class OpenTokTest {
         assertTrue (exception);
     }
     @Test
-    public void testSetArchiveStreamsLayoutWithOneFocusLayout() throws OpenTokException {
-        boolean exception = false;
+    public void testSetArchiveStreamsMultiLayout() throws OpenTokException {
         String sessionId = "SESSIONID";
-        String streamId = "STREAMID";
+        String streamId1 = "STREAMID1";
+        String streamId2 = "STREAMID2";
+        StreamProperties streamProps1 = new StreamProperties.Builder().id(streamId1).addLayoutClass("full").addLayoutClass("focus").build();
+        StreamProperties streamProps2 = new StreamProperties.Builder().id(streamId2).addLayoutClass("full").build();
+        StreamListProperties properties = new StreamListProperties.Builder().addStreamProperties(streamProps1).addStreamProperties(streamProps2).build();
+        String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        sdk.setArchiveStreamsLayout(sessionId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testSetArchiveStreamsOneLayout() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String streamId = "STREAMID1";
 
         StreamProperties streamProps = new StreamProperties.Builder().id(streamId).addLayoutClass("full").addLayoutClass("focus").build();
-        StreamProperties streamProps2 = new StreamProperties.Builder().id(streamId).addLayoutClass("full").addLayoutClass("focus").build();
-        StreamListProperties properties = new StreamListProperties.Builder().addStreamProperties(streamProps).addStreamProperties(streamProps2).build();
-        try {
-            sdk.setArchiveStreamsLayout(sessionId, properties);
-        } catch (InvalidArgumentException e) {
-            exception = true;
-        }
-        assertTrue (exception);
+        StreamListProperties properties = new StreamListProperties.Builder().addStreamProperties(streamProps).build();
+        String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        sdk.setArchiveStreamsLayout(sessionId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
     }
     @Test
     public void testStartArchiveWithName() throws OpenTokException {
