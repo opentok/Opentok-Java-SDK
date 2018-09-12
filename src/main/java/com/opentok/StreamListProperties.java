@@ -1,10 +1,7 @@
 package com.opentok;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
@@ -52,20 +49,5 @@ public class StreamListProperties {
     public List<StreamProperties> getStreamList() {
         return streamList;
     }
-
-
-    /**
-     * Returns the signal properties as a Map.
-     */
-    public Map<String, Collection<String>> toMap() {
-        Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
-        if (streamList != null) {
-            ArrayList<String> valueList = new ArrayList<String>();
-            valueList.add(String.join(",", streamList.toString()));
-            params.put("items", valueList);
-        }
-        return params;
-    }
-
 
 }

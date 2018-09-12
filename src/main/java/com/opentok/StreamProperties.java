@@ -8,8 +8,6 @@
 package com.opentok;
 
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +54,7 @@ public class StreamProperties {
          * @return The StreamListProperties.Builder object.
          */
         public StreamProperties.Builder addLayoutClass(String layoutClass) {
-            char quotes = '"';
-            this.layoutClassList.add(String.format("%s%s%s",quotes,layoutClass,quotes));
+            this.layoutClassList.add(layoutClass);
             return this;
         }
 
@@ -79,13 +76,12 @@ public class StreamProperties {
 
 
     /**
-     *   Returns an array of layout classes (each strings) for the stream.
-     *   An example: ["full", "focus"]
+     *   Returns layout class list for the stream.
+     *
      */
-    public String getLayoutClassString() {
-        return String.format("[%s]", StringUtils.join(layoutClassList,","));
+    public List<String>  getLayoutClass() {
+        return layoutClassList;
     }
-
 };
 
 
