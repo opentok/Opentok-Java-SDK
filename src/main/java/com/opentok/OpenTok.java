@@ -50,6 +50,8 @@ public class OpenTok {
             .readerFor(Stream.class);
     static protected ObjectReader streamListReader = new ObjectMapper()
             .readerFor(StreamList.class);
+    static protected ObjectReader sipReader = new ObjectMapper()
+            .readerFor(Sip.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -566,6 +568,23 @@ public class OpenTok {
         }
     }
 
+    /**
+     * Gets a list of {@link Stream} object for the given session ID.
+     *
+     * @param sessionId The session ID.
+     *
+     * @return The list of {@link Stream} objects.
+     */
+    public Sip sipDial(String sessionId, String token, SipProperties properties) throws OpenTokException {
+        String sip = this.client.sipDial(sessionId,token,properties);
+        try {
+            return sipReader.readValue(sip);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
     public static class Builder {
         private int apiKey;
         private String apiSecret;

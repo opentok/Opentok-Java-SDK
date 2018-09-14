@@ -7,6 +7,8 @@
  */
 package com.opentok.util;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
+import com.opentok.SipProperties;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
@@ -32,6 +35,7 @@ import org.asynchttpclient.filter.FilterException;
 import org.asynchttpclient.filter.RequestFilter;
 import org.asynchttpclient.proxy.ProxyServer;
 
+import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
@@ -380,7 +384,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+            throw new RequestException("Could not set the layout. archiveId = " + archiveId, e);
         }
         return responseString;
     }
@@ -412,7 +416,76 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         return responseString;
     }
+    public String sipDial(String sessionId, String token, SipProperties props) throws OpenTokException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/dial";
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Character dQuotes = '"';
+        try {
+            JsonFactory factory = new JsonFactory();
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
 
+            jGenerator.writeStartObject();       //main object
+            jGenerator.writeFieldName("sessionId");
+            jGenerator.writeString(sessionId);
+            jGenerator.writeFieldName("token");
+            jGenerator.writeString(token);
+            jGenerator.writeFieldName("sip");
+            jGenerator.writeStartObject();       //start sip
+            jGenerator.writeFieldName("uri");
+            jGenerator.writeRawValue(dQuotes + props.sipUri() + dQuotes);
+            jGenerator.writeFieldName("from");
+            jGenerator.writeRawValue(dQuotes + props.from() + dQuotes);
+            jGenerator.writeFieldName("headers");
+            jGenerator.writeRawValue(props.jsonHeadersStartingWithXDash());
+            jGenerator.writeFieldName("auth");
+            jGenerator.writeStartObject();   //auth begin
+            jGenerator.writeFieldName("username");
+            jGenerator.writeRawValue(dQuotes + props.userName() + dQuotes);
+            jGenerator.writeFieldName("password");
+            jGenerator.writeRawValue(dQuotes + props.password() + dQuotes);
+            jGenerator.writeEndObject();  // auth end
+            jGenerator.writeFieldName("secure");
+            jGenerator.writeBoolean(props.secure());
+            jGenerator.writeEndObject();      // end sip
+            jGenerator.writeEndObject();      // end main object
+
+            jGenerator.close();
+            outputStream.close();
+
+        } catch (Exception e) {
+            throw new OpenTokException("Could not set the sip dial. The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+                .setBody(outputStream.toString())
+                .setHeader("Content-Type", "application/json")
+                .execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not set the sip dial. Either an invalid sessionId or the custom header does not start with the X- prefix.");
+                case 403:
+                    throw new RequestException("Could not set the sip dial. The request was not authorized.");
+                case 404:
+                    throw new RequestException("Could not set the sip dial. The session does not exist.");
+                case 409:
+                    throw new RequestException("Could not set the sip dial.  A SIP call should use the OpenTok routed mode.");
+                case 500:
+                    throw new RequestException("Could not set the sip dial. A server error occurred.");
+                default:
+                    throw new RequestException("Could not set the sip dial. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not set the sip dial, sessionId = " + sessionId, e);
+        }
+        return responseString;
+    }
     public String getStream(String sessionId, String streamId) throws RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId;
