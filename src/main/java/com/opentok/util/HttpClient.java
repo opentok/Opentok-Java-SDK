@@ -398,6 +398,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             JsonFactory factory = new JsonFactory();
+            //Using JsonGenerator as layoutClassList values must be in double quotes and ObjectMapper
+            // adds extra escape characters
             JsonGenerator jGenerator = factory.createGenerator(outputStream);
             jGenerator.writeStartObject();
             jGenerator.writeArrayFieldStart("items");
