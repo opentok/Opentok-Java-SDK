@@ -434,19 +434,27 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeStartObject();       //start sip
             jGenerator.writeFieldName("uri");
             jGenerator.writeRawValue(dQuotes + props.sipUri() + dQuotes);
-            jGenerator.writeFieldName("from");
-            jGenerator.writeRawValue(dQuotes + props.from() + dQuotes);
-            jGenerator.writeFieldName("headers");
-            jGenerator.writeRawValue(props.jsonHeadersStartingWithXDash());
-            jGenerator.writeFieldName("auth");
-            jGenerator.writeStartObject();   //auth begin
-            jGenerator.writeFieldName("username");
-            jGenerator.writeRawValue(dQuotes + props.userName() + dQuotes);
-            jGenerator.writeFieldName("password");
-            jGenerator.writeRawValue(dQuotes + props.password() + dQuotes);
-            jGenerator.writeEndObject();  // auth end
-            jGenerator.writeFieldName("secure");
-            jGenerator.writeBoolean(props.secure());
+            if(!StringUtils.isEmpty(props.from())) {
+                jGenerator.writeFieldName("from");
+                jGenerator.writeRawValue(dQuotes + props.from() + dQuotes);
+            }
+            if(!StringUtils.isEmpty(props.jsonHeadersStartingWithXDash())) {
+                jGenerator.writeFieldName("headers");
+                jGenerator.writeRawValue(props.jsonHeadersStartingWithXDash());
+            }
+            if(!StringUtils.isEmpty(props.userName()) || !StringUtils.isEmpty(props.password())) {
+                jGenerator.writeFieldName("auth");
+                jGenerator.writeStartObject();
+                jGenerator.writeFieldName("username");
+                jGenerator.writeRawValue(dQuotes + props.userName() + dQuotes);
+                jGenerator.writeFieldName("password");
+                jGenerator.writeRawValue(dQuotes + props.password() + dQuotes);
+                jGenerator.writeEndObject();
+            }
+            if(props.secure()) {
+                jGenerator.writeFieldName("secure");
+                jGenerator.writeBoolean(props.secure());
+            }
             jGenerator.writeEndObject();      // end sip
             jGenerator.writeEndObject();      // end main object
 
