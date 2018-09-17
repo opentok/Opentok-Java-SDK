@@ -572,8 +572,9 @@ public class OpenTok {
      * Gets a list of {@link Stream} object for the given session ID.
      *
      * @param sessionId The session ID.
-     *
-     * @return The list of {@link Stream} objects.
+     * @param token The token.
+     * @param properties The SipProperties.
+     * @return The  {@link Sip} object.
      */
     public Sip sipDial(String sessionId, String token, SipProperties properties) throws OpenTokException {
         if((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {

@@ -438,11 +438,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 jGenerator.writeFieldName("from");
                 jGenerator.writeRawValue(dQuotes + props.from() + dQuotes);
             }
-            if(!StringUtils.isEmpty(props.jsonHeadersStartingWithXDash())) {
+            if(!StringUtils.isEmpty(props.headersJsonStartingWithXDash())) {
                 jGenerator.writeFieldName("headers");
-                jGenerator.writeRawValue(props.jsonHeadersStartingWithXDash());
+                jGenerator.writeRawValue(props.headersJsonStartingWithXDash());
             }
-            if(!StringUtils.isEmpty(props.userName()) || !StringUtils.isEmpty(props.password())) {
+            if(!StringUtils.isEmpty(props.userName()) && !StringUtils.isEmpty(props.password())) {
                 jGenerator.writeFieldName("auth");
                 jGenerator.writeStartObject();
                 jGenerator.writeFieldName("username");
@@ -451,13 +451,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 jGenerator.writeRawValue(dQuotes + props.password() + dQuotes);
                 jGenerator.writeEndObject();
             }
-            if(props.secure()) {
-                jGenerator.writeFieldName("secure");
-                jGenerator.writeBoolean(props.secure());
-            }
+
+            jGenerator.writeFieldName("secure");
+            jGenerator.writeBoolean(props.secure());
+
             jGenerator.writeEndObject();      // end sip
             jGenerator.writeEndObject();      // end main object
-
             jGenerator.close();
             outputStream.close();
 

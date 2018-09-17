@@ -1447,7 +1447,7 @@ public class OpenTokTest {
         SipProperties properties = new SipProperties.Builder()
                                                     .sipUri("sip:user@sip.partner.com;transport=tls")
                                                     .from("from@example.com")
-                                                    .jsonHeadersStartingWithXDash(headerJson)
+                                                    .headersJsonStartingWithXDash(headerJson)
                                                     .userName("username")
                                                     .password("password")
                                                     .secure(true)
