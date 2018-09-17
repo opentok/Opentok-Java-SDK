@@ -1129,6 +1129,24 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
     @Test
+    public void testSetArchiveStreamsNoLayout() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String streamId = "STREAMID1";
+
+        StreamProperties streamProps = new StreamProperties.Builder().id(streamId).build();
+        StreamListProperties properties = new StreamListProperties.Builder().addStreamProperties(streamProps).build();
+        String url =  "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        sdk.setStreamsLayout(sessionId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
     public void testStartArchiveWithName() throws OpenTokException {
         String sessionId = "SESSIONID";
         String name = "archive_name";

@@ -79,7 +79,7 @@ public class StreamProperties {
      *   Returns layout class list for the stream.
      *
      */
-    public List<String>  getLayoutClass() {
+    public List<String>  getLayoutClassList() {
         return layoutClassList;
     }
 };

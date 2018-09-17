@@ -529,7 +529,7 @@ public class OpenTok {
         if (StringUtils.isEmpty(sessionId) || properties == null) {
             throw new InvalidArgumentException("SessionId is not valid or properties are null");
         }
-        this.client.setArchiveStreamLayout(sessionId, properties);
+        this.client.setStreamsLayout(sessionId, properties);
     }
 
     /**
