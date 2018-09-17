@@ -1427,6 +1427,50 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
     @Test
+    public void testSipDialWithEmptyNullParams() throws OpenTokException {
+        int exceptionCaughtCount = 0;
+        SipProperties properties = new SipProperties.Builder()
+                .sipUri("sip:user@sip.partner.com;transport=tls")
+                .userName("username")
+                .password("password")
+                .build();
+        try {
+            Sip sip = sdk.sipDial("", "TOKEN", properties);
+        } catch (InvalidArgumentException e) {
+               exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.sipDial(null, "TOKEN", properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.sipDial("SESSIONID", "", properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.sipDial("SESSIONID", null, properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.sipDial("SESSIONID", "TOKEN", null);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        properties = new SipProperties.Builder()
+                .userName("username")
+                .password("password")
+                .build();
+        try {
+            Sip sip = sdk.sipDial("SESSIONID", "TOKEN", properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        assertTrue(exceptionCaughtCount == 6);
+    }
+    @Test
     public void testSipDial() throws OpenTokException {
         String sessionId = "SESSIONID";
         String token = "TOKEN";
