@@ -416,12 +416,12 @@ public class OpenTok {
      * <p>
      * You can only record one archive at a time for a given session. You can only record archives
      * of sessions that use the OpenTok Media Router (sessions with the
-     * <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+     * <a href="https://tokbox.com/developer/guides/create-session/#media-mode">media mode</a>
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      * <p>
      * For more information on archiving, see the
-     * <a href="https://tokbox.com/opentok/tutorials/archiving/">OpenTok archiving</a>
-     * programming guide.
+     * <a href="https://tokbox.com/developer/guides//archiving/">OpenTok archiving</a>
+     * developer guide.
      * 
      * @param sessionId The session ID of the OpenTok session to archive.
      * 
@@ -509,6 +509,29 @@ public class OpenTok {
         this.client.setArchiveLayout(archiveId, properties);
     }
 
+    /**
+     * Sets the layout class list for streams in a session. Layout classes are used in
+     * the layout for composed archives and live streaming broadcasts. For more information, see
+     * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     * the video layout for composed archives</a> and
+     * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
+     * video layout for OpenTok live streaming broadcasts</a>.
+     *
+     * <p>
+     * You can set the initial layout class list for streams published by a client when you generate
+     * used by the client. See the {@link #generateToken(String, TokenOptions)} method.
+     *
+     * @param sessionId {String} The session ID of the session the streams belong to.
+     *
+     * @param properties This StreamListProperties object defines class lists for one or more
+     * streams in the session.
+     */
+    public void setStreamLayouts(String sessionId, StreamListProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(sessionId) || properties == null) {
+            throw new InvalidArgumentException("SessionId is not valid or properties are null");
+        }
+        this.client.setStreamLayouts(sessionId, properties);
+    }
 
     /**
      * Disconnect a client from an OpenTok session

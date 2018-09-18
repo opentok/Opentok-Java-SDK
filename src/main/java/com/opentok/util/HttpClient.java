@@ -7,6 +7,8 @@
  */
 package com.opentok.util;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -14,6 +16,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveProperties;
 import com.opentok.SignalProperties;
+import com.opentok.StreamListProperties;
+import com.opentok.StreamProperties;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
@@ -32,6 +36,7 @@ import org.asynchttpclient.filter.FilterException;
 import org.asynchttpclient.filter.RequestFilter;
 import org.asynchttpclient.proxy.ProxyServer;
 
+import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
@@ -41,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -380,7 +386,66 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
+            throw new RequestException("Could not set the layout, archiveId = " + archiveId, e);
+        }
+        return responseString;
+    }
+
+    public String setStreamLayouts(String sessionId, StreamListProperties properties) throws OpenTokException {
+        String responseString = null;
+        char doubleQuotes = '"';
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            JsonFactory factory = new JsonFactory();
+            //Using JsonGenerator as layoutClassList values must be in double quotes and ObjectMapper
+            // adds extra escape characters
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
+            jGenerator.writeStartObject();
+            jGenerator.writeArrayFieldStart("items");
+
+            for(StreamProperties stream : properties.getStreamList()) {
+                jGenerator.writeStartObject();
+                jGenerator.writeFieldName("id");
+                jGenerator.writeString(stream.id());
+                jGenerator.writeFieldName("layoutClassList");
+                List<String> stringList = stream.getLayoutClassList();
+                StringJoiner sj = new StringJoiner(",");
+                stringList.stream().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
+                jGenerator.writeRawValue("["+ sj.toString() + "]");
+                jGenerator.writeEndObject();
+            }
+
+            jGenerator.writeEndArray();
+            jGenerator.writeEndObject();
+            jGenerator.close();
+            outputStream.close();
+        } catch (Exception e) {
+            throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePut(url)
+                .setBody(outputStream.toString())
+                .setHeader("Content-Type", "application/json")
+                .execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                case 403:
+                    throw new RequestException("Could not set the layout. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not set the layout. A server error occurred.");
+                default:
+                    throw new RequestException("Could not set the layout. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not delete an OpenTok Archive, sessionId = " + sessionId, e);
         }
         return responseString;
     }
