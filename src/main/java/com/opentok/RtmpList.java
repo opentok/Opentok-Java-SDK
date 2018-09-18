@@ -7,29 +7,27 @@
  */
 package com.opentok;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an list of archives of OpenTok session(s).
+ * Represents a list of rtmp properties of a broadcast session.
  */
-@JsonFormat(shape= JsonFormat.Shape.OBJECT)
-public class RtmpList extends ArrayList<Archive> {
+
+public class RtmpList extends ArrayList<RtmpProperties> {
 
     private int totalCount;
 
     /**
-     * The total number of Archives for the API Key.
+     * The total number of properties for rtmp.
      */
     public int getTotalCount() {
         return totalCount;
     }
 
-    private void setItems(List<Archive> archives) {
+    private void setItems(List<RtmpProperties> rtmps) {
         this.clear();
-        this.addAll(archives);
+        this.addAll(rtmps);
     }
 
     private void setCount(int count) {

@@ -50,6 +50,8 @@ public class OpenTok {
             .readerFor(Stream.class);
     static protected ObjectReader streamListReader = new ObjectMapper()
             .readerFor(StreamList.class);
+    static protected ObjectReader broadcastReader = new ObjectMapper()
+            .readerFor(Broadcast.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -508,7 +510,40 @@ public class OpenTok {
         }
         this.client.setArchiveLayout(archiveId, properties);
     }
+    /**
+     * Use this method to start a live streaming for an OpenTok session.
+     * This broadcasts the session to an HLS (HTTP live streaming) or to RTMP streams.
+     * <p>
+     * To successfully start broadcasting a session, at least one client must be connected to the session.
+     * <p>
+     * You can only have one active live streaming broadcast at a time for a session
+     * (however, having more than one would not be useful).
+     * The live streaming broadcast can target one HLS endpoint and up to five RTMP servers simulteneously for a session.
+     * You can only start live streaming for sessions that use the OpenTok Media Router (with the media mode set to routed);
+     * you cannot use live streaming with sessions that have the media mode set to relayed OpenTok Media Router. See
+     * <a href="https://tokbox.com/developer/guides/create-session/#media-mode">The OpenTok Media Router and media modes.</a>
+     * <p>
+     * For more information on archiving, see the
+     * <a href="https://tokbox.com/developer/guides/broadcast/">Broadcast developer guide.</a>
+     *
+     * @param sessionId The session ID of the broadcasting session
+     *
+     * @param properties This BroadcastProperties object defines options for the broadcast.
+     *
+     * @return The Broadcast object. This object includes properties defining the archive, including the archive ID.
+     */
+    public Broadcast startBroadcast(String sessionId, BroadcastProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(sessionId) || (properties ==  null)) {
+            throw new InvalidArgumentException("Session not valid or broadcast properties is null");
+        }
 
+        String broadcast = this.client.startBroadcast(sessionId, properties);
+        try {
+            return broadcastReader.readValue(broadcast);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see

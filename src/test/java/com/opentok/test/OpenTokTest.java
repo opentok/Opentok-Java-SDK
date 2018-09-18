@@ -17,9 +17,13 @@ import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveList;
 import com.opentok.ArchiveMode;
 import com.opentok.ArchiveProperties;
+import com.opentok.Broadcast;
+import com.opentok.BroadcastLayout;
+import com.opentok.BroadcastProperties;
 import com.opentok.MediaMode;
 import com.opentok.OpenTok;
 import com.opentok.Role;
+import com.opentok.RtmpProperties;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 import com.opentok.SignalProperties;
@@ -1503,9 +1507,68 @@ public class OpenTokTest {
                 findAll(getRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
-
     @Test
-    public void testforceDisconnect() throws OpenTokException {
+    public void testStartBroadcastNullEmptyParameters() throws OpenTokException {
+        int exceptionCount = 0;
+        BroadcastProperties properties = new BroadcastProperties.Builder().build();
+        try {
+            Broadcast broadcast = sdk.startBroadcast("", properties);
+        } catch (InvalidArgumentException e ) {
+            exceptionCount += 1;
+        }
+        try {
+            Broadcast broadcast = sdk.startBroadcast(null, properties);
+        } catch (InvalidArgumentException e ) {
+            exceptionCount += 1;
+        }
+        try {
+            Broadcast broadcast = sdk.startBroadcast("SESSIONID", null);
+        } catch (InvalidArgumentException e ) {
+            exceptionCount += 1;
+        }
+        assertTrue(exceptionCount == 3);
+    }
+    
+    @Test
+    public void testStartBroadcast() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"upDatedAt\" : 1395183243556,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"dummy\" : null\n" +
+                                "        }")));
+        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .addRtmpProperties(rtmpProps)
+                .addRtmpProperties(rtmpNextProps)
+                .maxDuration(123456)
+                .resolution("640x480")
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testForceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId ;
