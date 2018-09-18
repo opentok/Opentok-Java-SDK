@@ -14,17 +14,19 @@ public class StreamListProperties {
 
     private StreamListProperties(StreamListProperties.Builder builder) {
         this.streamList = builder.streamList;
-    }    /**
-     * Use this class to create a StreamProperties object.
+    }
+
+    /**
+     * Use this class to create a StreamListProperties object.
      *
-     * @see StreamProperties
+     * @see StreamListProperties
      */
     public static class Builder {
         private List<StreamProperties> streamList = new ArrayList<>();
         /**
-         * Call this method to set layoutClassList of the stream.
+         * Call this method to set layout class list of a stream.
          *
-         * @param streamProps The stream properties using StreamProperties builder
+         * @param streamProps The StreamProperties object .
          *
          * @return The StreamListProperties.Builder object with the list of StreamProperties setting.
          */

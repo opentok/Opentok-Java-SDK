@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#setStreamsLayout(String, StreamListProperties)}
+ * {@link OpenTok#setStreamsLayout(String, StreamListProperties)} method.
  *
  * @see OpenTok#setStreamsLayout(String, StreamListProperties)
  */
@@ -35,21 +35,24 @@ public class StreamProperties {
         private List<String> layoutClassList = new ArrayList<>();
 
         /**
-         * Call this method to set the id of the stream.
+         * Call this method to set the ID of the stream.
          *
-         * @param id The stream id
+         * @param id The stream ID.
          *
-         * @return The StreamProperties.Builder object with the id setting.
+         * @return The StreamProperties.Builder object with the ID setting.
          */
         public StreamProperties.Builder id(String id) {
             this.id = id;
             return this;
         }
         /**
-         * Call this method to set the individual layout classes of the stream.
+         * Call this method to set an individual layout class for the stream.
+         * Call this method multiple times to set multiple classes for a stream.
+         * If you do not call this method when building the StreamProperties object,
+         * the stream's layout class list will be cleared.
          *
-         * @param layoutClass  The layout class string for  layoutClassList. We do not check
-         *                     for null/empty/duplicate strings.
+         * @param layoutClass  A layout class string for the stream. We do not check
+         *                     for null, empty, or duplicate strings.
          *
          * @return The StreamListProperties.Builder object.
          */
@@ -68,7 +71,7 @@ public class StreamProperties {
         }
     }
     /**
-     * Returns the id  of the stream
+     * Returns the ID of the stream.
      */
     public String id() {
         return id;
@@ -76,8 +79,7 @@ public class StreamProperties {
 
 
     /**
-     *   Returns layout class list for the stream.
-     *
+     * Returns the list of layout classes for the stream.
      */
     public List<String>  getLayoutClassList() {
         return layoutClassList;

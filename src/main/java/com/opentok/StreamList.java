@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an list of archives of OpenTok session(s).
+ * Represents a list of OpenTok Streams.
  */
 @JsonFormat(shape= JsonFormat.Shape.OBJECT)
 public class StreamList extends ArrayList<Stream> {
@@ -21,7 +21,7 @@ public class StreamList extends ArrayList<Stream> {
     private int totalCount;
 
     /**
-     * The total number of Archives for the API Key.
+     * The total number of Streams in the StreamList.
      */
     public int getTotalCount() {
         return totalCount;

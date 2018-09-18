@@ -420,8 +420,8 @@ public class OpenTok {
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      * <p>
      * For more information on archiving, see the
-     * <a href="https://tokbox.com/opentok/tutorials/archiving/">OpenTok archiving</a>
-     * programming guide.
+     * <a href="https://tokbox.com/developer/guides//archiving/">OpenTok archiving</a>
+     * developer guide.
      * 
      * @param sessionId The session ID of the OpenTok session to archive.
      * 
@@ -510,20 +510,21 @@ public class OpenTok {
     }
 
     /**
-     * Sets the layout type for a composed archive. For a description of layout types, see
-     *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
-     *  the video layout for composed archives</a>.
+     * Sets the layout class list for streams in a session. Layout classes are used in
+     * the layout for composed archives and live streaming broadcasts. For more information, see
+     * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     * the video layout for composed archives</a> and
+     * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
+     * video layout for OpenTok live streaming broadcasts</a>.
      *
-     * @param archiveId {String} The archive ID.
+     * <p>
+     * You can set the initial layout class list for streams published by a client when you generate
+     * used by the client. See the {@link #generateToken(String, TokenOptions)} method.
      *
-     * @param properties This ArchiveProperties object defines options for the archive.
+     * @param sessionId {String} The session ID of the session the streams belong to.
      *
-     * The ArchiveProperties values has the following constraints:
-     * Valid layout type values are "bestFit" (best fit), "custom" (custom), "horizontalPresentation" (horizontal presentation),
-     * "pip" (picture-in-picture), and "verticalPresentation" (vertical presentation)).
-     *  If you specify a "custom" layout type, set the stylesheet property to the stylesheet.
-     *  (For other layout types, do not set the stylesheet property.)
-     *  Refer https://tokbox.com/developer/rest/#change_composed_archive_layout for more details
+     * @param properties This StreamListProperties object defines class lists for one or more
+     * streams in the session.
      */
     public void setStreamsLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
         if (StringUtils.isEmpty(sessionId) || properties == null) {

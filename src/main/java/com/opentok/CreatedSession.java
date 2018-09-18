@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Represents a generated OpenTok session via REST API.
+ * Used internally.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreatedSession {
@@ -38,6 +38,10 @@ public class CreatedSession {
     protected CreatedSession() {
     }
 
+    /**
+     * Used internally. Use the {@link OpenTok#createSession(SessionProperties properties)}
+     * method to create an OpenTok session.
+     */
     @JsonCreator
     public static CreatedSession makeSession() {
         return new CreatedSession();

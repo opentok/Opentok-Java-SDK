@@ -77,7 +77,7 @@ public class SessionProperties {
        *
        * <p>
        * The
-       * <a href="https://tokbox.com/opentok/tutorials/create-session/#media-mode" target="_top">
+       * <a href="https://tokbox.com/developer/guides/create-session/#media-mode" target="_top">
        * OpenTok Media Router</a> provides the following benefits:
        *
        * <ul>

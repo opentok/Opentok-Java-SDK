@@ -253,30 +253,36 @@ ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
 ArchiveList archives = sdk.listArchives(sessionId, 50, 50);
 ```
 
-
- 
 Note that you can also create an automatically archived session, by passing `ArchiveMode.ALWAYS`
 into the `archiveMode()` method of the `SessionProperties.Builder` object you use to build the
 `sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
 Sessions," above).
 
-You can dynamically set the archive layout (while the archive is being recorded)  using the `setArchiveLayout(String archiveId, ArchiveProperties properties)` 
-method. Refer [OpenTok documentation](https://tokbox.com/developer/rest/#change_composed_archive_layout) for more information.
-You can use the `ArchiveProperties` builder as follows:
-```JAVA
+For composed archives, you can dynamically set the archive layout (while the archive is being recorded) using the `OpenTok.setArchiveLayout(String archiveId, ArchiveProperties properties)` 
+method. Refer [Customizing the video layout for composed
+archives](https://tokbox.com/developer/guides/archiving/layout-control.html) for more information. Use the `ArchiveProperties` builder as follows:
+
+```java
 ArchiveProperties properties = new ArchiveProperties.Builder()
 .layout(new ArchiveLayout(ArchiveLayout.Type.VERTICAL))
 .build();
 opentok.setArchiveLayout(archiveId, properties);
+```
 
-// For custom layouts the builder looks like:
+For custom layouts the builder looks like:
+
+```java
 ArchiveProperties properties = new ArchiveProperties.Builder()
 .layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM, "stream { position: absolute; }"))
 .build();
-
 ```
-You can also change the individual streams layout of a composed archive , as follows:
-```JAVA
+
+You can set the initial layout class for a client's streams by setting the `layout`
+option when you create the token for the client, using the
+`OpenTok.generateToken(String sessionId, TokenOptions options)` method. And you can
+also change the layout classes of a stream as follows:
+
+```java
 StreamProperties streamProps = new StreamProperties.Builder()
                                     .id(streamId)
                                     .addLayoutClass("full")
@@ -285,20 +291,22 @@ StreamProperties streamProps = new StreamProperties.Builder()
 StreamListProperties properties = new StreamListProperties.Builder()
                                     .addStreamProperties(streamProps)
                                     .build();
-// If you want to effect multiple streams create as many StreamProperties objects 
-// as you want and add them to  StreamListProperties as follows:
+opentok.setStreamsLayout(sessionId, properties);
+```
 
+If you want to change the layout of multiple streams, create a StreamProperties object
+for each stream, and add them to the StreamListProperties object as follows:
+
+```java
 StreamListProperties properties = new StreamListProperties.Builder()
                                     .addStreamProperties(streamProps1)
                                     .addStreamProperties(streamProps2)
                                     .build();
-
-// Call to opentok sdk
 opentok.setStreamsLayout(sessionId, properties);
 ```
 
 For more information on archiving, see the
-[OpenTok archiving](https://tokbox.com/opentok/tutorials/archiving/) programming guide.
+[OpenTok archiving](https://tokbox.com/developer/guides//archiving/) developer guide.
 
 ## Force Disconnect
 

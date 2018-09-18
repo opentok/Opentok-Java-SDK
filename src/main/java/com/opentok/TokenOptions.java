@@ -61,6 +61,10 @@ public class TokenOptions {
         return data;
     }
 
+    /**
+    * Returns the initial layout class list for streams published by the client using this token.
+    * See {@link TokenOptions.Builder#initialLayoutClassList(List initialLayoutClassList)}.
+    */
     public List<String> getInitialLayoutClassList() {
         return initialLayoutClassList;
     }
@@ -127,6 +131,17 @@ public class TokenOptions {
             return this;
         }
 
+        /**
+        * A List of class names (strings) to be used as the initial layout classes
+        * for streams published by the client. Layout classes are used in customizing the layout
+        * of videos in
+        * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">live streaming
+        * broadcasts</a> and
+        * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">composed
+        * archives</a>. 
+        *
+        * @param initialLayoutClassList The initial layout class list.
+        */
         public Builder initialLayoutClassList (List<String> initialLayoutClassList) {
             this.initialLayoutClassList = initialLayoutClassList;
             return this;
