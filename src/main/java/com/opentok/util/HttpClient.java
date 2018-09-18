@@ -391,7 +391,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String setStreamsLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
+    public String setStreamLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
         String responseString = null;
         char doubleQuotes = '"';
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";

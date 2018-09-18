@@ -13,9 +13,9 @@ import java.util.List;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#setStreamsLayout(String, StreamListProperties)} method.
+ * {@link OpenTok#setStreamLayout(String, StreamListProperties)} method.
  *
- * @see OpenTok#setStreamsLayout(String, StreamListProperties)
+ * @see OpenTok#setStreamLayout(String, StreamListProperties)
  */
 public class StreamProperties {
     private String id = null;
