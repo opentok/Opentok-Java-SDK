@@ -2,12 +2,14 @@
 
 [![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=master)](https://travis-ci.org/opentok/Opentok-Java-SDK)
 [![codecov](https://codecov.io/gh/opentok/Opentok-Java-SDK/branch/master/graph/badge.svg)](https://codecov.io/gh/opentok/Opentok-Java-SDK)
-The OpenTok Java SDK lets you generate
-[sessions](http://tokbox.com/opentok/tutorials/create-session/) and
-[tokens](http://tokbox.com/opentok/tutorials/create-token/) for [OpenTok](http://www.tokbox.com/)
-applications that run on the JVM. The SDK also includes support for working with
-[OpenTok archives](http://tokbox.com/opentok/tutorials/archiving).
 
+The OpenTok Java SDK lets you generate
+[sessions](https://tokbox.com/developer/guides/create-session/) and
+[tokens](https://tokbox.com/developer/guides/create-token/) for
+[OpenTok](http://www.tokbox.com/) applications that run on the JVM. It also includes methods for
+working with OpenTok [archives](https://tokbox.com/developer/guides/archiving),
+[signaling OpenTok sessions from the server](https://tokbox.com/developer/guides/signaling/),
+and [disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/).
 
 # Installation
 
@@ -70,7 +72,7 @@ opentok.close();
 
 ## Creating Sessions
 
-To create an OpenTok Session, use the `OpenTok` instance's `createSession(SessionProperties properties)`
+To create an OpenTok Session, use the `OpenTok` instance’s `createSession(SessionProperties properties)`
 method. The `properties` parameter is optional and it is used to specify two things:
 
 * Whether the session uses the OpenTok Media Router
@@ -245,7 +247,6 @@ use the offset and count parameters as described above.
 // Get a list with the first 1000 archives for a specific session)
 ArchiveList archives = opentok.listArchives(sessionId);
 
-
 // Get a list of the first 50 archives  for a specific session
 ArchiveList archives = sdk.listArchives(sessionId, 0, 50);
 
@@ -259,7 +260,7 @@ into the `archiveMode()` method of the `SessionProperties.Builder` object you us
 Sessions," above).
 
 For composed archives, you can dynamically set the archive layout (while the archive is being recorded) using the `OpenTok.setArchiveLayout(String archiveId, ArchiveProperties properties)` 
-method. Refer [Customizing the video layout for composed
+method. See [Customizing the video layout for composed
 archives](https://tokbox.com/developer/guides/archiving/layout-control.html) for more information. Use the `ArchiveProperties` builder as follows:
 
 ```java

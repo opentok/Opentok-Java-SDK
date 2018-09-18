@@ -92,7 +92,7 @@ public class SessionProperties {
        *     that client (without affecting other clients), and the client receives audio only.
        *     If the client's connectivity improves, the video returns.</li>
        *   <li>The OpenTok Media Router supports the
-       *     <a href="http://tokbox.com/opentok/tutorials/archiving" target="_top">archiving</a>
+       *     <a href="http://tokbox.com/developer/guides/archiving" target="_top">archiving</a>
        *     feature, which lets you record, save, and retrieve OpenTok sessions.</li>
        * </ul>
        *

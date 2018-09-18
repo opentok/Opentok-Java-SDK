@@ -416,7 +416,7 @@ public class OpenTok {
      * <p>
      * You can only record one archive at a time for a given session. You can only record archives
      * of sessions that use the OpenTok Media Router (sessions with the
-     * <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+     * <a href="https://tokbox.com/developer/guides/create-session/#media-mode">media mode</a>
      * set to routed); you cannot archive sessions with the media mode set to relayed.
      * <p>
      * For more information on archiving, see the
