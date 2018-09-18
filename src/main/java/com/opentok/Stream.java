@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 /**
- * Represents a stream  of an OpenTok session.
+ * Represents a stream in an OpenTok session.
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 
@@ -54,7 +54,7 @@ public class Stream {
     }
 
     /**
-     * The layoutClassList of the stream.
+     * The layout class list of the stream.
      */
     public List<String> getLayoutClassList() {
         return layoutClassList;
