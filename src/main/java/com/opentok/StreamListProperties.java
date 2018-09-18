@@ -5,9 +5,9 @@ import java.util.List;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#setStreamLayout(String, StreamListProperties)}
+ * {@link OpenTok#setStreamLayouts(String, StreamListProperties)}
  *
- * @see OpenTok#setStreamLayout(String, StreamListProperties)
+ * @see OpenTok#setStreamLayouts(String, StreamListProperties)
  */
 public class StreamListProperties {
     private List<StreamProperties> streamList;

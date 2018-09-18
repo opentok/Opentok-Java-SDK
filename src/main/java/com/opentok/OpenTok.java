@@ -526,11 +526,11 @@ public class OpenTok {
      * @param properties This StreamListProperties object defines class lists for one or more
      * streams in the session.
      */
-    public void setStreamLayout(String sessionId, StreamListProperties properties) throws OpenTokException {
+    public void setStreamLayouts(String sessionId, StreamListProperties properties) throws OpenTokException {
         if (StringUtils.isEmpty(sessionId) || properties == null) {
             throw new InvalidArgumentException("SessionId is not valid or properties are null");
         }
-        this.client.setStreamLayout(sessionId, properties);
+        this.client.setStreamLayouts(sessionId, properties);
     }
 
     /**

@@ -291,7 +291,7 @@ StreamProperties streamProps = new StreamProperties.Builder()
 StreamListProperties properties = new StreamListProperties.Builder()
                                     .addStreamProperties(streamProps)
                                     .build();
-opentok.setStreamLayout(sessionId, properties);
+opentok.setStreamLayouts(sessionId, properties);
 ```
 
 If you want to change the layout of multiple streams, create a StreamProperties object
@@ -302,7 +302,7 @@ StreamListProperties properties = new StreamListProperties.Builder()
                                     .addStreamProperties(streamProps1)
                                     .addStreamProperties(streamProps2)
                                     .build();
-opentok.setStreamLayout(sessionId, properties);
+opentok.setStreamLayouts(sessionId, properties);
 ```
 
 For more information on archiving, see the
