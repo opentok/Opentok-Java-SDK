@@ -1,3 +1,10 @@
+/**
+ * OpenTok Java SDK
+ * Copyright (C) 2018 TokBox, Inc.
+ * http://www.tokbox.com
+ *
+ * Licensed under The MIT License (MIT). See LICENSE file for more information.
+ */
 package com.opentok;
 
 import java.util.ArrayList;
@@ -5,7 +12,7 @@ import java.util.List;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#setStreamLayouts(String, StreamListProperties)}
+ * {@link OpenTok#setStreamLayouts(String, StreamListProperties)} method.
  *
  * @see OpenTok#setStreamLayouts(String, StreamListProperties)
  */
@@ -46,7 +53,7 @@ public class StreamListProperties {
     }
 
     /**
-     *   Returns the StreamProperties list
+     * Returns the StreamProperties list.
      */
     public List<StreamProperties> getStreamList() {
         return streamList;
