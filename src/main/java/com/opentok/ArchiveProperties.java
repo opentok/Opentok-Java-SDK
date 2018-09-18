@@ -68,7 +68,7 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to set a name to the archive.
+         * Call this method to set the resolution of the archive.
          *
          * @param resolution The resolution of the archive, either "640x480" (SD, the default) or "1280x720" (HD).
          * This property only applies to composed archives.

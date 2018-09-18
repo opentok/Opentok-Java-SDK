@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an list of archives of OpenTok session(s).
+ * Represents a list of archives of OpenTok session(s).
  */
 @JsonFormat(shape= JsonFormat.Shape.OBJECT)
 public class ArchiveList extends ArrayList<Archive> {
