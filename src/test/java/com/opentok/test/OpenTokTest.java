@@ -1435,27 +1435,27 @@ public class OpenTokTest {
                 .password("password")
                 .build();
         try {
-            Sip sip = sdk.sipDial("", "TOKEN", properties);
+            Sip sip = sdk.dial("", "TOKEN", properties);
         } catch (InvalidArgumentException e) {
                exceptionCaughtCount += 1;
         }
         try {
-            Sip sip = sdk.sipDial(null, "TOKEN", properties);
+            Sip sip = sdk.dial(null, "TOKEN", properties);
         } catch (InvalidArgumentException e) {
             exceptionCaughtCount += 1;
         }
         try {
-            Sip sip = sdk.sipDial("SESSIONID", "", properties);
+            Sip sip = sdk.dial("SESSIONID", "", properties);
         } catch (InvalidArgumentException e) {
             exceptionCaughtCount += 1;
         }
         try {
-            Sip sip = sdk.sipDial("SESSIONID", null, properties);
+            Sip sip = sdk.dial("SESSIONID", null, properties);
         } catch (InvalidArgumentException e) {
             exceptionCaughtCount += 1;
         }
         try {
-            Sip sip = sdk.sipDial("SESSIONID", "TOKEN", null);
+            Sip sip = sdk.dial("SESSIONID", "TOKEN", null);
         } catch (InvalidArgumentException e) {
             exceptionCaughtCount += 1;
         }
@@ -1464,7 +1464,7 @@ public class OpenTokTest {
                 .password("password")
                 .build();
         try {
-            Sip sip = sdk.sipDial("SESSIONID", "TOKEN", properties);
+            Sip sip = sdk.dial("SESSIONID", "TOKEN", properties);
         } catch (InvalidArgumentException e) {
             exceptionCaughtCount += 1;
         }
@@ -1496,7 +1496,7 @@ public class OpenTokTest {
                                                     .password("password")
                                                     .secure(true)
                                                     .build();
-        Sip sip = sdk.sipDial(sessionId, token, properties);
+        Sip sip = sdk.dial(sessionId, token, properties);
         assertNotNull(sip);
         assertNotNull(sip.getId());
         assertNotNull(sip.getConnectionId());

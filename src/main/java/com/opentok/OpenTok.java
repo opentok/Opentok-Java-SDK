@@ -576,7 +576,7 @@ public class OpenTok {
      * @param properties The SipProperties.
      * @return The  {@link Sip} object.
      */
-    public Sip sipDial(String sessionId, String token, SipProperties properties) throws OpenTokException {
+    public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
         if((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
             throw  new InvalidArgumentException ("Session id or token is null or empty or sip properties is null or sip uri empty or null.");
         }

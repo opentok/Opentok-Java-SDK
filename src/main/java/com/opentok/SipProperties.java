@@ -9,9 +9,9 @@ package com.opentok;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#sipDial(String, String, SipProperties)}  method.
+ * {@link OpenTok#dial(String, String, SipProperties)} method.
  *
- * @see OpenTok#sipDial(String, String, SipProperties)
+ * @see OpenTok#dial(String, String, SipProperties)
  */
 public class SipProperties {
     private String sipUri = null;
