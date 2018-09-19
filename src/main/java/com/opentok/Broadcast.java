@@ -31,13 +31,6 @@ public class Broadcast {
     @JsonProperty private String status;
     private List<Rtmp> rtmpList = new ArrayList<>();
     private String hls;
-    
-//    @JsonProperty private List broadcastUrls;
-//
-//    @JsonProperty private String hls;
-//    @JsonProperty private String rtmp;
-
-
 
     protected Broadcast() {
     }
@@ -69,7 +62,12 @@ public class Broadcast {
         return projectId;
     }
 
-
+    /**
+     * The time at which the archive was created, in milliseconds since the Unix epoch.
+     */
+    public long getCreatedAt() {
+        return createdAt;
+    }
     /**
      * The time at which the archive was created, in milliseconds since the Unix epoch.
      */
@@ -93,32 +91,22 @@ public class Broadcast {
      * The name of the archive.
      *
      */
-    @SuppressWarnings("unchecked")
     @JsonProperty("broadcastUrls")
     private void unpack(Map<String,Object> broadcastUrls) {
         hls = (String)broadcastUrls.get("hls");
-        Map<String,Object> rtmp = (Map<String,Object>)broadcastUrls.get("rtmp");
-        for (Map.Entry<String,Object> entry : rtmp.entrySet()) {
-            Rtmp rtmpObject = new Rtmp();
-            rtmpObject.setId(entry.getKey());
-            Map<String,String> rtmpData = (Map<String,String>)entry.getValue();
-            rtmpObject.setServerUrl(rtmpData.get("serverUrl"));
-            rtmpObject.setStreamName(rtmpData.get("streamName"));
-            this.rtmpList.add(rtmpObject);
+        Map<String,Object> rtmpResponseList = (Map<String,Object>)broadcastUrls.get("rtmp");
+        if (rtmpResponseList == null) return;
+        for (Map.Entry<String,Object> element : rtmpResponseList.entrySet()) {
+            Rtmp rtmp = new Rtmp();
+            rtmp.setId(element.getKey());
+            Map<String,String> rtmpData = (Map<String,String>)element.getValue();
+            rtmp.setServerUrl(rtmpData.get("serverUrl"));
+            rtmp.setStreamName(rtmpData.get("streamName"));
+            this.rtmpList.add(rtmp);
         }
     }
-//    public List getBroadcastUrls() {
-//        return broadcastUrls;
-//    }
-
-//    /**
-//     * The name of the archive.
-//     */
-//    public String getRtmp() {
-//        return rtmp;
-//    }
     /**
-     * The name of the archive.
+     * The name of the archive if present else null.
      */
     public String getHls() {
         return hls;

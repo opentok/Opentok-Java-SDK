@@ -9,10 +9,10 @@ package com.opentok;
 
 
 /**
- * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#signal(String, SignalProperties)} (String, String)}  method.
+ * Defines values for the <code>BroadcastProperties</code> parameter of the
+ * {@link OpenTok#startBroadcast(String, BroadcastProperties)}
  *
- * @see OpenTok#signal(String, SignalProperties) (String, String)
+ * @see OpenTok#startBroadcast(String, BroadcastProperties) 
  */
 public class RtmpProperties {
     private String id = null;

@@ -7,6 +7,8 @@
  */
 package com.opentok;
 
+import com.opentok.exception.InvalidArgumentException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +61,7 @@ public class BroadcastProperties {
             return this;
         }
         /**
-         * Call this method to set the time duration, in seconds, of the broadcast
+         * Call this method to set the time duration, in seconds, of the broadcast . The default is 7200 seconds
          *
          * @param maxDuration The maximum time duration in seconds
          *
@@ -88,7 +90,10 @@ public class BroadcastProperties {
          *
          * @return The BroadcastProperties.Builder object with the list of RtmpProperties setting.
          */
-        public Builder addRtmpProperties (RtmpProperties rtmpProps) {
+        public Builder addRtmpProperties (RtmpProperties rtmpProps) throws InvalidArgumentException {
+            if(this.rtmpList.size() >= 5) {
+                throw new InvalidArgumentException("Cannot add more than 5 RtmpProperties properties");
+            }
             this.rtmpList.add(rtmpProps);
             return this;
         }
