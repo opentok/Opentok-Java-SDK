@@ -1748,7 +1748,7 @@ public class OpenTokTest {
                                 "           }"                                   +
                                 "           }"                                   +
                                 "        }")));
-        Broadcast broadcast = sdk.getBroadcastStream(broadcastId);
+        Broadcast broadcast = sdk.getBroadcast(broadcastId);
         assertNotNull(broadcast);
         assertEquals(broadcastId, broadcast.getId());
         assertEquals("http://server/fakepath/playlist.m3u8",broadcast.getHls());

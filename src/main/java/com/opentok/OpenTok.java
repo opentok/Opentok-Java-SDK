@@ -575,11 +575,11 @@ public class OpenTok {
      * @param broadcastId The broadcast ID.
      * @return The {@link Broadcast} object.
      */
-    public Broadcast getBroadcastStream(String broadcastId) throws OpenTokException {
+    public Broadcast getBroadcast(String broadcastId) throws OpenTokException {
         if(StringUtils.isEmpty(broadcastId)) {
             throw new InvalidArgumentException("Broadcast id is null or empty");
         }
-        String stream = this.client.getBroadcastStream(broadcastId);
+        String stream = this.client.getBroadcast(broadcastId);
         try {
             return broadcastReader.readValue(stream);
         } catch (Exception e) {

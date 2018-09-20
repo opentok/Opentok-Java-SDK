@@ -560,7 +560,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String getBroadcastStream(String broadcastId)
+    public String getBroadcast(String broadcastId)
             throws OpenTokException {
         String responseString = null;
         String requestBody = null;
