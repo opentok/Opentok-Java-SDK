@@ -592,6 +592,59 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         return responseString;
     }
+    public String setBroadcastLayout(String broadcastId, BroadcastProperties properties) throws OpenTokException {
+        if(properties.layout() == null) {
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        String type = properties.layout().getType().toString();
+        String stylesheet = properties.layout().getStylesheet();
+        if(StringUtils.isEmpty(type)) {
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        if ((type.equals(BroadcastLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
+                (!type.equals(BroadcastLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        String responseString = null;
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/layout";
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        requestJson.put("type", type);
+        if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
+            requestJson.put("stylesheet", properties.layout().getStylesheet());
+        }
+
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
+        }
+        Future<Response> request = this.preparePut(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                case 403:
+                    throw new RequestException("Could not set the layout. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not set the layout. A server error occurred.");
+                default:
+                    throw new RequestException("Could not set the layout. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not set the layout, broadcastId = " + broadcastId, e);
+        }
+        return responseString;
+    }
 
     public String forceDisconnect(String sessionId, String connectionId) throws   OpenTokException , RequestException {
         String responseString = null;

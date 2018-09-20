@@ -1758,6 +1758,23 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
+
+    @Test
+    public void testSetBroadcastLayoutVertical() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        BroadcastProperties properties = new BroadcastProperties.Builder().layout(new BroadcastLayout(BroadcastLayout.Type.VERTICAL)).build();
+        String url =  "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/layout";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+
+        sdk.setBroadcastLayout(broadcastId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
     @Test
     public void testForceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";

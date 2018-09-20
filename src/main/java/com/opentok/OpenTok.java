@@ -587,6 +587,28 @@ public class OpenTok {
         }
     }
     /**
+     * Sets the layout type for the broadcast. For a description of layout types, see
+     *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     *  the video layout for composed archives</a>.
+     *
+     * @param broadcastId {String} The broadcast ID.
+     *
+     * @param properties This BroadcastProperties object defines options for the archive.
+     *
+     * The ArchiveProperties values has the following constraints:
+     * Valid layout type values are "bestFit" (best fit), "custom" (custom), "horizontalPresentation" (horizontal presentation),
+     * "pip" (picture-in-picture), and "verticalPresentation" (vertical presentation)).
+     *  If you specify a "custom" layout type, set the stylesheet property to the stylesheet.
+     *  (For other layout types, do not set the stylesheet property.)
+     *  Refer https://tokbox.com/developer/rest/#change_composed_archive_layout for more details
+     */
+    public void setBroadcastLayout(String broadcastId, BroadcastProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(broadcastId) || properties == null) {
+            throw new InvalidArgumentException("BroadcastId is not valid or properties are null");
+        }
+        this.client.setBroadcastLayout(broadcastId, properties);
+    }
+    /**
      * Sets the layout class list for streams in a session. Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see
      * <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
