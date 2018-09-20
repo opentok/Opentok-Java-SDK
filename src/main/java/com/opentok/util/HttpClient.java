@@ -560,6 +560,39 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
+    public String getBroadcastStream(String broadcastId)
+            throws OpenTokException {
+        String responseString = null;
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId;
+        Future<Response> request = this.prepareGet(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not get Broadcast stream information. A bad request, check input  properties.");
+                case 403:
+                    throw new RequestException("Could not get Broadcast stream information.. The request was not authorized.");
+                case 404:
+                    throw new RequestException("The broadcast " + broadcastId + "was not found.");
+                case 500:
+                    throw new RequestException("Could not get Broadcast stream information.. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get Broadcast stream information.The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get Broadcast stream information.", e);
+        }
+        return responseString;
+    }
+
     public String forceDisconnect(String sessionId, String connectionId) throws   OpenTokException , RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/"+ connectionId ;

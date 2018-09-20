@@ -1716,6 +1716,48 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
+
+    @Test
+    public void testBroadcastStreamInfo() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId;
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" :  \"" + broadcastId + "\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"upDatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"broadcastUrls\" : {"    +
+                                "           \"hls\" : \"http://server/fakepath/playlist.m3u8\","     +
+                                "           \"rtmp\" : [{"           +
+                                "           \"id\" : \"foo\","           +
+                                "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\","     +
+                                "           \"streamName\" : \"myfoostream\""     +
+                                "           },"                                   +
+                                "           {                          "           +
+                                "           \"id\" : \"bar\","     +
+                                "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\","     +
+                                "           \"streamName\" : \"mybarstream\""     +
+                                "           }]"                                   +
+                                "           }"                                   +
+                                "           }"                                   +
+                                "        }")));
+        Broadcast broadcast = sdk.getBroadcastStream(broadcastId);
+        assertNotNull(broadcast);
+        assertEquals(broadcastId, broadcast.getId());
+        assertEquals("http://server/fakepath/playlist.m3u8",broadcast.getHls());
+        assertEquals(2,broadcast.getRtmpList().size());
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
     @Test
     public void testForceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";

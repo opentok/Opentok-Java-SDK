@@ -568,6 +568,24 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
+
+    /**
+     * Gets an {@link Broadcast} object for the given broadcast ID.
+     *
+     * @param broadcastId The broadcast ID.
+     * @return The {@link Broadcast} object.
+     */
+    public Broadcast getBroadcastStream(String broadcastId) throws OpenTokException {
+        if(StringUtils.isEmpty(broadcastId)) {
+            throw new InvalidArgumentException("Broadcast id is null or empty");
+        }
+        String stream = this.client.getBroadcastStream(broadcastId);
+        try {
+            return broadcastReader.readValue(stream);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see
