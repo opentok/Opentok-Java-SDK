@@ -526,6 +526,40 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
+    public String stopBroadcast(String broadcastId)
+            throws OpenTokException {
+        String responseString = null;
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/stop";
+        Future<Response> request = this.preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input  properties like resolution etc.");
+                case 403:
+                    throw new RequestException("Could not start an OpenTok Broadcast. The request was not authorized.");
+                case 404:
+                    throw new RequestException("The broadcast " + broadcastId + "was not found or it has already stopped.");
+                case 500:
+                    throw new RequestException("Could not start an OpenTok Broadcast. A server error occurred.");
+                default:
+                    throw new RequestException("Could not start an OpenTok Broadcast. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not start an OpenTok Broadcast.", e);
+        }
+        return responseString;
+    }
+
     public String forceDisconnect(String sessionId, String connectionId) throws   OpenTokException , RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/"+ connectionId ;

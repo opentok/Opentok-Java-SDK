@@ -1692,6 +1692,31 @@ public class OpenTokTest {
         assertTrue(caughtException);
     }
     @Test
+    public void testStopBroadcast() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/stop";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" :  \"" + broadcastId + "\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"updatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"broadcastUrls\" : null"    +
+                                "        }")));
+        Broadcast broadcast = sdk.stopBroadcast(broadcastId);
+        assertNotNull(broadcast);
+        assertEquals(broadcastId, broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
     public void testForceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";

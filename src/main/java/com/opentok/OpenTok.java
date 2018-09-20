@@ -523,7 +523,7 @@ public class OpenTok {
      * you cannot use live streaming with sessions that have the media mode set to relayed OpenTok Media Router. See
      * <a href="https://tokbox.com/developer/guides/create-session/#media-mode">The OpenTok Media Router and media modes.</a>
      * <p>
-     * For more information on archiving, see the
+     * For more information on broadcasting, see the
      * <a href="https://tokbox.com/developer/guides/broadcast/">Broadcast developer guide.</a>
      *
      * @param sessionId The session ID of the broadcasting session
@@ -538,6 +538,30 @@ public class OpenTok {
         }
 
         String broadcast = this.client.startBroadcast(sessionId, properties);
+        try {
+            return broadcastReader.readValue(
+                    broadcast);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Use this method to stop a live broadcast of an OpenTok session.
+     * Note that broadcasts automatically stop 120 minutes after they are started.
+     * <p>
+     * For more information on broadcasting, see the
+     * <a href="https://tokbox.com/developer/guides/broadcast/">Broadcast developer guide.</a>
+     *
+     * @param broadcastId The broadcast ID of the broadcasting session
+     *
+     * @return The Broadcast object. This object includes properties defining the archive, including the archive ID.
+     */
+    public Broadcast stopBroadcast(String broadcastId) throws OpenTokException {
+        if (StringUtils.isEmpty(broadcastId)) {
+            throw new InvalidArgumentException("Broadcast id is null or empty");
+        }
+        String broadcast = this.client.stopBroadcast(broadcastId);
         try {
             return broadcastReader.readValue(broadcast);
         } catch (Exception e) {

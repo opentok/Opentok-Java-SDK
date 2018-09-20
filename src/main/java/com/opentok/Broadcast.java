@@ -93,6 +93,7 @@ public class Broadcast {
      */
     @JsonProperty("broadcastUrls")
     private void unpack(Map<String,Object> broadcastUrls) {
+        if (broadcastUrls == null) return;
         hls = (String)broadcastUrls.get("hls");
         ArrayList<Map<String,String>> rtmpResponse = (ArrayList<Map<String,String>>)broadcastUrls.get("rtmp");
         if (rtmpResponse == null || rtmpResponse.size() == 0) return;
