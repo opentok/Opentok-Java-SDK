@@ -490,7 +490,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             rtmpProps.put("streamName", prop.streamName());
             rtmp.add(rtmpProps);
         }
-      
+
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
@@ -508,15 +508,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     responseString = response.getResponseBody();
                     break;
                 case 400:
-                    throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input archive properties like resolution etc.");
+                    throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input  properties like resolution etc.");
                 case 403:
                     throw new RequestException("Could not start an OpenTok Broadcast. The request was not authorized.");
-                case 404:
-                    throw new RequestException("Could not start an OpenTok Broadcast. The sessionId does not exist. " +
-                            "sessionId = " + sessionId);
+               
                 case 409:
-                    throw new RequestException("Could not start an OpenTok Broadcast. The session is either " +
-                            "peer-to-peer or already recording. sessionId = " + sessionId);
+                    throw new RequestException("The broadcast has already been started for the session. SessionId = " + sessionId);
                 case 500:
                     throw new RequestException("Could not start an OpenTok Broadcast. A server error occurred.");
                 default:

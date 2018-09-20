@@ -1547,15 +1547,16 @@ public class OpenTokTest {
                                 "          \"status\" : \"started\",\n" +
                                 "          \"broadcastUrls\" : {"    +
                                 "           \"hls\" : \"http://server/fakepath/playlist.m3u8\","     +
-                                "           \"rtmp\" : {"           +
-                                "           \"foo\" : {"           +
+                                "           \"rtmp\" : [{"           +
+                                "           \"id\" : \"foo\","           +
                                 "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\","     +
                                 "           \"streamName\" : \"myfoostream\""     +
                                 "           },"                                   +
-                                "           \"bar\" : {"           +
+                                "           {                          "           +
+                                "           \"id\" : \"bar\","     +
                                 "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\","     +
                                 "           \"streamName\" : \"mybarstream\""     +
-                                "           }"                                   +
+                                "           }]"                                   +
                                 "           }"                                   +
                                 "           }"                                   +
                                 "        }")));
@@ -1566,7 +1567,7 @@ public class OpenTokTest {
                 .hasHls(true)
                 .addRtmpProperties(rtmpProps)
                 .addRtmpProperties(rtmpNextProps)
-                .maxDuration(123456)
+                .maxDuration(1000)
                 .resolution("640x480")
                 .layout(layout)
                 .build();
@@ -1597,16 +1598,16 @@ public class OpenTokTest {
                                 "          \"resolution\" : \"1280x720\",\n" +
                                 "          \"status\" : \"started\",\n" +
                                 "          \"broadcastUrls\" : {"    +
-                                "           \"rtmp\" : {"           +
-                                "           \"foo\" : {"           +
+                                "           \"rtmp\" : [{"           +
+                                "           \"id\" : \"foo\","           +
                                 "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\","     +
                                 "           \"streamName\" : \"myfoostream\""     +
                                 "           },"                                   +
-                                "           \"bar\" : {"           +
+                                "           {                          "           +
+                                "           \"id\" : \"bar\","     +
                                 "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\","     +
                                 "           \"streamName\" : \"mybarstream\""     +
-                                "           }"                                   +
-                                "           }"                                   +
+                                "           }]"                                   +
                                 "           }"                                   +
                                 "        }")));
         RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
@@ -1615,7 +1616,7 @@ public class OpenTokTest {
         BroadcastProperties properties = new BroadcastProperties.Builder()
                 .addRtmpProperties(rtmpProps)
                 .addRtmpProperties(rtmpNextProps)
-                .maxDuration(123456)
+                .maxDuration(1000)
                 .resolution("640x480")
                 .layout(layout)
                 .build();
@@ -1655,7 +1656,7 @@ public class OpenTokTest {
         BroadcastProperties properties = new BroadcastProperties.Builder()
                 .addRtmpProperties(rtmpProps)
                 .addRtmpProperties(rtmpNextProps)
-                .maxDuration(123456)
+                .maxDuration(1000)
                 .resolution("640x480")
                 .layout(layout)
                 .build();

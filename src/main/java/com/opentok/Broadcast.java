@@ -94,14 +94,13 @@ public class Broadcast {
     @JsonProperty("broadcastUrls")
     private void unpack(Map<String,Object> broadcastUrls) {
         hls = (String)broadcastUrls.get("hls");
-        Map<String,Object> rtmpResponseList = (Map<String,Object>)broadcastUrls.get("rtmp");
-        if (rtmpResponseList == null) return;
-        for (Map.Entry<String,Object> element : rtmpResponseList.entrySet()) {
+        ArrayList<Map<String,String>> rtmpResponse = (ArrayList<Map<String,String>>)broadcastUrls.get("rtmp");
+        if (rtmpResponse == null || rtmpResponse.size() == 0) return;
+        for ( Map<String,String> element : rtmpResponse) {
             Rtmp rtmp = new Rtmp();
-            rtmp.setId(element.getKey());
-            Map<String,String> rtmpData = (Map<String,String>)element.getValue();
-            rtmp.setServerUrl(rtmpData.get("serverUrl"));
-            rtmp.setStreamName(rtmpData.get("streamName"));
+            rtmp.setId(element.get("id"));
+            rtmp.setServerUrl(element.get("serverUrl"));
+            rtmp.setStreamName(element.get("streamName"));
             this.rtmpList.add(rtmp);
         }
     }

@@ -67,7 +67,10 @@ public class BroadcastProperties {
          *
          * @return The BroadcastProperties.Builder object with the maxDuration setting.
          */
-        public Builder maxDuration(int maxDuration){
+        public Builder maxDuration(int maxDuration)  throws InvalidArgumentException {
+            if(maxDuration < 60 || maxDuration > 36000) {
+                throw new InvalidArgumentException("maxDuration value must be between 60 and 36000 (inclusive).");
+            }
             this.maxDuration = maxDuration;
             return this;
         }
