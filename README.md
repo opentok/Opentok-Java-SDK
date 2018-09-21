@@ -376,6 +376,32 @@ StreamList streamList = opentok.listStreams(sessionId);
 streamList.getTotalCount(); // total count
 ```
 
+# Sip Dialing
+To connect your SIP platform to an OpenTok session, call the method `dial(String sessionId, String token, SipProperties properties)`. 
+The audio from your end of the SIP call is added to the OpenTok session as an audio-only stream. 
+The OpenTok Media Router mixes audio from other streams in the session and sends the mixed audio to your SIP endpoint.
+The call ends when your SIP server sends a BYE message (to terminate the call). You can also end a call using the OpenTok 
+REST API method to disconnect a client from a session. 
+The OpenTok SIP gateway automatically ends a call after 5 minutes of inactivity (5 minutes without media received). Also, as a security measure, 
+the OpenTok SIP gateway closes any SIP call that lasts longer than 6 hours.
+
+The SIP interconnect feature requires that you use an OpenTok session that uses the 
+OpenTok Media Router (a session with the media mode set to routed).
+
+The SipProperties builder can be used as follows:
+```JAVA
+SipProperties properties = new SipProperties.Builder()
+                                             .sipUri("sip:user@sip.partner.com;transport=tls")
+                                             .from("from@example.com")
+                                             .headersJsonStartingWithXDash(headerJson)
+                                             .userName("username")
+                                             .password("password")
+                                             .secure(true)
+                                             .build();
+
+// Call to opentok sdk
+ Sip sip = opentok.dial(sessionId, token, properties);
+```
 # Samples
 
 There are two sample applications included with the SDK. To get going as fast as possible, clone the whole

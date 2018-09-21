@@ -23,6 +23,8 @@ import com.opentok.Role;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 import com.opentok.SignalProperties;
+import com.opentok.Sip;
+import com.opentok.SipProperties;
 import com.opentok.Stream;
 import com.opentok.StreamList;
 import com.opentok.StreamListProperties;
@@ -1503,7 +1505,86 @@ public class OpenTokTest {
                 findAll(getRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
-
+    @Test
+    public void testSipDialWithEmptyNullParams() throws OpenTokException {
+        int exceptionCaughtCount = 0;
+        SipProperties properties = new SipProperties.Builder()
+                .sipUri("sip:user@sip.partner.com;transport=tls")
+                .userName("username")
+                .password("password")
+                .build();
+        try {
+            Sip sip = sdk.dial("", "TOKEN", properties);
+        } catch (InvalidArgumentException e) {
+               exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.dial(null, "TOKEN", properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.dial("SESSIONID", "", properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.dial("SESSIONID", null, properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        try {
+            Sip sip = sdk.dial("SESSIONID", "TOKEN", null);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        properties = new SipProperties.Builder()
+                .userName("username")
+                .password("password")
+                .build();
+        try {
+            Sip sip = sdk.dial("SESSIONID", "TOKEN", properties);
+        } catch (InvalidArgumentException e) {
+            exceptionCaughtCount += 1;
+        }
+        assertTrue(exceptionCaughtCount == 6);
+    }
+    @Test
+    public void testSipDial() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String token = "TOKEN";
+        String url = "/v2/project/" + this.apiKey + "/dial";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"connectionId\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"streamId\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\"\n" +
+                                "        }")));
+        Character dQuote = '"';
+        String headerKey = dQuote + "X-someKey" + dQuote;
+        String headerValue = dQuote + "someValue" + dQuote;
+        String headerJson = "{" + headerKey + ": " + headerValue + "}";
+        SipProperties properties = new SipProperties.Builder()
+                                                    .sipUri("sip:user@sip.partner.com;transport=tls")
+                                                    .from("from@example.com")
+                                                    .headersJsonStartingWithXDash(headerJson)
+                                                    .userName("username")
+                                                    .password("password")
+                                                    .secure(true)
+                                                    .build();
+        Sip sip = sdk.dial(sessionId, token, properties);
+        assertNotNull(sip);
+        assertNotNull(sip.getId());
+        assertNotNull(sip.getConnectionId());
+        assertNotNull(sip.getStreamId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
     @Test
     public void testforceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
