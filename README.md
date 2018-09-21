@@ -405,7 +405,7 @@ Broadcast broadcast = opentok.stopBroadcast(broadcastId);
 ```
 To get imore information about a live [broadcast stream ](https://tokbox.com/developer/rest/#get_info_broadcast) use:  
 ```JAVA
-Broadcast broadcast = opentok.getBroadcastStream(broadcastId);
+Broadcast broadcast = opentok.getBroadcast(broadcastId);
 ```  
 The information returned is in the `Broadcast` object and consists of HLS and/or Rtmp urls , along with session ID, resolution etc.
 
