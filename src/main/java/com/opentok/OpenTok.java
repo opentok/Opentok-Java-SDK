@@ -50,6 +50,8 @@ public class OpenTok {
             .readerFor(Stream.class);
     static protected ObjectReader streamListReader = new ObjectMapper()
             .readerFor(StreamList.class);
+    static protected ObjectReader sipReader = new ObjectMapper()
+            .readerFor(Sip.class);
     static protected ObjectReader broadcastReader = new ObjectMapper()
             .readerFor(Broadcast.class);
     static final String defaultApiUrl = "https://api.opentok.com";
@@ -688,6 +690,27 @@ public class OpenTok {
         }
     }
 
+    /**
+     * Gets a list of {@link Stream} object for the given session ID.
+     *
+     * @param sessionId The session ID.
+     * @param token The token.
+     * @param properties The SipProperties.
+     * @return The  {@link Sip} object.
+     */
+    public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
+        if((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
+            throw  new InvalidArgumentException ("Session id or token is null or empty or sip properties is null or sip uri empty or null.");
+        }
+        String sip = this.client.sipDial(sessionId,token,properties);
+        try {
+            return sipReader.readValue(sip);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
     public static class Builder {
         private int apiKey;
         private String apiSecret;
