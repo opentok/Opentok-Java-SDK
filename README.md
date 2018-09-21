@@ -350,6 +350,86 @@ The `SignalProperties` builder does not check for these limitations currently.
 For more information on signaling and exception codes, refer
 [OpenTok signaling](https://tokbox.com/developer/rest/#send_signal) programming guide for REST API's.
 
+## Broadcasting 
+You can broadcast OpenTok publishing streams to an HLS (HTTP live streaming) or 
+to RTMP streams. To successfully start broadcasting a session, at least one client must be 
+connected to the session. You can only have one active live streaming broadcast at a time for a session 
+(however, having more than one would not be useful). 
+The live streaming broadcast can target one HLS endpoint and up to five 
+RTMP servers simulteneously for a session. You can only start live streaming
+ for sessions that use the OpenTok Media Router (with the media mode set to routed);
+ you cannot use live streaming with sessions that have the media mode set to relayed. 
+ [See The OpenTok Media Router and media modes.](https://tokbox.com/developer/guides/create-session/#media-mode) programming guide.
+ 
+You can start a broadcast using `opentok.startBroadcast(sessionId, properties)` where the properties field refers to `BroadcastProperties`.
+A `BroadcastProperties` can be initialized as follows(Refer [Opentok Broadcast](https://tokbox.com/developer/rest/#start_broadcast) for more details)
+```JAVA
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .addRtmpProperties(rtmpProps)
+                .addRtmpProperties(rtmpNextProps)
+                .maxDuration(1000)
+                .resolution("640x480")
+                .layout(layout)
+                .build();
+
+// The Rtmp properties can be build using RtmpProperties as shown below
+RtmpProperties rtmpProps = new RtmpProperties.Builder()
+                                .id("foo")
+                                .serverUrl("rtmp://myfooserver/myfooapp")
+                                .streamName("myfoostream").build();
+//The layout object is initialized as follows:
+ BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
+ ```
+ Finally you start a broadcast as shown below:
+ ```JAVA
+   Broadcast broadcast = opentok.startBroadcast(sessionId, properties)
+ ```
+ The `Broadcast` object returned has the following info:
+ ```JAVA
+     String broadcastId;
+     String sessionId;
+     int projectId;
+     long createdAt;
+     long updatedAt;
+     String resolution;
+     String status;
+     List<Rtmp> rtmpList = new ArrayList<>();  //not more than 5 
+     String hls;    // HLS url
+     
+ // The Rtmp class mimics the RtmpProperties
+ ```
+To stop a [broadcast](https://tokbox.com/developer/rest/#stop_broadcast) use:  
+```JAVA
+Broadcast broadcast = opentok.stopBroadcast(broadcastId);
+```
+To get imore information about a live [broadcast stream ](https://tokbox.com/developer/rest/#get_info_broadcast) use:  
+```JAVA
+Broadcast broadcast = opentok.getBroadcast(broadcastId);
+```  
+The information returned is in the `Broadcast` object and consists of HLS and/or Rtmp urls , along with session ID, resolution etc.
+
+You can also change the [layout](https://tokbox.com/developer/rest/#change_live_streaming_layout) of a live broadcast dynamically using
+```JAVA
+opentok.setBroadcastLayout(broadcastId, properties);
+
+//properties can be 
+BroadcastProperties properties = new BroadcastProperties.Builder()
+                                                        .layout(new BroadcastLayout(BroadcastLayout.Type.VERTICAL))
+                                                        .build();
+```
+If you want to dynamically change the layout class of an individual stream refer [Archive stream layout](#working-with-archives) or use
+```java
+StreamProperties streamProps = new StreamProperties.Builder()
+                                    .id(streamId)
+                                    .addLayoutClass("full")
+                                    .addLayoutClass("focus")
+                                    .build();
+StreamListProperties properties = new StreamListProperties.Builder()
+                                    .addStreamProperties(streamProps)
+                                    .build();
+opentok.setStreamLayouts(sessionId, properties);
+```
 ## Working with Streams
 
 You can get information about a stream by calling the `getStream(sessionId, streamId)` method of the `com.opentok.OpenTok` instance. 

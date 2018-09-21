@@ -52,6 +52,8 @@ public class OpenTok {
             .readerFor(StreamList.class);
     static protected ObjectReader sipReader = new ObjectMapper()
             .readerFor(Sip.class);
+    static protected ObjectReader broadcastReader = new ObjectMapper()
+            .readerFor(Broadcast.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -510,7 +512,104 @@ public class OpenTok {
         }
         this.client.setArchiveLayout(archiveId, properties);
     }
+    /**
+     * Use this method to start a live streaming for an OpenTok session.
+     * This broadcasts the session to an HLS (HTTP live streaming) or to RTMP streams.
+     * <p>
+     * To successfully start broadcasting a session, at least one client must be connected to the session.
+     * <p>
+     * You can only have one active live streaming broadcast at a time for a session
+     * (however, having more than one would not be useful).
+     * The live streaming broadcast can target one HLS endpoint and up to five RTMP servers simulteneously for a session.
+     * You can only start live streaming for sessions that use the OpenTok Media Router (with the media mode set to routed);
+     * you cannot use live streaming with sessions that have the media mode set to relayed OpenTok Media Router. See
+     * <a href="https://tokbox.com/developer/guides/create-session/#media-mode">The OpenTok Media Router and media modes.</a>
+     * <p>
+     * For more information on broadcasting, see the
+     * <a href="https://tokbox.com/developer/guides/broadcast/">Broadcast developer guide.</a>
+     *
+     * @param sessionId The session ID of the broadcasting session
+     *
+     * @param properties This BroadcastProperties object defines options for the broadcast.
+     *
+     * @return The Broadcast object. This object includes properties defining the archive, including the archive ID.
+     */
+    public Broadcast startBroadcast(String sessionId, BroadcastProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(sessionId) || (properties ==  null)) {
+            throw new InvalidArgumentException("Session not valid or broadcast properties is null");
+        }
 
+        String broadcast = this.client.startBroadcast(sessionId, properties);
+        try {
+            return broadcastReader.readValue(
+                    broadcast);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Use this method to stop a live broadcast of an OpenTok session.
+     * Note that broadcasts automatically stop 120 minutes after they are started.
+     * <p>
+     * For more information on broadcasting, see the
+     * <a href="https://tokbox.com/developer/guides/broadcast/">Broadcast developer guide.</a>
+     *
+     * @param broadcastId The broadcast ID of the broadcasting session
+     *
+     * @return The Broadcast object. This object includes properties defining the archive, including the archive ID.
+     */
+    public Broadcast stopBroadcast(String broadcastId) throws OpenTokException {
+        if (StringUtils.isEmpty(broadcastId)) {
+            throw new InvalidArgumentException("Broadcast id is null or empty");
+        }
+        String broadcast = this.client.stopBroadcast(broadcastId);
+        try {
+            return broadcastReader.readValue(broadcast);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gets an {@link Broadcast} object for the given broadcast ID.
+     *
+     * @param broadcastId The broadcast ID.
+     * @return The {@link Broadcast} object.
+     */
+    public Broadcast getBroadcast(String broadcastId) throws OpenTokException {
+        if(StringUtils.isEmpty(broadcastId)) {
+            throw new InvalidArgumentException("Broadcast id is null or empty");
+        }
+        String stream = this.client.getBroadcast(broadcastId);
+        try {
+            return broadcastReader.readValue(stream);
+        } catch (Exception e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+    /**
+     * Sets the layout type for the broadcast. For a description of layout types, see
+     *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
+     *  the video layout for composed archives</a>.
+     *
+     * @param broadcastId {String} The broadcast ID.
+     *
+     * @param properties This BroadcastProperties object defines options for the archive.
+     *
+     * The ArchiveProperties values has the following constraints:
+     * Valid layout type values are "bestFit" (best fit), "custom" (custom), "horizontalPresentation" (horizontal presentation),
+     * "pip" (picture-in-picture), and "verticalPresentation" (vertical presentation)).
+     *  If you specify a "custom" layout type, set the stylesheet property to the stylesheet.
+     *  (For other layout types, do not set the stylesheet property.)
+     *  Refer https://tokbox.com/developer/rest/#change_composed_archive_layout for more details
+     */
+    public void setBroadcastLayout(String broadcastId, BroadcastProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(broadcastId) || properties == null) {
+            throw new InvalidArgumentException("BroadcastId is not valid or properties are null");
+        }
+        this.client.setBroadcastLayout(broadcastId, properties);
+    }
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see

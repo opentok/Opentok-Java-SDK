@@ -17,9 +17,13 @@ import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveList;
 import com.opentok.ArchiveMode;
 import com.opentok.ArchiveProperties;
+import com.opentok.Broadcast;
+import com.opentok.BroadcastLayout;
+import com.opentok.BroadcastProperties;
 import com.opentok.MediaMode;
 import com.opentok.OpenTok;
 import com.opentok.Role;
+import com.opentok.RtmpProperties;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 import com.opentok.SignalProperties;
@@ -1503,6 +1507,274 @@ public class OpenTokTest {
         verify(getRequestedFor(urlMatching(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testStartBroadcastNullEmptyParameters() throws OpenTokException {
+        int exceptionCount = 0;
+        BroadcastProperties properties = new BroadcastProperties.Builder().build();
+        try {
+            Broadcast broadcast = sdk.startBroadcast("", properties);
+        } catch (InvalidArgumentException e ) {
+            exceptionCount += 1;
+        }
+        try {
+            Broadcast broadcast = sdk.startBroadcast(null, properties);
+        } catch (InvalidArgumentException e ) {
+            exceptionCount += 1;
+        }
+        try {
+            Broadcast broadcast = sdk.startBroadcast("SESSIONID", null);
+        } catch (InvalidArgumentException e ) {
+            exceptionCount += 1;
+        }
+        assertTrue(exceptionCount == 3);
+    }
+    
+    @Test
+    public void testStartBroadcast() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"upDatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"broadcastUrls\" : {"    +
+                                "           \"hls\" : \"http://server/fakepath/playlist.m3u8\","     +
+                                "           \"rtmp\" : [{"           +
+                                "           \"id\" : \"foo\","           +
+                                "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\","     +
+                                "           \"streamName\" : \"myfoostream\""     +
+                                "           },"                                   +
+                                "           {                          "           +
+                                "           \"id\" : \"bar\","     +
+                                "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\","     +
+                                "           \"streamName\" : \"mybarstream\""     +
+                                "           }]"                                   +
+                                "           }"                                   +
+                                "           }"                                   +
+                                "        }")));
+        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .addRtmpProperties(rtmpProps)
+                .addRtmpProperties(rtmpNextProps)
+                .maxDuration(1000)
+                .resolution("640x480")
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    
+    @Test
+    public void testStartBroadcastNoHls() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"upDatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"broadcastUrls\" : {"    +
+                                "           \"rtmp\" : [{"           +
+                                "           \"id\" : \"foo\","           +
+                                "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\","     +
+                                "           \"streamName\" : \"myfoostream\""     +
+                                "           },"                                   +
+                                "           {                          "           +
+                                "           \"id\" : \"bar\","     +
+                                "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\","     +
+                                "           \"streamName\" : \"mybarstream\""     +
+                                "           }]"                                   +
+                                "           }"                                   +
+                                "        }")));
+        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .addRtmpProperties(rtmpProps)
+                .addRtmpProperties(rtmpNextProps)
+                .maxDuration(1000)
+                .resolution("640x480")
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        assertNull(broadcast.getHls());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testStartBroadcastNoRtmp() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"upDatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"broadcastUrls\" : {"    +
+                                "           \"hls\" : \"http://server/fakepath/playlist.m3u8\""     +
+                                "           }"                                   +
+                                "        }")));
+        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .addRtmpProperties(rtmpProps)
+                .addRtmpProperties(rtmpNextProps)
+                .maxDuration(1000)
+                .resolution("640x480")
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        assertTrue(broadcast.getRtmpList().isEmpty());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+    @Test
+    public void testBroadcastPropertiesWithSixRtmp() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        boolean caughtException = false;
+        try {
+            RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+            RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+            new BroadcastProperties.Builder()
+                    .addRtmpProperties(rtmpProps)
+                    .addRtmpProperties(rtmpNextProps)
+                    .addRtmpProperties(rtmpProps)
+                    .addRtmpProperties(rtmpNextProps)
+                    .addRtmpProperties(rtmpProps)
+                    .addRtmpProperties(rtmpNextProps)
+                    .build();
+        } catch (InvalidArgumentException e) {
+            caughtException = true;
+        }
+        assertTrue(caughtException);
+    }
+    @Test
+    public void testStopBroadcast() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/stop";
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" :  \"" + broadcastId + "\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"updatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"broadcastUrls\" : null"    +
+                                "        }")));
+        Broadcast broadcast = sdk.stopBroadcast(broadcastId);
+        assertNotNull(broadcast);
+        assertEquals(broadcastId, broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testBroadcastStreamInfo() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        String url = "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId;
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"id\" :  \"" + broadcastId + "\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"projectId\" : 123456,\n" +
+                                "          \"createdAt\" : 1437676551000,\n" +
+                                "          \"upDatedAt\" : 1437676551000,\n" +
+                                "          \"resolution\" : \"1280x720\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"broadcastUrls\" : {"    +
+                                "           \"hls\" : \"http://server/fakepath/playlist.m3u8\","     +
+                                "           \"rtmp\" : [{"           +
+                                "           \"id\" : \"foo\","           +
+                                "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\","     +
+                                "           \"streamName\" : \"myfoostream\""     +
+                                "           },"                                   +
+                                "           {                          "           +
+                                "           \"id\" : \"bar\","     +
+                                "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\","     +
+                                "           \"streamName\" : \"mybarstream\""     +
+                                "           }]"                                   +
+                                "           }"                                   +
+                                "           }"                                   +
+                                "        }")));
+        Broadcast broadcast = sdk.getBroadcast(broadcastId);
+        assertNotNull(broadcast);
+        assertEquals(broadcastId, broadcast.getId());
+        assertEquals("http://server/fakepath/playlist.m3u8",broadcast.getHls());
+        assertEquals(2,broadcast.getRtmpList().size());
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testSetBroadcastLayoutVertical() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        BroadcastProperties properties = new BroadcastProperties.Builder().layout(new BroadcastLayout(BroadcastLayout.Type.VERTICAL)).build();
+        String url =  "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/layout";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+
+        sdk.setBroadcastLayout(broadcastId, properties);
+        verify(putRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
     @Test
