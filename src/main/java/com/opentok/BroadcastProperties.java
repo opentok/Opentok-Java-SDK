@@ -88,7 +88,8 @@ public class BroadcastProperties {
             return this;
         }
         /**
-         * Call this method to set a list of RTMP broadcast streams. A limit of 5 RtmpProperties object is enforced.
+         * Call this method to set a list of RTMP broadcast streams. There is a limit of
+         * 5 RTMP streams.
          *
          * @param rtmpProps The {@link RtmpProperties} object defining the RTMP streams.
          *
