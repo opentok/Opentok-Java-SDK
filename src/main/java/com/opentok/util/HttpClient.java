@@ -18,7 +18,6 @@ import com.opentok.ArchiveLayout;
 import com.opentok.ArchiveProperties;
 import com.opentok.BroadcastLayout;
 import com.opentok.BroadcastProperties;
-import com.opentok.RtmpProperties;
 import com.opentok.SignalProperties;
 import com.opentok.SipProperties;
 import com.opentok.StreamListProperties;
@@ -484,7 +483,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             outputs.put("hls", nodeFactory.objectNode());
         }
         ArrayNode rtmp = outputs.putArray("rtmp");
-        for (RtmpProperties prop : properties.getRtmpList()) {
+        for (BroadcastProperties.RtmpProperties prop : properties.getRtmpList()) {
             ObjectNode rtmpProps = nodeFactory.objectNode();
             rtmpProps.put("id", prop.id());
             rtmpProps.put("serverUrl", prop.serverUrl());

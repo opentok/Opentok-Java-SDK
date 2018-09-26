@@ -23,7 +23,6 @@ import com.opentok.BroadcastProperties;
 import com.opentok.MediaMode;
 import com.opentok.OpenTok;
 import com.opentok.Role;
-import com.opentok.RtmpProperties;
 import com.opentok.Session;
 import com.opentok.SessionProperties;
 import com.opentok.SignalProperties;
@@ -1562,8 +1561,8 @@ public class OpenTokTest {
                                 "           }"                                   +
                                 "           }"                                   +
                                 "        }")));
-        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
-        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastProperties.RtmpProperties rtmpProps = new BroadcastProperties.RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        BroadcastProperties.RtmpProperties rtmpNextProps = new BroadcastProperties.RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
         BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
         BroadcastProperties properties = new BroadcastProperties.Builder()
                 .hasHls(true)
@@ -1612,8 +1611,8 @@ public class OpenTokTest {
                                 "           }]"                                   +
                                 "           }"                                   +
                                 "        }")));
-        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
-        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastProperties.RtmpProperties rtmpProps = new BroadcastProperties.RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        BroadcastProperties.RtmpProperties rtmpNextProps = new BroadcastProperties.RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
         BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
         BroadcastProperties properties = new BroadcastProperties.Builder()
                 .addRtmpProperties(rtmpProps)
@@ -1652,8 +1651,8 @@ public class OpenTokTest {
                                 "           \"hls\" : \"http://server/fakepath/playlist.m3u8\""     +
                                 "           }"                                   +
                                 "        }")));
-        RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
-        RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+        BroadcastProperties.RtmpProperties rtmpProps = new BroadcastProperties.RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+        BroadcastProperties.RtmpProperties rtmpNextProps = new BroadcastProperties.RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
         BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
         BroadcastProperties properties = new BroadcastProperties.Builder()
                 .addRtmpProperties(rtmpProps)
@@ -1678,8 +1677,8 @@ public class OpenTokTest {
         String url = "/v2/project/" + this.apiKey + "/broadcast";
         boolean caughtException = false;
         try {
-            RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
-            RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
+            BroadcastProperties.RtmpProperties rtmpProps = new BroadcastProperties.RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
+            BroadcastProperties.RtmpProperties rtmpNextProps = new BroadcastProperties.RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
             new BroadcastProperties.Builder()
                     .addRtmpProperties(rtmpProps)
                     .addRtmpProperties(rtmpNextProps)
