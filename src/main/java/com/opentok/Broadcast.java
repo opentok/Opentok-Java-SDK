@@ -29,7 +29,7 @@ public class Broadcast {
     @JsonProperty private long updatedAt;
     @JsonProperty private String resolution;
     @JsonProperty private String status;
-    private List<Rtmp> rtmpList = new ArrayList<>();
+    private List<Broadcast.Rtmp> rtmpList = new ArrayList<>();
     private String hls;
 
     protected Broadcast() {
