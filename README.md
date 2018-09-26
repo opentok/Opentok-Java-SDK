@@ -373,11 +373,12 @@ A `BroadcastProperties` can be initialized as follows(Refer [Opentok Broadcast](
                 .layout(layout)
                 .build();
 
-// The Rtmp properties can be build using RtmpProperties as shown below
-RtmpProperties rtmpProps = new RtmpProperties.Builder()
-                                .id("foo")
-                                .serverUrl("rtmp://myfooserver/myfooapp")
-                                .streamName("myfoostream").build();
+// The Rtmp properties can be build using BroadcastProperties.RtmpProperties nested class as shown below
+BroadcastProperties.RtmpProperties rtmpProps = new BroadcastProperties.RtmpProperties.Builder()
+                                                                                     .id("foo")
+                                                                                     .serverUrl("rtmp://myfooserver/myfooapp")
+                                                                                     .streamName("myfoostream")
+                                                                                     .build();
 //The layout object is initialized as follows:
  BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
  ```
@@ -394,10 +395,10 @@ RtmpProperties rtmpProps = new RtmpProperties.Builder()
      long updatedAt;
      String resolution;
      String status;
-     List<Rtmp> rtmpList = new ArrayList<>();  //not more than 5 
+     List<Broadcast.Rtmp> rtmpList = new ArrayList<>();  //not more than 5 
      String hls;    // HLS url
      
- // The Rtmp class mimics the RtmpProperties
+ // The Broadcast.Rtmp nested class mimics the BroadcastProperties.RtmpProperties
  ```
 To stop a [broadcast](https://tokbox.com/developer/rest/#stop_broadcast) use:  
 ```JAVA

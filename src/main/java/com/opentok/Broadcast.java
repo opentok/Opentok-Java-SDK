@@ -29,7 +29,7 @@ public class Broadcast {
     @JsonProperty private long updatedAt;
     @JsonProperty private String resolution;
     @JsonProperty private String status;
-    private List<Rtmp> rtmpList = new ArrayList<>();
+    private List<Broadcast.Rtmp> rtmpList = new ArrayList<>();
     private String hls;
 
     protected Broadcast() {
@@ -39,6 +39,44 @@ public class Broadcast {
     public static Broadcast makeBroadcast() {
         return new Broadcast();
     }
+
+    public static class Rtmp {
+        public String id;
+        private String serverUrl;
+        private String streamName;
+
+        /**
+         * The stream ID.
+         */
+        public void setId(String id) {
+            this.id = id;
+        }
+        public String getId() {
+            return id;
+        }
+        /**
+         * The server URL.
+         */
+        public void setServerUrl(String serverUrl) {
+            this.serverUrl = serverUrl;
+        }
+        public String getServerUrl() {
+            return serverUrl;
+        }
+        /**
+         * The stream name.
+         */
+        public void setStreamName(String streamName) {
+            this.streamName = streamName;
+        }
+        public String getStreamName() {
+            return streamName;
+        }
+
+
+    }
+
+
 
     /**
      * The broadcast ID.
@@ -98,7 +136,7 @@ public class Broadcast {
         ArrayList<Map<String,String>> rtmpResponse = (ArrayList<Map<String,String>>)broadcastUrls.get("rtmp");
         if (rtmpResponse == null || rtmpResponse.size() == 0) return;
         for ( Map<String,String> element : rtmpResponse) {
-            Rtmp rtmp = new Rtmp();
+            Broadcast.Rtmp rtmp = new Broadcast.Rtmp();
             rtmp.setId(element.get("id"));
             rtmp.setServerUrl(element.get("serverUrl"));
             rtmp.setStreamName(element.get("streamName"));
