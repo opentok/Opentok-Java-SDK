@@ -8,6 +8,9 @@ The OpenTok Java SDK lets you generate
 [tokens](https://tokbox.com/developer/guides/create-token/) for
 [OpenTok](http://www.tokbox.com/) applications that run on the JVM. It also includes methods for
 working with OpenTok [archives](https://tokbox.com/developer/guides/archiving),
+working with OpenTok [live streaming
+broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/),
+working with OpenTok [SIP interconnect](https://tokbox.com/developer/guides/sip),
 [signaling OpenTok sessions from the server](https://tokbox.com/developer/guides/signaling/),
 and [disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/).
 
@@ -36,7 +39,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.2.0'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.3.0'
 }
 ```
 
@@ -141,6 +144,9 @@ String token = session.generateToken(new TokenOptions.Builder()
 
 ### Working with Archives
 
+You can only archive sessions that use the OpenTok Media Router
+(sessions with the media mode set to routed).
+
 You can start the recording of an OpenTok Session using a `com.opentok.OpenTok` instance's
 `startArchive(String sessionId, String name)` method. This will return a `com.opentok.Archive` instance.
 The parameter `name` is optional and used to assign a name for the Archive. Note that you can
@@ -227,8 +233,8 @@ opentok.deleteArchive(archiveId);
 You can also get a list of all the Archives you've created (up to 1000) with your API Key. This is
 done using a `com.opentok.OpenTok` instance's `listArchives(int offset, int count)` method. You may optionally
 paginate the Archives you receive using the offset and count parameters. This will return a
-`List<Archive>` type.An `InvalidArgumentException` will be thrown if the offset or count are negative 
-or if the count is greater than 1000.
+`List<Archive>` type. An `InvalidArgumentException` will be thrown if the offset or count are
+negative or if the count is greater than 1000.
 
 ```java
 // Get a list with the first 1000 archives created by the API Key
@@ -307,7 +313,7 @@ opentok.setStreamLayouts(sessionId, properties);
 ```
 
 For more information on archiving, see the
-[OpenTok archiving](https://tokbox.com/developer/guides//archiving/) developer guide.
+[OpenTok archiving](https://tokbox.com/developer/guides/archiving/) developer guide.
 
 ### Disconnecting Clients
 
@@ -513,6 +519,7 @@ SipProperties properties = new SipProperties.Builder()
 
  Sip sip = opentok.dial(sessionId, token, properties);
 ```
+
 ## Samples
 
 There are two sample applications included with the SDK. To get going as fast as possible, clone the whole
