@@ -37,7 +37,7 @@ public class ArchiveLayout {
     }
 
     /**
-     * Enumerates <code>type<code> values for the layout.
+     * Enumerates <code>type</code> values for the layout.
      */
     public enum Type {
         /**
