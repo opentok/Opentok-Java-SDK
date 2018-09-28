@@ -4,14 +4,18 @@ import static spark.Spark.*;
 
 import com.opentok.*;
 import com.opentok.Archive.OutputMode;
+import com.opentok.ArchiveLayout;
+import com.opentok.ArchiveProperties;
 
 import spark.*;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.databind.*;
 
 import com.opentok.exception.OpenTokException;
 
@@ -21,6 +25,9 @@ public class ArchivingServer {
     private static final String apiSecret = System.getProperty("API_SECRET");
     private static OpenTok opentok;
     private static String sessionId;
+    private static String focusStreamId = "";
+    private static String layoutType = "horizontalPresentation";
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static void main(String[] args) throws OpenTokException {
 
@@ -51,9 +58,12 @@ public class ArchivingServer {
             public ModelAndView handle(Request request, Response response) {
 
                 String token = null;
+                ArrayList<String> layoutClassList = new ArrayList<String>();
+                layoutClassList.add("focus");
                 try {
                     token = opentok.generateToken(sessionId, new TokenOptions.Builder()
                         .role(Role.MODERATOR)
+                        .initialLayoutClassList(layoutClassList)
                         .build());
                 } catch (OpenTokException e) {
                     e.printStackTrace();
@@ -63,6 +73,8 @@ public class ArchivingServer {
                 attributes.put("apiKey", apiKey);
                 attributes.put("sessionId", sessionId);
                 attributes.put("token", token);
+                attributes.put("layout", layoutType);
+                attributes.put("focusStreamId", focusStreamId);
 
                 return new ModelAndView(attributes, "host.ftl");
             }
@@ -85,6 +97,8 @@ public class ArchivingServer {
                 attributes.put("apiKey", apiKey);
                 attributes.put("sessionId", sessionId);
                 attributes.put("token", token);
+                attributes.put("layout", layoutType);
+                attributes.put("focusStreamId", focusStreamId);
 
                 return new ModelAndView(attributes, "participant.ftl");
             }
@@ -149,16 +163,20 @@ public class ArchivingServer {
                 HttpServletRequest req = request.raw();
                 boolean hasAudio = req.getParameterMap().containsKey("hasAudio");
                 boolean hasVideo = req.getParameterMap().containsKey("hasVideo");
-                OutputMode outputMode = OutputMode.COMPOSED;
-                if (req.getParameter("outputMode").equals("individual")) {
-                    outputMode = OutputMode.INDIVIDUAL;
+                OutputMode outputMode = OutputMode.INDIVIDUAL;
+                ArchiveLayout layout = null;
+                if (req.getParameter("outputMode").equals("composed")) {
+                    outputMode = OutputMode.COMPOSED;
+                    layout = new ArchiveLayout(ArchiveLayout.Type.HORIZONTAL);
                 }
                 try {
                     ArchiveProperties properties = new ArchiveProperties.Builder()
                                             .name("Java Archiving Sample App")
                                             .hasAudio(hasAudio)
                                             .hasVideo(hasVideo)
-                                            .outputMode(outputMode).build();
+                                            .outputMode(outputMode)
+                                            .layout(layout)
+                                            .build();
                     archive = opentok.startArchive(sessionId, properties);
                 } catch (OpenTokException e) {
                     e.printStackTrace();
@@ -198,6 +216,61 @@ public class ArchivingServer {
             }
         });
 
+        post(new Route("/archive/:archiveId/layout") {
+            @Override
+            public Object handle(Request request, Response response) {
+                try {
+                    JsonNode rootNode = objectMapper.readTree(request.body());
+                    layoutType = rootNode.get("type").textValue();
+                    ArchiveLayout.Type type = ArchiveLayout.Type.HORIZONTAL;
+                    if (layoutType.equals("verticalPresentation")) {
+                        type = ArchiveLayout.Type.VERTICAL;
+                    }
+                    ArchiveProperties archiveProperties = new ArchiveProperties.Builder()
+                        .layout(new ArchiveLayout(type))
+                        .build();
+                    opentok.setArchiveLayout(request.params("archiveId"), archiveProperties);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    response.status(400);
+                    return e.getMessage();
+                }
+                return layoutType;
+            }
+        });
 
+        post(new Route("/focus") {
+            @Override
+            public Object handle(Request request, Response response) {
+                ArrayList<String> otherStreams = new ArrayList<String>();
+                try {
+                    String json = request.body();
+                    JsonNode rootNode = objectMapper.readTree(json);
+                    focusStreamId = rootNode.get("focus").textValue();
+                    JsonNode otherStreamsNode = objectMapper.readTree(json).get("otherStreams");
+
+                    StreamProperties focusStreamProperties = new StreamProperties.Builder()
+                        .id(focusStreamId)
+                        .addLayoutClass("focus")
+                        .build();
+                    StreamListProperties.Builder streamListPropsBuilder;
+                    streamListPropsBuilder = new StreamListProperties.Builder()
+                        .addStreamProperties(focusStreamProperties);
+                    for (JsonNode streamNode : otherStreamsNode)
+                    {
+                        StreamProperties streamProperties = new StreamProperties.Builder()
+                            .id(streamNode.asText())
+                            .build();
+                        streamListPropsBuilder.addStreamProperties(streamProperties);
+                    }
+                    opentok.setStreamLayouts(sessionId, streamListPropsBuilder.build());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    response.status(400);
+                    return e.getMessage();
+                }
+                return focusStreamId;
+            }
+        });
     }
 }
