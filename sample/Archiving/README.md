@@ -287,27 +287,32 @@ post(new Route("/focus") {
     @Override
     public Object handle(Request request, Response response) {
         ArrayList<String> otherStreams = new ArrayList<String>();
-        try {
-            String json = request.body();
-            JsonNode rootNode = objectMapper.readTree(json);
-            focusStreamId = rootNode.get("focus").textValue();
-            JsonNode otherStreamsNode = objectMapper.readTree(json).get("otherStreams");
+        HttpServletRequest req = request.raw();
+        String newFocusStreamId = req.getParameterMap().get("focus")[0];
 
-            StreamProperties focusStreamProperties = new StreamProperties.Builder()
-                .id(focusStreamId)
+        if (newFocusStreamId.equals(focusStreamId)) {
+          return focusStreamId;
+        }
+
+        if (focusStreamId.isEmpty()) {
+          focusStreamId = newFocusStreamId;
+          return focusStreamId;
+        }
+
+        try {
+            StreamProperties newFocusStreamProperties = new StreamProperties.Builder()
+                .id(newFocusStreamId)
                 .addLayoutClass("focus")
                 .build();
-            StreamListProperties.Builder streamListPropsBuilder;
-            streamListPropsBuilder = new StreamListProperties.Builder()
-                .addStreamProperties(focusStreamProperties);
-            for (JsonNode streamNode : otherStreamsNode)
-            {
-                StreamProperties streamProperties = new StreamProperties.Builder()
-                    .id(streamNode.asText())
-                    .build();
-                streamListPropsBuilder.addStreamProperties(streamProperties);
-            }
-            opentok.setStreamLayouts(sessionId, streamListPropsBuilder.build());
+            StreamProperties oldFocusStreamProperties = new StreamProperties.Builder()
+                .id(focusStreamId)
+                .build();
+            StreamListProperties streamListProperties = new StreamListProperties.Builder()
+                .addStreamProperties(newFocusStreamProperties)
+                .addStreamProperties(oldFocusStreamProperties)
+                .build();
+            opentok.setStreamLayouts(sessionId, streamListProperties);
+            focusStreamId = newFocusStreamId;
         } catch (Exception e) {
             e.printStackTrace();
             response.status(400);
@@ -320,20 +325,38 @@ post(new Route("/focus") {
 
 The body of the  POST request includes the stream ID of the "focus" stream and an array of
 other stream IDs in the session. The server-side method that handles the POST requests creates
-`StreamProperties` objects for the focus stream and for each of the other streams. For the
-focus stream, it calls the `addLayoutClass()` method of the `StreamProperties.Builder` object,
+`StreamProperties` objects for the new focus stream and for the previous focus streams. For the
+new focus stream, it calls the `addLayoutClass()` method of a `StreamProperties.Builder` object,
 to at the "focus" class to the layout class list for the stream:
 
 ```javascript
-StreamProperties focusStreamProperties = new StreamProperties.Builder()
-    .id(focusStreamId)
+StreamProperties newFocusStreamProperties = new StreamProperties.Builder()
+    .id(newFocusStreamId)
     .addLayoutClass("focus")
+    .build();
+```
+
+For the previous focus stream, it calls the `addLayoutClass()` method of a
+`StreamProperties.Builder` object, without calling the `addLayoutClass` method. This removes
+all layout classes for the stream:
+
+```javascript
+StreamProperties oldFocusStreamProperties = new StreamProperties.Builder()
+    .id(focusStreamId)
     .build();
 ```
 
 Each `StreamProperties` object is added to a `StreamListProperties` object, using the
 `addStreamProperties()` of the `StreamListProperties.Builder`. And the `StreamListProperties`
-object is passed into the `OpenTok.setStreamLayouts()` method.
+object is passed into the `OpenTok.setStreamLayouts()` method:
+
+```java
+StreamListProperties streamListProperties = new StreamListProperties.Builder()
+    .addStreamProperties(newFocusStreamProperties)
+    .addStreamProperties(oldFocusStreamProperties)
+    .build();
+    opentok.setStreamLayouts(sessionId, streamListProperties);
+```
 
 This sets one stream to have the `focus` class, which causes it to be the large stream
 displayed in the composed archive. (This is the behavior of the `horizontalPresentation` and

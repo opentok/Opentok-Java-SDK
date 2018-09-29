@@ -33,20 +33,10 @@ function positionStreams() {
 
 function setFocus(focusStreamId) {
   var $focusElement;
-  var otherStreams = $.map($('#streams').children(), function (element) {
-    var streamId = (element.id === 'publisher' && publisher.stream) ? publisher.stream.streamId
-      : element.id;
-    if (streamId !== focusStreamId) {
-      $('#' + element.id).removeClass('focus');
-      return streamId;
-    }
-    return null;
-  });
 
-  $.post('/focus', JSON.stringify({
-    focus: focusStreamId,
-    otherStreams: otherStreams
-  })).done(function () {
+  $.post('/focus', {
+    focus: focusStreamId
+  }).done(function () {
     console.log('Focus changed.');
   }).fail(function (jqXHR, textStatus, errorThrown) {
     console.error('Stream class list error:', errorThrown);
@@ -83,6 +73,7 @@ session.connect(token, function (err) {
 publisher.on('streamCreated', function () {
   createFocusClick(publisher.id, publisher.stream.streamId);
   positionStreams();
+  setFocus(publisher.stream.streamId);
 });
 
 session.on('streamCreated', function (event) {
@@ -154,9 +145,9 @@ $(document).ready(function () {
       : 'horizontalPresentation';
 
     if (archiveID) {
-      $.post('archive/' + archiveID + '/layout', JSON.stringify({
+      $.post('archive/' + archiveID + '/layout', {
         type: newLayoutClass
-      })).done(function () {
+      }).done(function () {
         console.log('Archive layout updated.');
       }).fail(function (jqXHR) {
         console.error('Archive layout error:', jqXHR.responseText);
