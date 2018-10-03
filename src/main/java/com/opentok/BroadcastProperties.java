@@ -15,9 +15,7 @@ import java.util.List;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#createSession(SessionProperties)} method.
- *
- * @see OpenTok#createSession(com.opentok.SessionProperties properties)
+ * {@link OpenTok#startBroadcast(String sessionId, BroadcastProperties properties)} method.
  */
 public class BroadcastProperties {
 
@@ -50,9 +48,9 @@ public class BroadcastProperties {
 
 
         /**
-         * Call this method to customize the layout of the broadcast
+         * Call this method to customize the layout of the broadcast.
          *
-         * @param layout An object of type {@link BroadcastLayout} .
+         * @param layout An object of type {@link BroadcastLayout}.
          *
          * @return The BroadcastProperties.Builder object with the layout setting.
          */
@@ -61,9 +59,12 @@ public class BroadcastProperties {
             return this;
         }
         /**
-         * Call this method to set the time duration, in seconds, of the broadcast . The default is 7200 seconds
+         * Call this method to set the maximum duration, in seconds, of the broadcast.
+         * The broadcast will automatically stop when the maximum duration is reached.
+         * You can set the maximum duration to a value from 60 (60 seconds) to 36000 (10 hours).
+         * The default maximum duration is 2 hours (7200 seconds).
          *
-         * @param maxDuration The maximum time duration in seconds
+         * @param maxDuration The maximum duration in seconds.
          *
          * @return The BroadcastProperties.Builder object with the maxDuration setting.
          */
@@ -87,9 +88,10 @@ public class BroadcastProperties {
             return this;
         }
         /**
-         * Call this method to set rtmp list of the broadcast stream. A limit of 5 RtmpProperties object is enforced.
+         * Call this method to set a list of RTMP broadcast streams. There is a limit of
+         * 5 RTMP streams.
          *
-         * @param rtmpProps The rtmp properties object .
+         * @param rtmpProps The {@link RtmpProperties} object defining the RTMP streams.
          *
          * @return The BroadcastProperties.Builder object with the list of RtmpProperties setting.
          */

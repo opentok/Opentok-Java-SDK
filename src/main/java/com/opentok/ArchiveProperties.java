@@ -70,11 +70,12 @@ public class ArchiveProperties {
         /**
          * Call this method to set the resolution of the archive.
          *
-         * @param resolution The resolution of the archive, either "640x480" (SD, the default) or "1280x720" (HD).
-         * This property only applies to composed archives.
-         * If you set this property and set the outputMode property to "individual", the call in the API method results in an error.
+         * @param resolution The resolution of the archive, either "640x480" (SD, the default) or
+         * "1280x720" (HD). This property only applies to composed archives. If you set this
+         * and set the outputMode property to "individual", the call in the API method results in
+         * an error.
          *
-         * @return The ArchiveProperties.Builder object with the name setting.
+         * @return The ArchiveProperties.Builder object with the resolution setting.
          */
         public Builder resolution(String resolution) {
             this.resolution = resolution;
