@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents an archive of an OpenTok session.
+ * Represents a live streaming broadcast of an OpenTok session.
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Broadcast {
@@ -32,9 +32,17 @@ public class Broadcast {
     private List<Rtmp> rtmpList = new ArrayList<>();
     private String hls;
 
+    /**
+     * Do not call the <code>Broadcast()</code> constructor. To start a live streaming broadcast,
+     * call the {@link OpenTok#startBroadcast OpenTok.startBroadcast()} method.
+     */
     protected Broadcast() {
     }
 
+    /**
+     * Do not call the <code>makeBroadcast()</code> method. To start a live streaming broadcast,
+     * call the {@link OpenTok#startBroadcast OpenTok.startBroadcast()} method.
+     */
     @JsonCreator
     public static Broadcast makeBroadcast() {
         return new Broadcast();
@@ -48,7 +56,7 @@ public class Broadcast {
     }
 
     /**
-     * The session ID of the OpenTok session associated with this archive.
+     * The session ID of the OpenTok session associated with this broadcast.
      */
     public String getSessionId() {
         return sessionId;
@@ -56,40 +64,43 @@ public class Broadcast {
 
 
     /**
-     * The OpenTok API key associated with the archive.
+     * The OpenTok API key associated with the broadcast.
      */
     public int getProjectId() {
         return projectId;
     }
 
     /**
-     * The time at which the archive was created, in milliseconds since the Unix epoch.
+     * The time at which the broadcast was started, in milliseconds since the Unix epoch.
      */
     public long getCreatedAt() {
         return createdAt;
     }
     /**
-     * The time at which the archive was created, in milliseconds since the Unix epoch.
+     * The time at which the broadcast was updated, in milliseconds since the Unix epoch.
      */
     public long getUpdatedAt() {
         return updatedAt;
     }
     /**
-     * The name of the archive.
+     * The broadcast resolution.
      */
     public String getResolution() {
         return resolution;
     }
 
     /**
-     * The name of the archive.
+     * The broadcast status, either "started" or "stopped".
      */
     public String getStatus() {
         return status;
     }
     /**
-     * The name of the archive.
-     *
+     * Details on the HLS and RTMP broadcast streams. For an HLS stream, the URL is provided.
+     * See the <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">OpenTok
+     * live streaming broadcast developer guide</a> for more information on how to use this URL.
+     * For each RTMP stream, the RTMP server URL and stream name are provided, along with the RTMP
+     * stream's status.
      */
     @JsonProperty("broadcastUrls")
     private void unpack(Map<String,Object> broadcastUrls) {
@@ -106,13 +117,13 @@ public class Broadcast {
         }
     }
     /**
-     * The name of the archive if present else null.
+     * The HLS URL (if there is one) of the broadcast.
      */
     public String getHls() {
         return hls;
     }
     /**
-     * The name of the archive.
+    * A list of RTMP URLs (if there are any) of the broadcast.
      */
     public List<Rtmp> getRtmpList() {
         return rtmpList;
@@ -124,7 +135,6 @@ public class Broadcast {
         } catch (Exception e) {
             return "";
         }
-
     }
 
 }

@@ -10,7 +10,7 @@ package com.opentok;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Represents a stream in an OpenTok session.
+ * Represents an RTMP stream in an OpenTok session.
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 
@@ -29,7 +29,7 @@ public class Rtmp {
         return id;
     }
     /**
-     * The server URL.
+     * The RTMP server URL.
      */
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -46,7 +46,5 @@ public class Rtmp {
     public String getStreamName() {
         return streamName;
     }
-
-
 }
 

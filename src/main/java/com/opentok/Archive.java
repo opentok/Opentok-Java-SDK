@@ -141,7 +141,7 @@ public class Archive {
     }
 
     /**
-     * The name of the archive.
+     * The resolution of the archive.
      */
     public String getResolution() {
         return resolution;
