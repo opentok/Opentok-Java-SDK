@@ -56,9 +56,12 @@ get(new FreeMarkerTemplateView("/host") {
     public ModelAndView handle(Request request, Response response) {
 
         String token = null;
+        ArrayList<String> layoutClassList = new ArrayList<String>();
+        layoutClassList.add("focus");
         try {
             token = opentok.generateToken(sessionId, new TokenOptions.Builder()
                 .role(Role.MODERATOR)
+                .initialLayoutClassList(layoutClassList)
                 .build());
         } catch (OpenTokException e) {
             e.printStackTrace();
@@ -68,6 +71,8 @@ get(new FreeMarkerTemplateView("/host") {
         attributes.put("apiKey", apiKey);
         attributes.put("sessionId", sessionId);
         attributes.put("token", token);
+        attributes.put("layout", layoutType);
+        attributes.put("focusStreamId", focusStreamId);
 
         return new ModelAndView(attributes, "host.ftl");
     }
@@ -89,16 +94,20 @@ post(new Route("/start") {
         HttpServletRequest req = request.raw();
         boolean hasAudio = req.getParameterMap().containsKey("hasAudio");
         boolean hasVideo = req.getParameterMap().containsKey("hasVideo");
-        OutputMode outputMode = OutputMode.COMPOSED;
-        if (req.getParameter("outputMode").equals("individual")) {
-            outputMode = OutputMode.INDIVIDUAL;
+        OutputMode outputMode = OutputMode.INDIVIDUAL;
+        ArchiveLayout layout = null;
+        if (req.getParameter("outputMode").equals("composed")) {
+            outputMode = OutputMode.COMPOSED;
+            layout = new ArchiveLayout(ArchiveLayout.Type.HORIZONTAL);
         }
         try {
             ArchiveProperties properties = new ArchiveProperties.Builder()
                                     .name("Java Archiving Sample App")
                                     .hasAudio(hasAudio)
                                     .hasVideo(hasVideo)
-                                    .outputMode(outputMode).build();
+                                    .outputMode(outputMode)
+                                    .layout(layout)
+                                    .build();
             archive = opentok.startArchive(sessionId, properties);
         } catch (OpenTokException e) {
             e.printStackTrace();
@@ -114,8 +123,13 @@ for the session that needs to be archived. An ArchiveProperties object is instan
 optional properties for the archive. The `name` is stored with the archive and can be read later.
 The `hasAudio`, `hasVideo`, and `outputMode` values are read from the request body; these define
 whether the archive will record audio and video, and whether it will record streams individually or
-to a single file composed of all streams. In this case, as in the HelloWorld sample app, there is
-only one session created and it is used here and for the participant view. This will trigger the
+to a single file composed of all streams.
+
+The `layout` setting is used to set the initial archive layout for a composed archive,
+to be discussed later in the [Changing Archive Layout](#changing-archive-layout) section.
+
+In this case, as in the HelloWorld sample app, there is only one session
+created and it is used here and for the participant view. This will trigger the
 recording to begin. The response sent back to the client's XHR request will be the JSON
 representation of the archive, which is returned from the `toString()` method. The client is also
 listening for the `archiveStarted` event, and uses that event to change the 'Start Archiving' button
@@ -179,6 +193,8 @@ get(new FreeMarkerTemplateView("/participant") {
         attributes.put("apiKey", apiKey);
         attributes.put("sessionId", sessionId);
         attributes.put("token", token);
+        attributes.put("layout", layoutType);
+        attributes.put("focusStreamId", focusStreamId);
 
         return new ModelAndView(attributes, "participant.ftl");
     }
@@ -188,6 +204,176 @@ get(new FreeMarkerTemplateView("/participant") {
 Since this view has no further interactivity with buttons, this is all that is needed for a client
 that is participating in an archived session. Once again, much of the functionality is implemented
 in the client, in code that can be found in the `public/js/participant.js` file.
+
+### Changing Archive Layout
+
+*Note:* Changing archive layout is only available for composed archives, and setting the layout
+is not required. By default, composed archives use the "best fit" layout. For more information,
+see the OpenTok developer guide for [Customizing the video layout for composed
+archives](https://tokbox.com/developer/guides/archiving/layout-control.html).
+
+When you create a composed archive (when the `outputMode` is set to 'composed), we set
+the `ArchiveLayout` object to use the `ArchiveLayout.Type.HORIZONTAL` layout type
+(corresponding to the `'horizontalPresentation'` predefined layout type). And we pass
+that `ArchiveLayout` object into the `layout()` method of the `ArchiveProperties.Builder`
+object used in the call to `OpenTok.startArchive()`:
+
+```java
+OutputMode outputMode = OutputMode.INDIVIDUAL;
+ArchiveLayout layout = null;
+if (req.getParameter("outputMode").equals("composed")) {
+    outputMode = OutputMode.COMPOSED;
+    layout = new ArchiveLayout(ArchiveLayout.Type.HORIZONTAL);
+}
+try {
+    ArchiveProperties properties = new ArchiveProperties.Builder()
+                            .name("Java Archiving Sample App")
+                            .hasAudio(hasAudio)
+                            .hasVideo(hasVideo)
+                            .outputMode(outputMode)
+                            .layout(layout)
+                            .build();
+    archive = opentok.startArchive(sessionId, properties);
+} catch (OpenTokException e) {
+// ...
+```
+
+This sets the initial layout type of the archive. `'horizontalPresentation'` is one of
+the predefined layout types for composed archives.
+
+For composed archives, you can change the layout dynamically. The host view includes a
+*Toggle layout* button. This toggles the layout of the streams between a horizontal and vertical
+presentation. When you click this button, the host client switches makes an HTTP POST request to
+the '/archive/:archiveId/layout' endpoint:
+
+```javascript
+post(new Route("/archive/:archiveId/layout") {
+    @Override
+    public Object handle(Request request, Response response) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(request.body());
+            layoutType = rootNode.get("type").textValue();
+            ArchiveLayout.Type type = ArchiveLayout.Type.HORIZONTAL;
+            if (layoutType.equals("verticalPresentation")) {
+                type = ArchiveLayout.Type.VERTICAL;
+            }
+            ArchiveProperties archiveProperties = new ArchiveProperties.Builder()
+                .layout(new ArchiveLayout(type))
+                .build();
+            opentok.setArchiveLayout(request.params("archiveId"), archiveProperties);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.status(400);
+            return e.getMessage();
+        }
+        return layoutType;
+    }
+});
+```
+
+This creates an `ArchiveProperties` object, and calls the `layout()` method of the
+`ArchiveProperties.Builder` obejct, passing in either `ArchiveLayout.Type.HORIZONTAL`
+or `ArchiveLayout.Type.VERTICAL` (depending on the `type` set in the POST request’s body).
+We pass the `ArchiveProperties` object into the call to the `OpenTok.setArchiveLayout()` method.
+The layout type will either be set to `horizontalPresentation` or `verticalPresentation`,
+which are two of the predefined layout types for OpenTok composed archives.
+
+Also, in the host view, you can click any stream to set it to be the focus stream in the
+archive layout. (Click outside of the mute audio icon.) Doing so sends an HTTP POST request
+to the `/focus` endpoint:
+
+```java
+post(new Route("/focus") {
+    @Override
+    public Object handle(Request request, Response response) {
+        ArrayList<String> otherStreams = new ArrayList<String>();
+        HttpServletRequest req = request.raw();
+        String newFocusStreamId = req.getParameterMap().get("focus")[0];
+
+        if (newFocusStreamId.equals(focusStreamId)) {
+          return focusStreamId;
+        }
+
+        if (focusStreamId.isEmpty()) {
+          focusStreamId = newFocusStreamId;
+          return focusStreamId;
+        }
+
+        try {
+            StreamProperties newFocusStreamProperties = new StreamProperties.Builder()
+                .id(newFocusStreamId)
+                .addLayoutClass("focus")
+                .build();
+            StreamProperties oldFocusStreamProperties = new StreamProperties.Builder()
+                .id(focusStreamId)
+                .build();
+            StreamListProperties streamListProperties = new StreamListProperties.Builder()
+                .addStreamProperties(newFocusStreamProperties)
+                .addStreamProperties(oldFocusStreamProperties)
+                .build();
+            opentok.setStreamLayouts(sessionId, streamListProperties);
+            focusStreamId = newFocusStreamId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.status(400);
+            return e.getMessage();
+        }
+        return focusStreamId;
+    }
+});
+```
+
+The body of the  POST request includes the stream ID of the "focus" stream and an array of
+other stream IDs in the session. The server-side method that handles the POST requests creates
+`StreamProperties` objects for the new focus stream and for the previous focus streams. For the
+new focus stream, it calls the `addLayoutClass()` method of a `StreamProperties.Builder` object,
+to at the "focus" class to the layout class list for the stream:
+
+```javascript
+StreamProperties newFocusStreamProperties = new StreamProperties.Builder()
+    .id(newFocusStreamId)
+    .addLayoutClass("focus")
+    .build();
+```
+
+For the previous focus stream, it calls the `addLayoutClass()` method of a
+`StreamProperties.Builder` object, without calling the `addLayoutClass` method. This removes
+all layout classes for the stream:
+
+```javascript
+StreamProperties oldFocusStreamProperties = new StreamProperties.Builder()
+    .id(focusStreamId)
+    .build();
+```
+
+Each `StreamProperties` object is added to a `StreamListProperties` object, using the
+`addStreamProperties()` of the `StreamListProperties.Builder`. And the `StreamListProperties`
+object is passed into the `OpenTok.setStreamLayouts()` method:
+
+```java
+StreamListProperties streamListProperties = new StreamListProperties.Builder()
+    .addStreamProperties(newFocusStreamProperties)
+    .addStreamProperties(oldFocusStreamProperties)
+    .build();
+    opentok.setStreamLayouts(sessionId, streamListProperties);
+```
+
+This sets one stream to have the `focus` class, which causes it to be the large stream
+displayed in the composed archive. (This is the behavior of the `horizontalPresentation` and
+`verticalPresentation` layout types.) To see this effect, you should open the host and participant
+pages on different computers (using different cameras). Or, if you have multiple cameras connected
+to your machine, you can use one camera for publishing from the host, and use another for the
+participant. Or, if you are using a laptop with an external monitor, you can load the host page
+with the laptop closed (no camera) and open the participant page with the laptop open.
+
+The host client page also uses OpenTok signaling to notify other clients when the layout type and
+focus stream changes, and they then update the local display of streams in the HTML DOM accordingly.
+However, this is not necessary. The layout of the composed archive is unrelated to the layout of
+streams in the web clients.
+
+When you playback the composed archive, the layout type and focus stream changes, based on calls
+to the `OpenTok.setArchiveLayout()` and `OpenTok.setStreamLayouts()` methods during
+the recording.
 
 ### Past Archives
 

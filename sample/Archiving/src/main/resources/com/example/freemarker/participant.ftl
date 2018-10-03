@@ -10,9 +10,8 @@
           <h3 class="panel-title">Participant</h3>
         </div>
         <div class="panel-body">
-          <div id="subscribers"><div id="publisher"></div></div>
+          <div id="streams"></div>
         </div>
-      </div>
     </div>
 
     <div class="panel panel-default">
@@ -50,6 +49,8 @@
         var sessionId = "${ sessionId }";
         var apiKey = "${ apiKey }";
         var token = "${ token }";
+        var layout = "${ layout }";
+        var focusStreamId = "${ focusStreamId }";
     </script>
     <script src="/js/participant.js"></script>
 
