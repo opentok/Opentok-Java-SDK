@@ -102,6 +102,7 @@ public class Archive {
     @JsonProperty private boolean hasAudio = true;
     @JsonProperty private OutputMode outputMode = OutputMode.COMPOSED;
     @JsonProperty private String password;
+    @JsonProperty private String resolution;
 
     protected Archive() {
     }
@@ -137,6 +138,13 @@ public class Archive {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * The resolution of the archive.
+     */
+    public String getResolution() {
+        return resolution;
     }
 
     /**
