@@ -95,7 +95,7 @@ public class Archive {
     @JsonProperty private int partnerId;
     @JsonProperty private String reason;
     @JsonProperty private String sessionId;
-    @JsonProperty private int size = 0;
+    @JsonProperty private long size = 0;
     @JsonProperty private Status status;
     @JsonProperty private String url;
     @JsonProperty private boolean hasVideo = true;
@@ -172,7 +172,7 @@ public class Archive {
     /**
      * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
      */
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
