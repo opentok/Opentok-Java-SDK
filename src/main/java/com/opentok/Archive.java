@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2018 TokBox, Inc.
+ * Copyright (C) 2019 TokBox, Inc.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -95,7 +95,7 @@ public class Archive {
     @JsonProperty private int partnerId;
     @JsonProperty private String reason;
     @JsonProperty private String sessionId;
-    @JsonProperty private int size = 0;
+    @JsonProperty private long size = 0;
     @JsonProperty private Status status;
     @JsonProperty private String url;
     @JsonProperty private boolean hasVideo = true;
@@ -172,7 +172,7 @@ public class Archive {
     /**
      * The size of the MP4 file. For archives that have not been generated, this value is set to 0.
      */
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 

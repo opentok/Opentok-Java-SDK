@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2018 TokBox, Inc.
+ * Copyright (C) 2019 TokBox, Inc.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -617,7 +617,7 @@ public class OpenTokTest {
                                 "            \"partnerId\" : 123456,\n" +
                                 "            \"reason\" : \"\",\n" +
                                 "            \"sessionId\" : \"SESSIONID\",\n" +
-                                "            \"size\" : 2909274,\n" +
+                                "            \"size\" : 247145329511,\n" +
                                 "            \"status\" : \"available\",\n" +
                                 "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
                                 "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&AWSAccessKeyId=AKIAI6" +
