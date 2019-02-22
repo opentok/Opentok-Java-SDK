@@ -1,2 +1,2 @@
-include 'sample/HelloWorld'
-include 'sample/Archiving'
+include 'sample:HelloWorld'
+include 'sample:Archiving'
