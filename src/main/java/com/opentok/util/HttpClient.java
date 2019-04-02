@@ -593,6 +593,50 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         return responseString;
     }
+
+    public String listBroadcasts(String sessionId, int offset, int count) throws OpenTokException {
+        if(offset < 0 || count < 0 || count > 1000)  {
+            throw new InvalidArgumentException("Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
+        }
+
+        String responseString;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast";
+        if (offset != 0 || count != 1000) {
+            url += "?";
+            if (offset != 0) {
+                url += ("offset=" + Integer.toString(offset) + '&');
+            }
+            if (count != 1000) {
+                url += ("count=" + Integer.toString(count));
+            }
+        }
+        if(sessionId != null && !sessionId.isEmpty())  {
+            url += (url.contains("?") ? "&" : "?") + "sessionId=" + sessionId;
+        }
+
+        Future<Response> request = this.prepareGet(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 403:
+                    throw new RequestException("Could not get OpenTok Broadcasts. The request was not authorized.");
+                case 500:
+                    throw new RequestException("Could not get OpenTok Broadcasts. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get OpenTok Broadcasts. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get OpenTok Broadcasts", e);
+        }
+
+        return responseString;
+    }
+
     public String setBroadcastLayout(String broadcastId, BroadcastProperties properties) throws OpenTokException {
         if(properties.layout() == null) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
