@@ -17,14 +17,14 @@ run.systemProperty 'API_SECRET', 'abcdef1234567890abcdef01234567890abcdef'
 Next, start the server using Gradle (which handles dependencies and setting up the environment).
 
 ```
-$ gradle :sample/HelloWorld:run
+$ gradle sample:HelloWorld:run
 ```
 
 Or if you are using the Gradle Wrapper that is distributed with the project, from the root project
 directory:
 
 ```
-$ ./gradlew :sample/HelloWorld:run
+$ ./gradlew sample:HelloWorld:run
 ```
 
 Visit <http://localhost:4567> in your browser. Open it again in a second window. Smile! You've just
