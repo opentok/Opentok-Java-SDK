@@ -187,19 +187,22 @@ import com.opentok.Archive;
 import com.opentok.ArchiveProperties;
 
 Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
-  .archiveMode(Archive.OutputMode.INDIVIDUAL)
+  .outputMode(Archive.OutputMode.INDIVIDUAL)
   .build()););
 
 // Store this archiveId in the database for later use
 String archiveId = archive.getId();
 ```
 
-The `Archive.OutputMode.COMPOSED` setting (the default) causes all streams in the archive to be
-recorded to a single (composed) file.
+The `Archive.OutputMode.COMPOSED` option is the default value for `outputMode`. It archives all streams to be recorded to a single (composed) file.
 
-You can set the composed archive resolution to either "640x480" (SD, the default) or "1280x720" (HD) using the ArchiveProperties builder.
-Any other value will result in an exception.The property only applies to composed archives. 
-If you set this property and also set the outputMode property to "individual", the method results in an `InvalidArgumentException`.
+You can only specify the `resolution` for composed archives using the `ArchiveProperties` builder. If you set the `resolution` property and also set the `outputMode` property to `Archive.OutputMode.INDIVIDUAL`, the method will throw an `InvalidArgumentException`.
+
+The accepted values for `resolution` are:
+- `"640x480"` (SD, the default)
+- `"1280x720"` (HD)
+> Please note that setting any other value for the `resolution` property will result in an exception.
+
 
 ```java
 import com.opentok.ArchiveProperties;
