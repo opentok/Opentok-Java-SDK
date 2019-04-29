@@ -50,7 +50,7 @@ public class RtmpProperties {
 
         /**
          * Call this method to set the RTMP server URL. Note that OpenTok live streaming
-         * does not support RTMPS.
+         * supports RTMP and RTMPS.
          *
          * @param serverUrl The RTMP server URL
          *

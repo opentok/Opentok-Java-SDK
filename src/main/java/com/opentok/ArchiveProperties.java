@@ -51,7 +51,7 @@ public class ArchiveProperties {
         private boolean hasAudio = true;
         private boolean hasVideo = true;
         private OutputMode outputMode = OutputMode.COMPOSED;
-        private ArchiveLayout layout = new ArchiveLayout(ArchiveLayout.Type.BESTFIT);
+        private ArchiveLayout layout = null;
         
 
         /**
@@ -206,10 +206,11 @@ public class ArchiveProperties {
         valueList.add(outputMode.toString());
         params.put("outputMode", valueList);
 
-        valueList = new ArrayList<String>();
-        valueList.add(layout.toString());
-        params.put("layout", valueList);
-
+        if (layout != null) {
+            valueList = new ArrayList<String>();
+            valueList.add(layout.toString());
+            params.put("layout", valueList);
+        }
 
         return params;
     }
