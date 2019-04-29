@@ -173,7 +173,7 @@ import com.opentok.ArchiveProperties;
 // Start an audio-only archive
 Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
   .hasVideo(false)
-  .build()););
+  .build());
 
 // Store this archiveId in the database for later use
 String archiveId = archive.getId();
