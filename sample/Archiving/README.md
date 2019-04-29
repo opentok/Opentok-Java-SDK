@@ -16,14 +16,14 @@ run.systemProperty 'API_SECRET', 'abcdef1234567890abcdef01234567890abcdef'
 Next, start the server using Gradle (which handles dependencies and setting up the environment).
 
 ```
-$ gradle :sample/Archiving:run
+$ gradle sample:Archiving:run
 ```
 
 Or if you are using the Gradle Wrapper that is distributed with the project, from the root project
 directory:
 
 ```
-$ ./gradlew :sample/Archiving:run
+$ ./gradlew sample:Archiving:run
 ```
 
 Visit <http://localhost:4567> in your browser. You can now create new archives (either as a host or
