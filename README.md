@@ -188,7 +188,7 @@ import com.opentok.ArchiveProperties;
 
 Archive archive = opentok.startArchive(sessionId, new ArchiveProperties.Builder()
   .outputMode(Archive.OutputMode.INDIVIDUAL)
-  .build()););
+  .build());
 
 // Store this archiveId in the database for later use
 String archiveId = archive.getId();
