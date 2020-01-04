@@ -101,14 +101,15 @@ public class SipProperties {
         }
         /**
          * Call this method to define custom headers to be added to the SIP ​INVITE​
-         * initiated from OpenTok to the your SIP platform.
+         * initiated from OpenTok to your SIP platform.
          *
          * @param headersJsonStartingWithXDash This JSON string defines custom headers
-         * to be added to the SIP ​INVITE​ request initiated from OpenTok to the your SIP platform.
-         * Each of the custom headers must start with the ​"X-"​ prefix, or the call will result
-         * in a Bad Request (400) response.
+         * to be added to the SIP ​INVITE​ request initiated from OpenTok to your SIP platform.
+         * <p>
+         * <b>Note:</b> You no longer need to append the ​"X-"​ prefix to the beginning of
+         * custom headers. This restriction, which applied previously, has been removed.
          *
-         * @return The SipProperties.Builder object with the custom headers set.
+         * @return The SipProperties.Builder object.
          */
         public Builder headersJsonStartingWithXDash(String headersJsonStartingWithXDash) {
             this.headersJsonStartingWithXDash = headersJsonStartingWithXDash;
