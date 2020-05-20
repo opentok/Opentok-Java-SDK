@@ -53,6 +53,8 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -1571,6 +1573,55 @@ public class OpenTokTest {
                 .addRtmpProperties(rtmpNextProps)
                 .maxDuration(1000)
                 .resolution("640x480")
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartBroadcastWithCustomLayout() throws OpenTokException {
+        String sessionId = "2_M23039383dlkeoedjd-22928edjdHKUiuhkfofoieo98899imf-fg";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode broadcastRootNode = mapper.createObjectNode();
+        broadcastRootNode.put("id", "35c4596f-f92a-465b-b319-828d3de87b949");
+        broadcastRootNode.put("sessionId", sessionId);
+        broadcastRootNode.put("projectId", "87654321");
+        broadcastRootNode.put("createdAt", "1437676551000");
+
+        ObjectNode broadcastUrlNode = mapper.createObjectNode();
+        broadcastUrlNode.put("hls", "http://server/fakepath/playlist.m3u8");
+
+        broadcastRootNode.set("broadcastUrls", broadcastUrlNode);
+        broadcastRootNode.put("updatedAt", "1437676551000");
+        broadcastRootNode.put("status", "started");
+        broadcastRootNode.put("maxDuration", "5400");
+        broadcastRootNode.put("resolution", "1280x720");
+        broadcastRootNode.put("partnerId", "12345678");
+        broadcastRootNode.put("event", "broadcast");
+        
+
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(broadcastRootNode.toString())));
+        
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.CUSTOM);
+        String customStylesheet = "stream.instructor {position: absolute; width: 100%;  height:50%;}";
+        layout.setStylesheet(customStylesheet);
+
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .maxDuration(5400)
                 .layout(layout)
                 .build();
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
