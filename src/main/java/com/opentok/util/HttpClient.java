@@ -470,7 +470,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             String type = properties.layout().getType().toString();
             layout.put("type", type);
             if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
-                requestJson.put("stylesheet", properties.layout().getStylesheet());
+                layout.put("stylesheet", properties.layout().getStylesheet());
             }
         }
         if (properties.maxDuration() > 0) {
@@ -481,7 +481,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         ObjectNode outputs = requestJson.putObject("outputs");
         if(properties.hasHls()) {
-            outputs.put("hls", nodeFactory.objectNode());
+            outputs.set("hls", nodeFactory.objectNode());
         }
         ArrayNode rtmp = outputs.putArray("rtmp");
         for (RtmpProperties prop : properties.getRtmpList()) {
