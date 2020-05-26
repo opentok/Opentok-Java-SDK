@@ -53,6 +53,8 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -75,11 +77,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OpenTokTest {
     private final String SESSION_CREATE = "/session/create";
@@ -113,6 +111,31 @@ public class OpenTokTest {
             archivePath = "/v2/project/" + apiKey + "/archive";
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
+    }
+
+    /**
+     * Test that a request throws exception if request exceeds configured timeout
+     *
+     * @throws OpenTokException
+     */
+    @Test
+    public void testConfigureRequestTimeout() throws OpenTokException {
+        assertThrows(RequestException.class, () ->{
+            sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(6).build();
+
+            String sessionId = "SESSIONID";
+            stubFor(post(urlEqualTo(SESSION_CREATE))
+                    .willReturn(aResponse()
+                            .withStatus(200)
+                            .withFixedDelay(7000)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                    "\"partner_id\":\"123456\"," +
+                                    "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                    "\"media_server_url\":\"\"}]")));
+
+            Session session = sdk.createSession();
+        });
     }
     
     @Test
@@ -695,7 +718,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -733,7 +756,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlEqualTo(url)));
@@ -771,7 +794,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -873,7 +896,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
