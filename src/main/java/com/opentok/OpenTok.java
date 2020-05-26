@@ -134,7 +134,7 @@ public class OpenTok {
         } catch (UnsupportedEncodingException e) {
             throw new InvalidArgumentException("Session ID was not valid");
         }
-        if (!sessionIdParts.contains(Integer.toString(this.apiKey))) {
+        if (!sessionIdParts.contains(Integer.toString(apiKey))) {
             throw new InvalidArgumentException("Session ID was not valid");
         }
 
@@ -244,7 +244,7 @@ public class OpenTok {
     public Session createSession(SessionProperties properties) throws OpenTokException {
         final SessionProperties _properties = properties != null ? properties : new SessionProperties.Builder().build();
         final Map<String, Collection<String>> params = _properties.toMap();
-        final String response = this.client.createSession(params);
+        final String response = client.createSession(params);
 
         try {
             CreatedSession[] sessions = createdSessionReader.readValue(response);
@@ -306,7 +306,7 @@ public class OpenTok {
             throw new InvalidArgumentException("Session string null or empty");
         }
         try {
-            this.client.signal(sessionId,null,props);
+            client.signal(sessionId,null,props);
 
         } catch (Exception e)
         {
@@ -321,7 +321,7 @@ public class OpenTok {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
         try {
-            this.client.signal(sessionId, connectionId, props);
+            client.signal(sessionId, connectionId, props);
 
         } catch (Exception e)
         {
@@ -336,7 +336,7 @@ public class OpenTok {
      * @return The {@link Archive} object.
      */
     public Archive getArchive(String archiveId) throws OpenTokException {
-        String archive = this.client.getArchive(archiveId);
+        String archive = client.getArchive(archiveId);
         try {
             return archiveReader.readValue(archive);
         } catch (Exception e) {
@@ -401,7 +401,7 @@ public class OpenTok {
      * @return A List of {@link Archive} objects.
      */
     public ArchiveList listArchives(String sessionId, int offset, int count) throws OpenTokException {
-        String archives = this.client.getArchives(sessionId, offset, count);
+        String archives = client.getArchives(sessionId, offset, count);
         try {
             return archiveListReader.readValue(archives);
         } catch (JsonProcessingException e) {
@@ -442,7 +442,7 @@ public class OpenTok {
             throw new InvalidArgumentException("The resolution cannot be specified for individual output mode.");
         }
         // TODO: do validation on sessionId and name
-        String archive = this.client.startArchive(sessionId, properties);
+        String archive = client.startArchive(sessionId, properties);
         try {
             return archiveReader.readValue(archive);
         } catch (Exception e) {
@@ -470,7 +470,7 @@ public class OpenTok {
      */
     public Archive stopArchive(String archiveId) throws OpenTokException {
 
-        String archive = this.client.stopArchive(archiveId);
+        String archive = client.stopArchive(archiveId);
         try {
             return archiveReader.readValue(archive);
         } catch (Exception e) {
@@ -488,7 +488,7 @@ public class OpenTok {
      * @param archiveId The archive ID of the archive you want to delete.
      */
     public void deleteArchive(String archiveId) throws OpenTokException {
-        this.client.deleteArchive(archiveId);
+        client.deleteArchive(archiveId);
     }
     /**
      * Sets the layout type for a composed archive. For a description of layout types, see
@@ -503,7 +503,7 @@ public class OpenTok {
         if (StringUtils.isEmpty(archiveId) || properties == null) {
             throw new InvalidArgumentException("ArchiveId is not valid or properties are null");
         }
-        this.client.setArchiveLayout(archiveId, properties);
+        client.setArchiveLayout(archiveId, properties);
     }
     /**
      * Use this method to start a live streaming for an OpenTok session.
@@ -533,7 +533,7 @@ public class OpenTok {
             throw new InvalidArgumentException("Session not valid or broadcast properties is null");
         }
 
-        String broadcast = this.client.startBroadcast(sessionId, properties);
+        String broadcast = client.startBroadcast(sessionId, properties);
         try {
             return broadcastReader.readValue(
                     broadcast);
@@ -557,7 +557,7 @@ public class OpenTok {
         if (StringUtils.isEmpty(broadcastId)) {
             throw new InvalidArgumentException("Broadcast id is null or empty");
         }
-        String broadcast = this.client.stopBroadcast(broadcastId);
+        String broadcast = client.stopBroadcast(broadcastId);
         try {
             return broadcastReader.readValue(broadcast);
         } catch (Exception e) {
@@ -575,7 +575,7 @@ public class OpenTok {
         if(StringUtils.isEmpty(broadcastId)) {
             throw new InvalidArgumentException("Broadcast id is null or empty");
         }
-        String stream = this.client.getBroadcast(broadcastId);
+        String stream = client.getBroadcast(broadcastId);
         try {
             return broadcastReader.readValue(stream);
         } catch (Exception e) {
@@ -596,7 +596,7 @@ public class OpenTok {
         if (StringUtils.isEmpty(broadcastId) || properties == null) {
             throw new InvalidArgumentException("BroadcastId is not valid or properties are null");
         }
-        this.client.setBroadcastLayout(broadcastId, properties);
+        client.setBroadcastLayout(broadcastId, properties);
     }
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
@@ -619,7 +619,7 @@ public class OpenTok {
         if (StringUtils.isEmpty(sessionId) || properties == null) {
             throw new InvalidArgumentException("SessionId is not valid or properties are null");
         }
-        this.client.setStreamLayouts(sessionId, properties);
+        client.setStreamLayouts(sessionId, properties);
     }
 
     /**
@@ -635,7 +635,7 @@ public class OpenTok {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
         try {
-            this.client.forceDisconnect(sessionId, connectionId);
+            client.forceDisconnect(sessionId, connectionId);
 
         } catch (Exception e)
         {
@@ -652,7 +652,7 @@ public class OpenTok {
      * @return The {@link Stream} object.
      */
     public Stream getStream(String sessionId, String streamId) throws OpenTokException {
-        String stream = this.client.getStream(sessionId, streamId);
+        String stream = client.getStream(sessionId, streamId);
         try {
             return streamReader.readValue(stream);
         } catch (Exception e) {
@@ -668,7 +668,7 @@ public class OpenTok {
      * @return The list of {@link Stream} objects.
      */
     public StreamList listStreams(String sessionId) throws OpenTokException {
-        String streams = this.client.listStreams(sessionId);
+        String streams = client.listStreams(sessionId);
         try {
             return streamListReader.readValue(streams);
         } catch (JsonProcessingException e) {
@@ -690,7 +690,7 @@ public class OpenTok {
         if((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
             throw  new InvalidArgumentException ("Session id or token is null or empty or sip properties is null or sip uri empty or null.");
         }
-        String sip = this.client.sipDial(sessionId,token,properties);
+        String sip = client.sipDial(sessionId,token,properties);
         try {
             return sipReader.readValue(sip);
         } catch (JsonProcessingException e) {
@@ -707,6 +707,7 @@ public class OpenTok {
         private ProxyAuthScheme proxyAuthScheme;
         private String principal;
         private String password;
+        private int requestTimeout;
         
         public Builder(int apiKey, String apiSecret) {
             this.apiKey = apiKey;
@@ -722,6 +723,11 @@ public class OpenTok {
             proxy(proxy, null, null, null);
             return this;
         }
+
+        public Builder requestTimeout(int requestTimeout) {
+            this.requestTimeout = requestTimeout * 1000;
+            return this;
+        }
         
         public Builder proxy(Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
             this.proxy = proxy;
@@ -734,18 +740,21 @@ public class OpenTok {
         public OpenTok build() {
             HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
             
-            if (this.apiUrl != null) {
-                clientBuilder.apiUrl(this.apiUrl);
+            if (apiUrl != null) {
+                clientBuilder.apiUrl(apiUrl);
             }
-            if (this.proxy != null) {
-                clientBuilder.proxy(this.proxy, proxyAuthScheme, principal, password);
+            if (proxy != null) {
+                clientBuilder.proxy(proxy, proxyAuthScheme, principal, password);
+            }
+            if(requestTimeout !=0){
+                clientBuilder.requestTimeoutMS(requestTimeout);
             }
             
-            return new OpenTok(this.apiKey, this.apiSecret, clientBuilder.build());
+            return new OpenTok(apiKey, apiSecret, clientBuilder.build());
         }
     }
 
     public void close() {
-        this.client.close();
+        client.close();
     }
 }
