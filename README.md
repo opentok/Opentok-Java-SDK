@@ -69,6 +69,12 @@ String apiSecret = "YOUR API SECRET";
 OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ```
 
+#### Additional Configurations
+`.requestTimeout(int)` - Change the default HTTP request timeout, default is 60 seconds.
+`.apiUrl(String)` - Change the domain that the SDK points to. Useful when needing to select a specific datacenter or point to a mock version of the API for testing.
+`.proxy(Proxy)` - Using a `Proxy` object, you can configure a proxy server that the http client should use when accessing the OpenTok URLs.
+
+
 And make sure you call `close` when you are done to prevent leaked file descriptors.
 
 ```java

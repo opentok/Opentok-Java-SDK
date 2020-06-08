@@ -53,6 +53,10 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -73,11 +77,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OpenTokTest {
     private final String SESSION_CREATE = "/session/create";
@@ -111,6 +111,31 @@ public class OpenTokTest {
             archivePath = "/v2/project/" + apiKey + "/archive";
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
+    }
+
+    /**
+     * Test that a request throws exception if request exceeds configured timeout
+     *
+     * @throws OpenTokException
+     */
+    @Test
+    public void testConfigureRequestTimeout() throws OpenTokException {
+        assertThrows(RequestException.class, () ->{
+            sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(6).build();
+
+            String sessionId = "SESSIONID";
+            stubFor(post(urlEqualTo(SESSION_CREATE))
+                    .willReturn(aResponse()
+                            .withStatus(200)
+                            .withFixedDelay(7000)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                    "\"partner_id\":\"123456\"," +
+                                    "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                    "\"media_server_url\":\"\"}]")));
+
+            Session session = sdk.createSession();
+        });
     }
     
     @Test
@@ -693,7 +718,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -731,7 +756,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlEqualTo(url)));
@@ -769,7 +794,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -871,7 +896,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -1571,6 +1596,55 @@ public class OpenTokTest {
                 .addRtmpProperties(rtmpNextProps)
                 .maxDuration(1000)
                 .resolution("640x480")
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartBroadcastWithCustomLayout() throws OpenTokException {
+        String sessionId = "2_M23039383dlkeoedjd-22928edjdHKUiuhkfofoieo98899imf-fg";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode broadcastRootNode = mapper.createObjectNode();
+        broadcastRootNode.put("id", "35c4596f-f92a-465b-b319-828d3de87b949");
+        broadcastRootNode.put("sessionId", sessionId);
+        broadcastRootNode.put("projectId", "87654321");
+        broadcastRootNode.put("createdAt", "1437676551000");
+
+        ObjectNode broadcastUrlNode = mapper.createObjectNode();
+        broadcastUrlNode.put("hls", "http://server/fakepath/playlist.m3u8");
+
+        broadcastRootNode.set("broadcastUrls", broadcastUrlNode);
+        broadcastRootNode.put("updatedAt", "1437676551000");
+        broadcastRootNode.put("status", "started");
+        broadcastRootNode.put("maxDuration", "5400");
+        broadcastRootNode.put("resolution", "1280x720");
+        broadcastRootNode.put("partnerId", "12345678");
+        broadcastRootNode.put("event", "broadcast");
+        
+
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(broadcastRootNode.toString())));
+        
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.CUSTOM);
+        String customStylesheet = "stream.instructor {position: absolute; width: 100%;  height:50%;}";
+        layout.setStylesheet(customStylesheet);
+
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .maxDuration(5400)
                 .layout(layout)
                 .build();
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
