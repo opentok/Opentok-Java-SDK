@@ -31,7 +31,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>4.3.2</version>
+    <version>4.4.0</version>
 </dependency>
 ```
 
@@ -41,7 +41,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.3.2'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.4.0'
 }
 ```
 
@@ -68,6 +68,12 @@ int apiKey = 000000; // YOUR API KEY
 String apiSecret = "YOUR API SECRET";
 OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ```
+
+#### Additional Configurations
+`.requestTimeout(int)` - Change the default HTTP request timeout, default is 60 seconds.
+`.apiUrl(String)` - Change the domain that the SDK points to. Useful when needing to select a specific datacenter or point to a mock version of the API for testing.
+`.proxy(Proxy)` - Using a `Proxy` object, you can configure a proxy server that the http client should use when accessing the OpenTok URLs.
+
 
 And make sure you call `close` when you are done to prevent leaked file descriptors.
 
