@@ -20,7 +20,7 @@ public enum ArchiveMode {
     MANUAL ("manual"),
 
     /**
-     * The session is archived automatically (as soon as there are clients publishing streams
+     * The session is archived automatically (as soon as there are clients connected
      * to the session).
      */
     ALWAYS ("always");
