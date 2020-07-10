@@ -54,6 +54,8 @@ public class OpenTok {
             .readerFor(Sip.class);
     static protected ObjectReader broadcastReader = new ObjectMapper()
             .readerFor(Broadcast.class);
+    static protected ObjectReader broadcastListReader = new ObjectMapper()
+            .readerFor(BroadcastList.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -582,6 +584,73 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
+
+    /**
+     * Returns a List of {@link Broadcast} objects, representing broadcasts that are both
+     * both completed and in-progress, for your API key. This list is limited to 1000 broadcasts
+     * starting with the first broadcast recorded. For a specific range of broadcasts, call
+     * {@link #listBroadcasts(int offset, int count)}.
+     *
+     * @return A List of {@link Broadcast} objects.
+     */
+    public BroadcastList listBroadcasts() throws OpenTokException {
+        return listBroadcasts("", 0, 1000);
+    }
+
+    /**
+     * Returns a List of {@link Broadcast} objects, representing broadcasts that are both
+     * both completed and in-progress, for your API key.
+     *
+     * @param sessionId The sessionid of the session which started broadcasting.
+     *                  If the session is null or empty it will be omitted.
+     * @return A List of {@link Broadcast} objects.
+     */
+    public BroadcastList listBroadcasts(String sessionId) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty() ) {
+            throw new InvalidArgumentException("Session Id cannot be null or empty");
+        }
+        return listBroadcasts(sessionId, 0, 1000);
+    }
+
+    /**
+     * Returns a List of {@link Broadcast} objects, representing broadcasts that are both
+     * both completed and in-progress, for your API key.
+     *
+     * @param offset The index offset of the first broadcast. 0 is offset of the most recently started
+     * broadcast.
+     * 1 is the offset of the broadcast that started prior to the most recent broadcast.
+     * @param count The number of broadcasts to be returned. The maximum number of broadcasts returned
+     * is 1000.
+     * @return A List of {@link Broadcast} objects.
+     */
+    public BroadcastList listBroadcasts(int offset, int count) throws OpenTokException {
+        return listBroadcasts("", offset, count);
+    }
+
+    /**
+     * Returns a List of {@link Broadcast} objects, representing broadcasts that are both
+     * both completed and in-progress, for your API key.
+     *
+     * @param offset The index offset of the first broadcast. 0 is offset of the most recently started
+     * broadcast.
+     * 1 is the offset of the broadcast that started prior to the most recent broadcast.
+     * @param count The number of broadcasts to be returned. The maximum number of broadcasts returned
+     * is 1000.
+     * @param sessionId The sessionid of the session which started broadcasting.
+     *
+     * @return A List of {@link Broadcast} objects.
+     */
+    public BroadcastList listBroadcasts(String sessionId, int offset, int count) throws OpenTokException {
+        String broadcasts = this.client.listBroadcasts(sessionId, offset, count);
+        try {
+            return broadcastListReader.readValue(broadcasts);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
     /**
      * Sets the layout type for the broadcast. For a description of layout types, see
      * <a href="hhttps://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
