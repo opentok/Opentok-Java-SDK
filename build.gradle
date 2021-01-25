@@ -112,13 +112,13 @@ uploadArchives {
                         id 'manasdpradhan'
                         name 'Manas Pradhan'
                         email 'manas@tokbox.com'
-                        organization 'TokBox, Inc.'
+                        organization 'Vonage.'
                     }
                     developer {
                         id 'aoberoi'
                         name 'Ankur Oberoi'
                         email 'aoberoi@gmail.com'
-                        organization 'TokBox, Inc.'
+                        organization 'Vonage.'
                     }
                 }
             }
