@@ -12,7 +12,7 @@ apply plugin: 'jacoco'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '4.4.0'
+version = '4.4.1'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
@@ -46,13 +46,13 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '[4.3,5.0['
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '[1.45,1.99999)'
-    compile group: 'commons-lang', name: 'commons-lang', version: '[2.6,2.99999)'
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '[1.45,2.0['
+    compile group: 'commons-lang', name: 'commons-lang', version: '[2.6,3.0['
     compile group: 'org.asynchttpclient', name: 'async-http-client', version: '[2.0,2.99999)'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '[2.3.1,2.99999)'
     compile group: 'commons-validator', name: 'commons-validator', version: '[1.4.0,1.99999)'
     compile group: 'commons-codec', name: 'commons-codec', version: '[1.9,1.99999]'
-    compile group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.5.1'
+    compile group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.7.+'
     // TODO: find out how to initialize these dependencies properly, or remove them
     //compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
