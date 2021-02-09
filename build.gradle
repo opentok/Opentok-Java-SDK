@@ -52,7 +52,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '[2.3.1,2.99999)'
     compile group: 'commons-validator', name: 'commons-validator', version: '[1.4.0,1.99999)'
     compile group: 'commons-codec', name: 'commons-codec', version: '[1.9,1.99999]'
-    compile group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.7.+'
+    compile group: 'org.bitbucket.b_c', name: 'jose4j', version: '[0.7,1.0)'
     // TODO: find out how to initialize these dependencies properly, or remove them
     //compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
