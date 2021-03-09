@@ -614,8 +614,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String stylesheet = properties.layout().getStylesheet();
         String screenshareLayout = null;
         if(StringUtils.isEmpty(type)) {
-            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout " +
-                    "99options.");
+            throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         if ((type.equals(BroadcastLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
                 (!type.equals(BroadcastLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
