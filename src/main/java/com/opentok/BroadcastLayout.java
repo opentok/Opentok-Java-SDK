@@ -27,4 +27,10 @@ public class BroadcastLayout extends ArchiveLayout {
     public BroadcastLayout(Type type) {
         super(type);
     }
+
+    /**
+     * Do not call the <code>BroadcastLayout()</code> constructor. To set the layout of
+     * a live streaming broadcast, call the {@link OpenTok#setBroadcastLayout(String broadcastId, BroadcastProperties properties)} method.
+     */
+    public BroadcastLayout(ScreenShareLayoutType screenshareType) { super(screenshareType); }
 }
