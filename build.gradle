@@ -9,14 +9,13 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'license'
 apply plugin: 'jacoco'
-apply plugin: 'maven-publish'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '4.5.0'
 
 task javadocJar(type: Jar) {
-    archiveClassifier.set("javadoc")
+    classifier = 'javadoc'
     from javadoc
 }
 javadoc {
@@ -37,7 +36,7 @@ jacocoTestReport {
 }
 
 task sourcesJar(type: Jar) {
-    archiveClassifier.set("sources")
+    classifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -69,80 +68,62 @@ artifacts {
 }
 
 ext.isReleaseVersion = hasProperty('isReleaseVersion') ? isReleaseVersion : false
+signing {
+    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
 
 ext.ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : 'dummyuser'
 ext.ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : 'dummypass'
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            pom {
-                name = "OpenTok Java SDK"
-                artifactId = 'opentok-server-sdk'
-                packaging = 'jar'
-                description = "The OpenTok Java SDK lets you generate sessions and tokens for OpenTok applications. This version of the SDK also includes support for working with OpenTok 2.0 archives."
-                url = "https://github.com/opentok/opentok-java-sdk"
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+              authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+              authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'OpenTok Java SDK'
+                packaging 'jar'
+                description 'The OpenTok Java SDK lets you generate sessions and tokens for OpenTok applications. This version of the SDK also includes support for working with OpenTok 2.0 archives.'
+                url 'http://www.tokbox.com/opentok'
+
+                scm {
+                    connection 'scm:git:https://github.com/opentok/Opentok-Java-SDK.git'
+                    developerConnection 'scm:git:https://github.com/opentok/Opentok-Java-SDK.git'
+                    url 'opentok.github.io/opentok-java-sdk'
+                }
+
                 licenses {
                     license {
-                        name = 'MIT License'
-                        url = "https://raw.github.com/opentok/opentok-java-sdk/main/LICENCE.txt"
+                        name 'MIT License'
+                        url 'http://www.opensource.org/licenses/mit-license'
                     }
-                }
-                developers {
-                    developer {
-                        id = "devrel"
-                        name = "Vonage Devrel"
-                        email = "devrel@vonage.com"
-                    }
-                    developer {
-                        id = 'manasdpradhan'
-                        name = 'Manas Pradhan'
-                        email = 'manas@tokbox.com'
-                        organization = 'Vonage'
-                    }
-                    developer {
-                        id = 'aoberoi'
-                        name = 'Ankur Oberoi'
-                        email = 'aoberoi@gmail.com'
-                        organization = 'Vonage'
-                    }
-                    developer{
-                        id = 'slorello89'
-                        name =  'Steve Lorello'
-                        email = 'steve.lorello@vonage.com'
-                        organization = 'Vonage'
-                    }
-                }
-                scm {
-                    connection = "scm:git@github.com/opentok/opentok-java-sdk"
-                    developerConnection = "scm:git@github.com/opentok/opentok-java-sdk"
-                    url = "http://github.com/opentok/opentok-java-sdk"
                 }
 
-                issueManagement{
-                    system = "GitHub"
-                    url = "https://http://github.com/opentok/opentok-java-sdk"
+                developers {
+                    developer {
+                        id 'manasdpradhan'
+                        name 'Manas Pradhan'
+                        email 'manas@tokbox.com'
+                        organization 'Vonage.'
+                    }
+                    developer {
+                        id 'aoberoi'
+                        name 'Ankur Oberoi'
+                        email 'aoberoi@gmail.com'
+                        organization 'Vonage.'
+                    }
                 }
             }
         }
     }
-    repositories{
-        maven{
-            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            credentials.username(System.getenv("OSS_USERNAME"))
-            credentials.password(System.getenv("OSS_PASSWORD"))
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-        }
-    }
-}
-
-signing {
-    def signingKey = System.getenv("signingKey")
-    def signingPassword = System.getenv("signingPassword")
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
 }
 
 test {
