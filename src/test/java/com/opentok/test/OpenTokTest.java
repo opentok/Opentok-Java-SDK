@@ -32,12 +32,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.runner.Request;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -57,7 +56,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class OpenTokTest {
@@ -1584,7 +1582,7 @@ public class OpenTokTest {
     //    forceMuteAll: '/v2/project/<%apiKey%>/session/<%sessionId%>/mute',
 
     @Test
-    public void TestForceMuteAllStream() throws OpenTokException {
+    public void TestForceMuteAllStreamWithId() throws OpenTokException {
         String sessionID = "SESSIONID";
         String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
         stubFor(post(urlEqualTo(path))
@@ -1593,6 +1591,66 @@ public class OpenTokTest {
                         .withHeader("Content-Type", "application/json")));
         MuteAllProperties properties = new MuteAllProperties.Builder()
                 .excludedStreamId("abc123").excludedStreamId("xyz456").build();
+        sdk.forceMuteAll(sessionID, properties);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void TestForceMuteAllStreamWithIdList() throws OpenTokException {
+        String sessionID = "SESSIONID";
+        String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        List<String> excludedList = new ArrayList<>();
+        excludedList.add("abc123");
+        excludedList.add("xyz456");
+        MuteAllProperties properties = new MuteAllProperties.Builder()
+                .excludedStreamIds(excludedList).build();
+        sdk.forceMuteAll(sessionID, properties);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void TestForceMuteAllStreamWithStreamList() throws OpenTokException {
+        String sessionID = "SESSIONID";
+        String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        List<Stream> excludedList = new ArrayList<>();
+
+        String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
+        stubFor(get(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"count\" : 2,\n" +
+                                "          \"items\" : [ {\n" +
+                                "          \"id\" : \"" + 1234 + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"camera\",\n" +
+                                "          \"layoutClassList\" : [] \n" +
+                                "          }, {\n" +
+                                "          \"id\" : \"" + 5678 + "\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"videoType\" : \"screen\",\n" +
+                                "          \"layoutClassList\" : [] \n" +
+                                "          } ]\n" +
+                                "        }")));
+        StreamList streams = sdk.listStreams(sessionID);
+
+        MuteAllProperties properties = new MuteAllProperties.Builder()
+                .excludedStreams(streams).build();
         sdk.forceMuteAll(sessionID, properties);
         verify(postRequestedFor(urlMatching(path)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
