@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class HttpClient extends DefaultAsyncHttpClient {
-    
+
     private final String apiUrl;
     private final int apiKey;
 
@@ -85,11 +85,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String signal(String sessionId, String connectionId, SignalProperties properties) throws   OpenTokException , RequestException {
+    public String signal(String sessionId, String connectionId, SignalProperties properties) throws OpenTokException, RequestException {
         String responseString = null;
         String requestBody = null;
 
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + (connectionId != null && connectionId.length() > 0 ? "/connection/"+ connectionId : "") +  "/signal";
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + (connectionId != null && connectionId.length() > 0 ? "/connection/" + connectionId : "") + "/signal";
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
 
@@ -160,7 +160,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
 
     public String getArchives(String sessionId, int offset, int count) throws OpenTokException {
-        if(offset < 0 || count < 0 || count > 1000)  {
+        if (offset < 0 || count < 0 || count > 1000) {
             throw new InvalidArgumentException("Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
         }
 
@@ -175,7 +175,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 url += ("count=" + Integer.toString(count));
             }
         }
-        if(sessionId != null && !sessionId.isEmpty())  {
+        if (sessionId != null && !sessionId.isEmpty()) {
             url += (url.contains("?") ? "&" : "?") + "sessionId=" + sessionId;
         }
 
@@ -215,16 +215,16 @@ public class HttpClient extends DefaultAsyncHttpClient {
         requestJson.put("hasVideo", properties.hasVideo());
         requestJson.put("hasAudio", properties.hasAudio());
         requestJson.put("outputMode", properties.outputMode().toString());
-        if(properties.layout() != null) {
+        if (properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             layout.put("type", properties.layout().getType().toString());
-            if(properties.layout().getScreenshareType() != null){
-                if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT){
+            if (properties.layout().getScreenshareType() != null) {
+                if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT) {
                     throw new InvalidArgumentException("Could not start Archive. When screenshareType is set in the layout, type must be bestFit");
                 }
                 layout.put("screenshareType", properties.layout().getScreenshareType().toString());
             }
-            if(!(properties.layout().getStylesheet() == null)){
+            if (!(properties.layout().getStylesheet() == null)) {
                 layout.put("stylesheet", properties.layout().getStylesheet());
             }
         }
@@ -338,21 +338,21 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
 
     public String setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
-        if(properties.layout() == null) {
+        if (properties.layout() == null) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         String type = properties.layout().getType().toString();
         String stylesheet = properties.layout().getStylesheet();
         String screenshareType = null;
-        if(StringUtils.isEmpty(type)) {
+        if (StringUtils.isEmpty(type)) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         if ((type.equals(ArchiveLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
-            (!type.equals(ArchiveLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
+                (!type.equals(ArchiveLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
-        if(properties.layout().getScreenshareType() != null){
-            if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT){
+        if (properties.layout().getScreenshareType() != null) {
+            if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT) {
                 throw new InvalidArgumentException("Could not set the Archive layout. When screenshareType is set, type must be bestFit");
             }
             screenshareType = properties.layout().getScreenshareType().toString();
@@ -363,11 +363,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("type", type);
-        if(type.equals(ArchiveLayout.Type.CUSTOM.toString())) {
+        if (type.equals(ArchiveLayout.Type.CUSTOM.toString())) {
             requestJson.put("stylesheet", properties.layout().getStylesheet());
         }
-        if(screenshareType!=null){
-            requestJson.put("screenshareType",screenshareType);
+        if (screenshareType != null) {
+            requestJson.put("screenshareType", screenshareType);
         }
 
         try {
@@ -414,7 +414,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeStartObject();
             jGenerator.writeArrayFieldStart("items");
 
-            for(StreamProperties stream : properties.getStreamList()) {
+            for (StreamProperties stream : properties.getStreamList()) {
                 jGenerator.writeStartObject();
                 jGenerator.writeFieldName("id");
                 jGenerator.writeString(stream.id());
@@ -422,7 +422,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 List<String> stringList = stream.getLayoutClassList();
                 StringJoiner sj = new StringJoiner(",");
                 stringList.stream().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
-                jGenerator.writeRawValue("["+ sj.toString() + "]");
+                jGenerator.writeRawValue("[" + sj.toString() + "]");
                 jGenerator.writeEndObject();
             }
 
@@ -465,24 +465,24 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String responseString = null;
         String requestBody = null;
         ScreenShareLayoutType screenshareType = null;
-       
+
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast";
 
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
-        if(properties.layout() != null) {
+        if (properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             screenshareType = properties.layout().getScreenshareType();
             String type = properties.layout().getType().toString();
             layout.put("type", type);
-            if (screenshareType != null && !type.equals(ArchiveLayout.Type.BESTFIT.toString())){
+            if (screenshareType != null && !type.equals(ArchiveLayout.Type.BESTFIT.toString())) {
                 throw new InvalidArgumentException("Could not start OpenTok Broadcast, Layout Type must be bestfit when screenshareType is set.");
             }
-            if(screenshareType!=null){
+            if (screenshareType != null) {
                 layout.put("screenshareType", screenshareType.toString());
             }
-            if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
+            if (type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
                 layout.put("stylesheet", properties.layout().getStylesheet());
             }
         }
@@ -493,7 +493,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             requestJson.put("resolution", properties.resolution());
         }
         ObjectNode outputs = requestJson.putObject("outputs");
-        if(properties.hasHls()) {
+        if (properties.hasHls()) {
             outputs.set("hls", nodeFactory.objectNode());
         }
         ArrayNode rtmp = outputs.putArray("rtmp");
@@ -525,7 +525,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input  properties like resolution etc.");
                 case 403:
                     throw new RequestException("Could not start an OpenTok Broadcast. The request was not authorized.");
-               
+
                 case 409:
                     throw new RequestException("The broadcast has already been started for the session. SessionId = " + sessionId);
                 case 500:
@@ -606,22 +606,23 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         return responseString;
     }
+
     public String setBroadcastLayout(String broadcastId, BroadcastProperties properties) throws OpenTokException {
-        if(properties.layout() == null) {
+        if (properties.layout() == null) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         String type = properties.layout().getType().toString();
         String stylesheet = properties.layout().getStylesheet();
         String screenshareLayout = null;
-        if(StringUtils.isEmpty(type)) {
+        if (StringUtils.isEmpty(type)) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         if ((type.equals(BroadcastLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
                 (!type.equals(BroadcastLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
-        if(properties.layout().getScreenshareType()!=null){
-            if(properties.layout().getType()!= ArchiveLayout.Type.BESTFIT){
+        if (properties.layout().getScreenshareType() != null) {
+            if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT) {
                 throw new InvalidArgumentException("Could not set layout. Type must be bestfit when screenshareLayout is set.");
             }
             screenshareLayout = properties.layout().getScreenshareType().toString();
@@ -632,10 +633,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("type", type);
-        if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
+        if (type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
             requestJson.put("stylesheet", properties.layout().getStylesheet());
         }
-        if(screenshareLayout!=null){
+        if (screenshareLayout != null) {
             requestJson.put("screenshareType", screenshareLayout);
         }
 
@@ -671,9 +672,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String forceDisconnect(String sessionId, String connectionId) throws   OpenTokException , RequestException {
+    public String forceDisconnect(String sessionId, String connectionId) throws OpenTokException, RequestException {
         String responseString = null;
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/"+ connectionId ;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/" + connectionId;
         Future<Response> request = this.prepareDelete(url).execute();
 
         try {
@@ -698,6 +699,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         return responseString;
     }
+
     public String sipDial(String sessionId, String token, SipProperties props) throws OpenTokException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/dial";
@@ -716,15 +718,15 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeStartObject();       //start sip
             jGenerator.writeFieldName("uri");
             jGenerator.writeRawValue(dQuotes + props.sipUri() + dQuotes);
-            if(!StringUtils.isEmpty(props.from())) {
+            if (!StringUtils.isEmpty(props.from())) {
                 jGenerator.writeFieldName("from");
                 jGenerator.writeRawValue(dQuotes + props.from() + dQuotes);
             }
-            if(!StringUtils.isEmpty(props.headersJsonStartingWithXDash())) {
+            if (!StringUtils.isEmpty(props.headersJsonStartingWithXDash())) {
                 jGenerator.writeFieldName("headers");
                 jGenerator.writeRawValue(props.headersJsonStartingWithXDash());
             }
-            if(!StringUtils.isEmpty(props.userName()) && !StringUtils.isEmpty(props.password())) {
+            if (!StringUtils.isEmpty(props.userName()) && !StringUtils.isEmpty(props.password())) {
                 jGenerator.writeFieldName("auth");
                 jGenerator.writeStartObject();
                 jGenerator.writeFieldName("username");
@@ -775,6 +777,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         return responseString;
     }
+
     public String getStream(String sessionId, String streamId) throws RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId;
@@ -788,7 +791,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     break;
                 case 400:
                     throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID. "
-                           + "sessionId: " + sessionId +  "streamId: " + streamId);
+                            + "sessionId: " + sessionId + "streamId: " + streamId);
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
 
@@ -808,9 +811,98 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
+    public String forceMuteStream(String sessionId, String streamId) throws RequestException {
+        String responseString = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId + "/mute";
+        Future<Response> request = this.preparePost(url).execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
+                            + "sessionId: " + sessionId + "streamId: " + streamId);
+                case 403:
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
+
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID." +
+                            "streamId: " + streamId);
+                case 500:
+                    throw new RequestException("OpenTok server error.");
+                default:
+                    throw new RequestException("Could not mute stream. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get stream information", e);
+        }
+        return responseString;
+    }
+
+    public String forceMuteAllStream(String sessionId, MuteAllProperties properties) throws OpenTokException {
+        String responseString = null;
+        char doubleQuotes = '"';
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/mute";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            JsonFactory factory = new JsonFactory();
+            //Using JsonGenerator as layoutClassList values must be in double quotes and ObjectMapper
+            // adds extra escape characters
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
+            jGenerator.writeStartObject();
+
+            jGenerator.writeFieldName("excudedStreamIds");
+
+            StringJoiner sj = new StringJoiner(",");
+            properties.getExcludedStreams().stream().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
+            jGenerator.writeRawValue("[" + sj.toString() + "]");
+            jGenerator.writeEndObject();
+
+            jGenerator.close();
+            outputStream.close();
+        } catch (Exception e) {
+            throw new OpenTokException("Could not force mute streams The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+                .setBody(outputStream.toString())
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
+                            + "sessionId: " + sessionId);
+                case 403:
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
+
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID.");
+                case 500:
+                    throw new RequestException("OpenTok server error.");
+                default:
+                    throw new RequestException("Could not mute stream. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get stream information", e);
+        }
+        return responseString;
+    }
+
     public String listStreams(String sessionId) throws RequestException {
         String responseString = null;
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream" ;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
         Future<Response> request = this.prepareGet(url).execute();
 
         try {
@@ -820,7 +912,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     responseString = response.getResponseBody();
                     break;
                 case 400:
-                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID" );
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID");
                 case 403:
                     throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
                 case 408:
@@ -837,6 +929,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         return responseString;
     }
+
     public static enum ProxyAuthScheme {
         BASIC,
         DIGEST,
@@ -870,7 +963,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             proxy(proxy, null, null, null);
             return this;
         }
-        
+
         public Builder proxy(Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
             this.proxy = proxy;
             this.proxyAuthScheme = proxyAuthScheme;
@@ -895,17 +988,17 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
                     .addRequestFilter(new TokenAuthRequestFilter(apiKey, apiSecret));
             if (apiUrl == null) {
-                apiUrl=DefaultApiUrl.DEFAULT_API_URI;
+                apiUrl = DefaultApiUrl.DEFAULT_API_URI;
             }
-            
+
             if (proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(proxy, proxyAuthScheme, principal, password));
             }
 
-            if(requestTimeoutMS != 0){
+            if (requestTimeoutMS != 0) {
                 configBuilder.setRequestTimeout(requestTimeoutMS);
             }
-            
+
             config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
             HttpClient client = new HttpClient(this);
@@ -928,36 +1021,36 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
 
             InetSocketAddress isa = (InetSocketAddress) sa;
-            
+
             final String isaHost = isa.isUnresolved() ? isa.getHostName() : isa.getAddress().getHostAddress();
             ProxyServer.Builder builder = new ProxyServer.Builder(isaHost, isa.getPort());
 
             if (principal != null) {
                 Realm.AuthScheme authScheme = null;
                 switch (proxyAuthScheme) {
-                case BASIC:
-                    authScheme = AuthScheme.BASIC;
-                    break;
-                case DIGEST:
-                    authScheme = AuthScheme.DIGEST;
-                    break;
-                case NTLM:
-                    authScheme = AuthScheme.NTLM;
-                    break;
-                case KERBEROS:
-                    authScheme = AuthScheme.KERBEROS;
-                    break;
-                case SPNEGO:
-                    authScheme = AuthScheme.SPNEGO;
-                    break;
+                    case BASIC:
+                        authScheme = AuthScheme.BASIC;
+                        break;
+                    case DIGEST:
+                        authScheme = AuthScheme.DIGEST;
+                        break;
+                    case NTLM:
+                        authScheme = AuthScheme.NTLM;
+                        break;
+                    case KERBEROS:
+                        authScheme = AuthScheme.KERBEROS;
+                        break;
+                    case SPNEGO:
+                        authScheme = AuthScheme.SPNEGO;
+                        break;
                 }
-                
+
                 Realm.Builder rb = new Realm.Builder(principal, password);
                 rb.setScheme(authScheme);
-                
+
                 builder.setRealm(rb.build());
             }
-            
+
             return builder.build();
         }
     }
