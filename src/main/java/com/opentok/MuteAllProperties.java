@@ -1,3 +1,10 @@
+/**
+ * OpenTok Java SDK
+ * Copyright (C) 2021 Vonage.
+ * http://www.tokbox.com
+ *
+ * Licensed under The MIT License (MIT). See LICENSE file for more information.
+ */
 package com.opentok;
 
 import java.util.ArrayList;
@@ -6,9 +13,9 @@ import java.util.stream.Collectors;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#createSession(SessionProperties)} method.
+ * {@link OpenTok#forceMuteAll(String, MuteAllProperties)} method.
  *
- * @see OpenTok#createSession(com.opentok.SessionProperties properties)
+ * @see OpenTok#forceMuteAll(String, MuteAllProperties)
  */
 public class MuteAllProperties {
     private List<String> excludedStreams;
