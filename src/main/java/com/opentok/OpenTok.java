@@ -701,6 +701,28 @@ public class OpenTok {
     }
 
     /**
+     * Play DTMF to all clients in a session
+     *
+     * @param sessionId
+     * @param dtmfDigits
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfAll(sessionId, dtmfDigits);
+    }
+
+    /**
+     * Play DTMF to a specific client in a session
+     * @param sessionId
+     * @param connectionId
+     * @param dtmfDigits
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
+    }
+
+    /**
      * Used to create an OpenTok object with advanced settings. You can set
      * the request timeout for API calls and a proxy to use for API calls.
      * <p>

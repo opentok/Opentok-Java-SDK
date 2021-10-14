@@ -2095,6 +2095,43 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
+
+    @Test
+    public void testPlayDtmfAll() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/play-dtmf";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        String dtmfString = "0p6p4p4pp60p#";
+
+        sdk.playDTMF(sessionId, dtmfString);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(path)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testPlayDtmfSingle() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        String connectionId = "CONNECTIONID";
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId +
+                "/connection/" + connectionId +"/play-dtmf";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        String dtmfString = "0p6p4p4pp60p#";
+
+        sdk.playDTMF(sessionId, connectionId, dtmfString);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(path)))));
+        Helpers.verifyUserAgent();
+    }
+
     @Test
     public void testforceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
