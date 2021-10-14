@@ -8,6 +8,7 @@
 package com.opentok;
 
 import com.opentok.Archive.OutputMode;
+import com.opentok.Archive.StreamMode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +30,7 @@ public class ArchiveProperties {
     private boolean hasAudio;
     private boolean hasVideo;
     private OutputMode outputMode;
+    private StreamMode streamMode;
     private ArchiveLayout layout;
 
     private ArchiveProperties(Builder builder) {
@@ -37,6 +39,7 @@ public class ArchiveProperties {
         this.hasAudio = builder.hasAudio;
         this.hasVideo = builder.hasVideo;
         this.outputMode = builder.outputMode;
+        this.streamMode = builder.streamMode;
         this.layout = builder.layout;
     }
 
@@ -51,8 +54,8 @@ public class ArchiveProperties {
         private boolean hasAudio = true;
         private boolean hasVideo = true;
         private OutputMode outputMode = OutputMode.COMPOSED;
+        private StreamMode streamMode = StreamMode.AUTO;
         private ArchiveLayout layout = null;
-        
 
         /**
          * Call this method to set a name to the archive.
@@ -93,7 +96,7 @@ public class ArchiveProperties {
             this.hasAudio = hasAudio;
             return this;
         }
-        
+
         /**
          * Call this method to include an video track (<code>true</code>) or not <code>false</code>).
          *
@@ -104,7 +107,7 @@ public class ArchiveProperties {
         public Builder hasVideo(boolean hasVideo) {
             this.hasVideo = hasVideo;
             return this;
-        }        
+        }
 
         /**
          * Call this method to choose the output mode to be generated for this archive.
@@ -119,13 +122,25 @@ public class ArchiveProperties {
         }
 
         /**
+         * Call this method to choose the stream mode to be set for this archive
+         *
+         * @param streamMode Set to a value defined in the {@link Archive.StreamMode} enum.
+         *
+         * @return The ArchiveProperties.Builder object with the stream mode string.
+         */
+        public Builder streamMode(StreamMode streamMode) {
+            this.streamMode = streamMode;
+            return this;
+        }
+
+        /**
          * Call this method to customize the layout for a composed archive
          *
          * @param layout An object of type {@link ArchiveLayout} .
          *
          * @return The ArchiveProperties.Builder object with the output mode setting.
          */
-        public Builder layout(ArchiveLayout layout){
+        public Builder layout(ArchiveLayout layout) {
             this.layout = layout;
             return this;
         }
@@ -139,18 +154,21 @@ public class ArchiveProperties {
             return new ArchiveProperties(this);
         }
     }
+
     /**
      * Returns the name of the archive, which you can use to identify the archive
      */
     public String name() {
         return name;
     }
+
     /**
      * Returns the resolution of the archive
      */
     public String resolution() {
         return resolution;
     }
+
     /**
      * Whether the archive has a video track (<code>true</code>) or not (<code>false</code>).
      */
@@ -164,13 +182,18 @@ public class ArchiveProperties {
     public boolean hasAudio() {
         return hasAudio;
     }
-    
+
     /**
      * The output mode of the archive.
      */
     public OutputMode outputMode() {
         return outputMode;
     }
+
+    /**
+     * The stream mode of the archive
+     */
+    public StreamMode streamMode() { return streamMode; }
 
     /**
      * Optionally set a custom layout (composed archives only)
@@ -197,14 +220,18 @@ public class ArchiveProperties {
         ArrayList<String> valueList = new ArrayList<String>();
         valueList.add(Boolean.toString(hasAudio));
         params.put("hasAudio", valueList);
-        
+
         valueList = new ArrayList<String>();
         valueList.add(Boolean.toString(hasVideo));
         params.put("hasVideo", valueList);
-        
+
         valueList = new ArrayList<String>();
         valueList.add(outputMode.toString());
         params.put("outputMode", valueList);
+
+        valueList = new ArrayList<String>();
+        valueList.add(streamMode.toString());
+        params.put("streamMode", valueList);
 
         if (layout != null) {
             valueList = new ArrayList<String>();

@@ -490,6 +490,22 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         client.deleteArchive(archiveId);
     }
+
+    /**
+     * Patches an Opentok Archive
+     * <p>
+     * You can only patch an Archive that has a {@link com.opentok.Archive.StreamMode} of "manual"
+     * By patching an Opentok Archive you can add or remove a stream from archive.
+     *
+     * @param archiveId The archive ID of the archive you want to patch
+     * @param properties This {@link PatchProperties} object defining the patch body
+     *
+     * @throws OpenTokException
+     */
+    public void patchArchive(String archiveId, PatchProperties properties) throws OpenTokException {
+        client.patchArchive(archiveId, properties);
+    }
+
     /**
      * Sets the layout type for a composed archive. For a description of layout types, see
      *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
@@ -598,6 +614,23 @@ public class OpenTok {
         }
         client.setBroadcastLayout(broadcastId, properties);
     }
+
+    /**
+     * Patches an Opentok Broadcast
+     * <p>
+     * You can only patch an Broadcast that has a {@link com.opentok.Broadcast.StreamMode} of "manual"
+     * By patching an Opentok Broadcast you can add or remove a stream from broadcast.
+     *
+     * @param broadcastId The broadcast ID of the broadcast you want to patch
+     * @param properties This {@link PatchProperties} object defining the patch body
+     *
+     * @throws OpenTokException
+     */
+    public void patchBroadcast(String broadcastId, PatchProperties properties) throws OpenTokException {
+        client.patchBroadcast(broadcastId, properties);
+    }
+
+
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see

@@ -7,6 +7,7 @@
  */
 package com.opentok;
 
+import com.opentok.Broadcast.StreamMode;
 import com.opentok.exception.InvalidArgumentException;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class BroadcastProperties {
     private boolean hasHls;
     private List<RtmpProperties> rtmpList;
     private String resolution = null;
+    private StreamMode streamMode;
 
 
     private BroadcastProperties(Builder builder) {
@@ -32,6 +34,7 @@ public class BroadcastProperties {
         this.hasHls = builder.hasHls;
         this.rtmpList = builder.rtmpList;
         this.resolution = builder.resolution;
+        this.streamMode = builder.streamMode;
     }
 
     /**
@@ -45,7 +48,7 @@ public class BroadcastProperties {
         private boolean hasHls = false;
         private List<RtmpProperties> rtmpList = new ArrayList<>();
         private String resolution = "640x480";
-
+        private StreamMode streamMode = StreamMode.AUTO;
 
         /**
          * Call this method to customize the layout of the broadcast.
@@ -115,6 +118,18 @@ public class BroadcastProperties {
             return this;
         }
 
+        /**
+         * Call this method to choose the stream mode to be set for this broadcast
+         *
+         * @param streamMode Set to a value defined in the {@link Broadcast.StreamMode} enum.
+         *
+         * @return The BroadcastProperties.Builder object with the stream mode string.
+         */
+        public Builder streamMode(StreamMode streamMode) {
+            this.streamMode = streamMode;
+            return this;
+        }
+
          /**
          * Builds the BroadcastProperties object.
          *
@@ -158,4 +173,9 @@ public class BroadcastProperties {
     public String resolution() {
         return resolution;
     }
+
+    /**
+     * The stream mode of the broadcast
+     */
+    public StreamMode streamMode() { return streamMode; }
 }

@@ -10,6 +10,7 @@ package com.opentok;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -21,6 +22,24 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Broadcast {
+    /**
+     * Defines values used in the
+     * {@link BroadcastProperties.Builder#streamMode(com.opentok.Broadcast.StreamMode)} method
+     * and returned by the {@link Broadcast#getStreamMode()} method
+     */
+    public enum StreamMode {
+        /**
+         * All streams get added to the archive
+         */
+        AUTO,
+        /**
+         * User can select which streams get added to the archive
+         */
+        MANUAL;
+
+        @JsonValue
+        public String toString() { return super.toString().toLowerCase(); }
+    }
 
     @JsonProperty private String id;
     @JsonProperty private String sessionId;
@@ -29,6 +48,7 @@ public class Broadcast {
     @JsonProperty private long updatedAt;
     @JsonProperty private String resolution;
     @JsonProperty private String status;
+    @JsonProperty private StreamMode streamMode = StreamMode.AUTO;
     private List<Rtmp> rtmpList = new ArrayList<>();
     private String hls;
 
@@ -135,6 +155,10 @@ public class Broadcast {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public StreamMode getStreamMode() {
+        return streamMode;
     }
 
 }
