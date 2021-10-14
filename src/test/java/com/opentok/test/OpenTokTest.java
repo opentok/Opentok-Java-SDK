@@ -2098,6 +2098,7 @@ public class OpenTokTest {
                 .password("password")
                 .secure(true)
                 .video(true)
+                .observeForceMute(true)
                 .build();
         Sip sip = sdk.dial(sessionId, token, properties);
         assertNotNull(sip);

@@ -21,6 +21,7 @@ public class SipProperties {
     private String headersJsonStartingWithXDash = null;
     private Boolean secure = false;
     private Boolean video = false;
+    private Boolean observeForceMute = false;
 
     private SipProperties(Builder builder) {
         this.sipUri = builder.sipUri;
@@ -30,6 +31,7 @@ public class SipProperties {
         this.headersJsonStartingWithXDash = builder.headersJsonStartingWithXDash;
         this.secure = builder.secure;
         this.video = builder.video;
+        this.observeForceMute = builder.observeForceMute;
     }
 
     /**
@@ -45,6 +47,7 @@ public class SipProperties {
         private String headersJsonStartingWithXDash = null;
         private boolean secure = false;
         private boolean video = false;
+        private boolean observeForceMute = false;
 
 
         /**
@@ -150,6 +153,18 @@ public class SipProperties {
         }
 
         /**
+         * Call this method and pass in <code>true</code> to observeForceMute in sip call.
+         * Default is false.
+         *
+         * @param observeForceMute
+         * @return
+         */
+        public Builder observeForceMute(boolean observeForceMute) {
+            this.observeForceMute = observeForceMute;
+            return this;
+        }
+
+        /**
          * Builds the SipProperties object.
          *
          * @return The SipProperties object.
@@ -205,4 +220,9 @@ public class SipProperties {
      * Return the video value (<code>true</code> or <code>false</code>).
      */
     public boolean video() { return video; }
+
+    /**
+     * Returns the observeForceMute value (<code>true</code> or <code>false</code>).
+     */
+    public boolean observeForceMute() { return observeForceMute; }
 }
