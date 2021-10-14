@@ -737,6 +737,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeFieldName("secure");
             jGenerator.writeBoolean(props.secure());
 
+            jGenerator.writeFieldName("video");
+            jGenerator.writeBoolean(props.video());
+
             jGenerator.writeEndObject();      // end sip
             jGenerator.writeEndObject();      // end main object
             jGenerator.close();

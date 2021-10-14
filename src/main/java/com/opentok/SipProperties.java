@@ -20,6 +20,7 @@ public class SipProperties {
     private String password = null;
     private String headersJsonStartingWithXDash = null;
     private Boolean secure = false;
+    private Boolean video = false;
 
     private SipProperties(Builder builder) {
         this.sipUri = builder.sipUri;
@@ -28,6 +29,7 @@ public class SipProperties {
         this.password = builder.password;
         this.headersJsonStartingWithXDash = builder.headersJsonStartingWithXDash;
         this.secure = builder.secure;
+        this.video = builder.video;
     }
 
     /**
@@ -42,6 +44,7 @@ public class SipProperties {
         private String password = null;
         private String headersJsonStartingWithXDash = null;
         private boolean secure = false;
+        private boolean video = false;
 
 
         /**
@@ -60,6 +63,7 @@ public class SipProperties {
             this.sipUri = sipUri;
             return this;
         }
+
         /**
          * Call this method to set the SIP <code>from</code> field (optional).
          *
@@ -76,6 +80,7 @@ public class SipProperties {
             this.from = from;
             return this;
         }
+
         /**
          * Call this method to set the username for the SIP gateway provider (optional).
          *
@@ -99,6 +104,7 @@ public class SipProperties {
             this.password = password;
             return this;
         }
+
         /**
          * Call this method to define custom headers to be added to the SIP ​INVITE​
          * initiated from OpenTok to the your SIP platform.
@@ -114,6 +120,7 @@ public class SipProperties {
             this.headersJsonStartingWithXDash = headersJsonStartingWithXDash;
             return this;
         }
+
         /**
          * Call this method and pass in <code>true</code> to indicate that the media
          * must be transmitted encrypted. Pass in <code>false​</code>, the default, if encryption
@@ -128,6 +135,20 @@ public class SipProperties {
             this.secure = secure;
             return this;
         }
+
+        /**
+         * Call this method and pass in <code>true</code> to enable video in sip call.
+         * Default is false.
+         *
+         * @param video A Boolean flag that indicates whether video should be enabled in SIP call.
+         *
+         * @return The SipProperties.Builder object with the SIP video setting.
+         */
+        public Builder video(boolean video) {
+            this.video = video;
+            return this;
+        }
+
         /**
          * Builds the SipProperties object.
          *
@@ -137,18 +158,21 @@ public class SipProperties {
             return new SipProperties(this);
         }
     }
+
     /**
      * Returns the SIP URI.
      */
     public String sipUri() {
         return sipUri;
     }
+
     /**
      * Returns the from value.
      */
     public String from() {
         return from;
     }
+
     /**
      * Returns the user name.
      */
@@ -169,10 +193,16 @@ public class SipProperties {
     public String headersJsonStartingWithXDash() {
         return headersJsonStartingWithXDash;
     }
+
     /**
      *  Returns the secure value (<code>true</code> or <code>false</code>).
      */
     public boolean secure() {
         return secure;
     }
+
+    /**
+     * Return the video value (<code>true</code> or <code>false</code>).
+     */
+    public boolean video() { return video; }
 }
