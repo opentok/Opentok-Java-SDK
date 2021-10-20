@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2019 TokBox, Inc.
+ * Copyright (C) 2020 TokBox, Inc.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -14,15 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.opentok.ArchiveLayout;
-import com.opentok.ArchiveProperties;
-import com.opentok.BroadcastLayout;
-import com.opentok.BroadcastProperties;
-import com.opentok.RtmpProperties;
-import com.opentok.SignalProperties;
-import com.opentok.SipProperties;
-import com.opentok.StreamListProperties;
-import com.opentok.StreamProperties;
+import com.opentok.*;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
@@ -470,7 +462,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             String type = properties.layout().getType().toString();
             layout.put("type", type);
             if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
-                requestJson.put("stylesheet", properties.layout().getStylesheet());
+                layout.put("stylesheet", properties.layout().getStylesheet());
             }
         }
         if (properties.maxDuration() > 0) {
@@ -481,7 +473,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         ObjectNode outputs = requestJson.putObject("outputs");
         if(properties.hasHls()) {
-            outputs.put("hls", nodeFactory.objectNode());
+            outputs.set("hls", nodeFactory.objectNode());
         }
         ArrayNode rtmp = outputs.putArray("rtmp");
         for (RtmpProperties prop : properties.getRtmpList()) {
@@ -830,6 +822,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         private String password;
         private String apiUrl;
         private AsyncHttpClientConfig config;
+        private int requestTimeoutMS;
 
         public Builder(int apiKey, String apiSecret) {
             this.apiKey = apiKey;
@@ -854,19 +847,34 @@ public class HttpClient extends DefaultAsyncHttpClient {
             return this;
         }
 
+        /**
+         * Specify a custom timeout value for HTTP requests when initalizing a new {@link OpenTok} object.
+         *
+         * @param requestTimeoutMS request timeout in milliseconds
+         * @return Builder
+         */
+        public Builder requestTimeoutMS(int requestTimeoutMS) {
+            this.requestTimeoutMS = requestTimeoutMS;
+            return this;
+        }
+
         public HttpClient build() {
             DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder()
                     .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
-                    .addRequestFilter(new TokenAuthRequestFilter(this.apiKey, this.apiSecret));
-            if (this.apiUrl == null) {
-                this.apiUrl=DefaultApiUrl.DEFAULT_API_URI;
+                    .addRequestFilter(new TokenAuthRequestFilter(apiKey, apiSecret));
+            if (apiUrl == null) {
+                apiUrl=DefaultApiUrl.DEFAULT_API_URI;
             }
             
-            if (this.proxy != null) {
-                configBuilder.setProxyServer(createProxyServer(this.proxy, this.proxyAuthScheme, this.principal, this.password));
+            if (proxy != null) {
+                configBuilder.setProxyServer(createProxyServer(proxy, proxyAuthScheme, principal, password));
+            }
+
+            if(requestTimeoutMS != 0){
+                configBuilder.setRequestTimeout(requestTimeoutMS);
             }
             
-            this.config = configBuilder.build();
+            config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
             HttpClient client = new HttpClient(this);
             return client;
