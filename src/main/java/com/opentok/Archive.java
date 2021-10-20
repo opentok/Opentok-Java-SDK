@@ -139,7 +139,7 @@ public class Archive {
     }
 
     /**
-     * The duration of the archive, in milliseconds.
+     * The duration of the archive, in seconds.
      */
     public int getDuration() {
         return duration;
