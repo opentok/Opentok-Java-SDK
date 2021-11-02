@@ -300,6 +300,16 @@ public class OpenTok {
         return createSession(null);
     }
 
+    /**
+     * Sends a signal to all clients connected to a session.
+     *
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param props The SignalProperties object that defines the data and type of the signal.
+     */
     public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
 
         if (sessionId == null || sessionId.isEmpty() ) {
@@ -315,6 +325,17 @@ public class OpenTok {
 
     }
 
+    /**
+     * Sends a signal to a specific client connected to a session.
+     *
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param sessionId The connection ID of the client to receive the signal.
+     * @param props The SignalProperties object that defines the data and type of the signal.
+     */
     public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
 
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
