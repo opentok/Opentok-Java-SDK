@@ -701,10 +701,12 @@ public class OpenTok {
     }
 
     /**
-     * Play DTMF to all clients in a session
+     * Send DTMF digits to all clients in a session.
      *
-     * @param sessionId
-     * @param dtmfDigits
+     * @param sessionId The session ID.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
      * @throws OpenTokException
      */
     public void playDTMF(String sessionId, String dtmfDigits) throws OpenTokException {
@@ -712,10 +714,13 @@ public class OpenTok {
     }
 
     /**
-     * Play DTMF to a specific client in a session
-     * @param sessionId
-     * @param connectionId
-     * @param dtmfDigits
+     * Send DTMF digits a specific client in a session.
+     *
+     * @param sessionId The session ID.
+     * @param connectionId The session ID of the client to receive the DTMF digits.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
      * @throws OpenTokException
      */
     public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
