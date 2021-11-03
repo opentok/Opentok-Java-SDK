@@ -140,10 +140,10 @@ public class SipProperties {
         }
 
         /**
-         * Call this method and pass in <code>true</code> to enable video in sip call.
-         * Default is false.
+         * Call this method and pass in <code>true</code> to enable video in the SIP call.
+         * The default is <code>false</code>.
          *
-         * @param video A Boolean flag that indicates whether video should be enabled in SIP call.
+         * @param video Whether video should be enabled in the SIP call.
          *
          * @return The SipProperties.Builder object with the SIP video setting.
          */
@@ -153,11 +153,13 @@ public class SipProperties {
         }
 
         /**
-         * Call this method and pass in <code>true</code> to observeForceMute in sip call.
-         * Default is false.
+         * Call this method and pass in <code>true</code> to have the SIP end point observe
+         * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>.
+         * The default is <code>false</code>.
          *
-         * @param observeForceMute
-         * @return
+         * @param observeForceMute Whether to observe force mute moderation.
+         *
+         * @return The SipProperties.Builder object with the observeForceMute setting.
          */
         public Builder observeForceMute(boolean observeForceMute) {
             this.observeForceMute = observeForceMute;
