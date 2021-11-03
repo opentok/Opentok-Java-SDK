@@ -666,7 +666,7 @@ public class OpenTok {
 
 
     /**
-     * Gets an {@link Stream} object for the given sessionId and streamId.
+     * Gets a {@link Stream} object for the given session ID and stream ID.
      *
      * @param sessionId The session ID.
      * @param streamId The stream ID.
@@ -682,7 +682,7 @@ public class OpenTok {
     }
 
     /**
-     * Gets a list of {@link Stream} object for the given session ID.
+     * Gets a list of {@link Stream} objects for the given session ID.
      *
      * @param sessionId The session ID.
      *
@@ -700,11 +700,18 @@ public class OpenTok {
     }
 
     /**
-     * Gets a list of {@link Stream} object for the given session ID.
+     * Dials a SIP gateway to connect it an OpenTok session.
      *
      * @param sessionId The session ID.
-     * @param token The token.
-     * @param properties The SipProperties.
+     *
+     * @param token  OpenTok token to be used for the participant being called. You can add token
+     * data to identify that the participant is on a SIP endpoint or for other identifying data,
+     * such as phone numbers. (The OpenTok client libraries include properties for inspecting
+     * the connection data for a client connected to a session.) See the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Token Creation developer guide</a>.
+.    *
+     * @param properties The {@link SipProperties} object defining options for the SIP call.
+     *
      * @return The  {@link Sip} object.
      */
     public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
