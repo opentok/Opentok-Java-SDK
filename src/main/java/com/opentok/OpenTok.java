@@ -492,17 +492,34 @@ public class OpenTok {
     }
 
     /**
-     * Patches an Opentok Archive
+     * Adds a stream to an Opentok Archive
      * <p>
      * You can only patch an Archive that has a {@link com.opentok.Archive.StreamMode} of "manual"
-     * By patching an Opentok Archive you can add or remove a stream from archive.
      *
-     * @param archiveId The archive ID of the archive you want to patch
-     * @param properties This {@link PatchProperties} object defining the patch body
+     * @param archiveId The archive ID of the archive you want to add stream to
+     * @param streamId The stream ID of the stream you want to add to archive
+     * @param hasAudio Whether the stream should have audio enabled
+     * @param hasVideo Whether the stream should have video enabled
      *
      * @throws OpenTokException
      */
-    public void patchArchive(String archiveId, PatchProperties properties) throws OpenTokException {
+    public void addArchiveStream(String archiveId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        PatchProperties properties = new PatchProperties.Builder().addStream(streamId).hasAudio(hasAudio).hasVideo(hasVideo).build();
+        client.patchArchive(archiveId, properties);
+    }
+
+    /**
+     * Removes a stream from an Opentok Archive
+     * <p>
+     * You can only patch an Archive that has a {@link com.opentok.Archive.StreamMode} of "manual"
+     *
+     * @param archiveId The archive ID of the archive you want to remove stream from
+     * @param streamId The stream ID of the stream you want to remove from archive
+     *
+     * @throws OpenTokException
+     */
+    public void removeArchiveStream(String archiveId, String streamId) throws OpenTokException {
+        PatchProperties properties = new PatchProperties.Builder().removeStream(streamId).build();
         client.patchArchive(archiveId, properties);
     }
 
@@ -616,20 +633,36 @@ public class OpenTok {
     }
 
     /**
-     * Patches an Opentok Broadcast
+     * Adds a stream to an Opentok Broadcast
      * <p>
-     * You can only patch an Broadcast that has a {@link com.opentok.Broadcast.StreamMode} of "manual"
-     * By patching an Opentok Broadcast you can add or remove a stream from broadcast.
+     * You can only patch a Broadcast that has a {@link com.opentok.Broadcast.StreamMode} of "manual"
      *
-     * @param broadcastId The broadcast ID of the broadcast you want to patch
-     * @param properties This {@link PatchProperties} object defining the patch body
+     * @param broadcastId The broadcast ID of the broadcast you want to add stream to
+     * @param streamId The stream ID of the stream you want to add to broadcast
+     * @param hasAudio Whether the stream should have audio enabled
+     * @param hasVideo Whether the stream should have video enabled
      *
      * @throws OpenTokException
      */
-    public void patchBroadcast(String broadcastId, PatchProperties properties) throws OpenTokException {
+    public void addBroadcastStream(String broadcastId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        PatchProperties properties = new PatchProperties.Builder().addStream(streamId).hasAudio(hasAudio).hasVideo(hasVideo).build();
         client.patchBroadcast(broadcastId, properties);
     }
 
+    /**
+     * Removes a stream from an Opentok Broadcast
+     * <p>
+     * You can only patch a Broadcast that has a {@link com.opentok.Broadcast.StreamMode} of "manual"
+     *
+     * @param broadcastId The broadcast ID of the broadcast you want to remove stream from
+     * @param streamId The stream ID of the stream you want to remove from broadcast
+     *
+     * @throws OpenTokException
+     */
+    public void removeBroadcastStream(String broadcastId, String streamId) throws OpenTokException {
+        PatchProperties properties = new PatchProperties.Builder().removeStream(streamId).build();
+        client.patchBroadcast(broadcastId, properties);
+    }
 
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in

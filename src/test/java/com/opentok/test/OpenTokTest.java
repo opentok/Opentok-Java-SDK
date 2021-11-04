@@ -588,11 +588,11 @@ public class OpenTokTest {
     @Test
     public void testPatchArchived() throws OpenTokException {
         String archiveId = "ARCHIVEID";
+        String streamId = "abc123efg456";
         stubFor(patch(urlEqualTo(archivePath + "/" + archiveId + "/streams"))
                 .willReturn(aResponse()
                         .withStatus(200)));
-        PatchProperties properties = new PatchProperties.Builder().addStream("abc123efg456").build();
-        sdk.patchArchive(archiveId, properties);
+        sdk.addArchiveStream(archiveId, streamId, true, true);
         verify(patchRequestedFor(urlMatching(archivePath + "/" + archiveId + "/streams")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
@@ -604,7 +604,7 @@ public class OpenTokTest {
         String archiveId = "ARCHIVEID";
         PatchProperties properties = new PatchProperties.Builder().build();
         Exception exception = assertThrows(OpenTokException.class, () -> {
-            sdk.patchArchive(archiveId, properties);
+            sdk.removeArchiveStream(archiveId, "");
         });
         String got = exception.getMessage();
         String expected = "Could not patch archive, needs one of: addStream or removeStream";
@@ -1906,11 +1906,11 @@ public class OpenTokTest {
     @Test
     public void testPatchBroadcast() throws OpenTokException {
         String broadcastId = "BROADCASTID";
+        String streamId = "abc123efg456";
         stubFor(patch(urlEqualTo(broadcastPath + "/" + broadcastId + "/streams"))
                 .willReturn(aResponse()
                         .withStatus(200)));
-        PatchProperties properties = new PatchProperties.Builder().addStream("abc123efg456").build();
-        sdk.patchBroadcast(broadcastId, properties);
+        sdk.addBroadcastStream(broadcastId, streamId, true, true);
         verify(patchRequestedFor(urlMatching(broadcastPath + "/" + broadcastId + "/streams")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(deleteRequestedFor(urlMatching(archivePath + "/" + broadcastId)))));
@@ -1920,9 +1920,8 @@ public class OpenTokTest {
     @Test
     public void testPatchBroadcastExpectException() throws OpenTokException {
         String broadcastId = "BROADCASTID";
-        PatchProperties properties = new PatchProperties.Builder().build();
         Exception exception = assertThrows(OpenTokException.class, () -> {
-            sdk.patchBroadcast(broadcastId, properties);
+            sdk.removeBroadcastStream(broadcastId, "");
         });
         String got = exception.getMessage();
         String expected = "Could not patch broadcast, needs one of: addStream or removeStream";

@@ -348,7 +348,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
-        if (properties.removeStream() != null && !properties.addStream().equals("")) {
+        if (properties.removeStream() != null && !properties.removeStream().equals("")) {
             requestJson.put("removeStream", properties.removeStream());
         } else if(properties.addStream() != null && !properties.addStream().equals("")) {
             requestJson.put("hasAudio", properties.hasAudio());
@@ -673,7 +673,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/streams";
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
-        if (properties.removeStream() != null && !properties.addStream().equals("")) {
+        if (properties.removeStream() != null && !properties.removeStream().equals("")) {
             requestJson.put("removeStream", properties.removeStream());
         } else if(properties.addStream() != null && !properties.addStream().equals("")) {
             requestJson.put("hasAudio", properties.hasAudio());

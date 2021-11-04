@@ -8,12 +8,8 @@
 package com.opentok;
 
 /**
- * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#patchArchive(String, PatchProperties)} and
- * {@link OpenTok#patchBroadcast(String, PatchProperties)} method
- * 
- * @see OpenTok#patchArchive(String, PatchProperties) 
- * @see OpenTok#patchBroadcast(String, PatchProperties)
+ * Defines values for the <code>properties</code> parameter of the patch archive and broadcast
+ * Internal only
  */
 public class PatchProperties {
     private boolean hasAudio;
