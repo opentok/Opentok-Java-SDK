@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2020 TokBox, Inc.
+ * Copyright (C) 2021 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class ArchiveLayout {
     private Type type;
     private String stylesheet;
+    private ScreenShareLayoutType screenshareType;
 
     /**
      * Do not call the <code>ArchiveLayout()</code> constructor. To set the layout of an
@@ -34,6 +35,16 @@ public class ArchiveLayout {
      */
     public ArchiveLayout(Type type) {
         this.type = type;
+    }
+
+    /**
+     * Do not call the <code>ArchiveLayout()</code> constructor. To set the layout of an
+     * archive, call the {@link OpenTok#setArchiveLayout(String archiveId, ArchiveProperties properties)} method. See
+     */
+    public ArchiveLayout(ScreenShareLayoutType screenShareType){
+        this.screenshareType = screenShareType;
+        this.type = Type.BESTFIT;
+        this.stylesheet = null;
     }
 
     /**
@@ -99,6 +110,15 @@ public class ArchiveLayout {
      */
     public void setStylesheet(String stylesheet) {
         this.stylesheet = stylesheet;
+    }
+
+
+    public ScreenShareLayoutType getScreenshareType() {
+        return screenshareType;
+    }
+
+    public void setScreenshareType(ScreenShareLayoutType screenshareType) {
+        this.screenshareType = screenshareType;
     }
 
 }
