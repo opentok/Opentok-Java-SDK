@@ -1,7 +1,9 @@
 # OpenTok Java SDK
 
-[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=master)](https://travis-ci.org/opentok/Opentok-Java-SDK)
-[![codecov](https://codecov.io/gh/opentok/Opentok-Java-SDK/branch/master/graph/badge.svg)](https://codecov.io/gh/opentok/Opentok-Java-SDK)
+[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=main)](https://travis-ci.org/opentok/Opentok-Java-SDK)
+ [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+
+<img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
 
 The OpenTok Java SDK lets you generate
 [sessions](https://tokbox.com/developer/guides/create-session/) and
@@ -29,7 +31,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>4.3.2</version>
+    <version>[4.4.1,5.0)</version>
 </dependency>
 ```
 
@@ -39,7 +41,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.3.2'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '[4.4.1,5.0)'
 }
 ```
 
@@ -67,7 +69,39 @@ String apiSecret = "YOUR API SECRET";
 OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ```
 
-And make sure you call `close` when you are done to prevent leaked file descriptors.
+#### Advanced configuration options
+
+You can use `OpenTok.Builder` to set advanced options. This class
+includes the following methods:
+
+- `.requestTimeout(int)` -- Call this to specify the timeout for HTTP requests
+  (in seconds). The default timeout is 60 seconds.
+
+- `.proxy(Proxy)` -- Using a `java.net.Proxy` object, you can configure a proxy server
+  that the HTTP client will use when call the OpenTok REST API.
+
+Call the `OpenTok.Builder()` constructor, passing in your API key and secret,
+to instantiate an `OpenTok.Builder` object. Then call the `requestTimeout()`
+or `proxy()` methods (or both). Then call the `build()` method to return an
+OpenTok object. 
+
+For example, the following code instantiates an OpenTok object, with the
+default timeout set to 10 seconds:
+
+```java
+int apiKey = 12345; // YOUR API KEY
+String apiSecret = "YOUR API SECRET";
+int timeout = 10;
+
+OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret)
+  .requestTimeout(timeout)
+  .build();
+```
+
+#### The close() method
+
+Make sure you call the `OpenTok.close()` method when you are done,
+to prevent leaked file descriptors:
 
 ```java
 opentok.close();
@@ -78,9 +112,9 @@ opentok.close();
 To create an OpenTok Session, use the `OpenTok` instance’s `createSession(SessionProperties properties)`
 method. The `properties` parameter is optional and it is used to specify two things:
 
-* Whether the session uses the OpenTok Media Router
-* A location hint for the OpenTok server.
-* Whether the session is automatically archived.
+- Whether the session uses the OpenTok Media Router
+- A location hint for the OpenTok server.
+- Whether the session is automatically archived.
 
 An instance can be initialized using the `com.opentok.SessionProperties.Builder` class.
 The `sessionId` property of the returned `com.opentok.Session` instance, which you can read using
@@ -199,10 +233,10 @@ The `Archive.OutputMode.COMPOSED` option is the default value for `outputMode`. 
 You can only specify the `resolution` for composed archives using the `ArchiveProperties` builder. If you set the `resolution` property and also set the `outputMode` property to `Archive.OutputMode.INDIVIDUAL`, the method will throw an `InvalidArgumentException`.
 
 The accepted values for `resolution` are:
+
 - `"640x480"` (SD, the default)
 - `"1280x720"` (HD)
-> Please note that setting any other value for the `resolution` property will result in an exception.
-
+  > Please note that setting any other value for the `resolution` property will result in an exception.
 
 ```java
 import com.opentok.ArchiveProperties;
@@ -249,7 +283,8 @@ List<Archive> archives = opentok.listArchives(0, 50);
 // Get a list of the next 50 archives
 List<Archive> archives = opentok.listArchives(50, 50);
 ```
-You can also fetch the list of archives for a specific session ID , and optionally 
+
+You can also fetch the list of archives for a specific session ID , and optionally
 use the offset and count parameters as described above.
 
 ```java
@@ -268,7 +303,7 @@ into the `archiveMode()` method of the `SessionProperties.Builder` object you us
 `sessionProperties` parameter passed into the `OpenTok.createSession()` method (see "Creating
 Sessions," above).
 
-For composed archives, you can dynamically set the archive layout (while the archive is being recorded) using the `OpenTok.setArchiveLayout(String archiveId, ArchiveProperties properties)` 
+For composed archives, you can dynamically set the archive layout (while the archive is being recorded) using the `OpenTok.setArchiveLayout(String archiveId, ArchiveProperties properties)`
 method. See [Customizing the video layout for composed
 archives](https://tokbox.com/developer/guides/archiving/layout-control.html) for more information. Use the `ArchiveProperties` builder as follows:
 
@@ -321,7 +356,7 @@ For more information on archiving, see the
 ### Disconnecting Clients
 
 Your application server can disconnect a client from an OpenTok session by calling the `forceDisconnect(sessionId, connectionId)`
-method of the `com.opentok.OpenTok` instance. 
+method of the `com.opentok.OpenTok` instance.
 
 ```java
 opentok.forceDisconnect(sessionId, connectionId);
@@ -335,25 +370,24 @@ For more information on the force disconnect functionality and exception codes, 
 
 You can send signals to all the connections in a session or to a specific connection:
 
-- `public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException `
+- `public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException`
 
 - `public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException`
 
 The `SignalProperties` builder helps you to construct the signal data and type:
-
 
 ```java
 SignalProperties properties = new SignalProperties.Builder()
   .type("test")
   .data("This is a test string")
   .build();
- 
+
 opentok.signal(sessionId, properties);
 opentok.signal(sessionId, connectionId, properties);
 ```
 
 Make sure that the `type` string does not exceed the maximum length (128 bytes)
-and the `data` string does not exceed the maximum length (8 kB). 
+and the `data` string does not exceed the maximum length (8 kB).
 The `SignalProperties` builder does not currently check for these limitations.
 
 For more information on signaling and exception codes, refer to the documentation for the
@@ -361,17 +395,17 @@ For more information on signaling and exception codes, refer to the documentatio
 
 ### Broadcasting
 
-You can broadcast OpenTok publishing streams to an HLS (HTTP live streaming) or 
-to RTMP streams. To successfully start broadcasting a session, at least one client must be 
+You can broadcast OpenTok publishing streams to an HLS (HTTP live streaming) or
+to RTMP streams. To successfully start broadcasting a session, at least one client must be
 connected to the session. You can only have one active live streaming broadcast at a time
 for a session (however, having more than one would not be useful).
-The live streaming broadcast can target one HLS endpoint and up to five 
+The live streaming broadcast can target one HLS endpoint and up to five
 RTMP servers simulteneously for a session. You can only start live streaming
 for sessions that use the OpenTok Media Router (with the media mode set to routed);
-you cannot use live streaming with sessions that have the media mode set to relayed. 
+you cannot use live streaming with sessions that have the media mode set to relayed.
 (See the [OpenTok Media Router and media
 modes](https://tokbox.com/developer/guides/create-session/#media-mode) developer guide).
- 
+
 You can start a broadcast using the `OpenTok.startBroadcast(sessionId, properties)` method,
 where the `properties` field is a `BroadcastProperties` object. Initalize a `BroadcastProperties`
 object as follows (see the [Opentok Broadcast](https://tokbox.com/developer/rest/#start_broadcast)
@@ -413,13 +447,13 @@ long createdAt;
 long updatedAt;
 String resolution;
 String status;
-List<Rtmp> rtmpList = new ArrayList<>();  //not more than 5 
+List<Rtmp> rtmpList = new ArrayList<>();  //not more than 5
 String hls;    // HLS url
 
 // The Rtmp class mimics the RtmpProperties
 ```
 
-To stop a broadcast use:  
+To stop a broadcast use:
 
 ```java
 Broadcast broadcast = opentok.stopBroadcast(broadcastId);
@@ -441,7 +475,7 @@ of a live broadcast dynamically using:
 ```java
 opentok.setBroadcastLayout(broadcastId, properties);
 
-//properties can be 
+//properties can be
 BroadcastProperties properties = new BroadcastProperties.Builder()
           .layout(new BroadcastLayout(BroadcastLayout.Type.VERTICAL))
           .build();
@@ -464,7 +498,7 @@ opentok.setStreamLayouts(sessionId, properties);
 ### Working with Streams
 
 You can get information about a stream by calling the `getStream(sessionId, streamId)` method
-of the `com.opentok.OpenTok` instance. 
+of the `com.opentok.OpenTok` instance.
 
 ```java
 // Get stream info from just a sessionId (fetched from a database)
@@ -494,18 +528,18 @@ Interconnect feature. This requires a SIP URI, the session ID you wish to add th
 stream to, and a token to connect to that session ID.
 
 To connect your SIP platform to an OpenTok session, call the
-`OpenTok.dial(String sessionId, String token, SipProperties properties)` method. 
-The audio from your end of the SIP call is added to the OpenTok session as an audio-only stream. 
+`OpenTok.dial(String sessionId, String token, SipProperties properties)` method.
+The audio from your end of the SIP call is added to the OpenTok session as an audio-only stream.
 The OpenTok Media Router mixes audio from other streams in the session and sends the mixed audio
 to your SIP endpoint. The call ends when your SIP server sends a BYE message (to terminate
 the call). You can also end a call using the `OpenTok.forceDisconnect(sessionId, connectionId)`
 method to disconnect the SIP client from the session (see [Disconnecting clients](#disconnecting-clients)).
 
 The OpenTok SIP gateway automatically ends a call after 5 minutes of inactivity
-(5 minutes without media received). Also, as a security measure, 
+(5 minutes without media received). Also, as a security measure,
 the OpenTok SIP gateway closes any SIP call that lasts longer than 6 hours.
 
-The SIP interconnect feature requires that you use an OpenTok session that uses the 
+The SIP interconnect feature requires that you use an OpenTok session that uses the
 OpenTok Media Router (a session with the media mode set to routed).
 
 To connect an OpenTok session to a SIP gateway:
@@ -528,8 +562,8 @@ SipProperties properties = new SipProperties.Builder()
 There are two sample applications included with the SDK. To get going as fast as possible, clone the whole
 repository and follow the Walkthroughs:
 
-*  [HelloWorld](sample/HelloWorld/README.md)
-*  [Archiving](sample/Archiving/README.md)
+- [HelloWorld](sample/HelloWorld/README.md)
+- [Archiving](sample/Archiving/README.md)
 
 ## Documentation
 
@@ -582,9 +616,11 @@ take two parameters: the session ID and a TokenOptions object.
 Interested in contributing? We :heart: pull requests! See the [Development](DEVELOPING.md) and
 [Contribution](CONTRIBUTING.md) guidelines.
 
-## Support
+## Getting Help
 
-See <https://support.tokbox.com> for all our support options.
+We love to hear from you so if you have questions, comments or find a bug in the project, let us know! You can either:
 
-Find a bug? File it on the [Issues](https://github.com/opentok/opentok-java-sdk/issues) page. Hint:
-test cases are really helpful!
+- Open an issue on this repository
+- See <https://support.tokbox.com/> for support options
+- Tweet at us! We're [@VonageDev on Twitter](https://twitter.com/VonageDev)
+- Or [join the Vonage Developer Community Slack](https://developer.nexmo.com/community/slack)

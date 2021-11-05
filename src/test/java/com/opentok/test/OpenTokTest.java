@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2019 TokBox, Inc.
+ * Copyright (C) 2021 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -8,32 +8,12 @@
 package com.opentok.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ValueMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.opentok.Archive;
+import com.opentok.*;
 import com.opentok.Archive.OutputMode;
-import com.opentok.ArchiveLayout;
-import com.opentok.ArchiveList;
-import com.opentok.ArchiveMode;
-import com.opentok.ArchiveProperties;
-import com.opentok.Broadcast;
-import com.opentok.BroadcastLayout;
-import com.opentok.BroadcastProperties;
-import com.opentok.MediaMode;
-import com.opentok.OpenTok;
-import com.opentok.Role;
-import com.opentok.RtmpProperties;
-import com.opentok.Session;
-import com.opentok.SessionProperties;
-import com.opentok.SignalProperties;
-import com.opentok.Sip;
-import com.opentok.SipProperties;
-import com.opentok.Stream;
-import com.opentok.StreamList;
-import com.opentok.StreamListProperties;
-import com.opentok.StreamProperties;
-import com.opentok.TokenOptions;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
@@ -53,6 +33,11 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.runner.Request;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -73,11 +58,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OpenTokTest {
     private final String SESSION_CREATE = "/session/create";
@@ -111,6 +92,31 @@ public class OpenTokTest {
             archivePath = "/v2/project/" + apiKey + "/archive";
         }
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
+    }
+
+    /**
+     * Test that a request throws exception if request exceeds configured timeout
+     *
+     * @throws OpenTokException
+     */
+    @Test
+    public void testConfigureRequestTimeout() throws OpenTokException {
+        assertThrows(RequestException.class, () ->{
+            sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(6).build();
+
+            String sessionId = "SESSIONID";
+            stubFor(post(urlEqualTo(SESSION_CREATE))
+                    .willReturn(aResponse()
+                            .withStatus(200)
+                            .withFixedDelay(7000)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                                    "\"partner_id\":\"123456\"," +
+                                    "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                                    "\"media_server_url\":\"\"}]")));
+
+            Session session = sdk.createSession();
+        });
     }
     
     @Test
@@ -693,7 +699,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -731,7 +737,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlEqualTo(url)));
@@ -769,7 +775,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -871,7 +877,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertThat(archives.get(0), instanceOf(Archive.class));
+        assertTrue(archives.get(0) instanceof Archive);
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -960,6 +966,41 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testStartArchiveWithScreenshareType() throws OpenTokException {
+        String sessionId = "SESSIONID";
+        stubFor(post(urlEqualTo(archivePath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \"SESSIONID\",\n" +
+                                "          \"size\" : 0,\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : null\n" +
+                                "        }")));
+
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"hasVideo\":true,\"hasAudio\":true,\"outputMode\":\"composed\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}}",sessionId);
+        ValueMatchingStrategy valueMatchingStrategy = new ValueMatchingStrategy();
+        valueMatchingStrategy.setEqualToJson(expectedJson);
+        ArchiveLayout layout = new ArchiveLayout(ScreenShareLayoutType.PIP);
+        ArchiveProperties properties = new ArchiveProperties.Builder().name(null).layout(layout).build();
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertNotNull(archive.getId());
+        verify(postRequestedFor(urlMatching(archivePath)).withRequestBody(valueMatchingStrategy));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
     public void testStartArchiveWithResolution() throws OpenTokException {
         String sessionId = "SESSIONID";
         ArchiveProperties properties = new ArchiveProperties.Builder().resolution("1280x720").build();
@@ -1017,6 +1058,40 @@ public class OpenTokTest {
                 findAll(putRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
+
+    @Test
+    public void testSetArchiveLayoutScreenshareType() throws OpenTokException{
+        String archiveId = "ARCHIVEID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ScreenShareLayoutType.PIP)).build();
+        String url =  "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        ValueMatchingStrategy strategy = new ValueMatchingStrategy();
+        String expectedJson = String.format("{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}");
+        strategy.setEqualToJson(expectedJson);
+        sdk.setArchiveLayout(archiveId, properties);
+        verify(putRequestedFor(urlMatching(url)).withRequestBody(strategy));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testSetArchiveLayoutScreenshareTypeNonBestFitType() throws OpenTokException{
+        String archiveId = "ARCHIVEID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ScreenShareLayoutType.PIP)).build();
+        properties.layout().setType(ArchiveLayout.Type.PIP);
+        try{
+            sdk.setArchiveLayout(archiveId, properties);
+            assertTrue("Expected an exception, failing", false);
+        }
+        catch (InvalidArgumentException e){
+            assertEquals("Could not set the Archive layout. When screenshareType is set, type must be bestFit",e.getMessage());
+        }
+    }
+
     @Test
     public void testSetArchiveLayoutCustom() throws OpenTokException {
         String archiveId = "ARCHIVEID";
@@ -1283,6 +1358,20 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartArchiveInvalidType() throws OpenTokException{
+        String sessionId = "SESSIONID";
+        ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ScreenShareLayoutType.PIP)).build();
+        properties.layout().setType(ArchiveLayout.Type.PIP);
+        try{
+            sdk.startArchive(sessionId,properties);
+            assertTrue("Expected exception, failing", false);
+        }
+        catch(InvalidArgumentException e){
+            assertEquals("Could not start Archive. When screenshareType is set in the layout, type must be bestFit",e.getMessage());
+        }
     }
 
     @Test
@@ -1582,6 +1671,121 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
+
+    @Test
+    public void testBroadcastWithScreenShareType() throws OpenTokException{
+        String sessionId = "2_M23039383dlkeoedjd-22928edjdHKUiuhkfofoieo98899imf-fg";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode broadcastRootNode = mapper.createObjectNode();
+        broadcastRootNode.put("id", "35c4596f-f92a-465b-b319-828d3de87b949");
+        broadcastRootNode.put("sessionId", sessionId);
+        broadcastRootNode.put("projectId", "87654321");
+        broadcastRootNode.put("createdAt", "1437676551000");
+
+        ObjectNode broadcastUrlNode = mapper.createObjectNode();
+        broadcastUrlNode.put("hls", "http://server/fakepath/playlist.m3u8");
+
+        broadcastRootNode.set("broadcastUrls", broadcastUrlNode);
+        broadcastRootNode.put("updatedAt", "1437676551000");
+        broadcastRootNode.put("status", "started");
+        broadcastRootNode.put("maxDuration", "5400");
+        broadcastRootNode.put("resolution", "1280x720");
+        broadcastRootNode.put("partnerId", "12345678");
+        broadcastRootNode.put("event", "broadcast");
+
+
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(broadcastRootNode.toString())));
+
+        System.out.println(broadcastRootNode.toString());
+        BroadcastLayout layout = new BroadcastLayout(ScreenShareLayoutType.PIP);
+
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .maxDuration(5400)
+                .layout(layout)
+                .build();
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
+        ValueMatchingStrategy validationStrat = new ValueMatchingStrategy();
+        validationStrat.setEqualToJson(expectedJson);
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)).withRequestBody(validationStrat));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartBroadcastWithScreenshareAndInvalidType() throws OpenTokException{
+        String sessionId = "2_M23039383dlkeoedjd-22928edjdHKUiuhkfofoieo98899imf-fg";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        BroadcastProperties properties = new BroadcastProperties.Builder().layout(new BroadcastLayout(ScreenShareLayoutType.PIP)).build();
+        properties.layout().setType(ArchiveLayout.Type.PIP);
+        try{
+            sdk.startBroadcast(sessionId,properties);
+            assertTrue("Expected exception - failing", true);
+        }
+        catch(InvalidArgumentException e){
+            assertEquals("Could not start OpenTok Broadcast, Layout Type must be bestfit when screenshareType is set.",e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartBroadcastWithCustomLayout() throws OpenTokException {
+        String sessionId = "2_M23039383dlkeoedjd-22928edjdHKUiuhkfofoieo98899imf-fg";
+        String url = "/v2/project/" + this.apiKey + "/broadcast";
+        
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode broadcastRootNode = mapper.createObjectNode();
+        broadcastRootNode.put("id", "35c4596f-f92a-465b-b319-828d3de87b949");
+        broadcastRootNode.put("sessionId", sessionId);
+        broadcastRootNode.put("projectId", "87654321");
+        broadcastRootNode.put("createdAt", "1437676551000");
+
+        ObjectNode broadcastUrlNode = mapper.createObjectNode();
+        broadcastUrlNode.put("hls", "http://server/fakepath/playlist.m3u8");
+
+        broadcastRootNode.set("broadcastUrls", broadcastUrlNode);
+        broadcastRootNode.put("updatedAt", "1437676551000");
+        broadcastRootNode.put("status", "started");
+        broadcastRootNode.put("maxDuration", "5400");
+        broadcastRootNode.put("resolution", "1280x720");
+        broadcastRootNode.put("partnerId", "12345678");
+        broadcastRootNode.put("event", "broadcast");
+        
+
+        stubFor(post(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(broadcastRootNode.toString())));
+        
+        BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.CUSTOM);
+        String customStylesheet = "stream.instructor {position: absolute; width: 100%;  height:50%;}";
+        layout.setStylesheet(customStylesheet);
+
+        BroadcastProperties properties = new BroadcastProperties.Builder()
+                .hasHls(true)
+                .maxDuration(5400)
+                .layout(layout)
+                .build();
+        Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
+        assertNotNull(broadcast);
+        assertEquals(sessionId, broadcast.getSessionId());
+        assertNotNull(broadcast.getId());
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
     
     @Test
     public void testStartBroadcastNoHls() throws OpenTokException {
@@ -1777,6 +1981,40 @@ public class OpenTokTest {
                 findAll(putRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
+
+    @Test
+    public void testSetBroadcastLayoutWithScreenshareType() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        BroadcastProperties properties = new BroadcastProperties.Builder().layout(new BroadcastLayout(ScreenShareLayoutType.PIP)).build();
+        String url =  "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/layout";
+        stubFor(put(urlEqualTo(url))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        String expectedJson = String.format("{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}",broadcastId);
+        ValueMatchingStrategy strategy = new ValueMatchingStrategy();
+        strategy.setEqualToJson(expectedJson);
+        sdk.setBroadcastLayout(broadcastId, properties);
+        verify(putRequestedFor(urlMatching(url)).withRequestBody(strategy));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(putRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testSetBroadcastLayoutWithScreenshareTypeInvalidType() throws OpenTokException{
+        String broadcastId = "BROADCASTID";
+        BroadcastProperties properties = new BroadcastProperties.Builder().layout(new BroadcastLayout(ScreenShareLayoutType.PIP)).build();
+        properties.layout().setType(ArchiveLayout.Type.PIP);
+        try{
+            sdk.setBroadcastLayout(broadcastId,properties);
+            assertTrue("Expected and exception - failing", false);
+        }
+        catch(InvalidArgumentException e){
+            assertEquals("Could not set layout. Type must be bestfit when screenshareLayout is set.", e.getMessage());
+        }
+    }
+
     @Test
     public void testSipDialWithEmptyNullParams() throws OpenTokException {
         int exceptionCaughtCount = 0;

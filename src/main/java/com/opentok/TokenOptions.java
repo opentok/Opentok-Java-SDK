@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2019 TokBox, Inc.
+ * Copyright (C) 2021 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -91,9 +91,10 @@ public class TokenOptions {
          *      streams, and signal. (This is the default value if you do not specify a role.)</li>
          *
          *   <li> <code>MODERATOR</code> &mdash; In addition to the privileges granted to a
-         *     publisher, in clients using the OpenTok.js library, a moderator can call the
-         *     <code>forceUnpublish()</code> and <code>forceDisconnect()</code> method of the
-         *     Session object.</li>
+         *     publisher, a moderator can perform moderation functions, such as forcing clients to
+         *     disconnect, to stop publishing streams, or to mute audio in published streams. See the
+         *     <a href="https://tokbox.com/developer/guides/moderation/">Moderation developer guide</a>.
+         *     </li>
          * </ul>
          */
         public Builder role(Role role) {

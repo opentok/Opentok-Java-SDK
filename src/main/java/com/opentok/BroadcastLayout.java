@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2019 TokBox, Inc.
+ * Copyright (C) 2021 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -27,4 +27,10 @@ public class BroadcastLayout extends ArchiveLayout {
     public BroadcastLayout(Type type) {
         super(type);
     }
+
+    /**
+     * Do not call the <code>BroadcastLayout()</code> constructor. To set the layout of
+     * a live streaming broadcast, call the {@link OpenTok#setBroadcastLayout(String broadcastId, BroadcastProperties properties)} method.
+     */
+    public BroadcastLayout(ScreenShareLayoutType screenshareType) { super(screenshareType); }
 }
