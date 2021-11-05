@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2020 TokBox, Inc.
+ * Copyright (C) 2021 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -699,6 +699,14 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
+
+    /**
+     * Used to create an OpenTok object with advanced settings. You can set
+     * the request timeout for API calls and a proxy to use for API calls.
+     * <p>
+     * If you do not need to set these advanced settings, you can use the
+     * {@link OpenTok OpenTok()} constructor to build the OpenTok object.
+     */
     public static class Builder {
         private int apiKey;
         private String apiSecret;
@@ -708,22 +716,42 @@ public class OpenTok {
         private String principal;
         private String password;
         private int requestTimeout;
-        
+
+        /**
+         * Constructs a new OpenTok.Builder object.
+         *
+         * @param apiKey The API key for your OpenTok project.
+         * 
+         * @param apiSecret The API secret for your OpenTok project. You can obtain
+         * your API key and secret from your <a href="https://tokbox.com/account">Video API account</a>.
+         * Do not publicly share your API secret. 
+         */
         public Builder(int apiKey, String apiSecret) {
             this.apiKey = apiKey;
             this.apiSecret = apiSecret;
         }
-        
+
+        /**
+         * Do not use. This method is used by Vonage for testing.
+         */
         public Builder apiUrl(String apiUrl) {
             this.apiUrl = apiUrl;
             return this;
         }
-        
+
+        /**
+         * Sets a proxy server that the HTTP client will use when making calls to
+         * the OpenTok REST API.
+         */
         public Builder proxy(Proxy proxy) {
             proxy(proxy, null, null, null);
             return this;
         }
 
+        /**
+         * Specify the timeout for HTTP requests (in seconds). The default
+         * timeout is 60 seconds.
+         */
         public Builder requestTimeout(int requestTimeout) {
             this.requestTimeout = requestTimeout * 1000;
             return this;
@@ -736,7 +764,13 @@ public class OpenTok {
             this.password = password;
             return this;
         }
-        
+
+        /**
+         * Builds the OpenTok object with the settings provided to this
+         * Builder object.
+         *
+         * @return The OpenTok object.
+         */
         public OpenTok build() {
             HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
             
@@ -754,6 +788,10 @@ public class OpenTok {
         }
     }
 
+    /**
+     * Call this method when you are done using the OpenTok object,
+     * to prevent leaked file descriptors.
+     */
     public void close() {
         client.close();
     }

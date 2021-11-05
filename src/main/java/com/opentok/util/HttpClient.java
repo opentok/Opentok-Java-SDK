@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2020 TokBox, Inc.
+ * Copyright (C) 2021 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -21,13 +21,8 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import org.apache.commons.lang.StringUtils;
-import org.asynchttpclient.AsyncHttpClientConfig;
-import org.asynchttpclient.DefaultAsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import org.asynchttpclient.Realm;
+import org.asynchttpclient.*;
 import org.asynchttpclient.Realm.AuthScheme;
-import org.asynchttpclient.RequestBuilder;
-import org.asynchttpclient.Response;
 import org.asynchttpclient.filter.FilterContext;
 import org.asynchttpclient.filter.FilterException;
 import org.asynchttpclient.filter.RequestFilter;
@@ -223,7 +218,15 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if(properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             layout.put("type", properties.layout().getType().toString());
-            layout.put("stylesheet", properties.layout().getStylesheet());
+            if(properties.layout().getScreenshareType() != null){
+                if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT){
+                    throw new InvalidArgumentException("Could not start Archive. When screenshareType is set in the layout, type must be bestFit");
+                }
+                layout.put("screenshareType", properties.layout().getScreenshareType().toString());
+            }
+            if(!(properties.layout().getStylesheet() == null)){
+                layout.put("stylesheet", properties.layout().getStylesheet());
+            }
         }
         if (properties.name() != null) {
             requestJson.put("name", properties.name());
@@ -340,12 +343,19 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         String type = properties.layout().getType().toString();
         String stylesheet = properties.layout().getStylesheet();
+        String screenshareType = null;
         if(StringUtils.isEmpty(type)) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         if ((type.equals(ArchiveLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
             (!type.equals(ArchiveLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        if(properties.layout().getScreenshareType() != null){
+            if (properties.layout().getType() != ArchiveLayout.Type.BESTFIT){
+                throw new InvalidArgumentException("Could not set the Archive layout. When screenshareType is set, type must be bestFit");
+            }
+            screenshareType = properties.layout().getScreenshareType().toString();
         }
         String responseString = null;
         String requestBody = null;
@@ -355,6 +365,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         requestJson.put("type", type);
         if(type.equals(ArchiveLayout.Type.CUSTOM.toString())) {
             requestJson.put("stylesheet", properties.layout().getStylesheet());
+        }
+        if(screenshareType!=null){
+            requestJson.put("screenshareType",screenshareType);
         }
 
         try {
@@ -451,6 +464,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throws OpenTokException {
         String responseString = null;
         String requestBody = null;
+        ScreenShareLayoutType screenshareType = null;
        
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast";
 
@@ -459,8 +473,15 @@ public class HttpClient extends DefaultAsyncHttpClient {
         requestJson.put("sessionId", sessionId);
         if(properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
+            screenshareType = properties.layout().getScreenshareType();
             String type = properties.layout().getType().toString();
             layout.put("type", type);
+            if (screenshareType != null && !type.equals(ArchiveLayout.Type.BESTFIT.toString())){
+                throw new InvalidArgumentException("Could not start OpenTok Broadcast, Layout Type must be bestfit when screenshareType is set.");
+            }
+            if(screenshareType!=null){
+                layout.put("screenshareType", screenshareType.toString());
+            }
             if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
                 layout.put("stylesheet", properties.layout().getStylesheet());
             }
@@ -591,12 +612,19 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         String type = properties.layout().getType().toString();
         String stylesheet = properties.layout().getStylesheet();
+        String screenshareLayout = null;
         if(StringUtils.isEmpty(type)) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
         if ((type.equals(BroadcastLayout.Type.CUSTOM.toString()) && StringUtils.isEmpty(stylesheet)) ||
                 (!type.equals(BroadcastLayout.Type.CUSTOM.toString()) && !StringUtils.isEmpty(stylesheet))) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+        }
+        if(properties.layout().getScreenshareType()!=null){
+            if(properties.layout().getType()!= ArchiveLayout.Type.BESTFIT){
+                throw new InvalidArgumentException("Could not set layout. Type must be bestfit when screenshareLayout is set.");
+            }
+            screenshareLayout = properties.layout().getScreenshareType().toString();
         }
         String responseString = null;
         String requestBody = null;
@@ -607,6 +635,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if(type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
             requestJson.put("stylesheet", properties.layout().getStylesheet());
         }
+        if(screenshareLayout!=null){
+            requestJson.put("screenshareType", screenshareLayout);
+        }
+
 
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);

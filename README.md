@@ -1,6 +1,6 @@
 # OpenTok Java SDK
 
-[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=master)](https://travis-ci.org/opentok/Opentok-Java-SDK)
+[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=main)](https://travis-ci.org/opentok/Opentok-Java-SDK)
  [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
 <img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
@@ -31,7 +31,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>4.4.0</version>
+    <version>[4.4.1,5.0)</version>
 </dependency>
 ```
 
@@ -41,7 +41,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.4.0'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '[4.4.1,5.0)'
 }
 ```
 
@@ -69,13 +69,39 @@ String apiSecret = "YOUR API SECRET";
 OpenTok opentok = new OpenTok(apiKey, apiSecret)
 ```
 
-#### Additional Configurations
-`.requestTimeout(int)` - Change the default HTTP request timeout, default is 60 seconds.
-`.apiUrl(String)` - Change the domain that the SDK points to. Useful when needing to select a specific datacenter or point to a mock version of the API for testing.
-`.proxy(Proxy)` - Using a `Proxy` object, you can configure a proxy server that the http client should use when accessing the OpenTok URLs.
+#### Advanced configuration options
 
+You can use `OpenTok.Builder` to set advanced options. This class
+includes the following methods:
 
-And make sure you call `close` when you are done to prevent leaked file descriptors.
+- `.requestTimeout(int)` -- Call this to specify the timeout for HTTP requests
+  (in seconds). The default timeout is 60 seconds.
+
+- `.proxy(Proxy)` -- Using a `java.net.Proxy` object, you can configure a proxy server
+  that the HTTP client will use when call the OpenTok REST API.
+
+Call the `OpenTok.Builder()` constructor, passing in your API key and secret,
+to instantiate an `OpenTok.Builder` object. Then call the `requestTimeout()`
+or `proxy()` methods (or both). Then call the `build()` method to return an
+OpenTok object. 
+
+For example, the following code instantiates an OpenTok object, with the
+default timeout set to 10 seconds:
+
+```java
+int apiKey = 12345; // YOUR API KEY
+String apiSecret = "YOUR API SECRET";
+int timeout = 10;
+
+OpenTok opentok = new OpenTok.Builder(apiKey, apiSecret)
+  .requestTimeout(timeout)
+  .build();
+```
+
+#### The close() method
+
+Make sure you call the `OpenTok.close()` method when you are done,
+to prevent leaked file descriptors:
 
 ```java
 opentok.close();
