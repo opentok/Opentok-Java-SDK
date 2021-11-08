@@ -701,6 +701,33 @@ public class OpenTok {
     }
 
     /**
+     * Send DTMF digits to all clients in a session.
+     *
+     * @param sessionId The session ID.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfAll(sessionId, dtmfDigits);
+    }
+
+    /**
+     * Send DTMF digits a specific client in a session.
+     *
+     * @param sessionId The session ID.
+     * @param connectionId The session ID of the client to receive the DTMF digits.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
+    }
+
+    /**
      * Used to create an OpenTok object with advanced settings. You can set
      * the request timeout for API calls and a proxy to use for API calls.
      * <p>
