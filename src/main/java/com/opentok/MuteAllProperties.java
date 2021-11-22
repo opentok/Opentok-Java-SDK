@@ -33,11 +33,12 @@ public class MuteAllProperties {
         private List<String> excludedStreamIds = new ArrayList<>();
 
         /**
-         * Call this method to add a list of strings to the excludedStreams list
+         * Call this method to add a A List of stream IDs for streams to be excluded
+         * from the force mute action.
          *
-         * @param ids A List of type {@link String}.
+         * @param ids The List of stream IDs,
          *
-         * @return The MuteAllProperties.Builder object with excludedStreams list.
+         * @return The MuteAllProperties.Builder object with excludedStreamIds list.
          */
         public MuteAllProperties.Builder excludedStreamIds(List<String> ids) {
             this.excludedStreamIds.addAll(ids);
@@ -55,9 +56,10 @@ public class MuteAllProperties {
     }
 
     /**
-     * Returns the excludedStreams List
+     * Returns the excludedStreams list. This is a list of stream IDs for
+     * streams to be excluded from the force mute action.
      *
-     * @return the excludedStreams list
+     * @return The list of stream IDs.
      */
     public List<String> getExcludedStreamIds() {
         return this.excludedStreamIds;

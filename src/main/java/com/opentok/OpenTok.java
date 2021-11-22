@@ -644,13 +644,17 @@ public class OpenTok {
     }
 
     /**
-     * Force mute a specific stream
-     * <p>
-     * Use this API to forcibly mute a stream of a session.
+     * Force the publisher of a specific stream to mute its audio.
      *
-     * @param sessionId The session ID of the connection
-     * @param  streamId The stream ID to mute
+     * <p>
+     * For more information, see
+     * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
+     *
+     * @param sessionId The session ID.
+     * @param  streamId The stream ID.
      * @throws OpenTokException
+     *
+     * @see #forceMuteAll(String, MuteAllProperties)
      */
     public void forceMuteStream(String sessionId, String streamId) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty() || streamId == null || streamId.isEmpty()) {
@@ -664,15 +668,19 @@ public class OpenTok {
     }
 
     /**
-     * Force mute all stream
-     * <p>
-     * Use this API to force mute all stream of a session. The streams to be excluded from the mute
-     * can be set using the MuteAllProperties
+     * Force publishers of all streams in a session to mute audio. You can exclude a list of
+     * streams from being muted using the MuteAllProperties class.
      *
-     * @param sessionId The session ID of the connection
-     * @param properties The MuteAllProperties define a list of streamIds that should be excluded
-     *                   from the mute list.
+     * <p>
+     * For more information, see
+     * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
+     *
+     * @param sessionId The session ID.
+     * @param properties Defined a list of stream IDs for streams that should be excluded
+     *                   from the mute action.
      * @throws OpenTokException
+     *
+     * @see #forceMuteStream(String, String)
      */
     public void forceMuteAll(String sessionId, MuteAllProperties properties) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty()) {
