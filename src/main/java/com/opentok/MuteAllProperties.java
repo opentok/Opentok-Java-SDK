@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
  * @see OpenTok#forceMuteAll(String, MuteAllProperties)
  */
 public class MuteAllProperties {
-    private List<String> excludedStreams;
+    private List<String> excludedStreamIds;
 
     private MuteAllProperties(MuteAllProperties.Builder builder) {
-        this.excludedStreams = builder.excludedStreams;
+        this.excludedStreamIds = builder.excludedStreamIds;
     }
 
     /**
@@ -30,7 +30,7 @@ public class MuteAllProperties {
      * @see MuteAllProperties
      */
     public static class Builder {
-        private List<String> excludedStreams = new ArrayList<>();
+        private List<String> excludedStreamIds = new ArrayList<>();
 
         /**
          * Call this method to add a list of strings to the excludedStreams list
@@ -40,31 +40,7 @@ public class MuteAllProperties {
          * @return The MuteAllProperties.Builder object with excludedStreams list.
          */
         public MuteAllProperties.Builder excludedStreamIds(List<String> ids) {
-            this.excludedStreams.addAll(ids);
-            return this;
-        }
-
-        /**
-         * Call this method to add a list of Stream to the excludedStreams list
-         *
-         * @param streams A List of type {@link Stream}.
-         *
-         * @return The MuteAllProperties.Builder object with excludedStreams list.
-         */
-        public MuteAllProperties.Builder excludedStreams(List<Stream> streams) {
-            this.excludedStreams.addAll(streams.stream().map(stream -> stream.getId()).collect(Collectors.toList()));
-            return this;
-        }
-
-        /**
-         * Call this method to add a stream id to the excludedStreams list
-         *
-         * @param id An object of type {@link String}.
-         *
-         * @return The MuteAllProperties.Builder object with excludedStreams list.
-         */
-        public MuteAllProperties.Builder excludedStreamId(String id) {
-            this.excludedStreams.add(id);
+            this.excludedStreamIds.addAll(ids);
             return this;
         }
 
@@ -83,7 +59,7 @@ public class MuteAllProperties {
      *
      * @return the excludedStreams list
      */
-    public List<String> getExcludedStreams() {
-        return this.excludedStreams;
+    public List<String> getExcludedStreamIds() {
+        return this.excludedStreamIds;
     }
 }

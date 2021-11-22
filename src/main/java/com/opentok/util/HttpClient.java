@@ -32,13 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -859,7 +854,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeFieldName("excudedStreamIds");
 
             StringJoiner sj = new StringJoiner(",");
-            properties.getExcludedStreams().stream().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
+            properties.getExcludedStreamIds().stream().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
             jGenerator.writeRawValue("[" + sj.toString() + "]");
             jGenerator.writeEndObject();
 
