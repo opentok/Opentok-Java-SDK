@@ -38,7 +38,7 @@ public class BroadcastProperties {
     }
 
     /**
-     * Use this class to create a BroadcastProperties object.
+     * Used to create a BroadcastProperties object.
      *
      * @see BroadcastProperties
      */
@@ -51,7 +51,7 @@ public class BroadcastProperties {
         private StreamMode streamMode = StreamMode.AUTO;
 
         /**
-         * Call this method to customize the layout of the broadcast.
+         * Customizes the layout of the broadcast.
          *
          * @param layout An object of type {@link BroadcastLayout}.
          *
@@ -62,7 +62,7 @@ public class BroadcastProperties {
             return this;
         }
         /**
-         * Call this method to set the maximum duration, in seconds, of the broadcast.
+         * Sets the maximum duration, in seconds, of the broadcast.
          * The broadcast will automatically stop when the maximum duration is reached.
          * You can set the maximum duration to a value from 60 (60 seconds) to 36000 (10 hours).
          * The default maximum duration is 2 hours (7200 seconds).
@@ -80,7 +80,7 @@ public class BroadcastProperties {
         }
 
         /**
-         * Call this method to include HLS broadcast (<code>true</code>) or not <code>false</code>).
+         * Call this method to include an HLS broadcast (<code>true</code>) or not <code>false</code>).
          *
          * @param hasHls Whether the HLS broadcast is enabled or not.
          *
@@ -107,7 +107,7 @@ public class BroadcastProperties {
         }
 
         /**
-         * Call this method to set the resolution of the broadcast stream.
+         * Sets the resolution of the broadcast stream.
          *
          * @param resolution The resolution of the broadcast, either "640x480" (SD, the default) or "1280x720" (HD).
          *
@@ -119,7 +119,7 @@ public class BroadcastProperties {
         }
 
         /**
-         * Call this method to choose the stream mode to be set for this broadcast
+         * Sets the stream mode for this broadcast
          *
          * @param streamMode Set to a value defined in the {@link Broadcast.StreamMode} enum.
          *
@@ -142,20 +142,20 @@ public class BroadcastProperties {
 
 
     /**
-     * The layout of the broadcast session
+     * The layout of the broadcast.
      */
     public BroadcastLayout layout() {
         return layout;
     }
     /**
-     * The max duration in seconds of the broadcast session
+     * The maximum duration in seconds of the broadcast.
      */
     public int maxDuration() {
         return maxDuration;
     }
 
     /**
-     * Whether the broadcast has a HLS  (<code>true</code>) or not (<code>false</code>).
+     * Whether the broadcast has HLS (<code>true</code>) or not (<code>false</code>).
      */
     public boolean hasHls() {
         return hasHls;
@@ -168,14 +168,14 @@ public class BroadcastProperties {
         return rtmpList;
     }
     /**
-     * Returns the resolution of the broadcast
+     * Returns the resolution of the broadcast.
      */
     public String resolution() {
         return resolution;
     }
 
     /**
-     * The stream mode of the broadcast
+     * The stream mode of the broadcast.
      */
     public StreamMode streamMode() { return streamMode; }
 }

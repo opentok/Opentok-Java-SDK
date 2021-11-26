@@ -492,14 +492,17 @@ public class OpenTok {
     }
 
     /**
-     * Adds a stream to an Opentok Archive
+     * Adds a stream to an OpenTok archive.
      * <p>
-     * You can only patch an Archive that has a {@link com.opentok.Archive.StreamMode} of "manual"
+     * You can only patch an archive that has a {@link com.opentok.Archive.StreamMode} of "manual".
+     * <p>
+     * You can call this method repeatedly with the same stream ID to enable and disable audio or
+     * video, based on the <code>hasAudio</code> and <code>hasVideo<code> parameter values.
      *
-     * @param archiveId The archive ID of the archive you want to add stream to
-     * @param streamId The stream ID of the stream you want to add to archive
-     * @param hasAudio Whether the stream should have audio enabled
-     * @param hasVideo Whether the stream should have video enabled
+     * @param archiveId The archive ID.
+     * @param streamId The stream ID.
+     * @param hasAudio Whether the stream should have audio enabled in the archive.
+     * @param hasVideo Whether the stream should have video enabled in the archive.
      *
      * @throws OpenTokException
      */
@@ -509,12 +512,12 @@ public class OpenTok {
     }
 
     /**
-     * Removes a stream from an Opentok Archive
+     * Removes a stream from an Opentok archive.
      * <p>
-     * You can only patch an Archive that has a {@link com.opentok.Archive.StreamMode} of "manual"
+     * You can only patch an archive that has a {@link com.opentok.Archive.StreamMode} of "manual".
      *
-     * @param archiveId The archive ID of the archive you want to remove stream from
-     * @param streamId The stream ID of the stream you want to remove from archive
+     * @param archiveId The archive ID.
+     * @param streamId The stream ID.
      *
      * @throws OpenTokException
      */
@@ -633,14 +636,18 @@ public class OpenTok {
     }
 
     /**
-     * Adds a stream to an Opentok Broadcast
+     * Adds a stream to an Opentok broadcast.
      * <p>
-     * You can only patch a Broadcast that has a {@link com.opentok.Broadcast.StreamMode} of "manual"
+     * You can add a stream to a broadcast that has a {@link com.opentok.Broadcast.StreamMode}
+     * of "manual".
      *
-     * @param broadcastId The broadcast ID of the broadcast you want to add stream to
-     * @param streamId The stream ID of the stream you want to add to broadcast
-     * @param hasAudio Whether the stream should have audio enabled
-     * @param hasVideo Whether the stream should have video enabled
+     * You can call this method repeatedly with the same stream ID to enable and disable audio or
+     * video, based on the <code>hasAudio</code> and <code>hasVideo<code> parameter values.
+     *
+     * @param broadcastId The broadcast ID.
+     * @param streamId The stream ID.
+     * @param hasAudio Whether the stream should have audio enabled in the broadcast.
+     * @param hasVideo Whether the stream should have video enabled in the broadcast.
      *
      * @throws OpenTokException
      */
@@ -650,12 +657,13 @@ public class OpenTok {
     }
 
     /**
-     * Removes a stream from an Opentok Broadcast
+     * Removes a stream from an Opentok broadcast.
      * <p>
-     * You can only patch a Broadcast that has a {@link com.opentok.Broadcast.StreamMode} of "manual"
+     * You can remove a stream from a broadcast that has a {@link com.opentok.Broadcast.StreamMode}
+     * of "manual".
      *
-     * @param broadcastId The broadcast ID of the broadcast you want to remove stream from
-     * @param streamId The stream ID of the stream you want to remove from broadcast
+     * @param broadcastId The broadcast ID.
+     * @param streamId The stream ID.
      *
      * @throws OpenTokException
      */

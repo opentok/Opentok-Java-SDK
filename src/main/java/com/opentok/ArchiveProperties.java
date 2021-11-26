@@ -44,7 +44,7 @@ public class ArchiveProperties {
     }
 
     /**
-     * Use this class to create a ArchiveProperties object.
+     * Used to create an ArchiveProperties object.
      *
      * @see ArchiveProperties
      */
@@ -58,7 +58,7 @@ public class ArchiveProperties {
         private ArchiveLayout layout = null;
 
         /**
-         * Call this method to set a name to the archive.
+         * Sets a name for the archive.
          *
          * @param name The name of the archive. You can use this name to identify the archive. It is a property
          * of the Archive object, and it is a property of archive-related events in the OpenTok JavaScript SDK.
@@ -71,7 +71,7 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to set the resolution of the archive.
+         * Sets the resolution of the archive.
          *
          * @param resolution The resolution of the archive, either "640x480" (SD, the default) or
          * "1280x720" (HD). This property only applies to composed archives. If you set this
@@ -86,7 +86,8 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to include an audio track (<code>true</code>) or not <code>false</code>).
+         * Call this method to include an audio track (<code>true</code>, the default)
+         * or not <code>false</code>).
          *
          * @param hasAudio Whether the archive will include an audio track.
          *
@@ -98,9 +99,10 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to include an video track (<code>true</code>) or not <code>false</code>).
+         * Call this method to include an video track (<code>true</code>, the default)
+         * or not <code>false</code>).
          *
-         * @param hasVideo Whether the archive will include an video track.
+         * @param hasVideo Whether the archive will include a video track.
          *
          * @return The ArchiveProperties.Builder object with the hasVideo setting.
          */
@@ -110,7 +112,7 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to choose the output mode to be generated for this archive.
+         * Sets the output mode for this archive.
          *
          * @param outputMode Set to a value defined in the {@link Archive.OutputMode} enum.
          *
@@ -122,11 +124,11 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to choose the stream mode to be set for this archive
+         * Sets the stream mode for this archive.
          *
          * @param streamMode Set to a value defined in the {@link Archive.StreamMode} enum.
          *
-         * @return The ArchiveProperties.Builder object with the stream mode string.
+         * @return The ArchiveProperties.Builder object with the stream mode setting.
          */
         public Builder streamMode(StreamMode streamMode) {
             this.streamMode = streamMode;
@@ -134,7 +136,7 @@ public class ArchiveProperties {
         }
 
         /**
-         * Call this method to customize the layout for a composed archive
+         * Sets the layout for a composed archive.
          *
          * @param layout An object of type {@link ArchiveLayout} .
          *
@@ -156,14 +158,14 @@ public class ArchiveProperties {
     }
 
     /**
-     * Returns the name of the archive, which you can use to identify the archive
+     * Returns the name of the archive, which you can use to identify the archive.
      */
     public String name() {
         return name;
     }
 
     /**
-     * Returns the resolution of the archive
+     * Returns the resolution of the archive.
      */
     public String resolution() {
         return resolution;
@@ -191,12 +193,12 @@ public class ArchiveProperties {
     }
 
     /**
-     * The stream mode of the archive
+     * The stream mode of the archive.
      */
     public StreamMode streamMode() { return streamMode; }
 
     /**
-     * Optionally set a custom layout (composed archives only)
+     * Returns the custom layout of the archive (composed archives only).
      */
     public ArchiveLayout layout() {
         return layout;

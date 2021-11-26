@@ -91,15 +91,17 @@ public class Archive {
     /**
      * Defines values used in the
      * {@link ArchiveProperties.Builder#streamMode(com.opentok.Archive.StreamMode)} method
-     * and returned by the {@link Archive#getStreamMode()} method
+     * and returned by the {@link Archive#getStreamMode()} method.
      */
     public enum StreamMode {
         /**
-         * All streams get added to the archive
+         * Streams will be automatically included in the archive.
          */
         AUTO,
         /**
-         * User can select which streams get added to the archive
+         * Streams will be included in the archive based on calls to the
+         * {@link OpenTok#addArchiveStream(String, String, boolean, boolean)} and
+         * {@link OpenTok#removeArchiveStream(String, String)} methods.
          */
         MANUAL;
 

@@ -25,15 +25,17 @@ public class Broadcast {
     /**
      * Defines values used in the
      * {@link BroadcastProperties.Builder#streamMode(com.opentok.Broadcast.StreamMode)} method
-     * and returned by the {@link Broadcast#getStreamMode()} method
+     * and returned by the {@link Broadcast#getStreamMode()} method.
      */
     public enum StreamMode {
         /**
-         * All streams get added to the archive
+        * Streams will be automatically included in the broadcast.
          */
         AUTO,
         /**
-         * User can select which streams get added to the archive
+         * Strams will be included in the archive based on calls to the
+         * {@link OpenTok#addBroadcastStream(String, String, boolean, boolean)} and
+         * {@link OpenTok#removeBroadcastStream(String, String)} methods.
          */
         MANUAL;
 
