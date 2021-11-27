@@ -497,7 +497,7 @@ public class OpenTok {
      * You can only patch an archive that has a {@link com.opentok.Archive.StreamMode} of "manual".
      * <p>
      * You can call this method repeatedly with the same stream ID to enable and disable audio or
-     * video, based on the <code>hasAudio</code> and <code>hasVideo<code> parameter values.
+     * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
      *
      * @param archiveId The archive ID.
      * @param streamId The stream ID.
@@ -642,7 +642,7 @@ public class OpenTok {
      * of "manual".
      *
      * You can call this method repeatedly with the same stream ID to enable and disable audio or
-     * video, based on the <code>hasAudio</code> and <code>hasVideo<code> parameter values.
+     * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
      *
      * @param broadcastId The broadcast ID.
      * @param streamId The stream ID.
