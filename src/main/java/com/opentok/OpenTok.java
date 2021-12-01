@@ -676,7 +676,7 @@ public class OpenTok {
      * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
      *
      * @param sessionId The session ID.
-     * @param properties Defined a list of stream IDs for streams that should be excluded
+     * @param properties Defines a list of stream IDs for streams that should be excluded
      *                   from the mute action.
      * @throws OpenTokException
      *
