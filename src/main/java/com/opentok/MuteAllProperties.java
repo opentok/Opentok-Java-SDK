@@ -36,7 +36,7 @@ public class MuteAllProperties {
          * Call this method to add a A List of stream IDs for streams to be excluded
          * from the force mute action.
          *
-         * @param ids The List of stream IDs,
+         * @param ids The List of stream IDs.
          *
          * @return The MuteAllProperties.Builder object with excludedStreamIds list.
          */
