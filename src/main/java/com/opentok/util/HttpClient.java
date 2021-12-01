@@ -850,6 +850,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             // adds extra escape characters
             JsonGenerator jGenerator = factory.createGenerator(outputStream);
             jGenerator.writeStartObject();
+            jGenerator.writeBooleanField("active", properties.getActive());
 
             jGenerator.writeFieldName("excudedStreamIds");
 

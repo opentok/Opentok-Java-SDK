@@ -1592,6 +1592,7 @@ public class OpenTokTest {
         excludedList.add("abc123");
         excludedList.add("xyz456");
         MuteAllProperties properties = new MuteAllProperties.Builder()
+                .active(true)
                 .excludedStreamIds(excludedList).build();
         sdk.forceMuteAll(sessionID, properties);
         verify(postRequestedFor(urlMatching(path)));
