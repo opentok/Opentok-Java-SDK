@@ -850,13 +850,65 @@ public class HttpClient extends DefaultAsyncHttpClient {
             // adds extra escape characters
             JsonGenerator jGenerator = factory.createGenerator(outputStream);
             jGenerator.writeStartObject();
-            jGenerator.writeBooleanField("active", properties.getActive());
+            jGenerator.writeBooleanField("active", true);
 
             jGenerator.writeFieldName("excudedStreamIds");
 
             StringJoiner sj = new StringJoiner(",");
             properties.getExcludedStreamIds().stream().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
             jGenerator.writeRawValue("[" + sj.toString() + "]");
+            jGenerator.writeEndObject();
+
+            jGenerator.close();
+            outputStream.close();
+        } catch (Exception e) {
+            throw new OpenTokException("Could not force mute streams The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+                .setBody(outputStream.toString())
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
+                            + "sessionId: " + sessionId);
+                case 403:
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
+
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID.");
+                case 500:
+                    throw new RequestException("OpenTok server error.");
+                default:
+                    throw new RequestException("Could not mute stream. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get stream information", e);
+        }
+        return responseString;
+    }
+
+    public String disableForceMute(String sessionId) throws OpenTokException {
+        String responseString = null;
+        char doubleQuotes = '"';
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/mute";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            JsonFactory factory = new JsonFactory();
+            //Using JsonGenerator as layoutClassList values must be in double quotes and ObjectMapper
+            // adds extra escape characters
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
+            jGenerator.writeStartObject();
+            jGenerator.writeBooleanField("active", false);
             jGenerator.writeEndObject();
 
             jGenerator.close();

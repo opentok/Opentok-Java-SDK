@@ -694,6 +694,18 @@ public class OpenTok {
         }
     }
 
+    public void disableForceMute(String sessionId) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+
+        try {
+            client.disableForceMute(sessionId);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     /**
      * Gets an {@link Stream} object for the given sessionId and streamId.
      *

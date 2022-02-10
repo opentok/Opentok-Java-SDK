@@ -18,11 +18,9 @@ import java.util.stream.Collectors;
  * @see OpenTok#forceMuteAll(String, MuteAllProperties)
  */
 public class MuteAllProperties {
-    private boolean active;
     private List<String> excludedStreamIds;
 
     private MuteAllProperties(MuteAllProperties.Builder builder) {
-        this.active = builder.active;
         this.excludedStreamIds = builder.excludedStreamIds;
     }
 
@@ -32,20 +30,7 @@ public class MuteAllProperties {
      * @see MuteAllProperties
      */
     public static class Builder {
-        private boolean active;
         private List<String> excludedStreamIds = new ArrayList<>();
-
-        /**
-         * Call this method to set the active flag.
-         *
-         * @param active Whether streams published after this call, in addition to the current streams in the session, should be muted
-         *
-         * @return The MuteAllProperties.Builder object with active property set.
-         */
-        public MuteAllProperties.Builder active(boolean active) {
-            this.active = active;
-            return this;
-        }
 
         /**
          * Call this method to add a List of stream IDs for streams to be excluded
@@ -68,15 +53,6 @@ public class MuteAllProperties {
         public MuteAllProperties build() {
             return new MuteAllProperties(this);
         }
-    }
-
-    /**
-     * Returns the active property.
-     *
-     * @return The active property
-     */
-    public boolean getActive() {
-        return this.active;
     }
 
     /**
