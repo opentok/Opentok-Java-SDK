@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#createSession(SessionProperties)} method.
+ * {@link OpenTok#startArchive(String sessionId, ArchiveProperties properties)} method.
  *
  * @see OpenTok#createSession(com.opentok.SessionProperties properties)
  */
@@ -125,6 +125,17 @@ public class ArchiveProperties {
 
         /**
          * Sets the stream mode for this archive.
+         *
+         * When streams are selected automatically (<code>StreamMode.AUTO</code>, the default), all
+         * streams in the session can be included in the archive. When streams are selected manually
+         * (<code>StreamMode.MANUAL</code>), you specify streams to be included based on calls
+         * to the {@link OpenTok#addArchiveStream(String, String, boolean, boolean)} and
+         * {@link OpenTok#removeArchiveStream(String, String)} methods. With
+         * <code>StreamMode.MANUAL</code>, you can specify whether a stream's audio, video, or both
+         * are included in the archive. Un both automatic and manual modes, the archive composer
+         * includes streams based on
+         * <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+         * prioritization rules</a>.
          *
          * @param streamMode Set to a value defined in the {@link Archive.StreamMode} enum.
          *

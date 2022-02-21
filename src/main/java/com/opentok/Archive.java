@@ -237,6 +237,10 @@ public class Archive {
         return outputMode;
     }
 
+    /**
+     * The stream mode to used for selecting streams to be included in this archive:
+     * <code>StreamMode.AUTO</code> or <code>StreamMode.MANUAL</code>.
+     */
     public StreamMode getStreamMode() {
         return streamMode;
     }

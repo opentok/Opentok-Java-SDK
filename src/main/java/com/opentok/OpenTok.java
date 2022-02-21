@@ -494,7 +494,8 @@ public class OpenTok {
     /**
      * Adds a stream to an OpenTok archive.
      * <p>
-     * You can only patch an archive that has a {@link com.opentok.Archive.StreamMode} of "manual".
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
      * <p>
      * You can call this method repeatedly with the same stream ID to enable and disable audio or
      * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
@@ -514,7 +515,8 @@ public class OpenTok {
     /**
      * Removes a stream from an Opentok archive.
      * <p>
-     * You can only patch an archive that has a {@link com.opentok.Archive.StreamMode} of "manual".
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
      *
      * @param archiveId The archive ID.
      * @param streamId The stream ID.
@@ -638,9 +640,9 @@ public class OpenTok {
     /**
      * Adds a stream to an Opentok broadcast.
      * <p>
-     * You can add a stream to a broadcast that has a {@link com.opentok.Broadcast.StreamMode}
-     * of "manual".
-     *
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     * <p>
      * You can call this method repeatedly with the same stream ID to enable and disable audio or
      * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
      *
@@ -659,8 +661,8 @@ public class OpenTok {
     /**
      * Removes a stream from an Opentok broadcast.
      * <p>
-     * You can remove a stream from a broadcast that has a {@link com.opentok.Broadcast.StreamMode}
-     * of "manual".
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
      *
      * @param broadcastId The broadcast ID.
      * @param streamId The stream ID.

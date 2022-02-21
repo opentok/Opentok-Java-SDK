@@ -121,6 +121,17 @@ public class BroadcastProperties {
         /**
          * Sets the stream mode for this broadcast
          *
+         * When streams are selected automatically (<code>StreamMode.AUTO</code>, the default), all
+         * streams in the session can be included in the archive. When streams are selected manually
+         * (<code>StreamMode.MANUAL</code>), you specify streams to be included based on calls
+         * to the {@link OpenTok#addBroadcastStream(String, String, boolean, boolean)} and
+         * {@link OpenTok#removeBroadcastStream(String, String)} methods. With
+         * <code>StreamMode.MANUAL</code>, you can specify whether a stream's audio, video, or both
+         * are included in the archive. Un both automatic and manual modes, the archive composer
+         * includes streams based on
+         * <a href="https://tokbox.com/developer/guides/archive-broadcast-layout/#stream-prioritization-rules">stream
+         * prioritization rules</a>.
+         *
          * @param streamMode Set to a value defined in the {@link Broadcast.StreamMode} enum.
          *
          * @return The BroadcastProperties.Builder object with the stream mode string.
