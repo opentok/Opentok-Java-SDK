@@ -300,6 +300,16 @@ public class OpenTok {
         return createSession(null);
     }
 
+    /**
+     * Sends a signal to all clients connected to a session.
+     *
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param props The SignalProperties object that defines the data and type of the signal.
+     */
     public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
 
         if (sessionId == null || sessionId.isEmpty() ) {
@@ -315,6 +325,17 @@ public class OpenTok {
 
     }
 
+    /**
+     * Sends a signal to a specific client connected to a session.
+     *
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param sessionId The connection ID of the client to receive the signal.
+     * @param props The SignalProperties object that defines the data and type of the signal.
+     */
     public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
 
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
@@ -721,7 +742,7 @@ public class OpenTok {
 
 
     /**
-     * Gets an {@link Stream} object for the given sessionId and streamId.
+     * Gets a {@link Stream} object for the given session ID and stream ID.
      *
      * @param sessionId The session ID.
      * @param streamId The stream ID.
@@ -737,7 +758,7 @@ public class OpenTok {
     }
 
     /**
-     * Gets a list of {@link Stream} object for the given session ID.
+     * Gets a list of {@link Stream} objects for the given session ID.
      *
      * @param sessionId The session ID.
      *
@@ -755,11 +776,18 @@ public class OpenTok {
     }
 
     /**
-     * Gets a list of {@link Stream} object for the given session ID.
+     * Dials a SIP gateway to connect it an OpenTok session.
      *
      * @param sessionId The session ID.
-     * @param token The token.
-     * @param properties The SipProperties.
+     *
+     * @param token  OpenTok token to be used for the participant being called. You can add token
+     * data to identify that the participant is on a SIP endpoint or for other identifying data,
+     * such as phone numbers. (The OpenTok client libraries include properties for inspecting
+     * the connection data for a client connected to a session.) See the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Token Creation developer guide</a>.
+.    *
+     * @param properties The {@link SipProperties} object defining options for the SIP call.
+     *
      * @return The  {@link Sip} object.
      */
     public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
@@ -774,6 +802,33 @@ public class OpenTok {
         } catch (IOException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
+    }
+
+    /**
+     * Send DTMF digits to all clients in a session.
+     *
+     * @param sessionId The session ID.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfAll(sessionId, dtmfDigits);
+    }
+
+    /**
+     * Send DTMF digits a specific client in a session.
+     *
+     * @param sessionId The session ID.
+     * @param connectionId The session ID of the client to receive the DTMF digits.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
     }
 
     /**
