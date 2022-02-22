@@ -5,16 +5,17 @@
 
 <img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
 
-The OpenTok Java SDK lets you generate
-[sessions](https://tokbox.com/developer/guides/create-session/) and
-[tokens](https://tokbox.com/developer/guides/create-token/) for
-[OpenTok](http://www.tokbox.com/) applications that run on the JVM. It also includes methods for
-working with OpenTok [archives](https://tokbox.com/developer/guides/archiving),
-working with OpenTok [live streaming
-broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/),
-working with OpenTok [SIP interconnect](https://tokbox.com/developer/guides/sip),
-[signaling OpenTok sessions from the server](https://tokbox.com/developer/guides/signaling/),
-and [disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/).
+The OpenTok Java SDK provides methods for:
+
+* Generating [sessions](https://tokbox.com/developer/guides/create-session/) and
+  [tokens](https://tokbox.com/developer/guides/create-token/) for
+  [OpenTok](https://www.vonage.com/communications-apis/video/) applications
+* Working with OpenTok [archives](https://tokbox.com/developer/guides/archiving)
+* Working with OpenTok [live streaming broadcasts](https://tokbox.com/developer/guides/broadcast/live-streaming/)
+* Working with OpenTok [SIP interconnect](https://tokbox.com/developer/guides/sip)
+* [Sending signals to clients connected to a session](https://tokbox.com/developer/guides/signaling/)
+* [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
+* [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
 
 ## Installation
 
@@ -365,6 +366,19 @@ opentok.forceDisconnect(sessionId, connectionId);
 The `connectionId` parameter is used to specify the connection ID of a client connection to the session.
 
 For more information on the force disconnect functionality and exception codes, please see the [REST API documentation](https://tokbox.com/developer/rest/#forceDisconnect).
+
+### Forcing clients in a session to mute published audio
+
+You can force the publisher of a specific stream to stop publishing audio using the 
+`Opentok.forceMuteStream(String sessionId, String streamId)`method.
+
+You can force the publisher of all streams in a session (except for an optional list of streams)
+to stop publishing audio using the `Opentok.forceMuteAll(String sessionId, MuteAllProperties properties)`
+method. You can then disable the mute state of the session by calling the
+`Opentok.disableForceMute(String sessionId)` method.
+
+For more information, see
+[Muting the audio of streams in a session](https://tokbox.com/developer/guides/moderation/#force_mute).
 
 ### Signaling
 

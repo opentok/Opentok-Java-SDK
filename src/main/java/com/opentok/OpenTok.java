@@ -645,7 +645,6 @@ public class OpenTok {
 
     /**
      * Force the publisher of a specific stream to mute its audio.
-     *
      * <p>
      * For more information, see
      * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
@@ -668,9 +667,12 @@ public class OpenTok {
     }
 
     /**
-     * Force publishers of all streams in a session to mute audio. You can exclude a list of
-     * streams from being muted using the MuteAllProperties class.
-     *
+     * Forces all streams (except for an optional array of streams) in a session
+     * to mute published audio.
+     * <p>
+     * In addition to existing streams, any streams that are published after the call
+     * to this method are published with audio muted. You can remove the mute state of
+     * a session by calling the {@link #disableForceMute(String) OpenTok.disableForceMute()} method.
      * <p>
      * For more information, see
      * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
@@ -681,6 +683,7 @@ public class OpenTok {
      * @throws OpenTokException
      *
      * @see #forceMuteStream(String, String)
+     * @see #disableForceMute(String)
      */
     public void forceMuteAll(String sessionId, MuteAllProperties properties) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty()) {
@@ -694,6 +697,19 @@ public class OpenTok {
         }
     }
 
+    /**
+     * Disables the active mute state of the session. After you call this method, new streams
+     * published to the session will no longer have audio muted.
+     * <p>
+     * After you call the {@link OpenTok#forceMuteAll OpenTok.forceMuteAll()} method,
+     * any streams published after the call are published with audio muted. When you call the
+     * <code>OpenTok.disableForceMute()</code> method, future streams published to the session
+     * are not muted (but any existing muted streams remain muted).
+     *
+     * @param sessionId The session ID.
+     *
+     * @see #forceMuteAll(String, MuteAllProperties)
+     */
     public void disableForceMute(String sessionId) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
