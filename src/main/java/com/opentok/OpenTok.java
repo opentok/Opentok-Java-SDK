@@ -529,8 +529,7 @@ public class OpenTok {
      * @throws OpenTokException
      */
     public void addArchiveStream(String archiveId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
-        PatchProperties properties = new PatchProperties.Builder().addStream(streamId).hasAudio(hasAudio).hasVideo(hasVideo).build();
-        client.patchArchive(archiveId, properties);
+        client.patchArchive(archiveId, streamId, null, hasAudio, hasVideo);
     }
 
     /**
@@ -545,8 +544,7 @@ public class OpenTok {
      * @throws OpenTokException
      */
     public void removeArchiveStream(String archiveId, String streamId) throws OpenTokException {
-        PatchProperties properties = new PatchProperties.Builder().removeStream(streamId).build();
-        client.patchArchive(archiveId, properties);
+        client.patchArchive(archiveId, null, streamId, false, false);
     }
 
     /**
@@ -675,8 +673,7 @@ public class OpenTok {
      * @throws OpenTokException
      */
     public void addBroadcastStream(String broadcastId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
-        PatchProperties properties = new PatchProperties.Builder().addStream(streamId).hasAudio(hasAudio).hasVideo(hasVideo).build();
-        client.patchBroadcast(broadcastId, properties);
+        client.patchBroadcast(broadcastId, streamId, null, hasAudio, hasVideo);
     }
 
     /**
@@ -691,8 +688,7 @@ public class OpenTok {
      * @throws OpenTokException
      */
     public void removeBroadcastStream(String broadcastId, String streamId) throws OpenTokException {
-        PatchProperties properties = new PatchProperties.Builder().removeStream(streamId).build();
-        client.patchBroadcast(broadcastId, properties);
+        client.patchBroadcast(broadcastId, null, streamId, false, false);
     }
 
     /**

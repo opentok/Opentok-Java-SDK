@@ -341,19 +341,19 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String patchArchive(String archiveId, PatchProperties properties) throws OpenTokException {
+    public String patchArchive(String archiveId, String addStream, String removeStream, boolean hasAudio, boolean hasVideo) throws OpenTokException {
         String responseString = null;
         String requestBody = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/streams";
 
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
-        if (properties.removeStream() != null && !properties.removeStream().equals("")) {
-            requestJson.put("removeStream", properties.removeStream());
-        } else if(properties.addStream() != null && !properties.addStream().equals("")) {
-            requestJson.put("hasAudio", properties.hasAudio());
-            requestJson.put("hasVideo", properties.hasVideo());
-            requestJson.put("addStream", properties.addStream());
+        if (removeStream != null && !removeStream.equals("")) {
+            requestJson.put("removeStream", removeStream);
+        } else if(addStream != null && !addStream.equals("")) {
+            requestJson.put("hasAudio", hasAudio);
+            requestJson.put("hasVideo", hasVideo);
+            requestJson.put("addStream", addStream);
         } else {
             throw new InvalidArgumentException("Could not patch archive, needs one of: addStream or removeStream");
         }
@@ -667,18 +667,18 @@ public class HttpClient extends DefaultAsyncHttpClient {
         return responseString;
     }
 
-    public String patchBroadcast(String broadcastId, PatchProperties properties) throws OpenTokException {
+    public String patchBroadcast(String broadcastId, String addStream, String removeStream, boolean hasAudio, boolean hasVideo) throws OpenTokException {
         String responseString = null;
         String requestBody = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/streams";
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
-        if (properties.removeStream() != null && !properties.removeStream().equals("")) {
-            requestJson.put("removeStream", properties.removeStream());
-        } else if(properties.addStream() != null && !properties.addStream().equals("")) {
-            requestJson.put("hasAudio", properties.hasAudio());
-            requestJson.put("hasVideo", properties.hasVideo());
-            requestJson.put("addStream", properties.addStream());
+        if (removeStream != null && !removeStream.equals("")) {
+            requestJson.put("removeStream", removeStream);
+        } else if(addStream != null && !addStream.equals("")) {
+            requestJson.put("hasAudio", hasAudio);
+            requestJson.put("hasVideo", hasVideo);
+            requestJson.put("addStream", addStream);
         } else {
             throw new InvalidArgumentException("Could not patch broadcast, needs one of: addStream or removeStream");
         }

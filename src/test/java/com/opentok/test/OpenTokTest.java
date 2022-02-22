@@ -603,7 +603,6 @@ public class OpenTokTest {
     @Test
     public void testPatchArchivedExpectException() throws OpenTokException {
         String archiveId = "ARCHIVEID";
-        PatchProperties properties = new PatchProperties.Builder().build();
         Exception exception = assertThrows(OpenTokException.class, () -> {
             sdk.removeArchiveStream(archiveId, "");
         });
