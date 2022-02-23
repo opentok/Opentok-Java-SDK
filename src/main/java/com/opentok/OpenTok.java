@@ -1,12 +1,11 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2021 Vonage.
+ * Copyright (C) 2022 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
