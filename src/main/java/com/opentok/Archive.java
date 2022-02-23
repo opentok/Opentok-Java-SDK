@@ -88,6 +88,26 @@ public class Archive {
         }
     }
 
+    /**
+     * Defines values used in the
+     * {@link ArchiveProperties.Builder#streamMode(com.opentok.Archive.StreamMode)} method
+     * and returned by the {@link Archive#getStreamMode()} method.
+     */
+    public enum StreamMode {
+        /**
+         * Streams will be automatically included in the archive.
+         */
+        AUTO,
+        /**
+         * Streams will be included in the archive based on calls to the
+         * {@link OpenTok#addArchiveStream(String, String, boolean, boolean)} and
+         * {@link OpenTok#removeArchiveStream(String, String)} methods.
+         */
+        MANUAL;
+
+        @JsonValue public String toString() { return super.toString().toLowerCase(); }
+    }
+
     @JsonProperty private long createdAt;
     @JsonProperty private int duration = 0;
     @JsonProperty private String id;
@@ -101,6 +121,7 @@ public class Archive {
     @JsonProperty private boolean hasVideo = true;
     @JsonProperty private boolean hasAudio = true;
     @JsonProperty private OutputMode outputMode = OutputMode.COMPOSED;
+    @JsonProperty private StreamMode streamMode = StreamMode.AUTO;
     @JsonProperty private String password;
     @JsonProperty private String resolution;
 
@@ -214,6 +235,14 @@ public class Archive {
      */
     public OutputMode getOutputMode() {
         return outputMode;
+    }
+
+    /**
+     * The stream mode to used for selecting streams to be included in this archive:
+     * <code>StreamMode.AUTO</code> or <code>StreamMode.MANUAL</code>.
+     */
+    public StreamMode getStreamMode() {
+        return streamMode;
     }
     
     /**

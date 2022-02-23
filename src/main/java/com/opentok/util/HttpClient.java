@@ -210,7 +210,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
         requestJson.put("hasVideo", properties.hasVideo());
         requestJson.put("hasAudio", properties.hasAudio());
         requestJson.put("outputMode", properties.outputMode().toString());
-        if (properties.layout() != null) {
+        requestJson.put("streamMode", properties.streamMode().toString());
+        if(properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             layout.put("type", properties.layout().getType().toString());
             if (properties.layout().getScreenshareType() != null) {
@@ -306,6 +307,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public String deleteArchive(String archiveId) throws RequestException {
         String responseString = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId;
+
+
+
         Future<Response> request = this.prepareDelete(url).execute();
 
         try {
@@ -329,6 +333,61 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
         }
 
+        return responseString;
+    }
+
+    public String patchArchive(String archiveId, String addStream, String removeStream, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        String responseString = null;
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/streams";
+
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        if (removeStream != null && !removeStream.equals("")) {
+            requestJson.put("removeStream", removeStream);
+        } else if(addStream != null && !addStream.equals("")) {
+            requestJson.put("hasAudio", hasAudio);
+            requestJson.put("hasVideo", hasVideo);
+            requestJson.put("addStream", addStream);
+        } else {
+            throw new InvalidArgumentException("Could not patch archive, needs one of: addStream or removeStream");
+        }
+
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not patch opentok archive. The JSON body encoding failed");
+        }
+
+        Future<Response> request = this.preparePatch(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not patch opentok archive. A invalid request. Check input properties.");
+                case 404:
+                    throw new RequestException("Could not patch opentok archive. Archive or stream not found.");
+                case 405:
+                    throw new RequestException("Could not patch opentok archive. Stream mode not supported for patching.");
+                case 403:
+                    throw new RequestException("Could not patch opentok archive. The request was unauthorized.");
+                case 500:
+                    throw new RequestException("Could not patch opentok archive. A server error occurred");
+                default:
+                    throw new RequestException("Could not patch opentok archive. The server response was invalid. Response code: " +
+                            response.getStatusCode());
+            }
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RequestException("Could not patch an opentok archive.", e);
+        }
         return responseString;
     }
 
@@ -466,7 +525,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
-        if (properties.layout() != null) {
+        requestJson.put("streamMode", properties.streamMode().toString());
+        if(properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             screenshareType = properties.layout().getScreenshareType();
             String type = properties.layout().getType().toString();
@@ -598,6 +658,59 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get Broadcast stream information.", e);
+        }
+        return responseString;
+    }
+
+    public String patchBroadcast(String broadcastId, String addStream, String removeStream, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        String responseString = null;
+        String requestBody = null;
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/streams";
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+        if (removeStream != null && !removeStream.equals("")) {
+            requestJson.put("removeStream", removeStream);
+        } else if(addStream != null && !addStream.equals("")) {
+            requestJson.put("hasAudio", hasAudio);
+            requestJson.put("hasVideo", hasVideo);
+            requestJson.put("addStream", addStream);
+        } else {
+            throw new InvalidArgumentException("Could not patch broadcast, needs one of: addStream or removeStream");
+        }
+
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not patch opentok archive. The JSON body encoding failed");
+        }
+
+        Future<Response> request = this.preparePatch(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                case 400:
+                    throw new RequestException("Could not patch opentok broadcast. A invalid request. Check input properties.");
+                case 404:
+                    throw new RequestException("Could not patch opentok broadcast. Archive or stream not found.");
+                case 405:
+                    throw new RequestException("Could not patch opentok broadcast. Stream mode not supported for patching.");
+                case 403:
+                    throw new RequestException("Could not patch opentok broadcast. The request was unauthorized.");
+                case 500:
+                    throw new RequestException("Could not patch opentok broadcast. A server error occurred");
+                default:
+                    throw new RequestException("Could not patch opentok broadcast. The server response was invalid. Response code: " +
+                            response.getStatusCode());
+            }
+
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RequestException("Could not patch an opentok broadcast.", e);
         }
         return responseString;
     }

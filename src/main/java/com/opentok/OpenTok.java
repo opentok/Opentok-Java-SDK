@@ -510,6 +510,41 @@ public class OpenTok {
     }
 
     /**
+     * Adds a stream to an OpenTok archive.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     * <p>
+     * You can call this method repeatedly with the same stream ID to enable and disable audio or
+     * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
+     *
+     * @param archiveId The archive ID.
+     * @param streamId The stream ID.
+     * @param hasAudio Whether the stream should have audio enabled in the archive.
+     * @param hasVideo Whether the stream should have video enabled in the archive.
+     *
+     * @throws OpenTokException
+     */
+    public void addArchiveStream(String archiveId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        client.patchArchive(archiveId, streamId, null, hasAudio, hasVideo);
+    }
+
+    /**
+     * Removes a stream from an Opentok archive.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     *
+     * @param archiveId The archive ID.
+     * @param streamId The stream ID.
+     *
+     * @throws OpenTokException
+     */
+    public void removeArchiveStream(String archiveId, String streamId) throws OpenTokException {
+        client.patchArchive(archiveId, null, streamId, false, false);
+    }
+
+    /**
      * Sets the layout type for a composed archive. For a description of layout types, see
      *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
      *  the video layout for composed archives</a>.
@@ -618,6 +653,41 @@ public class OpenTok {
             throw new InvalidArgumentException("BroadcastId is not valid or properties are null");
         }
         client.setBroadcastLayout(broadcastId, properties);
+    }
+
+    /**
+     * Adds a stream to an Opentok broadcast.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     * <p>
+     * You can call this method repeatedly with the same stream ID to enable and disable audio or
+     * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
+     *
+     * @param broadcastId The broadcast ID.
+     * @param streamId The stream ID.
+     * @param hasAudio Whether the stream should have audio enabled in the broadcast.
+     * @param hasVideo Whether the stream should have video enabled in the broadcast.
+     *
+     * @throws OpenTokException
+     */
+    public void addBroadcastStream(String broadcastId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        client.patchBroadcast(broadcastId, streamId, null, hasAudio, hasVideo);
+    }
+
+    /**
+     * Removes a stream from an Opentok broadcast.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     *
+     * @param broadcastId The broadcast ID.
+     * @param streamId The stream ID.
+     *
+     * @throws OpenTokException
+     */
+    public void removeBroadcastStream(String broadcastId, String streamId) throws OpenTokException {
+        client.patchBroadcast(broadcastId, null, streamId, false, false);
     }
 
     /**
