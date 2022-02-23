@@ -734,6 +734,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeFieldName("secure");
             jGenerator.writeBoolean(props.secure());
 
+            jGenerator.writeFieldName("video");
+            jGenerator.writeBoolean(props.video());
+
+            jGenerator.writeFieldName("observeForceMute");
+            jGenerator.writeBoolean(props.observeForceMute());
+
             jGenerator.writeEndObject();      // end sip
             jGenerator.writeEndObject();      // end main object
             jGenerator.close();
@@ -771,6 +777,53 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new RequestException("Could not set the sip dial, sessionId = " + sessionId, e);
         }
         return responseString;
+    }
+
+    public String playDtmf(String url, String dtmfDigits) throws OpenTokException {
+        String responseString = null;
+        String requestBody = null;
+
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        ObjectNode requestJson = nodeFactory.objectNode();
+
+        requestJson.put("digits", dtmfDigits);
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException e) {
+            throw new OpenTokException("Could not send a signal. The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    responseString = response.getResponseBody();
+                    break;
+                default:
+                    throw new RequestException("Could not get a proper response. response code: " +
+                            response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not play dtmf");
+        }
+
+        return responseString;
+    }
+
+    public String playDtmfAll(String sessionId, String dtmfDigits) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/play-dtmf";
+        return playDtmf(url, dtmfDigits);
+    }
+
+    public String playDtmfSingle(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId +
+                "/connection/"+ connectionId + "/play-dtmf";
+        return playDtmf(url, dtmfDigits);
     }
 
     public String getStream(String sessionId, String streamId) throws RequestException {
