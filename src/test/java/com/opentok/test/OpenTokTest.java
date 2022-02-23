@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -1574,6 +1575,54 @@ public class OpenTokTest {
     }
 
     @Test
+    public void testForceMuteStream() throws OpenTokException {
+        String sessionID = "SESSIONID";
+        String streamID = "STREAMID";
+        String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream/" + streamID + "/mute";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse().withStatus(200)));
+        sdk.forceMuteStream(sessionID, streamID);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(path)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void TestForceMuteAllStreamWithIdList() throws OpenTokException {
+        String sessionID = "SESSIONID";
+        String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        List<String> excludedList = new ArrayList<>();
+        excludedList.add("abc123");
+        excludedList.add("xyz456");
+        MuteAllProperties properties = new MuteAllProperties.Builder()
+                .excludedStreamIds(excludedList).build();
+        sdk.forceMuteAll(sessionID, properties);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void TestDisableForceMute() throws OpenTokException {
+        String sessionID = "SESSIONID";
+        String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
+        stubFor(post(urlEqualTo(path))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        sdk.disableForceMute(sessionID);
+        verify(postRequestedFor(urlMatching(path)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
     public void testListStreams() throws OpenTokException {
         String sessionID = "SESSIONID";
         String url = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/stream";
@@ -2207,7 +2256,7 @@ public class OpenTokTest {
 
         String sessionId = "SESSIONID";
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLocalHost(), proxyingService.port()));
-        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(targetServiceBaseUrl).proxy(proxy).build();
+        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(targetServiceBaseUrl).requestTimeout(10 ).proxy(proxy).build();
         stubFor(post(urlEqualTo("/session/create"))
                 .willReturn(aResponse()
                         .withStatus(200)
