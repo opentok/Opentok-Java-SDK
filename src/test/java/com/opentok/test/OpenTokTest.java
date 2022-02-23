@@ -1,12 +1,14 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2021 Vonage.
+ * Copyright (C) 2022 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ValueMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -33,37 +35,15 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.runner.Request;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
 
 public class OpenTokTest {
     private final String SESSION_CREATE = "/session/create";
     private int apiKey = 123456;
     private String archivePath = "/v2/project/" + apiKey + "/archive";
+    private String broadcastPath = "/v2/project/" + apiKey + "/broadcast";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
@@ -606,8 +586,32 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
 
-    // TODO: test get archive failure scenarios
+    @Test
+    public void testPatchArchived() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        String streamId = "abc123efg456";
+        stubFor(patch(urlEqualTo(archivePath + "/" + archiveId + "/streams"))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+        sdk.addArchiveStream(archiveId, streamId, true, true);
+        verify(patchRequestedFor(urlMatching(archivePath + "/" + archiveId + "/streams")));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
+        Helpers.verifyUserAgent();
+    }
 
+    @Test
+    public void testPatchArchivedExpectException() throws OpenTokException {
+        String archiveId = "ARCHIVEID";
+        Exception exception = assertThrows(OpenTokException.class, () -> {
+            sdk.removeArchiveStream(archiveId, "");
+        });
+        String got = exception.getMessage();
+        String expected = "Could not patch archive, needs one of: addStream or removeStream";
+        assertEquals(expected, got);
+    }
+
+    // TODO: test get archive failure scenarios
     @Test
     public void testListArchives() throws OpenTokException {
         stubFor(get(urlEqualTo(archivePath))
@@ -986,7 +990,7 @@ public class OpenTokTest {
                                 "          \"url\" : null\n" +
                                 "        }")));
 
-        String expectedJson = String.format("{\"sessionId\":\"%s\",\"hasVideo\":true,\"hasAudio\":true,\"outputMode\":\"composed\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}}", sessionId);
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasVideo\":true,\"hasAudio\":true,\"outputMode\":\"composed\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}}",sessionId);
         ValueMatchingStrategy valueMatchingStrategy = new ValueMatchingStrategy();
         valueMatchingStrategy.setEqualToJson(expectedJson);
         ArchiveLayout layout = new ArchiveLayout(ScreenShareLayoutType.PIP);
@@ -1721,7 +1725,7 @@ public class OpenTokTest {
                 .maxDuration(5400)
                 .layout(layout)
                 .build();
-        String expectedJson = String.format("{\"sessionId\":\"%s\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}", sessionId);
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
         ValueMatchingStrategy validationStrat = new ValueMatchingStrategy();
         validationStrat.setEqualToJson(expectedJson);
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
@@ -1908,6 +1912,31 @@ public class OpenTokTest {
             caughtException = true;
         }
         assertTrue(caughtException);
+    }
+
+    @Test
+    public void testPatchBroadcast() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        String streamId = "abc123efg456";
+        stubFor(patch(urlEqualTo(broadcastPath + "/" + broadcastId + "/streams"))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+        sdk.addBroadcastStream(broadcastId, streamId, true, true);
+        verify(patchRequestedFor(urlMatching(broadcastPath + "/" + broadcastId + "/streams")));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(archivePath + "/" + broadcastId)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testPatchBroadcastExpectException() throws OpenTokException {
+        String broadcastId = "BROADCASTID";
+        Exception exception = assertThrows(OpenTokException.class, () -> {
+            sdk.removeBroadcastStream(broadcastId, "");
+        });
+        String got = exception.getMessage();
+        String expected = "Could not patch broadcast, needs one of: addStream or removeStream";
+        assertEquals(expected, got);
     }
 
     @Test
