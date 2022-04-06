@@ -1,12 +1,11 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2021 Vonage.
+ * Copyright (C) 2022 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -26,15 +25,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
-* <p>
-* To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
-* and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not publicly share
-* your API secret. You will use it with the OpenTok constructor (only on your web
-* server) to create OpenTok sessions.
-* <p>
-* Be sure to include the entire OpenTok server SDK on your web server.
-*/
+ * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
+ * <p>
+ * To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
+ * and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not publicly share
+ * your API secret. You will use it with the OpenTok constructor (only on your web
+ * server) to create OpenTok sessions.
+ * <p>
+ * Be sure to include the entire OpenTok server SDK on your web server.
+ */
 public class OpenTok {
 
     private int apiKey;
@@ -67,7 +66,7 @@ public class OpenTok {
         this.apiSecret = apiSecret.trim();
         this.client = new HttpClient.Builder(apiKey, apiSecret).build();
     }
-    
+
     private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret.trim();
@@ -300,21 +299,41 @@ public class OpenTok {
         return createSession(null);
     }
 
+    /**
+     * Sends a signal to all clients connected to a session.
+     *
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param props The SignalProperties object that defines the data and type of the signal.
+     */
     public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
 
-        if (sessionId == null || sessionId.isEmpty() ) {
+
+        if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session string null or empty");
         }
         try {
-            client.signal(sessionId,null,props);
-
-        } catch (Exception e)
-        {
+            client.signal(sessionId, null, props);
+        } catch (Exception e) {
             throw e;
         }
 
     }
 
+    /**
+     * Sends a signal to a specific client connected to a session.
+     *
+     * <p>
+     * For more information, see the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param sessionId The connection ID of the client to receive the signal.
+     * @param props The SignalProperties object that defines the data and type of the signal.
+     */
     public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
 
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
@@ -322,13 +341,12 @@ public class OpenTok {
         }
         try {
             client.signal(sessionId, connectionId, props);
-
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
 
     }
+
     /**
      * Gets an {@link Archive} object for the given archive ID.
      *
@@ -366,7 +384,7 @@ public class OpenTok {
      * @return A List of {@link Archive} objects.
      */
     public ArchiveList listArchives(String sessionId) throws OpenTokException {
-        if (sessionId == null || sessionId.isEmpty() ) {
+        if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session Id cannot be null or empty");
         }
         return listArchives(sessionId, 0, 1000);
@@ -426,9 +444,9 @@ public class OpenTok {
      * For more information on archiving, see the
      * <a href="https://tokbox.com/developer/guides//archiving/">OpenTok archiving</a>
      * developer guide.
-     * 
+     *
      * @param sessionId The session ID of the OpenTok session to archive.
-     * 
+     *
      * @param properties This ArchiveProperties object defines options for the archive.
      *
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
@@ -437,8 +455,8 @@ public class OpenTok {
         if (sessionId == null || sessionId == "") {
             throw new InvalidArgumentException("Session not valid");
         }
-        Boolean hasResolution =  properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
-        if(properties != null && properties.outputMode().equals(Archive.OutputMode.INDIVIDUAL) && hasResolution) {
+        Boolean hasResolution = properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
+        if (properties != null && properties.outputMode().equals(Archive.OutputMode.INDIVIDUAL) && hasResolution) {
             throw new InvalidArgumentException("The resolution cannot be specified for individual output mode.");
         }
         // TODO: do validation on sessionId and name
@@ -450,7 +468,7 @@ public class OpenTok {
         }
     }
 
-	public Archive startArchive(String sessionId) throws OpenTokException {
+    public Archive startArchive(String sessionId) throws OpenTokException {
         return startArchive(sessionId, new ArchiveProperties.Builder().build());
     }
 
@@ -477,7 +495,7 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
-    
+
     /**
      * Deletes an OpenTok archive.
      * <p>
@@ -490,6 +508,42 @@ public class OpenTok {
     public void deleteArchive(String archiveId) throws OpenTokException {
         client.deleteArchive(archiveId);
     }
+
+    /**
+     * Adds a stream to an OpenTok archive.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     * <p>
+     * You can call this method repeatedly with the same stream ID to enable and disable audio or
+     * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
+     *
+     * @param archiveId The archive ID.
+     * @param streamId The stream ID.
+     * @param hasAudio Whether the stream should have audio enabled in the archive.
+     * @param hasVideo Whether the stream should have video enabled in the archive.
+     *
+     * @throws OpenTokException
+     */
+    public void addArchiveStream(String archiveId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        client.patchArchive(archiveId, streamId, null, hasAudio, hasVideo);
+    }
+
+    /**
+     * Removes a stream from an Opentok archive.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     *
+     * @param archiveId The archive ID.
+     * @param streamId The stream ID.
+     *
+     * @throws OpenTokException
+     */
+    public void removeArchiveStream(String archiveId, String streamId) throws OpenTokException {
+        client.patchArchive(archiveId, null, streamId, false, false);
+    }
+
     /**
      * Sets the layout type for a composed archive. For a description of layout types, see
      *  <a href="https://tokbox.com/developer/guides/archiving/layout-control.html">Customizing
@@ -505,6 +559,7 @@ public class OpenTok {
         }
         client.setArchiveLayout(archiveId, properties);
     }
+
     /**
      * Use this method to start a live streaming for an OpenTok session.
      * This broadcasts the session to an HLS (HTTP live streaming) or to RTMP streams.
@@ -529,7 +584,7 @@ public class OpenTok {
      * including the broadcast ID.
      */
     public Broadcast startBroadcast(String sessionId, BroadcastProperties properties) throws OpenTokException {
-        if (StringUtils.isEmpty(sessionId) || (properties ==  null)) {
+        if (StringUtils.isEmpty(sessionId) || (properties == null)) {
             throw new InvalidArgumentException("Session not valid or broadcast properties is null");
         }
 
@@ -572,7 +627,7 @@ public class OpenTok {
      * @return The {@link Broadcast} object.
      */
     public Broadcast getBroadcast(String broadcastId) throws OpenTokException {
-        if(StringUtils.isEmpty(broadcastId)) {
+        if (StringUtils.isEmpty(broadcastId)) {
             throw new InvalidArgumentException("Broadcast id is null or empty");
         }
         String stream = client.getBroadcast(broadcastId);
@@ -582,6 +637,7 @@ public class OpenTok {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
+
     /**
      * Sets the layout type for the broadcast. For a description of layout types, see
      * <a href="hhttps://tokbox.com/developer/guides/broadcast/live-streaming/#configuring-video-layout-for-opentok-live-streaming-broadcasts">Configuring
@@ -598,6 +654,42 @@ public class OpenTok {
         }
         client.setBroadcastLayout(broadcastId, properties);
     }
+
+    /**
+     * Adds a stream to an Opentok broadcast.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     * <p>
+     * You can call this method repeatedly with the same stream ID to enable and disable audio or
+     * video, based on the <code>hasAudio</code> and <code>hasVideo</code> parameter values.
+     *
+     * @param broadcastId The broadcast ID.
+     * @param streamId The stream ID.
+     * @param hasAudio Whether the stream should have audio enabled in the broadcast.
+     * @param hasVideo Whether the stream should have video enabled in the broadcast.
+     *
+     * @throws OpenTokException
+     */
+    public void addBroadcastStream(String broadcastId, String streamId, boolean hasAudio, boolean hasVideo) throws OpenTokException {
+        client.patchBroadcast(broadcastId, streamId, null, hasAudio, hasVideo);
+    }
+
+    /**
+     * Removes a stream from an Opentok broadcast.
+     * <p>
+     * This method only works for an archive that has a {@link com.opentok.Archive.StreamMode} set
+     * to <code>StreamMode.MANUAL</code>.
+     *
+     * @param broadcastId The broadcast ID.
+     * @param streamId The stream ID.
+     *
+     * @throws OpenTokException
+     */
+    public void removeBroadcastStream(String broadcastId, String streamId) throws OpenTokException {
+        client.patchBroadcast(broadcastId, null, streamId, false, false);
+    }
+
     /**
      * Sets the layout class list for streams in a session. Layout classes are used in
      * the layout for composed archives and live streaming broadcasts. For more information, see
@@ -630,22 +722,99 @@ public class OpenTok {
      * @param sessionId The session ID of the connection
      * @param  connectionId The connection ID to disconnect
      */
-    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException , InvalidArgumentException, RequestException {
+    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException, InvalidArgumentException, RequestException {
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
         try {
             client.forceDisconnect(sessionId, connectionId);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
     }
 
+    /**
+     * Force the publisher of a specific stream to mute its audio.
+     * <p>
+     * For more information, see
+     * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
+     *
+     * @param sessionId The session ID.
+     * @param  streamId The stream ID.
+     * @throws OpenTokException
+     *
+     * @see #forceMuteAll(String, MuteAllProperties)
+     */
+    public void forceMuteStream(String sessionId, String streamId) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty() || streamId == null || streamId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+        try {
+            client.forceMuteStream(sessionId, streamId);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     /**
-     * Gets an {@link Stream} object for the given sessionId and streamId.
+     * Forces all streams (except for an optional array of streams) in a session
+     * to mute published audio.
+     * <p>
+     * In addition to existing streams, any streams that are published after the call
+     * to this method are published with audio muted. You can remove the mute state of
+     * a session by calling the {@link #disableForceMute(String) OpenTok.disableForceMute()} method.
+     * <p>
+     * For more information, see
+     * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">Muting the audio of streams in a session</a>.
+     *
+     * @param sessionId The session ID.
+     * @param properties Defines a list of stream IDs for streams that should be excluded
+     *                   from the mute action.
+     * @throws OpenTokException
+     *
+     * @see #forceMuteStream(String, String)
+     * @see #disableForceMute(String)
+     */
+    public void forceMuteAll(String sessionId, MuteAllProperties properties) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+
+        try {
+            client.forceMuteAllStream(sessionId, properties);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Disables the active mute state of the session. After you call this method, new streams
+     * published to the session will no longer have audio muted.
+     * <p>
+     * After you call the {@link OpenTok#forceMuteAll OpenTok.forceMuteAll()} method,
+     * any streams published after the call are published with audio muted. When you call the
+     * <code>OpenTok.disableForceMute()</code> method, future streams published to the session
+     * are not muted (but any existing muted streams remain muted).
+     *
+     * @param sessionId The session ID.
+     *
+     * @see #forceMuteAll(String, MuteAllProperties)
+     */
+    public void disableForceMute(String sessionId) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new InvalidArgumentException("Session or Connection string null or empty");
+        }
+
+        try {
+            client.disableForceMute(sessionId);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Gets a {@link Stream} object for the given session ID and stream ID.
      *
      * @param sessionId The session ID.
      * @param streamId The stream ID.
@@ -661,7 +830,7 @@ public class OpenTok {
     }
 
     /**
-     * Gets a list of {@link Stream} object for the given session ID.
+     * Gets a list of {@link Stream} objects for the given session ID.
      *
      * @param sessionId The session ID.
      *
@@ -679,18 +848,25 @@ public class OpenTok {
     }
 
     /**
-     * Gets a list of {@link Stream} object for the given session ID.
+     * Dials a SIP gateway to connect it an OpenTok session.
      *
      * @param sessionId The session ID.
-     * @param token The token.
-     * @param properties The SipProperties.
+     *
+     * @param token  OpenTok token to be used for the participant being called. You can add token
+     * data to identify that the participant is on a SIP endpoint or for other identifying data,
+     * such as phone numbers. (The OpenTok client libraries include properties for inspecting
+     * the connection data for a client connected to a session.) See the
+     * <a href="https://tokbox.com/developer/guides/signaling/">Token Creation developer guide</a>.
+.    *
+     * @param properties The {@link SipProperties} object defining options for the SIP call.
+     *
      * @return The  {@link Sip} object.
      */
     public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
-        if((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
-            throw  new InvalidArgumentException ("Session id or token is null or empty or sip properties is null or sip uri empty or null.");
+        if ((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
+            throw new InvalidArgumentException("Session id or token is null or empty or sip properties is null or sip uri empty or null.");
         }
-        String sip = client.sipDial(sessionId,token,properties);
+        String sip = client.sipDial(sessionId, token, properties);
         try {
             return sipReader.readValue(sip);
         } catch (JsonProcessingException e) {
@@ -698,6 +874,33 @@ public class OpenTok {
         } catch (IOException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
+    }
+
+    /**
+     * Send DTMF digits to all clients in a session.
+     *
+     * @param sessionId The session ID.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfAll(sessionId, dtmfDigits);
+    }
+
+    /**
+     * Send DTMF digits a specific client in a session.
+     *
+     * @param sessionId The session ID.
+     * @param connectionId The session ID of the client to receive the DTMF digits.
+     * @param dtmfDigits The string of DTMF digits to send. This can include 0-9, "*", "#",
+     * and "p". A p indicates a pause of 500ms (if you need to add a delay in sending the digits).
+     *
+     * @throws OpenTokException
+     */
+    public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
+        client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
     }
 
     /**
@@ -721,7 +924,7 @@ public class OpenTok {
          * Constructs a new OpenTok.Builder object.
          *
          * @param apiKey The API key for your OpenTok project.
-         * 
+         *
          * @param apiSecret The API secret for your OpenTok project. You can obtain
          * your API key and secret from your <a href="https://tokbox.com/account">Video API account</a>.
          * Do not publicly share your API secret. 
@@ -756,7 +959,7 @@ public class OpenTok {
             this.requestTimeout = requestTimeout * 1000;
             return this;
         }
-        
+
         public Builder proxy(Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
             this.proxy = proxy;
             this.proxyAuthScheme = proxyAuthScheme;
@@ -773,17 +976,17 @@ public class OpenTok {
          */
         public OpenTok build() {
             HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
-            
+
             if (apiUrl != null) {
                 clientBuilder.apiUrl(apiUrl);
             }
             if (proxy != null) {
                 clientBuilder.proxy(proxy, proxyAuthScheme, principal, password);
             }
-            if(requestTimeout !=0){
+            if (requestTimeout != 0) {
                 clientBuilder.requestTimeoutMS(requestTimeout);
             }
-            
+
             return new OpenTok(apiKey, apiSecret, clientBuilder.build());
         }
     }

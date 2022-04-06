@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2021 Vonage.
+ * Copyright (C) 2022 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -20,7 +20,7 @@ public enum ArchiveMode {
     MANUAL ("manual"),
 
     /**
-     * The session is archived automatically (as soon as there are clients publishing streams
+     * The session is archived automatically (as soon as there are clients connected
      * to the session).
      */
     ALWAYS ("always");

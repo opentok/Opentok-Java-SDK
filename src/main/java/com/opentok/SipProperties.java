@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2021 Vonage.
+ * Copyright (C) 2022 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -20,6 +20,8 @@ public class SipProperties {
     private String password = null;
     private String headersJsonStartingWithXDash = null;
     private Boolean secure = false;
+    private Boolean video = false;
+    private Boolean observeForceMute = false;
 
     private SipProperties(Builder builder) {
         this.sipUri = builder.sipUri;
@@ -28,6 +30,8 @@ public class SipProperties {
         this.password = builder.password;
         this.headersJsonStartingWithXDash = builder.headersJsonStartingWithXDash;
         this.secure = builder.secure;
+        this.video = builder.video;
+        this.observeForceMute = builder.observeForceMute;
     }
 
     /**
@@ -42,6 +46,8 @@ public class SipProperties {
         private String password = null;
         private String headersJsonStartingWithXDash = null;
         private boolean secure = false;
+        private boolean video = false;
+        private boolean observeForceMute = false;
 
 
         /**
@@ -60,6 +66,7 @@ public class SipProperties {
             this.sipUri = sipUri;
             return this;
         }
+
         /**
          * Call this method to set the SIP <code>from</code> field (optional).
          *
@@ -76,6 +83,7 @@ public class SipProperties {
             this.from = from;
             return this;
         }
+
         /**
          * Call this method to set the username for the SIP gateway provider (optional).
          *
@@ -99,21 +107,24 @@ public class SipProperties {
             this.password = password;
             return this;
         }
+
         /**
          * Call this method to define custom headers to be added to the SIP ​INVITE​
-         * initiated from OpenTok to the your SIP platform.
+         * initiated from OpenTok to your SIP platform.
          *
          * @param headersJsonStartingWithXDash This JSON string defines custom headers
-         * to be added to the SIP ​INVITE​ request initiated from OpenTok to the your SIP platform.
-         * Each of the custom headers must start with the ​"X-"​ prefix, or the call will result
-         * in a Bad Request (400) response.
+         * to be added to the SIP ​INVITE​ request initiated from OpenTok to your SIP platform.
+         * <p>
+         * <b>Note:</b> You no longer need to append the ​"X-"​ prefix to the beginning of
+         * custom headers. This restriction, which applied previously, has been removed.
          *
-         * @return The SipProperties.Builder object with the custom headers set.
+         * @return The SipProperties.Builder object.
          */
         public Builder headersJsonStartingWithXDash(String headersJsonStartingWithXDash) {
             this.headersJsonStartingWithXDash = headersJsonStartingWithXDash;
             return this;
         }
+
         /**
          * Call this method and pass in <code>true</code> to indicate that the media
          * must be transmitted encrypted. Pass in <code>false​</code>, the default, if encryption
@@ -128,6 +139,34 @@ public class SipProperties {
             this.secure = secure;
             return this;
         }
+
+        /**
+         * Call this method and pass in <code>true</code> to enable video in the SIP call.
+         * The default is <code>false</code>.
+         *
+         * @param video Whether video should be enabled in the SIP call.
+         *
+         * @return The SipProperties.Builder object with the SIP video setting.
+         */
+        public Builder video(boolean video) {
+            this.video = video;
+            return this;
+        }
+
+        /**
+         * Call this method and pass in <code>true</code> to have the SIP end point observe
+         * <a href="https://tokbox.com/developer/guides/moderation/#force_mute">force mute moderation</a>.
+         * The default is <code>false</code>.
+         *
+         * @param observeForceMute Whether to observe force mute moderation.
+         *
+         * @return The SipProperties.Builder object with the observeForceMute setting.
+         */
+        public Builder observeForceMute(boolean observeForceMute) {
+            this.observeForceMute = observeForceMute;
+            return this;
+        }
+
         /**
          * Builds the SipProperties object.
          *
@@ -137,18 +176,21 @@ public class SipProperties {
             return new SipProperties(this);
         }
     }
+
     /**
      * Returns the SIP URI.
      */
     public String sipUri() {
         return sipUri;
     }
+
     /**
      * Returns the from value.
      */
     public String from() {
         return from;
     }
+
     /**
      * Returns the user name.
      */
@@ -169,10 +211,21 @@ public class SipProperties {
     public String headersJsonStartingWithXDash() {
         return headersJsonStartingWithXDash;
     }
+
     /**
      *  Returns the secure value (<code>true</code> or <code>false</code>).
      */
     public boolean secure() {
         return secure;
     }
+
+    /**
+     * Return the video value (<code>true</code> or <code>false</code>).
+     */
+    public boolean video() { return video; }
+
+    /**
+     * Returns the observeForceMute value (<code>true</code> or <code>false</code>).
+     */
+    public boolean observeForceMute() { return observeForceMute; }
 }
