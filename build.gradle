@@ -1,19 +1,37 @@
 plugins {
-    id "com.github.hierynomus.license" version "0.11.0"
+    id 'java-library'
+    id 'jacoco'
+    id 'signing'
+    id 'maven-publish'
+    id "com.github.hierynomus.license" version "0.16.1"
 }
-
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'license'
-apply plugin: 'jacoco'
-apply plugin: 'maven-publish'
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '4.6.0'
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.github.tomakehurst:wiremock:1.58'
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'commons-validator:commons-validator:1.7'
+    implementation 'org.asynchttpclient:async-http-client:2.12.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2.2'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'org.bitbucket.b_c:jose4j:0.7.11'
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
+}
 
 task javadocJar(type: Jar) {
     archiveClassifier.set("javadoc")
@@ -29,35 +47,16 @@ javadoc {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.8"
+}
 jacocoTestReport {
     reports {
-        xml.enabled true
-        html.enabled false
+        xml.getRequired().set(true)
+        html.getRequired().set(true)
     }
 }
-
-task sourcesJar(type: Jar) {
-    archiveClassifier.set("sources")
-    from sourceSets.main.allSource
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '[4.3,5.0]'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '[1.45,2.0]'
-    compile group: 'commons-lang', name: 'commons-lang', version: '[2.6,3.0]'
-    compile group: 'org.asynchttpclient', name: 'async-http-client', version: '[2.0,2.99999)'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '[2.3.1,2.99999)'
-    compile group: 'commons-validator', name: 'commons-validator', version: '[1.4.0,1.99999)'
-    compile group: 'commons-codec', name: 'commons-codec', version: '[1.9,1.99999]'
-    compile group: 'org.bitbucket.b_c', name: 'jose4j', version: '[0.7,1.0)'
-    // TODO: find out how to initialize these dependencies properly, or remove them
-    //compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
-    //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
-}
+check.dependsOn jacocoTestReport
 
 license {
     header rootProject.file('codequality/HEADER')
@@ -69,7 +68,6 @@ artifacts {
 }
 
 ext.isReleaseVersion = hasProperty('isReleaseVersion') ? isReleaseVersion : false
-
 ext.ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : 'dummyuser'
 ext.ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : 'dummypass'
 
@@ -107,10 +105,16 @@ publishing {
                         email = 'aoberoi@gmail.com'
                         organization = 'Vonage'
                     }
-                    developer{
+                    developer {
                         id = 'slorello89'
                         name =  'Steve Lorello'
                         email = 'steve.lorello@vonage.com'
+                        organization = 'Vonage'
+                    }
+                    developer {
+                        id = 'SMadani'
+                        name = 'Sina Madani'
+                        email = 'sina.madani@vonage.com'
                         organization = 'Vonage'
                     }
                 }
@@ -120,15 +124,15 @@ publishing {
                     url = "http://github.com/opentok/opentok-java-sdk"
                 }
 
-                issueManagement{
+                issueManagement {
                     system = "GitHub"
                     url = "https://http://github.com/opentok/opentok-java-sdk"
                 }
             }
         }
     }
-    repositories{
-        maven{
+    repositories {
+        maven {
             def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
             credentials.username(System.getenv("OSS_USERNAME"))
@@ -149,7 +153,6 @@ test {
     maxHeapSize = "1024m"
 }
 
-sourceCompatibility = 1.8
 // credit: http://stackoverflow.com/a/22681854/305340
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
