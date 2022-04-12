@@ -1215,8 +1215,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
             config = configBuilder.build();
             // NOTE: not thread-safe, config could be modified by another thread here?
-            HttpClient client = new HttpClient(this);
-            return client;
+            return new HttpClient(this);
         }
 
         // credit: https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
@@ -1284,9 +1283,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
         public <T> FilterContext<T> filter(FilterContext<T> ctx) throws FilterException {
             try {
                 return new FilterContext.FilterContextBuilder<T>(ctx)
-                        .request(new RequestBuilder(ctx.getRequest())
-                                .addHeader(authHeader, TokenGenerator.generateToken(apiKey, apiSecret))
-                                .build())
+                        .request(ctx.getRequest().toBuilder()
+                            .addHeader(authHeader, TokenGenerator.generateToken(apiKey, apiSecret))
+                            .build()
+                        )
                         .build();
             } catch (OpenTokException e) {
                 e.printStackTrace();
