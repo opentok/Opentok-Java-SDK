@@ -24,14 +24,15 @@ public class BroadcastProperties {
     private int maxDuration;
     private boolean hasHls;
     private List<RtmpProperties> rtmpList;
-    private String resolution = null;
+    private String resolution;
     private StreamMode streamMode;
-
+    private Hls hls;
 
     private BroadcastProperties(Builder builder) {
         this.layout = builder.layout;
         this.maxDuration = builder.maxDuration;
         this.hasHls = builder.hasHls;
+        this.hls = builder.hls;
         this.rtmpList = builder.rtmpList;
         this.resolution = builder.resolution;
         this.streamMode = builder.streamMode;
@@ -46,6 +47,8 @@ public class BroadcastProperties {
         private BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.BESTFIT);
         private int maxDuration = 7200;
         private boolean hasHls = false;
+
+        private Hls hls;
         private List<RtmpProperties> rtmpList = new ArrayList<>();
         private String resolution = "640x480";
         private StreamMode streamMode = StreamMode.AUTO;
@@ -72,7 +75,7 @@ public class BroadcastProperties {
          * @return The BroadcastProperties.Builder object with the maxDuration setting.
          */
         public Builder maxDuration(int maxDuration)  throws InvalidArgumentException {
-            if(maxDuration < 60 || maxDuration > 36000) {
+            if (maxDuration < 60 || maxDuration > 36000) {
                 throw new InvalidArgumentException("maxDuration value must be between 60 and 36000 (inclusive).");
             }
             this.maxDuration = maxDuration;
@@ -90,6 +93,18 @@ public class BroadcastProperties {
             this.hasHls = hasHls;
             return this;
         }
+
+        /**
+         * Call this method to include HLS options. This will set <code>hasHls</code> to <code>true</code>.
+         *
+         * @param hls The HLS object.
+         *
+         * @return The BroadcastProperties.Builder object with HLS populated.
+         */
+        public Builder hls(Hls hls) {
+            return hasHls((this.hls = hls) != null);
+        }
+
         /**
          * Call this method to set a list of RTMP broadcast streams. There is a limit of
          * 5 RTMP streams.
@@ -109,7 +124,8 @@ public class BroadcastProperties {
         /**
          * Sets the resolution of the broadcast stream.
          *
-         * @param resolution The resolution of the broadcast, either "640x480" (SD, the default) or "1280x720" (HD).
+         * @param resolution The resolution of the broadcast, either "640x480" (SD, the default),
+         *                  "1280x720" (HD) or "1920x1080" (FHD).
          *
          * @return The BroadcastProperties.Builder object with the resolution setting.
          */
@@ -158,6 +174,7 @@ public class BroadcastProperties {
     public BroadcastLayout layout() {
         return layout;
     }
+
     /**
      * The maximum duration in seconds of the broadcast.
      */
@@ -173,9 +190,16 @@ public class BroadcastProperties {
     }
 
     /**
+     * The HLS configuration object, or <code>null</code> if {@link BroadcastProperties#hasHls} is false.
+     */
+    public Hls hls() {
+        return hls;
+    }
+
+    /**
      * Returns the RtmpProperties list.
      */
-    public List<RtmpProperties> getRtmpList() {
+    public List<RtmpProperties> rtmpList() {
         return rtmpList;
     }
     /**

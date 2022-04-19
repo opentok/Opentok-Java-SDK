@@ -85,7 +85,6 @@ public class Broadcast {
         return sessionId;
     }
 
-
     /**
      * The OpenTok API key associated with the broadcast.
      */
@@ -99,12 +98,14 @@ public class Broadcast {
     public long getCreatedAt() {
         return createdAt;
     }
+
     /**
      * The time at which the broadcast was updated, in milliseconds since the Unix epoch.
      */
     public long getUpdatedAt() {
         return updatedAt;
     }
+
     /**
      * The broadcast resolution.
      */
@@ -118,6 +119,7 @@ public class Broadcast {
     public String getStatus() {
         return status;
     }
+
     /**
      * Details on the HLS and RTMP broadcast streams. For an HLS stream, the URL is provided.
      * See the <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">OpenTok
@@ -140,18 +142,21 @@ public class Broadcast {
             this.rtmpList.add(rtmp);
         }
     }
+
     /**
      * The HLS URL (if there is one) of the broadcast.
      */
     public String getHls() {
         return hls;
     }
+
     /**
     * A list of RTMP URLs (if there are any) of the broadcast.
      */
     public List<Rtmp> getRtmpList() {
         return rtmpList;
     }
+
     @Override
     public String toString() {
         try {
