@@ -49,7 +49,8 @@ public class OpenTok {
         sipReader = new ObjectMapper().readerFor(Sip.class),
         broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
         renderReader = new ObjectMapper().readerFor(Render.class),
-        renderListReader = new ObjectMapper().readerForListOf(Render.class);
+        renderListReader = new ObjectMapper().readerForListOf(Render.class),
+        connectReader = new ObjectMapper().readerFor(Connect.class);
 
     static final String defaultApiUrl = "https://api.opentok.com";
 
@@ -533,7 +534,7 @@ public class OpenTok {
      *
      * @param archiveId {String} The archive ID.
      *
-     * @param properties This ArchiveProperties object defining the arachive layout.
+     * @param properties The ArchiveProperties object defining the archive layout.
      */
     public void setArchiveLayout(String archiveId, ArchiveProperties properties) throws OpenTokException {
         if (StringUtils.isEmpty(archiveId) || properties == null) {
@@ -560,7 +561,7 @@ public class OpenTok {
      *
      * @param sessionId The session ID of the OpenTok session to broadcast.
      *
-     * @param properties This BroadcastProperties object defines options for the broadcast.
+     * @param properties The BroadcastProperties object defines options for the broadcast.
      *
      * @return The Broadcast object. This object includes properties defining the broadcast,
      * including the broadcast ID.
@@ -859,6 +860,27 @@ public class OpenTok {
      */
     public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
         client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
+    }
+
+    /**
+     * Send audio from a Vonage Video API session to a WebSocket.
+     *
+     * @param sessionId The session ID.
+     * @param token The OpenTok token to be used for the Audio Streamer connection to the
+     *              OpenTok session. You can add token data to identify that the connection
+     *              is the Audio Streamer endpoint or for other identifying data.
+     * @param properties The ConnectProperties object defines options used in the request
+     *                   to the Audio Streamer API endpoint.
+     *
+     * @return The Audio Stream response object from the server.
+     *
+     */
+    public Connect connectAudioStream(String sessionId, String token, ConnectProperties properties) throws OpenTokException {
+        try {
+            return connectReader.readValue(client.connectAudioStream(sessionId, token, properties));
+        } catch (JsonProcessingException ex) {
+            throw new RequestException("Exception mapping json: " + ex.getMessage(), ex);
+        }
     }
 
     /**
