@@ -117,7 +117,7 @@ public class Session {
         Role role = tokenOptions.getRole();
         double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
         String data = tokenOptions.getData();             // will be null if nothing was explicitly set
-        Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
+        long create_time = System.currentTimeMillis() / 1000;
 
         StringBuilder dataStringBuilder = new StringBuilder();
         Random random = new Random();

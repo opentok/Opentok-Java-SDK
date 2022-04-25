@@ -424,8 +424,6 @@ public class OpenTok {
             return archiveListReader.readValue(archives);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
 
@@ -842,8 +840,6 @@ public class OpenTok {
             return streamListReader.readValue(streams);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
 
@@ -870,8 +866,6 @@ public class OpenTok {
         try {
             return sipReader.readValue(sip);
         } catch (JsonProcessingException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (IOException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }

@@ -20,6 +20,7 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -31,21 +32,17 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.opentok.util.Crypto.signData;
-import static com.opentok.util.TokenGenerator.ISSUED_AT;
-import static com.opentok.util.TokenGenerator.ISSUER;
-import static com.opentok.util.TokenGenerator.ISSUER_TYPE;
-import static com.opentok.util.TokenGenerator.PROJECT_ISSUER_TYPE;
-import static org.junit.Assert.assertTrue;
+import static com.opentok.util.TokenGenerator.*;
 
 public class Helpers {
 
     public static final String JTI = "jti";
 
     public static Map<String, String> decodeToken(String token) throws UnsupportedEncodingException {
-        Map<String, String> tokenData = new HashMap<String, String>();
+        Map<String, String> tokenData = new HashMap<>();
         token = token.substring(4);
         byte[] buffer = Base64.decodeBase64(token);
-        String decoded = new String(buffer, "UTF-8");
+        String decoded = new String(buffer, StandardCharsets.UTF_8);
         String[] decodedParts = decoded.split(":");
         for (String part : decodedParts) {
             tokenData.putAll(decodeFormData(part));
@@ -57,7 +54,7 @@ public class Helpers {
             UnsupportedEncodingException, NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         token = token.substring(4);
         byte[] buffer = Base64.decodeBase64(token);
-        String decoded = new String(buffer, "UTF-8");
+        String decoded = new String(buffer, StandardCharsets.UTF_8);
         String[] decodedParts = decoded.split(":");
         String signature = decodeToken(token).get("sig");
         return (signature.equals(signData(decodedParts[1], apiSecret)));
@@ -79,10 +76,10 @@ public class Helpers {
     }
 
     private static Map<String, String> decodeFormData(String formData) throws UnsupportedEncodingException {
-        Map<String, String> decodedFormData = new HashMap<String, String>();
+        Map<String, String> decodedFormData = new HashMap<>();
         String[] pairs = formData.split("\\&");
-        for (int i = 0; i < pairs.length; i++) {
-            String[] fields = pairs[i].split("=");
+        for (String pair : pairs) {
+            String[] fields = pair.split("=");
             String name = URLDecoder.decode(fields[0], "UTF-8");
             String value = URLDecoder.decode(fields[1], "UTF-8");
             decodedFormData.put(name, value);

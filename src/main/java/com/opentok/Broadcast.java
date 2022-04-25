@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -125,12 +126,13 @@ public class Broadcast {
      * stream's status.
      */
     @JsonProperty("broadcastUrls")
+    @SuppressWarnings("unchecked")
     private void unpack(Map<String,Object> broadcastUrls) {
         if (broadcastUrls == null) return;
-        hls = (String)broadcastUrls.get("hls");
-        ArrayList<Map<String,String>> rtmpResponse = (ArrayList<Map<String,String>>)broadcastUrls.get("rtmp");
-        if (rtmpResponse == null || rtmpResponse.size() == 0) return;
-        for ( Map<String,String> element : rtmpResponse) {
+        hls = (String) broadcastUrls.get("hls");
+        Iterable<Map<String,String>> rtmpResponse = (Iterable<Map<String,String>>)broadcastUrls.get("rtmp");
+        if (rtmpResponse == null) return;
+        for (Map<String,String> element : rtmpResponse) {
             Rtmp rtmp = new Rtmp();
             rtmp.setId(element.get("id"));
             rtmp.setServerUrl(element.get("serverUrl"));
