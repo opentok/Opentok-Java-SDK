@@ -123,8 +123,8 @@ public class OpenTok {
      * @return The token string.
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
-        List<String> sessionIdParts = null;
-        if (sessionId == null || sessionId == "") {
+        List<String> sessionIdParts;
+        if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session not valid");
         }
 
@@ -582,14 +582,13 @@ public class OpenTok {
      * including the broadcast ID.
      */
     public Broadcast startBroadcast(String sessionId, BroadcastProperties properties) throws OpenTokException {
-        if (StringUtils.isEmpty(sessionId) || (properties == null)) {
+        if (StringUtils.isEmpty(sessionId) || properties == null) {
             throw new InvalidArgumentException("Session not valid or broadcast properties is null");
         }
 
         String broadcast = client.startBroadcast(sessionId, properties);
         try {
-            return broadcastReader.readValue(
-                    broadcast);
+            return broadcastReader.readValue(broadcast);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }

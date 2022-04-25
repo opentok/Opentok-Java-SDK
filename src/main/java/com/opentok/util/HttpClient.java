@@ -526,7 +526,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
         requestJson.put("streamMode", properties.streamMode().toString());
-        if(properties.layout() != null) {
+        if (properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             screenshareType = properties.layout().getScreenshareType();
             String type = properties.layout().getType().toString();
@@ -549,10 +549,16 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         ObjectNode outputs = requestJson.putObject("outputs");
         if (properties.hasHls()) {
-            outputs.set("hls", nodeFactory.objectNode());
+            ObjectNode hlsNode = nodeFactory.objectNode();
+            outputs.set("hls", hlsNode);
+            Hls hlsPojo = properties.hls();
+            if (hlsPojo != null) {
+                hlsNode.put("dvr", hlsPojo.dvr());
+                hlsNode.put("lowLatency", hlsPojo.lowLatency());
+            }
         }
         ArrayNode rtmp = outputs.putArray("rtmp");
-        for (RtmpProperties prop : properties.getRtmpList()) {
+        for (RtmpProperties prop : properties.rtmpList()) {
             ObjectNode rtmpProps = nodeFactory.objectNode();
             rtmpProps.put("id", prop.id());
             rtmpProps.put("serverUrl", prop.serverUrl());
