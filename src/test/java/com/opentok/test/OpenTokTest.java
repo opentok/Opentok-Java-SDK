@@ -2578,6 +2578,9 @@ public class OpenTokTest {
                 .uri("ws://service.com/wsendpoint")
                 .build();
 
+        assertTrue(connectProperties.streams() == null || connectProperties.streams().isEmpty());
+        assertTrue(connectProperties.headers() == null || connectProperties.headers().isEmpty());
+
         Connect connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
 
         assertNotNull(connectResponse);
@@ -2631,11 +2634,11 @@ public class OpenTokTest {
                 () -> new ConnectProperties.Builder().build()
         );
         String uriStr = "ws://service.com/wsendpoint";
-        ConnectProperties cp = new ConnectProperties.Builder().uri(uriStr).build();
-        assertNotNull(cp.headers());
-        assertNotNull(cp.streams());
-        assertNotNull(cp.uri());
-        assertNotNull(cp.type());
+        ConnectProperties cp1 = new ConnectProperties.Builder().uri(uriStr).build();
+        assertTrue(cp1.headers() == null || cp1.headers().isEmpty());
+        assertTrue(cp1.streams() == null || cp1.streams().isEmpty());
+        assertNotNull(cp1.uri());
+        assertNotNull(cp1.type());
 
         // To increase code coverage
         new ConnectProperties.Builder()
@@ -2646,6 +2649,11 @@ public class OpenTokTest {
                 .addHeader("k1", "v1")
                 .uri(uriStr)
                 .build();
+
+        assertThrows(UnsupportedOperationException.class, () -> cp2.headers().put("k2", "v2"));
+        assertThrows(UnsupportedOperationException.class, () -> cp2.headers().clear());
+        assertThrows(UnsupportedOperationException.class, () -> cp2.streams().add("streamID_2"));
+        assertThrows(UnsupportedOperationException.class, () -> cp2.streams().clear());
 
         assertThrows(IllegalArgumentException.class, () -> new ConnectProperties.Builder().addHeader(" ", "value"));
         assertThrows(IllegalArgumentException.class, () -> new ConnectProperties.Builder().addStream(" "));

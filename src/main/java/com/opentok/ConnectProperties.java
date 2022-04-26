@@ -33,7 +33,7 @@ public class ConnectProperties {
 	/**
 	 * Stream IDs to include in the request body.
 	 *
-	 * @return A non-null collection of stream IDs.
+	 * @return An immutable collection of stream IDs, if present.
 	 */
 	public Collection<String> streams() {
 		return streams;
@@ -44,7 +44,7 @@ public class ConnectProperties {
 	 *
 	 * NOTE: The maximum length of this should be 512 bytes.
 	 *
-	 * @return A non-null map of additional properties.
+	 * @return An immutable map of additional properties, if present.
 	 */
 	public Map<String, String> headers() {
 		return headers;
@@ -61,8 +61,8 @@ public class ConnectProperties {
 
 	protected ConnectProperties(Builder builder) {
 		this.uri = Objects.requireNonNull(builder.uri);
-		this.streams = builder.streams;
-		this.headers = builder.headers;
+		this.streams = builder.streams.isEmpty() ? null : Collections.unmodifiableCollection(builder.streams);
+		this.headers = builder.headers.isEmpty() ? null : Collections.unmodifiableMap(builder.headers);
 	}
 
 	/**

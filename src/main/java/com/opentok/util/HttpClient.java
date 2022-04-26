@@ -1105,10 +1105,16 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         ObjectNode mainBody = requestJson.putObject(properties.type());
         mainBody.put("uri", properties.uri().toString());
-        ArrayNode streams = mainBody.putArray("streams");
-        properties.streams().forEach(streams::add);
-        ObjectNode headers = mainBody.putObject("headers");
-        properties.headers().forEach(headers::put);
+        Collection<String> streamsProperty = properties.streams();
+        if (streamsProperty != null && !streamsProperty.isEmpty()) {
+            ArrayNode streams = mainBody.putArray("streams");
+            streamsProperty.forEach(streams::add);
+        }
+        Map<String, String> headersProperty = properties.headers();
+        if (headersProperty != null && !headersProperty.isEmpty()) {
+            ObjectNode headers = mainBody.putObject("headers");
+            headersProperty.forEach(headers::put);
+        }
 
         String requestBody;
         try {
