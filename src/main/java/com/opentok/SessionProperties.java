@@ -25,7 +25,7 @@ import java.util.Map;
 public class SessionProperties {
 
 
-    private String location = null;
+    private String location;
     private MediaMode mediaMode;
     private ArchiveMode archiveMode;
 
@@ -111,7 +111,7 @@ public class SessionProperties {
          *
          * Using an always archived session also requires the routed media mode (<code>MediaMode.ROUTED</code>).
          *
-         * @param archiveMode
+         * @param archiveMode The Archive mode.
          *
          * @return The SessionProperties.Builder object with the archive mode setting.
          */
@@ -162,22 +162,22 @@ public class SessionProperties {
      * Returns the session properties as a Map.
      */
     public Map<String, Collection<String>> toMap() {
-        Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
+        Map<String, Collection<String>> params = new HashMap<>();
         if (null != location) {
-            ArrayList<String> valueList = new ArrayList<String>();
+            ArrayList<String> valueList = new ArrayList<>();
             valueList.add(location);
             params.put("location", valueList);
         }
 
-        ArrayList<String> mediaModeValueList = new ArrayList<String>();
+        ArrayList<String> mediaModeValueList = new ArrayList<>();
         mediaModeValueList.add(mediaMode.toString());
         params.put("p2p.preference", mediaModeValueList);
 
-        ArrayList<String> archiveModeValueList = new ArrayList<String>();
+        ArrayList<String> archiveModeValueList = new ArrayList<>();
         archiveModeValueList.add(archiveMode.toString());
         params.put("archiveMode", archiveModeValueList);
 
         return params;
     }
 
-};
+}

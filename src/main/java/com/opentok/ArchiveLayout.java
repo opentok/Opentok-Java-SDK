@@ -74,7 +74,7 @@ public class ArchiveLayout {
 
         private String serialized;
 
-        private Type(String s) {
+        Type(String s) {
             serialized = s;
         }
 

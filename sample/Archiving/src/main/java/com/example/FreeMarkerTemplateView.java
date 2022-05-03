@@ -33,9 +33,7 @@ public abstract class FreeMarkerTemplateView extends TemplateViewRoute {
 
             return stringWriter.toString();
 
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        } catch (TemplateException e) {
+        } catch (IOException | TemplateException e) {
             throw new IllegalArgumentException(e);
         }
     }

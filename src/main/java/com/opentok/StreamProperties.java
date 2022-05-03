@@ -18,7 +18,7 @@ import java.util.List;
  * @see OpenTok#setStreamLayouts(String, StreamListProperties)
  */
 public class StreamProperties {
-    private String id = null;
+    private String id;
     private List<String> layoutClassList;
 
     private StreamProperties(StreamProperties.Builder builder) {
@@ -84,6 +84,6 @@ public class StreamProperties {
     public List<String>  getLayoutClassList() {
         return layoutClassList;
     }
-};
+}
 
 

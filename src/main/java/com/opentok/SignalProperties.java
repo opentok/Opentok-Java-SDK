@@ -20,8 +20,8 @@ import java.util.Map;
  * @see OpenTok#signal(String, SignalProperties) (String, String)
  */
 public class SignalProperties {
-    private String type = null;
-    private String data = null;
+    private String type;
+    private String data;
 
     private SignalProperties(SignalProperties.Builder builder) {
         this.type = builder.type;
@@ -87,14 +87,14 @@ public class SignalProperties {
      * Returns the signal properties as a Map.
      */
     public Map<String, Collection<String>> toMap() {
-        Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
+        Map<String, Collection<String>> params = new HashMap<>();
         if (null != type) {
-            ArrayList<String> valueList = new ArrayList<String>();
+            ArrayList<String> valueList = new ArrayList<>();
             valueList.add(type);
             params.put("type", valueList);
         }
         if (null != data) {
-            ArrayList<String> valueList = new ArrayList<String>();
+            ArrayList<String> valueList = new ArrayList<>();
             valueList.add(data);
             params.put("data", valueList);
         }
@@ -102,6 +102,6 @@ public class SignalProperties {
         return params;
     }
 
-};
+}
 
 

@@ -25,8 +25,8 @@ import java.util.Map;
 public class ArchiveProperties {
 
 
-    private String name = null;
-    private String resolution = null;
+    private String name;
+    private String resolution;
     private boolean hasAudio;
     private boolean hasVideo;
     private OutputMode outputMode;
@@ -219,35 +219,35 @@ public class ArchiveProperties {
      * Returns the archive properties as a Map.
      */
     public Map<String, Collection<String>> toMap() {
-        Map<String, Collection<String>> params = new HashMap<String, Collection<String>>();
+        Map<String, Collection<String>> params = new HashMap<>();
         if (name != null) {
-            ArrayList<String> valueList = new ArrayList<String>();
+            ArrayList<String> valueList = new ArrayList<>();
             valueList.add(name);
             params.put("name", valueList);
         }
         if (resolution != null) {
-            ArrayList<String> valueList = new ArrayList<String>();
+            ArrayList<String> valueList = new ArrayList<>();
             valueList.add(resolution);
             params.put("resolution", valueList);
         }
-        ArrayList<String> valueList = new ArrayList<String>();
+        ArrayList<String> valueList = new ArrayList<>();
         valueList.add(Boolean.toString(hasAudio));
         params.put("hasAudio", valueList);
 
-        valueList = new ArrayList<String>();
+        valueList = new ArrayList<>();
         valueList.add(Boolean.toString(hasVideo));
         params.put("hasVideo", valueList);
 
-        valueList = new ArrayList<String>();
+        valueList = new ArrayList<>();
         valueList.add(outputMode.toString());
         params.put("outputMode", valueList);
 
-        valueList = new ArrayList<String>();
+        valueList = new ArrayList<>();
         valueList.add(streamMode.toString());
         params.put("streamMode", valueList);
 
         if (layout != null) {
-            valueList = new ArrayList<String>();
+            valueList = new ArrayList<>();
             valueList.add(layout.toString());
             params.put("layout", valueList);
         }
@@ -255,4 +255,4 @@ public class ArchiveProperties {
         return params;
     }
 
-};
+}

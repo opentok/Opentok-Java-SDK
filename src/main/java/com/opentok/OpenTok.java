@@ -309,18 +309,11 @@ public class OpenTok {
      * @param sessionId The session ID.
      * @param props The SignalProperties object that defines the data and type of the signal.
      */
-    public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
-
-
+    public void signal(String sessionId, SignalProperties props) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session string null or empty");
         }
-        try {
-            client.signal(sessionId, null, props);
-        } catch (Exception e) {
-            throw e;
-        }
-
+        client.signal(sessionId, null, props);
     }
 
     /**
@@ -331,20 +324,14 @@ public class OpenTok {
      * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
      *
      * @param sessionId The session ID.
-     * @param sessionId The connection ID of the client to receive the signal.
+     * @param connectionId The connection ID of the client to receive the signal.
      * @param props The SignalProperties object that defines the data and type of the signal.
      */
-    public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
-
+    public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-        try {
-            client.signal(sessionId, connectionId, props);
-        } catch (Exception e) {
-            throw e;
-        }
-
+        client.signal(sessionId, connectionId, props);
     }
 
     /**
@@ -360,7 +347,6 @@ public class OpenTok {
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
-
     }
 
     /**
@@ -450,10 +436,10 @@ public class OpenTok {
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
     public Archive startArchive(String sessionId, ArchiveProperties properties) throws OpenTokException {
-        if (sessionId == null || sessionId == "") {
+        if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session not valid");
         }
-        Boolean hasResolution = properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
+        boolean hasResolution = properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
         if (properties != null && properties.outputMode().equals(Archive.OutputMode.INDIVIDUAL) && hasResolution) {
             throw new InvalidArgumentException("The resolution cannot be specified for individual output mode.");
         }
@@ -719,16 +705,11 @@ public class OpenTok {
      * @param sessionId The session ID of the connection
      * @param  connectionId The connection ID to disconnect
      */
-    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException, InvalidArgumentException, RequestException {
+    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-        try {
-            client.forceDisconnect(sessionId, connectionId);
-
-        } catch (Exception e) {
-            throw e;
-        }
+        client.forceDisconnect(sessionId, connectionId);
     }
 
     /**
@@ -747,11 +728,7 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty() || streamId == null || streamId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-        try {
-            client.forceMuteStream(sessionId, streamId);
-        } catch (Exception e) {
-            throw e;
-        }
+        client.forceMuteStream(sessionId, streamId);
     }
 
     /**
@@ -777,12 +754,7 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-
-        try {
-            client.forceMuteAllStream(sessionId, properties);
-        } catch (Exception e) {
-            throw e;
-        }
+        client.forceMuteAllStream(sessionId, properties);
     }
 
     /**
@@ -802,12 +774,7 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-
-        try {
-            client.disableForceMute(sessionId);
-        } catch (Exception e) {
-            throw e;
-        }
+        client.disableForceMute(sessionId);
     }
 
     /**

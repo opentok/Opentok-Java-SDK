@@ -77,11 +77,9 @@ public class OpenTokTest {
 
     /**
      * Test that a request throws exception if request exceeds configured timeout
-     *
-     * @throws OpenTokException
      */
     @Test
-    public void testConfigureRequestTimeout() throws OpenTokException {
+    public void testConfigureRequestTimeout() {
         assertThrows(RequestException.class, () -> {
             sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(6).build();
 
@@ -123,13 +121,11 @@ public class OpenTokTest {
     @Test
     public void testSignalWithEmptySessionID() throws OpenTokException {
         String sessionId = "";
-        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
         try {
             sdk.signal(sessionId, properties);
         } catch (InvalidArgumentException e) {
-
             assertEquals(e.getMessage(), "Session string null or empty");
         }
     }
@@ -137,8 +133,7 @@ public class OpenTokTest {
     @Test
     public void testSignalWithEmoji() throws OpenTokException {
         String sessionId = "SESSIONID";
-        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
-        Boolean exceptionThrown = false;
+        boolean exceptionThrown = false;
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("\uD83D\uDE01").build();
         try {
@@ -175,7 +170,6 @@ public class OpenTokTest {
     public void testSignalWithEmptyConnectionID() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "";
-        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId + "/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
         try {
@@ -190,7 +184,6 @@ public class OpenTokTest {
     public void testSignalWithConnectionIDAndEmptySessionID() throws OpenTokException {
         String sessionId = "";
         String connectionId = "CONNECTIONID";
-        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId + "/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
         try {
@@ -205,7 +198,6 @@ public class OpenTokTest {
     public void testSignalWithEmptySessionAndConnectionID() throws OpenTokException {
         String sessionId = "";
         String connectionId = "";
-        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId + "/signal";
 
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
         try {
@@ -310,7 +302,6 @@ public class OpenTokTest {
     @Test
     public void testCreateAlwaysArchivedSession() throws OpenTokException {
         String sessionId = "SESSIONID";
-        String locationHint = "12.34.56.78";
         stubFor(post(urlEqualTo(SESSION_CREATE))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -382,9 +373,8 @@ public class OpenTokTest {
             OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException {
 
-        int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
+        new OpenTok(123456, apiSecret);
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
 
         String token = sdk.generateToken(sessionId, new TokenOptions.Builder()
@@ -438,21 +428,21 @@ public class OpenTokTest {
         long inOneHour = now + (60 * 60);
         long inOneDay = now + (60 * 60 * 24);
         long inThirtyDays = now + (60 * 60 * 24 * 30);
-        ArrayList<Exception> exceptions = new ArrayList<Exception>();
+        ArrayList<Exception> exceptions = new ArrayList<>();
 
         String defaultToken = opentok.generateToken(sessionId);
         String oneHourToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
                 .expireTime(inOneHour)
                 .build());
         try {
-            String earlyExpireTimeToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+            opentok.generateToken(sessionId, new TokenOptions.Builder()
                     .expireTime(now - 10)
                     .build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
         try {
-            String lateExpireTimeToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
+            opentok.generateToken(sessionId, new TokenOptions.Builder()
                     .expireTime(inThirtyDays + (60 * 60 * 24) /* 31 days */)
                     .build());
         } catch (Exception exception) {
@@ -518,20 +508,20 @@ public class OpenTokTest {
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         OpenTok opentok = new OpenTok(apiKey, apiSecret);
-        ArrayList<Exception> exceptions = new ArrayList<Exception>();
+        ArrayList<Exception> exceptions = new ArrayList<>();
 
         try {
-            String nullSessionToken = opentok.generateToken(null);
+            opentok.generateToken(null);
         } catch (Exception e) {
             exceptions.add(e);
         }
         try {
-            String emptySessionToken = opentok.generateToken("");
+            opentok.generateToken("");
         } catch (Exception e) {
             exceptions.add(e);
         }
         try {
-            String invalidSessionToken = opentok.generateToken("NOT A VALID SESSION ID");
+            opentok.generateToken("NOT A VALID SESSION ID");
         } catch (Exception e) {
             exceptions.add(e);
         }
@@ -604,9 +594,7 @@ public class OpenTokTest {
     @Test
     public void testPatchArchivedExpectException() throws OpenTokException {
         String archiveId = "ARCHIVEID";
-        Exception exception = assertThrows(OpenTokException.class, () -> {
-            sdk.removeArchiveStream(archiveId, "");
-        });
+        Exception exception = assertThrows(OpenTokException.class, () -> sdk.removeArchiveStream(archiveId, ""));
         String got = exception.getMessage();
         String expected = "Could not patch archive, needs one of: addStream or removeStream";
         assertEquals(expected, got);
@@ -705,7 +693,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertTrue(archives.get(0) instanceof Archive);
+        assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -743,7 +731,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertTrue(archives.get(0) instanceof Archive);
+        assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlEqualTo(url)));
@@ -781,7 +769,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(1, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertTrue(archives.get(0) instanceof Archive);
+        assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -883,7 +871,7 @@ public class OpenTokTest {
         assertNotNull(archives);
         assertEquals(6, archives.size());
         assertEquals(60, archives.getTotalCount());
-        assertTrue(archives.get(0) instanceof Archive);
+        assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -896,18 +884,18 @@ public class OpenTokTest {
         int exceptionCount = 0;
         int testCount = 2;
         try {
-            ArchiveList archives = sdk.listArchives("");
+            sdk.listArchives("");
         } catch (InvalidArgumentException e) {
             assertEquals(e.getMessage(), "Session Id cannot be null or empty");
             exceptionCount++;
         }
         try {
-            ArchiveList archives = sdk.listArchives(null);
+            sdk.listArchives(null);
         } catch (InvalidArgumentException e) {
             assertEquals(e.getMessage(), "Session Id cannot be null or empty");
             exceptionCount++;
         }
-        assertTrue(exceptionCount == testCount);
+        assertEquals(exceptionCount, testCount);
     }
 
     @Test
@@ -921,13 +909,13 @@ public class OpenTokTest {
             exceptionCount++;
         }
         try {
-            ArchiveList archives = sdk.listArchives(0, 1200);
+            sdk.listArchives(0, 1200);
         } catch (InvalidArgumentException e) {
             assertEquals(e.getMessage(), "Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
             exceptionCount++;
         }
         try {
-            ArchiveList archives = sdk.listArchives(-10, 12);
+            sdk.listArchives(-10, 12);
         } catch (InvalidArgumentException e) {
             assertEquals(e.getMessage(), "Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
             exceptionCount++;
@@ -938,7 +926,7 @@ public class OpenTokTest {
             assertEquals(e.getMessage(), "Make sure count parameter value is >= 0 and/or offset parameter value is <=1000");
             exceptionCount++;
         }
-        assertTrue(exceptionCount == testCount);
+        assertEquals(exceptionCount, testCount);
     }
 
     @Test
@@ -1075,7 +1063,7 @@ public class OpenTokTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
         ValueMatchingStrategy strategy = new ValueMatchingStrategy();
-        String expectedJson = String.format("{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}");
+        String expectedJson = "{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}";
         strategy.setEqualToJson(expectedJson);
         sdk.setArchiveLayout(archiveId, properties);
         verify(putRequestedFor(urlMatching(url)).withRequestBody(strategy));
@@ -1091,7 +1079,7 @@ public class OpenTokTest {
         properties.layout().setType(ArchiveLayout.Type.PIP);
         try {
             sdk.setArchiveLayout(archiveId, properties);
-            assertTrue("Expected an exception, failing", false);
+            fail("Expected an exception, failing");
         } catch (InvalidArgumentException e) {
             assertEquals("Could not set the Archive layout. When screenshareType is set, type must be bestFit", e.getMessage());
         }
@@ -1119,7 +1107,6 @@ public class OpenTokTest {
         boolean exception = false;
         String archiveId = "ARCHIVEID";
         ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM)).build();
-        String url = "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
         try {
             sdk.setArchiveLayout(archiveId, properties);
         } catch (RequestException e) {
@@ -1146,7 +1133,6 @@ public class OpenTokTest {
     public void testSetArchiveLayoutWithNoProperties() throws OpenTokException {
         boolean exception = false;
         String archiveId = "ARCHIVEID";
-        String url = "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
         try {
             sdk.setArchiveLayout(archiveId, null);
         } catch (InvalidArgumentException e) {
@@ -1159,7 +1145,6 @@ public class OpenTokTest {
     public void testSetArchiveStreamsLayoutWithNoProps() throws OpenTokException {
         boolean exception = false;
         String sessionId = "SESSIONID";
-        String url = "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
         try {
             sdk.setStreamLayouts(sessionId, null);
         } catch (InvalidArgumentException e) {
@@ -1172,7 +1157,6 @@ public class OpenTokTest {
     public void testSetArchiveStreamsLayoutWithNoSessionID() throws OpenTokException {
         boolean exception = false;
         String sessionId = "";
-        String url = "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
         try {
             sdk.setStreamLayouts(sessionId, new StreamListProperties.Builder().build());
         } catch (InvalidArgumentException e) {
@@ -1667,19 +1651,19 @@ public class OpenTokTest {
         int exceptionCount = 0;
         BroadcastProperties properties = new BroadcastProperties.Builder().build();
         try {
-            Broadcast broadcast = sdk.startBroadcast("", properties);
+            sdk.startBroadcast("", properties);
         } catch (InvalidArgumentException e) {
-            exceptionCount += 1;
+            exceptionCount++;
         }
         try {
-            Broadcast broadcast = sdk.startBroadcast(null, properties);
+            sdk.startBroadcast(null, properties);
         } catch (InvalidArgumentException e) {
-            exceptionCount += 1;
+            exceptionCount++;
         }
         try {
-            Broadcast broadcast = sdk.startBroadcast("SESSIONID", null);
+            sdk.startBroadcast("SESSIONID", null);
         } catch (InvalidArgumentException e) {
-            exceptionCount += 1;
+            exceptionCount++;
         }
         assertEquals(3, exceptionCount);
     }
@@ -2028,9 +2012,7 @@ public class OpenTokTest {
     @Test
     public void testPatchBroadcastExpectException() throws OpenTokException {
         String broadcastId = "BROADCASTID";
-        Exception exception = assertThrows(OpenTokException.class, () -> {
-            sdk.removeBroadcastStream(broadcastId, "");
-        });
+        Exception exception = assertThrows(OpenTokException.class, () -> sdk.removeBroadcastStream(broadcastId, ""));
         String got = exception.getMessage();
         String expected = "Could not patch broadcast, needs one of: addStream or removeStream";
         assertEquals(expected, got);
@@ -2130,7 +2112,7 @@ public class OpenTokTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
-        String expectedJson = String.format("{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}", broadcastId);
+        String expectedJson = "{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}";
         ValueMatchingStrategy strategy = new ValueMatchingStrategy();
         strategy.setEqualToJson(expectedJson);
         sdk.setBroadcastLayout(broadcastId, properties);
@@ -2162,38 +2144,38 @@ public class OpenTokTest {
                 .password("password")
                 .build();
         try {
-            Sip sip = sdk.dial("", "TOKEN", properties);
+            sdk.dial("", "TOKEN", properties);
         } catch (InvalidArgumentException e) {
-            exceptionCaughtCount += 1;
+            exceptionCaughtCount++;
         }
         try {
-            Sip sip = sdk.dial(null, "TOKEN", properties);
+            sdk.dial(null, "TOKEN", properties);
         } catch (InvalidArgumentException e) {
-            exceptionCaughtCount += 1;
+            exceptionCaughtCount++;
         }
         try {
-            Sip sip = sdk.dial("SESSIONID", "", properties);
+            sdk.dial("SESSIONID", "", properties);
         } catch (InvalidArgumentException e) {
-            exceptionCaughtCount += 1;
+            exceptionCaughtCount++;
         }
         try {
-            Sip sip = sdk.dial("SESSIONID", null, properties);
+            sdk.dial("SESSIONID", null, properties);
         } catch (InvalidArgumentException e) {
-            exceptionCaughtCount += 1;
+            exceptionCaughtCount++;
         }
         try {
-            Sip sip = sdk.dial("SESSIONID", "TOKEN", null);
+           sdk.dial("SESSIONID", "TOKEN", null);
         } catch (InvalidArgumentException e) {
-            exceptionCaughtCount += 1;
+            exceptionCaughtCount++;
         }
         properties = new SipProperties.Builder()
                 .userName("username")
                 .password("password")
                 .build();
         try {
-            Sip sip = sdk.dial("SESSIONID", "TOKEN", properties);
+            sdk.dial("SESSIONID", "TOKEN", properties);
         } catch (InvalidArgumentException e) {
-            exceptionCaughtCount += 1;
+            exceptionCaughtCount++;
         }
         assertEquals(6, exceptionCaughtCount);
     }
@@ -2326,6 +2308,5 @@ public class OpenTokTest {
                 findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
-
 
 }
