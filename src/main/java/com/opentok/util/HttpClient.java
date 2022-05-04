@@ -59,7 +59,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
         Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
                 .setFormParams(paramsWithList)
-                .addHeader("Accept", "application/json") // XML version is deprecated
+                .setHeader("Accept", "application/json") // XML version is deprecated
                 .execute();
 
         try {
@@ -119,7 +119,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
     public String getArchive(String archiveId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId;
-        Future<Response> request = this.prepareGet(url).execute();
+        Future<Response> request = this.prepareGet(url)
+                .setHeader("Accept", "application/json")
+                .execute();
 
         try {
             Response response = request.get();
@@ -161,7 +163,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
             url += (url.contains("?") ? "&" : "?") + "sessionId=" + sessionId;
         }
 
-        Future<Response> request = this.prepareGet(url).execute();
+        Future<Response> request = this.prepareGet(url)
+                .setHeader("Accept", "application/json")
+                .execute();
 
         try {
             Response response = request.get();
@@ -221,6 +225,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         Future<Response> request = this.preparePost(url)
                 .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
                 .execute();
 
         try {
@@ -251,7 +256,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
     public String stopArchive(String archiveId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/stop";
-        Future<Response> request = this.preparePost(url).execute();
+        Future<Response> request = this.preparePost(url)
+                .setHeader("Accept", "application/json")
+                .execute();
 
         try {
             Response response = request.get();
@@ -490,6 +497,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
         requestJson.put("streamMode", properties.streamMode().toString());
+
         if (properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
             screenshareType = properties.layout().getScreenshareType();
@@ -511,6 +519,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
         }
+
         ObjectNode outputs = requestJson.putObject("outputs");
         if (properties.hasHls()) {
             ObjectNode hlsNode = nodeFactory.objectNode();
@@ -521,6 +530,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 hlsNode.put("lowLatency", hlsPojo.lowLatency());
             }
         }
+
         ArrayNode rtmp = outputs.putArray("rtmp");
         for (RtmpProperties prop : properties.rtmpList()) {
             ObjectNode rtmpProps = nodeFactory.objectNode();
@@ -540,6 +550,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         Future<Response> request = this.preparePost(url)
                 .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
                 .execute();
 
         try {
@@ -566,11 +577,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
 
     public String stopBroadcast(String broadcastId) throws OpenTokException {
-        String requestBody = null;
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/stop";
+
         Future<Response> request = this.preparePost(url)
-                .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
                 .execute();
 
         try {
@@ -595,14 +606,14 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
     }
 
-    public String getBroadcast(String broadcastId)
-            throws OpenTokException {
-        String requestBody = null;
+    public String getBroadcast(String broadcastId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId;
+
         Future<Response> request = this.prepareGet(url)
-                .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
                 .execute();
+
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {
@@ -629,13 +640,16 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/streams";
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
+
         if (removeStream != null && !removeStream.equals("")) {
             requestJson.put("removeStream", removeStream);
-        } else if(addStream != null && !addStream.equals("")) {
+        }
+        else if(addStream != null && !addStream.equals("")) {
             requestJson.put("hasAudio", hasAudio);
             requestJson.put("hasVideo", hasVideo);
             requestJson.put("addStream", addStream);
-        } else {
+        }
+        else {
             throw new InvalidArgumentException("Could not patch broadcast, needs one of: addStream or removeStream");
         }
 
@@ -682,6 +696,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String type = properties.layout().getType().toString();
         String stylesheet = properties.layout().getStylesheet();
         String screenshareLayout = null;
+
         if (StringUtils.isEmpty(type)) {
             throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
         }
@@ -695,10 +710,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
             screenshareLayout = properties.layout().getScreenshareType().toString();
         }
+
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/layout";
+
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("type", type);
+
         if (type.equals(BroadcastLayout.Type.CUSTOM.toString())) {
             requestJson.put("stylesheet", properties.layout().getStylesheet());
         }
@@ -716,6 +734,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
                 .execute();
+
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {
@@ -758,7 +777,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not force disconnect", e);
         }
-
     }
 
     public String sipDial(String sessionId, String token, SipProperties props) throws OpenTokException {
@@ -817,7 +835,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         Future<Response> request = this.preparePost(url)
                 .setBody(outputStream.toString())
                 .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
                 .execute();
+
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {
@@ -870,7 +890,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not play dtmf");
         }
-
     }
 
     public String playDtmfAll(String sessionId, String dtmfDigits) throws OpenTokException {
@@ -1031,7 +1050,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             + "sessionId: " + sessionId);
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
-
                 case 408:
                     throw new RequestException("You passed in an invalid stream ID.");
                 case 500:
@@ -1047,7 +1065,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
     public String listStreams(String sessionId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
-        Future<Response> request = this.prepareGet(url).execute();
+        Future<Response> request = this.prepareGet(url)
+                .setHeader("Accept", "application/json")
+                .execute();
 
         try {
             Response response = request.get();
@@ -1069,7 +1089,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get streams information", e);
         }
-
     }
 
     public enum ProxyAuthScheme {
