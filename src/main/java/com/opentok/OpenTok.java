@@ -28,7 +28,7 @@ import java.util.Map;
  * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
  * <p>
  * To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
- * and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not publicly share
+ * and the API secret for your <a href="https://tokbox.com/account">Vonage Video API account</a>. Do not publicly share
  * your API secret. You will use it with the OpenTok constructor (only on your web
  * server) to create OpenTok sessions.
  * <p>
@@ -58,8 +58,8 @@ public class OpenTok {
     /**
      * Creates an OpenTok object.
      *
-     * @param apiKey Your OpenTok API key. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
-     * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
+     * @param apiKey Your OpenTok API key. (See your <a href="https://tokbox.com/account">Vonage Video API account page</a>.)
+     * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">Vonage Video API account page</a>.)
      */
     public OpenTok(int apiKey, String apiSecret) {
         this.apiKey = apiKey;
@@ -107,7 +107,7 @@ public class OpenTok {
      * }
      * </pre>
      * <p>
-     * For testing, you can also generate tokens by logging in to your <a href="https://tokbox.com/account">TokBox account</a>.
+     * For testing, you can also generate tokens by logging in to your <a href="https://tokbox.com/account">Vonage Video API account</a>.
      *
      * @param sessionId The session ID corresponding to the session to which the user will connect.
      *
@@ -224,7 +224,7 @@ public class OpenTok {
      *
      * You can also create a session using the <a href="http://www.tokbox.com/opentok/api/#session_id_production">OpenTok
      * REST API</a> or or by logging in to your
-     * <a href="https://tokbox.com/account">TokBox account</a>.
+     * <a href="https://tokbox.com/account">Vonage Video API account</a>.
      *
      * @param properties This SessionProperties object defines options for the session.
      * These include the following:

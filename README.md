@@ -587,7 +587,7 @@ Reference documentation is available at
 ## Requirements
 
 You need an OpenTok API key and API secret, which you can obtain by logging into your
-[TokBox account](https://tokbox.com/account).
+[Vonage Video API account](https://tokbox.com/account).
 
 The OpenTok Java SDK requires JDK 8 or greater to compile. Runtime requires Java SE 8 or greater.
 This project is tested on both OpenJDK and Oracle implementations.
