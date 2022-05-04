@@ -105,7 +105,13 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo(path))
                 .willReturn(aResponse()
                         .withStatus(204)));
-        SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
+        SignalProperties properties = new SignalProperties.Builder()
+                .type("test")
+                .data("Signal test string")
+                .build();
+
+        properties.toMap();
+
         sdk.signal(sessionId, properties);
         verify(postRequestedFor(urlMatching(path)));
         verify(postRequestedFor(urlMatching(path))
@@ -560,6 +566,12 @@ public class OpenTokTest {
         Archive archive = sdk.getArchive(archiveId);
 
         assertNotNull(archive);
+        assertNotNull(archive.toString());
+        assertNull(archive.getPassword());
+        assertNotNull(archive.getStreamMode());
+        assertNotNull(archive.getReason());
+        assertTrue(archive.hasAudio());
+        assertTrue(archive.hasVideo());
         assertEquals(apiKey, archive.getPartnerId());
         assertEquals(archiveId, archive.getId());
         assertEquals(1395187836000L, archive.getCreatedAt());
@@ -948,7 +960,17 @@ public class OpenTokTest {
                                 "          \"status\" : \"started\",\n" +
                                 "          \"url\" : null\n" +
                                 "        }")));
-        ArchiveProperties properties = new ArchiveProperties.Builder().name(null).build();
+        ArchiveProperties properties = new ArchiveProperties.Builder()
+                .name(null)
+                .hasAudio(true)
+                .hasVideo(false)
+                .outputMode(OutputMode.COMPOSED)
+                .streamMode(Archive.StreamMode.AUTO)
+                .resolution("1920x1080")
+                .build();
+
+        properties.toMap();
+
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
@@ -982,7 +1004,12 @@ public class OpenTokTest {
         String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasVideo\":true,\"hasAudio\":true,\"outputMode\":\"composed\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}}",sessionId);
         ValueMatchingStrategy valueMatchingStrategy = new ValueMatchingStrategy();
         valueMatchingStrategy.setEqualToJson(expectedJson);
-        ArchiveLayout layout = new ArchiveLayout(ScreenShareLayoutType.PIP);
+
+        ArchiveLayout layout = new ArchiveLayout(ScreenShareLayoutType.BESTFIT);
+        assertEquals(ScreenShareLayoutType.BESTFIT, layout.getScreenshareType());
+        layout.setScreenshareType(ScreenShareLayoutType.PIP);
+        assertEquals(ScreenShareLayoutType.PIP, layout.getScreenshareType());
+
         ArchiveProperties properties = new ArchiveProperties.Builder().name(null).layout(layout).build();
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
@@ -1702,6 +1729,8 @@ public class OpenTokTest {
         RtmpProperties rtmpProps = new RtmpProperties.Builder().id("foo").serverUrl("rtmp://myfooserver/myfooapp").streamName("myfoostream").build();
         RtmpProperties rtmpNextProps = new RtmpProperties.Builder().id("bar").serverUrl("rtmp://mybarserver/mybarapp").streamName("mybarstream").build();
         BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.PIP);
+        new BroadcastLayout(ArchiveLayout.Type.BESTFIT, "style.css");
+
         BroadcastProperties properties = new BroadcastProperties.Builder()
                 .hasHls(true)
                 .addRtmpProperties(rtmpProps)
@@ -1709,10 +1738,24 @@ public class OpenTokTest {
                 .maxDuration(1000)
                 .resolution("640x480")
                 .layout(layout)
+                .streamMode(Broadcast.StreamMode.AUTO)
                 .build();
+
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         assertNotNull(broadcast);
+        Rtmp rtmp = broadcast.getRtmpList().get(0);
+        assertNotNull(rtmp);
+        assertNotNull(rtmp.getId());
+        assertNotNull(rtmp.getServerUrl());
+        assertNotNull(rtmp.getStreamName());
+        assertNotNull(broadcast.toString());
+        assertNotNull(broadcast.getStatus());
+        assertEquals("1280x720", broadcast.getResolution());
+        assertTrue(broadcast.getCreatedAt() > 0);
+        assertTrue(broadcast.getUpdatedAt() > -1);
+        assertTrue(broadcast.getProjectId() > -1);
         assertEquals(sessionId, broadcast.getSessionId());
+        assertEquals(Broadcast.StreamMode.AUTO, broadcast.getStreamMode());
         assertNotNull(broadcast.getId());
         verify(postRequestedFor(urlMatching(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
