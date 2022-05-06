@@ -50,7 +50,7 @@ public class OpenTok {
         broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
         renderReader = new ObjectMapper().readerFor(Render.class),
         renderListReader = new ObjectMapper().readerForListOf(Render.class),
-        connectReader = new ObjectMapper().readerFor(Connect.class);
+        connectReader = new ObjectMapper().readerFor(AudioStreamerConnection.class);
 
     static final String defaultApiUrl = "https://api.opentok.com";
 
@@ -875,7 +875,7 @@ public class OpenTok {
      * @return The Audio Stream response object from the server.
      *
      */
-    public Connect connectAudioStream(String sessionId, String token, ConnectProperties properties) throws OpenTokException {
+    public AudioStreamerConnection connectAudioStream(String sessionId, String token, AudioStreamerConnectionProperties properties) throws OpenTokException {
         try {
             return connectReader.readValue(client.connectAudioStream(sessionId, token, properties));
         } catch (JsonProcessingException ex) {

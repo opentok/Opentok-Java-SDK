@@ -14,9 +14,9 @@ import java.util.*;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#connectAudioStream(String, String, ConnectProperties)} method.
+ * {@link OpenTok#connectAudioStream(String, String, AudioStreamerConnectionProperties)} method.
  */
-public class ConnectProperties {
+public class AudioStreamerConnectionProperties {
 	private final URI uri;
 	private final Collection<String> streams;
 	private final Map<String, String> headers;
@@ -59,14 +59,14 @@ public class ConnectProperties {
 		return "websocket";
 	}
 
-	protected ConnectProperties(Builder builder) {
+	protected AudioStreamerConnectionProperties(Builder builder) {
 		this.uri = Objects.requireNonNull(builder.uri);
 		this.streams = builder.streams.isEmpty() ? null : Collections.unmodifiableCollection(builder.streams);
 		this.headers = builder.headers.isEmpty() ? null : Collections.unmodifiableMap(builder.headers);
 	}
 
 	/**
-	 * Intermediary stateful object used to construct {@link ConnectProperties}.
+	 * Intermediary stateful object used to construct {@link AudioStreamerConnectionProperties}.
 	 */
 	public static class Builder {
 		private URI uri;
@@ -178,10 +178,10 @@ public class ConnectProperties {
 		/**
 		 * Builds the ConnectProperties object.
 		 *
-		 * @return The constructed {@link ConnectProperties} object.
+		 * @return The constructed {@link AudioStreamerConnectionProperties} object.
 		 */
-		public ConnectProperties build() {
-			return new ConnectProperties(this);
+		public AudioStreamerConnectionProperties build() {
+			return new AudioStreamerConnectionProperties(this);
 		}
 	}
 

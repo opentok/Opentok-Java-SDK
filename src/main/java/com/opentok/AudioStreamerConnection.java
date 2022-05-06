@@ -15,20 +15,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Represents an Audio Stream connection response.
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Connect {
+public class AudioStreamerConnection {
 
 	@JsonProperty private String id;
 	@JsonProperty private String connectionId;
 
-	protected Connect() {}
+	protected AudioStreamerConnection() {}
 
 	/**
-	 * Do not call this method. To initiate a connection, call the
-	 * {@link OpenTok#connectAudioStream(String, String, ConnectProperties)} method.
+	 * Do not call this method. To initiate an audio stream connection to a session, call the
+	 * {@link OpenTok#connectAudioStream(String, String, AudioStreamerConnectionProperties)} method.
 	 */
 	@JsonCreator
-	public static Connect makeConnect() {
-		return new Connect();
+	public static AudioStreamerConnection makeAudioStreamerConnection() {
+		return new AudioStreamerConnection();
 	}
 
 	/**

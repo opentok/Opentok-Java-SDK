@@ -2545,14 +2545,14 @@ public class OpenTokTest {
                         .withStatus(200)
                 ));
 
-        ConnectProperties connectProperties = new ConnectProperties.Builder()
+        AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder()
                 .uri("ws://service.com/wsendpoint")
                 .addHeader("content-type", "audio/l16;rate=16000")
                 .addHeader("key1", "header1")
                 .addStreams("STREAMID1", "STREAMID2")
                 .build();
 
-        Connect connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
+        AudioStreamerConnection connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
 
         assertNotNull(connectResponse);
         assertEquals(connectionId, connectResponse.getConnectionId());
@@ -2574,14 +2574,16 @@ public class OpenTokTest {
                 )
         );
 
-        ConnectProperties connectProperties = new ConnectProperties.Builder()
-                .uri("ws://service.com/wsendpoint")
-                .build();
+        AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder()
+            .uri("ws://service.com/wsendpoint")
+            .addStreams()
+            .headers(Collections.emptyMap())
+            .build();
 
         assertTrue(connectProperties.streams() == null || connectProperties.streams().isEmpty());
         assertTrue(connectProperties.headers() == null || connectProperties.headers().isEmpty());
 
-        Connect connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
+        AudioStreamerConnection connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
 
         assertNotNull(connectResponse);
         assertEquals(connectionId, connectResponse.getConnectionId());
@@ -2598,9 +2600,9 @@ public class OpenTokTest {
                 .willReturn(aResponse().withStatus(503))
         );
 
-        ConnectProperties connectProperties = new ConnectProperties.Builder()
-                .uri("ws://service.com/wsendpoint")
-                .build();
+        AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder()
+            .uri("ws://service.com/wsendpoint")
+            .build();
 
         assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
     }
@@ -2609,9 +2611,9 @@ public class OpenTokTest {
     public void testConnectAudioStreamErrors() throws OpenTokException {
         String url = "/v2/project/" + apiKey + "/connect";
         String sessionId = UUID.randomUUID().toString();
-        ConnectProperties connectProperties = new ConnectProperties.Builder()
-                .uri("ws://service.com/wsendpoint")
-                .build();
+        AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder()
+            .uri("ws://service.com/wsendpoint")
+            .build();
 
         stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(400)));
         assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
@@ -2629,33 +2631,32 @@ public class OpenTokTest {
     @Test
     public void testConnectProperties() {
         assertThrows(
-                "Should not be possible to construct audio stream without URI",
-                Exception.class,
-                () -> new ConnectProperties.Builder().build()
+    "Should not be possible to construct audio stream without URI",
+            Exception.class,
+            () -> new AudioStreamerConnectionProperties.Builder().build()
         );
         String uriStr = "ws://service.com/wsendpoint";
-        ConnectProperties cp1 = new ConnectProperties.Builder().uri(uriStr).build();
+        AudioStreamerConnectionProperties cp1 = new AudioStreamerConnectionProperties.Builder().uri(uriStr).build();
         assertTrue(cp1.headers() == null || cp1.headers().isEmpty());
         assertTrue(cp1.streams() == null || cp1.streams().isEmpty());
         assertNotNull(cp1.uri());
         assertNotNull(cp1.type());
 
-        // To increase code coverage
-        new ConnectProperties.Builder()
-                .streams(new HashSet<>())
-                .headers(new HashMap<>())
-                .addStream("STREAMID")
-                .addStreams(new LinkedList<>())
-                .addHeader("k1", "v1")
-                .uri(uriStr)
-                .build();
+        AudioStreamerConnectionProperties cp2 = new AudioStreamerConnectionProperties.Builder()
+            .streams(new HashSet<>())
+            .headers(new HashMap<>())
+            .addStream("STREAMID")
+            .addStreams(new LinkedList<>())
+            .addHeader("k1", "v1")
+            .uri(uriStr)
+            .build();
 
         assertThrows(UnsupportedOperationException.class, () -> cp2.headers().put("k2", "v2"));
         assertThrows(UnsupportedOperationException.class, () -> cp2.headers().clear());
         assertThrows(UnsupportedOperationException.class, () -> cp2.streams().add("streamID_2"));
         assertThrows(UnsupportedOperationException.class, () -> cp2.streams().clear());
 
-        assertThrows(IllegalArgumentException.class, () -> new ConnectProperties.Builder().addHeader(" ", "value"));
-        assertThrows(IllegalArgumentException.class, () -> new ConnectProperties.Builder().addStream(" "));
+        assertThrows(IllegalArgumentException.class, () -> new AudioStreamerConnectionProperties.Builder().addHeader(" ", "value"));
+        assertThrows(IllegalArgumentException.class, () -> new AudioStreamerConnectionProperties.Builder().addStream(" "));
     }
 }
