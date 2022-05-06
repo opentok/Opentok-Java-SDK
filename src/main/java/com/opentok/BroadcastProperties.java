@@ -114,7 +114,7 @@ public class BroadcastProperties {
          * @return The BroadcastProperties.Builder object with the list of RtmpProperties setting.
          */
         public Builder addRtmpProperties (RtmpProperties rtmpProps) throws InvalidArgumentException {
-            if(this.rtmpList.size() >= 5) {
+            if (this.rtmpList.size() >= 5) {
                 throw new InvalidArgumentException("Cannot add more than 5 RtmpProperties properties");
             }
             this.rtmpList.add(rtmpProps);

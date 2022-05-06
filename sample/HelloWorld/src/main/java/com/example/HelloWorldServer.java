@@ -40,7 +40,7 @@ public class HelloWorldServer {
                     e.printStackTrace();
                 }
 
-                Map<String, Object> attributes = new HashMap<String, Object>();
+                Map<String, Object> attributes = new HashMap<>();
                 attributes.put("apiKey", apiKey);
                 attributes.put("sessionId", sessionId);
                 attributes.put("token", token);

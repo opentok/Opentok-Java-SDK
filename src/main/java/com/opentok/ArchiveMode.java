@@ -27,7 +27,7 @@ public enum ArchiveMode {
 
     private String serialized;
 
-    private ArchiveMode(String s) {
+    ArchiveMode(String s) {
         serialized = s;
     }
 

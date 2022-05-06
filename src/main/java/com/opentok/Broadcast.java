@@ -11,10 +11,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -161,7 +161,7 @@ public class Broadcast {
     public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             return "";
         }
     }

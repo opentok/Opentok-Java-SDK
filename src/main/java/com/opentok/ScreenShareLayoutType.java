@@ -33,7 +33,7 @@ public enum ScreenShareLayoutType {
 
         private String serialized;
 
-        private ScreenShareLayoutType(String s) {
+        ScreenShareLayoutType(String s) {
             serialized = s;
         }
 

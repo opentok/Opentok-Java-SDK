@@ -8,7 +8,6 @@
 package com.opentok;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

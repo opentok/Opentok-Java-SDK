@@ -14,14 +14,14 @@ package com.opentok;
  * @see OpenTok#dial(String, String, SipProperties)
  */
 public class SipProperties {
-    private String sipUri = null;
-    private String from = null;
-    private String userName = null;
-    private String password = null;
-    private String headersJsonStartingWithXDash = null;
-    private Boolean secure = false;
-    private Boolean video = false;
-    private Boolean observeForceMute = false;
+    private String sipUri;
+    private String from;
+    private String userName;
+    private String password;
+    private String headersJsonStartingWithXDash;
+    private Boolean secure;
+    private Boolean video;
+    private Boolean observeForceMute;
 
     private SipProperties(Builder builder) {
         this.sipUri = builder.sipUri;

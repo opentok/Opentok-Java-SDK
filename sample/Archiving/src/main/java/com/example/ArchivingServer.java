@@ -4,8 +4,6 @@ import static spark.Spark.*;
 
 import com.opentok.*;
 import com.opentok.Archive.OutputMode;
-import com.opentok.ArchiveLayout;
-import com.opentok.ArchiveProperties;
 
 import spark.*;
 
@@ -56,7 +54,7 @@ public class ArchivingServer {
             public ModelAndView handle(Request request, Response response) {
 
                 String token = null;
-                ArrayList<String> layoutClassList = new ArrayList<String>();
+                ArrayList<String> layoutClassList = new ArrayList<>();
                 layoutClassList.add("focus");
                 try {
                     token = opentok.generateToken(sessionId, new TokenOptions.Builder()
@@ -67,7 +65,7 @@ public class ArchivingServer {
                     e.printStackTrace();
                 }
 
-                Map<String, Object> attributes = new HashMap<String, Object>();
+                Map<String, Object> attributes = new HashMap<>();
                 attributes.put("apiKey", apiKey);
                 attributes.put("sessionId", sessionId);
                 attributes.put("token", token);
@@ -91,7 +89,7 @@ public class ArchivingServer {
                     e.printStackTrace();
                 }
 
-                Map<String, Object> attributes = new HashMap<String, Object>();
+                Map<String, Object> attributes = new HashMap<>();
                 attributes.put("apiKey", apiKey);
                 attributes.put("sessionId", sessionId);
                 attributes.put("token", token);
@@ -122,7 +120,7 @@ public class ArchivingServer {
                     e.printStackTrace();
                 }
 
-                Map<String, Object> attributes = new HashMap<String, Object>();
+                Map<String, Object> attributes = new HashMap<>();
                 attributes.put("archives", archives);
                 attributes.put("showPrevious", null);
                 // TODO: we don't have a total count, how do we know if there is a next page?
@@ -140,7 +138,7 @@ public class ArchivingServer {
             @Override
             public Object handle(Request request, Response response) {
 
-                Archive archive = null;
+                Archive archive;
                 try {
                     archive = opentok.getArchive(request.params("archiveId"));
                 } catch (OpenTokException e) {
@@ -157,7 +155,7 @@ public class ArchivingServer {
             @Override
             public Object handle(Request request, Response response) {
 
-                Archive archive = null;
+                Archive archive;
                 HttpServletRequest req = request.raw();
                 boolean hasAudio = req.getParameterMap().containsKey("hasAudio");
                 boolean hasVideo = req.getParameterMap().containsKey("hasVideo");
@@ -188,7 +186,7 @@ public class ArchivingServer {
             @Override
             public Object handle(Request request, Response response) {
 
-                Archive archive = null;
+                Archive archive;
                 try {
                     archive = opentok.stopArchive(request.params("archiveId"));
                 } catch (OpenTokException e) {
@@ -240,7 +238,7 @@ public class ArchivingServer {
         post(new Route("/focus") {
             @Override
             public Object handle(Request request, Response response) {
-                ArrayList<String> otherStreams = new ArrayList<String>();
+                ArrayList<String> otherStreams = new ArrayList<>();
                 HttpServletRequest req = request.raw();
                 String newFocusStreamId = req.getParameterMap().get("focus")[0];
 

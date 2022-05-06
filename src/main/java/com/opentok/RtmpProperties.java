@@ -16,9 +16,9 @@ package com.opentok;
  * @see OpenTok#startBroadcast(String, BroadcastProperties) 
  */
 public class RtmpProperties {
-    private String id = null;
-    private String serverUrl = null;
-    private String streamName = null;
+    private String id;
+    private String serverUrl;
+    private String streamName;
 
     private RtmpProperties(RtmpProperties.Builder builder) {
         this.id = builder.id;
