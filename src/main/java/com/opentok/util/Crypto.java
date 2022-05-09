@@ -8,6 +8,7 @@
 package com.opentok.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -45,7 +46,7 @@ public class Crypto {
         sessionId = sessionId.substring(2);
         sessionId = sessionId.replaceAll("-", "+").replaceAll("_", "/");
         byte[] buffer = Base64.decodeBase64(sessionId);
-        sessionId = new String(buffer, "UTF-8");
-        return new ArrayList<String>(Arrays.asList(sessionId.split("~")));
+        sessionId = new String(buffer, StandardCharsets.UTF_8);
+        return new ArrayList<>(Arrays.asList(sessionId.split("~")));
     }
 }

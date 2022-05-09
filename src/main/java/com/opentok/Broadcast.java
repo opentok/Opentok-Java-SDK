@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -84,7 +85,6 @@ public class Broadcast {
         return sessionId;
     }
 
-
     /**
      * The OpenTok API key associated with the broadcast.
      */
@@ -98,12 +98,14 @@ public class Broadcast {
     public long getCreatedAt() {
         return createdAt;
     }
+
     /**
      * The time at which the broadcast was updated, in milliseconds since the Unix epoch.
      */
     public long getUpdatedAt() {
         return updatedAt;
     }
+
     /**
      * The broadcast resolution.
      */
@@ -117,6 +119,7 @@ public class Broadcast {
     public String getStatus() {
         return status;
     }
+
     /**
      * Details on the HLS and RTMP broadcast streams. For an HLS stream, the URL is provided.
      * See the <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">OpenTok
@@ -125,12 +128,13 @@ public class Broadcast {
      * stream's status.
      */
     @JsonProperty("broadcastUrls")
+    @SuppressWarnings("unchecked")
     private void unpack(Map<String,Object> broadcastUrls) {
         if (broadcastUrls == null) return;
-        hls = (String)broadcastUrls.get("hls");
-        ArrayList<Map<String,String>> rtmpResponse = (ArrayList<Map<String,String>>)broadcastUrls.get("rtmp");
-        if (rtmpResponse == null || rtmpResponse.size() == 0) return;
-        for ( Map<String,String> element : rtmpResponse) {
+        hls = (String) broadcastUrls.get("hls");
+        Iterable<Map<String,String>> rtmpResponse = (Iterable<Map<String,String>>)broadcastUrls.get("rtmp");
+        if (rtmpResponse == null) return;
+        for (Map<String,String> element : rtmpResponse) {
             Rtmp rtmp = new Rtmp();
             rtmp.setId(element.get("id"));
             rtmp.setServerUrl(element.get("serverUrl"));
@@ -138,23 +142,26 @@ public class Broadcast {
             this.rtmpList.add(rtmp);
         }
     }
+
     /**
      * The HLS URL (if there is one) of the broadcast.
      */
     public String getHls() {
         return hls;
     }
+
     /**
     * A list of RTMP URLs (if there are any) of the broadcast.
      */
     public List<Rtmp> getRtmpList() {
         return rtmpList;
     }
+
     @Override
     public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             return "";
         }
     }

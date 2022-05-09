@@ -10,11 +10,11 @@ package com.opentok;
 import com.opentok.exception.OpenTokException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.util.Crypto;
@@ -117,48 +117,53 @@ public class Session {
         Role role = tokenOptions.getRole();
         double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
         String data = tokenOptions.getData();             // will be null if nothing was explicitly set
-        Long create_time = new Long(System.currentTimeMillis() / 1000).longValue();
+        long create_time = System.currentTimeMillis() / 1000;
 
         StringBuilder dataStringBuilder = new StringBuilder();
         Random random = new Random();
         int nonce = random.nextInt();
-        dataStringBuilder.append("session_id=");
-        dataStringBuilder.append(sessionId);
-        dataStringBuilder.append("&create_time=");
-        dataStringBuilder.append(create_time);
-        dataStringBuilder.append("&nonce=");
-        dataStringBuilder.append(nonce);
-        dataStringBuilder.append("&role=");
-        dataStringBuilder.append(role);
-        if(tokenOptions.getInitialLayoutClassList() != null ){
+        dataStringBuilder
+            .append("session_id=").append(sessionId)
+            .append("&create_time=").append(create_time)
+            .append("&nonce=").append(nonce)
+            .append("&role=").append(role);
+
+        if (tokenOptions.getInitialLayoutClassList() != null ) {
             dataStringBuilder.append("&initial_layout_class_list=");
-            dataStringBuilder.append(tokenOptions.getInitialLayoutClassList().stream().collect(Collectors.joining(" ")));
+            dataStringBuilder.append(String.join(" ", tokenOptions.getInitialLayoutClassList()));
         }
 
-        double now = System.currentTimeMillis() / 1000L;
+        long now = System.currentTimeMillis() / 1000L;
         if (expireTime == 0) {
             expireTime = now + (60*60*24); // 1 day
-        } else if(expireTime < now-1) {
+        }
+        else if (expireTime < now) {
             throw new InvalidArgumentException(
-                    "Expire time must be in the future. relative time: "+ (expireTime - now));
-        } else if(expireTime > (now + (60*60*24*30) /* 30 days */)) {
+                    "Expire time must be in the future. Relative time: "+ (expireTime - now)
+            );
+        }
+        else if (expireTime > (now + (60*60*24*30) /* 30 days */)) {
             throw new InvalidArgumentException(
-                    "Expire time must be in the next 30 days. too large by "+ (expireTime - (now + (60*60*24*30))));
+                "Expire time must be in the next 30 days. Too large by "+ (expireTime - (now + (60*60*24*30)))
+            );
         }
         // NOTE: Double.toString() would print the value with scientific notation
         dataStringBuilder.append(String.format("&expire_time=%.0f", expireTime));
 
         if (data != null) {
-            if(data.length() > 1000) {
+            if (data.length() > 1000) {
                 throw new InvalidArgumentException(
-                        "Connection data must be less than 1000 characters. length: " + data.length());
+                    "Connection data must be less than 1000 characters. length: " + data.length()
+                );
             }
             dataStringBuilder.append("&connection_data=");
             try {
                 dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
+            }
+            catch (UnsupportedEncodingException e) {
                 throw new InvalidArgumentException(
-                        "Error during URL encode of your connection data: " +  e.getMessage());
+                    "Error during URL encode of your connection data: " +  e.getMessage()
+                );
             }
         }
 
@@ -167,26 +172,21 @@ public class Session {
         try {
             tokenStringBuilder.append("T1==");
 
-            StringBuilder innerBuilder = new StringBuilder();
-            innerBuilder.append("partner_id=");
-            innerBuilder.append(this.apiKey);
-
-            innerBuilder.append("&sig=");
-
-            innerBuilder.append(Crypto.signData(dataStringBuilder.toString(), this.apiSecret));
-            innerBuilder.append(":");
-            innerBuilder.append(dataStringBuilder.toString());
+            String innerBuilder = "partner_id=" +
+                    this.apiKey +
+                    "&sig=" +
+                    Crypto.signData(dataStringBuilder.toString(), this.apiSecret) +
+                    ":" +
+                    dataStringBuilder;
 
             tokenStringBuilder.append(
-                    Base64.encodeBase64String(
-                            innerBuilder.toString().getBytes("UTF-8")
-                    )
-                            .replace("+", "-")
-                            .replace("/", "_")
+                    Base64.encodeBase64String(innerBuilder.getBytes(StandardCharsets.UTF_8))
+                        .replace("+", "-")
+                        .replace("/", "_")
             );
 
-        } catch (SignatureException | NoSuchAlgorithmException
-                | InvalidKeyException | UnsupportedEncodingException e) {
+        }
+        catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new OpenTokException("Could not generate token, a signing error occurred.", e);
         }
 

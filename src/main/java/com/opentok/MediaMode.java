@@ -25,7 +25,7 @@ public enum MediaMode {
 
     private String serialized;
 
-    private MediaMode(String s) {
+    MediaMode(String s) {
         serialized = s;
     }
 

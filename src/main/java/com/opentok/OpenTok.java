@@ -28,7 +28,7 @@ import java.util.Map;
  * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
  * <p>
  * To create a new OpenTok object, call the OpenTok constructor with your OpenTok API key
- * and the API secret for your <a href="https://tokbox.com/account">TokBox account</a>. Do not publicly share
+ * and the API secret for your <a href="https://tokbox.com/account">Vonage Video API account</a>. Do not publicly share
  * your API secret. You will use it with the OpenTok constructor (only on your web
  * server) to create OpenTok sessions.
  * <p>
@@ -58,8 +58,8 @@ public class OpenTok {
     /**
      * Creates an OpenTok object.
      *
-     * @param apiKey Your OpenTok API key. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
-     * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">TokBox account page</a>.)
+     * @param apiKey Your OpenTok API key. (See your <a href="https://tokbox.com/account">Vonage Video API account page</a>.)
+     * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">Vonage Video API account page</a>.)
      */
     public OpenTok(int apiKey, String apiSecret) {
         this.apiKey = apiKey;
@@ -107,7 +107,7 @@ public class OpenTok {
      * }
      * </pre>
      * <p>
-     * For testing, you can also generate tokens by logging in to your <a href="https://tokbox.com/account">TokBox account</a>.
+     * For testing, you can also generate tokens by logging in to your <a href="https://tokbox.com/account">Vonage Video API account</a>.
      *
      * @param sessionId The session ID corresponding to the session to which the user will connect.
      *
@@ -123,8 +123,8 @@ public class OpenTok {
      * @return The token string.
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
-        List<String> sessionIdParts = null;
-        if (sessionId == null || sessionId == "") {
+        List<String> sessionIdParts;
+        if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session not valid");
         }
 
@@ -224,7 +224,7 @@ public class OpenTok {
      *
      * You can also create a session using the <a href="http://www.tokbox.com/opentok/api/#session_id_production">OpenTok
      * REST API</a> or or by logging in to your
-     * <a href="https://tokbox.com/account">TokBox account</a>.
+     * <a href="https://tokbox.com/account">Vonage Video API account</a>.
      *
      * @param properties This SessionProperties object defines options for the session.
      * These include the following:
@@ -309,18 +309,11 @@ public class OpenTok {
      * @param sessionId The session ID.
      * @param props The SignalProperties object that defines the data and type of the signal.
      */
-    public void signal(String sessionId, SignalProperties props) throws OpenTokException , RequestException, InvalidArgumentException {
-
-
+    public void signal(String sessionId, SignalProperties props) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session string null or empty");
         }
-        try {
-            client.signal(sessionId, null, props);
-        } catch (Exception e) {
-            throw e;
-        }
-
+        client.signal(sessionId, null, props);
     }
 
     /**
@@ -331,20 +324,14 @@ public class OpenTok {
      * <a href="https://tokbox.com/developer/guides/signaling/">Signaling developer guide</a>.
      *
      * @param sessionId The session ID.
-     * @param sessionId The connection ID of the client to receive the signal.
+     * @param connectionId The connection ID of the client to receive the signal.
      * @param props The SignalProperties object that defines the data and type of the signal.
      */
-    public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException , RequestException , InvalidArgumentException {
-
+    public void signal(String sessionId, String connectionId, SignalProperties props) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-        try {
-            client.signal(sessionId, connectionId, props);
-        } catch (Exception e) {
-            throw e;
-        }
-
+        client.signal(sessionId, connectionId, props);
     }
 
     /**
@@ -360,7 +347,6 @@ public class OpenTok {
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
-
     }
 
     /**
@@ -424,8 +410,6 @@ public class OpenTok {
             return archiveListReader.readValue(archives);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
 
@@ -452,10 +436,10 @@ public class OpenTok {
      * @return The Archive object. This object includes properties defining the archive, including the archive ID.
      */
     public Archive startArchive(String sessionId, ArchiveProperties properties) throws OpenTokException {
-        if (sessionId == null || sessionId == "") {
+        if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session not valid");
         }
-        Boolean hasResolution = properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
+        boolean hasResolution = properties != null && properties.resolution() != null && !properties.resolution().isEmpty();
         if (properties != null && properties.outputMode().equals(Archive.OutputMode.INDIVIDUAL) && hasResolution) {
             throw new InvalidArgumentException("The resolution cannot be specified for individual output mode.");
         }
@@ -584,14 +568,13 @@ public class OpenTok {
      * including the broadcast ID.
      */
     public Broadcast startBroadcast(String sessionId, BroadcastProperties properties) throws OpenTokException {
-        if (StringUtils.isEmpty(sessionId) || (properties == null)) {
+        if (StringUtils.isEmpty(sessionId) || properties == null) {
             throw new InvalidArgumentException("Session not valid or broadcast properties is null");
         }
 
         String broadcast = client.startBroadcast(sessionId, properties);
         try {
-            return broadcastReader.readValue(
-                    broadcast);
+            return broadcastReader.readValue(broadcast);
         } catch (Exception e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
@@ -722,16 +705,11 @@ public class OpenTok {
      * @param sessionId The session ID of the connection
      * @param  connectionId The connection ID to disconnect
      */
-    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException, InvalidArgumentException, RequestException {
+    public void forceDisconnect(String sessionId, String connectionId) throws OpenTokException {
         if (sessionId == null || sessionId.isEmpty() || connectionId == null || connectionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-        try {
-            client.forceDisconnect(sessionId, connectionId);
-
-        } catch (Exception e) {
-            throw e;
-        }
+        client.forceDisconnect(sessionId, connectionId);
     }
 
     /**
@@ -750,11 +728,7 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty() || streamId == null || streamId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-        try {
-            client.forceMuteStream(sessionId, streamId);
-        } catch (Exception e) {
-            throw e;
-        }
+        client.forceMuteStream(sessionId, streamId);
     }
 
     /**
@@ -780,12 +754,7 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-
-        try {
-            client.forceMuteAllStream(sessionId, properties);
-        } catch (Exception e) {
-            throw e;
-        }
+        client.forceMuteAllStream(sessionId, properties);
     }
 
     /**
@@ -805,12 +774,7 @@ public class OpenTok {
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session or Connection string null or empty");
         }
-
-        try {
-            client.disableForceMute(sessionId);
-        } catch (Exception e) {
-            throw e;
-        }
+        client.disableForceMute(sessionId);
     }
 
     /**
@@ -842,8 +806,6 @@ public class OpenTok {
             return streamListReader.readValue(streams);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
 
@@ -870,8 +832,6 @@ public class OpenTok {
         try {
             return sipReader.readValue(sip);
         } catch (JsonProcessingException e) {
-            throw new RequestException("Exception mapping json: " + e.getMessage());
-        } catch (IOException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
