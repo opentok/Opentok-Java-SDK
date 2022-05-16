@@ -1,3 +1,5 @@
+import java.time.LocalDate
+
 plugins {
     id 'java-library'
     id 'jacoco'
@@ -25,7 +27,7 @@ dependencies {
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2.2'
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'org.bitbucket.b_c:jose4j:0.7.11'
+    implementation 'org.bitbucket.b_c:jose4j:0.7.12'
 }
 
 task sourcesJar(type: Jar) {
@@ -62,18 +64,19 @@ jacocoTestReport {
 }
 check.dependsOn jacocoTestReport
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 license {
     header rootProject.file('codequality/HEADER')
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.year = LocalDate.now().getYear()
 }
 
 artifacts {
     archives javadocJar, sourcesJar
 }
-
-ext.isReleaseVersion = hasProperty('isReleaseVersion') ? isReleaseVersion : false
-ext.ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : 'dummyuser'
-ext.ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : 'dummypass'
 
 publishing {
     publications {
@@ -116,7 +119,7 @@ publishing {
                         organization = 'Vonage'
                     }
                     developer {
-                        id = 'SMadani'
+                        id = 'smadani'
                         name = 'Sina Madani'
                         email = 'sina.madani@vonage.com'
                         organization = 'Vonage'
