@@ -2,7 +2,7 @@
 
 . ./secret.sh
 
-./gradlew uploadArchives \
+./gradlew clean publish --info --build-cache \
   -PisReleaseVersion=1 \
   -Psigning.keyId="${GPG_KEYID}" \
   -Psigning.password="${GPG_PASSWORD}" \
