@@ -1714,6 +1714,7 @@ public class OpenTokTest {
                                 "          \"upDatedAt\" : 1437676551000,\n" +
                                 "          \"resolution\" : \"1280x720\",\n" +
                                 "          \"status\" : \"started\",\n" +
+                                "          \"multiBroadcastTag\" : \"MyVideoBroadcastTag\",\n" +
                                 "          \"broadcastUrls\" : {" +
                                 "           \"hls\" : \"http://server/fakepath/playlist.m3u8\"," +
                                 "           \"rtmp\" : [{" +
@@ -1740,6 +1741,7 @@ public class OpenTokTest {
                 .addRtmpProperties(rtmpNextProps)
                 .maxDuration(1000)
                 .resolution("640x480")
+                .multiBroadcastTag("MyVideoBroadcastTag")
                 .layout(layout)
                 .streamMode(Broadcast.StreamMode.AUTO)
                 .build();
@@ -1758,6 +1760,7 @@ public class OpenTokTest {
         assertTrue(broadcast.getUpdatedAt() > -1);
         assertTrue(broadcast.getProjectId() > -1);
         assertEquals(sessionId, broadcast.getSessionId());
+        assertEquals("MyVideoBroadcastTag", broadcast.getMultiBroadcastTag());
         assertEquals(Broadcast.StreamMode.AUTO, broadcast.getStreamMode());
         assertNotNull(broadcast.getId());
         verify(postRequestedFor(urlMatching(url)));

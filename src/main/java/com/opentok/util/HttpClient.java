@@ -522,6 +522,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
         }
+        if (properties.getMultiBroadcastTag() != null) {
+            requestJson.put("multiBroadcastTag", properties.getMultiBroadcastTag());
+        }
 
         ObjectNode outputs = requestJson.putObject("outputs");
         if (properties.hasHls()) {
