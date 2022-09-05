@@ -63,8 +63,9 @@ public class Archive {
          */
         EXPIRED;
 
-        @JsonValue public String toString() {
-            return super.toString().toLowerCase();
+        @JsonValue
+        public String toString() {
+            return name().toLowerCase();
         }
     }
 
@@ -105,7 +106,10 @@ public class Archive {
          */
         MANUAL;
 
-        @JsonValue public String toString() { return super.toString().toLowerCase(); }
+        @JsonValue
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 
     @JsonProperty private long createdAt;
@@ -124,6 +128,7 @@ public class Archive {
     @JsonProperty private StreamMode streamMode = StreamMode.AUTO;
     @JsonProperty private String password;
     @JsonProperty private String resolution;
+    @JsonProperty private String multiArchiveTag;
 
     protected Archive() {
     }
@@ -250,6 +255,14 @@ public class Archive {
      */
     public String getPassword() {
         return password;
+    }
+
+    /**
+     * The MultiArchiveTag is the tag of the archive, with which to start, this is unique for each archive
+     * within session. If this was set in the request, this response will include a new archive ID.
+     */
+    public String getMultiArchiveTag() {
+        return multiArchiveTag;
     }
 
     @Override

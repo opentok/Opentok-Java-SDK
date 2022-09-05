@@ -25,7 +25,7 @@ dependencies {
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'org.bitbucket.b_c:jose4j:0.7.12'
 }
@@ -150,8 +150,8 @@ publishing {
 }
 
 signing {
-    def signingKey = System.getenv("signingKey")
-    def signingPassword = System.getenv("signingPassword")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }

@@ -23,10 +23,9 @@ import java.util.Map;
  * @see OpenTok#createSession(com.opentok.SessionProperties properties)
  */
 public class ArchiveProperties {
-
-
     private String name;
     private String resolution;
+    private String multiArchiveTag;
     private boolean hasAudio;
     private boolean hasVideo;
     private OutputMode outputMode;
@@ -41,6 +40,7 @@ public class ArchiveProperties {
         this.outputMode = builder.outputMode;
         this.streamMode = builder.streamMode;
         this.layout = builder.layout;
+        this.multiArchiveTag = builder.multiArchiveTag;
     }
 
     /**
@@ -51,6 +51,7 @@ public class ArchiveProperties {
     public static class Builder {
         private String name = null;
         private String resolution = null;
+        private String multiArchiveTag = null;
         private boolean hasAudio = true;
         private boolean hasVideo = true;
         private OutputMode outputMode = OutputMode.COMPOSED;
@@ -125,7 +126,7 @@ public class ArchiveProperties {
 
         /**
          * Sets the stream mode for this archive.
-         *
+         * <p>
          * When streams are selected automatically (<code>StreamMode.AUTO</code>, the default), all
          * streams in the session can be included in the archive. When streams are selected manually
          * (<code>StreamMode.MANUAL</code>), you specify streams to be included based on calls
@@ -151,10 +152,23 @@ public class ArchiveProperties {
          *
          * @param layout An object of type {@link ArchiveLayout} .
          *
-         * @return The ArchiveProperties.Builder object with the output mode setting.
+         * @return The ArchiveProperties.Builder object with the layout setting.
          */
         public Builder layout(ArchiveLayout layout) {
             this.layout = layout;
+            return this;
+        }
+
+        /**
+         * A unique MultiArchiveTag will trigger a new archive on the session.
+         * (Note: If no tag is provided only one archive will be allowed, to preserve backward compatibility).
+         *
+         * @param multiArchiveTag A unique archive tag.
+         *
+         * @return The ArchiveProperties.Builder object with the MultiArchiveTag setting.
+         */
+        public Builder multiArchiveTag(String multiArchiveTag) {
+            this.multiArchiveTag = multiArchiveTag;
             return this;
         }
 
@@ -180,6 +194,13 @@ public class ArchiveProperties {
      */
     public String resolution() {
         return resolution;
+    }
+
+    /**
+     * Returns the multiArchiveTag, if present.
+     */
+    public String getMultiArchiveTag() {
+        return multiArchiveTag;
     }
 
     /**
@@ -250,6 +271,12 @@ public class ArchiveProperties {
             valueList = new ArrayList<>();
             valueList.add(layout.toString());
             params.put("layout", valueList);
+        }
+
+        if (multiArchiveTag != null) {
+            valueList = new ArrayList<>();
+            valueList.add(multiArchiveTag);
+            params.put("multiArchiveTag", valueList);
         }
 
         return params;

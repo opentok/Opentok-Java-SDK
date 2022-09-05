@@ -215,6 +215,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
         }
+        if (properties.getMultiArchiveTag() != null) {
+            requestJson.put("multiArchiveTag", properties.getMultiArchiveTag());
+        }
 
         String requestBody;
         try {

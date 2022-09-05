@@ -639,6 +639,7 @@ public class OpenTokTest {
                                 "            \"duration\" : 14,\n" +
                                 "            \"id\" : \"5350f06f-0166-402e-bc27-09ba54948512\",\n" +
                                 "            \"name\" : \"\",\n" +
+                                "            \"multiArchiveTag\" : \"MyVideoArchiveTag\",\n" +
                                 "            \"partnerId\" : 123456,\n" +
                                 "            \"reason\" : \"\",\n" +
                                 "            \"sessionId\" : \"SESSIONID\",\n" +
@@ -707,6 +708,7 @@ public class OpenTokTest {
         assertEquals(60, archives.getTotalCount());
         assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
+        assertEquals("MyVideoArchiveTag", archives.get(1).getMultiArchiveTag());
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(getRequestedFor(urlMatching(archivePath)))));
@@ -967,9 +969,10 @@ public class OpenTokTest {
                 .outputMode(OutputMode.COMPOSED)
                 .streamMode(Archive.StreamMode.AUTO)
                 .resolution("1920x1080")
+                .multiArchiveTag("MyArchiveTag")
                 .build();
 
-        properties.toMap();
+        assertNotNull(properties.toMap());
 
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
