@@ -2305,7 +2305,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testforceDisconnect() throws OpenTokException {
+    public void testForceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId;
@@ -2358,4 +2358,54 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
 
+    @Test
+    public void testStartRender() throws Exception {
+        String sessionId = "1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg";
+        String token = "TOKEN";
+        String url = "/v2/project/" + this.apiKey + "/render";
+        stubFor(post(urlEqualTo(url))
+            .willReturn(aResponse()
+                .withStatus(202)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\n" +
+                    "  \"id\":\"80abaf0d-25a3-4efc-968f-6268d620668d\",\n" +
+                    "  \"sessionId\":\""+sessionId+"\",\n" +
+                    "  \"projectId\":\"27086612\",\n" +
+                    "  \"createdAt\":1547080532099,\n" +
+                    "  \"updatedAt\":1547080532199,\n" +
+                    "  \"url\": \"https://webapp.customer.com\",\n" +
+                    "  \"resolution\": \"480x640\",\n" +
+                    "  \"status\":\"started\",\n" +
+                    "  \"streamId\":\"e32445b743678c98230f238\"\n" +
+                    "}"
+                )
+            )
+        );
+
+        RenderProperties properties = new RenderProperties.Builder()
+            .url("https://example.com/main")
+            .maxDuration(1800)
+            .properties(new RenderProperties.Properties("Composed stream for Live event #1"))
+            .resolution("720x1280")
+            .statusCallbackUrl("https://example.com/callback")
+            .build();
+
+        Render render = sdk.startRender(sessionId, token, properties);
+        assertNotNull(render);
+        assertEquals("80abaf0d-25a3-4efc-968f-6268d620668d", render.getId());
+        assertEquals(sessionId, render.getSessionId());
+        assertEquals("27086612", render.getProjectId());
+        assertEquals(1547080532099L, render.getCreatedAt());
+        assertEquals(1547080532199L, render.getUpdatedAt());
+        assertEquals("https://webapp.customer.com", render.getUrl());
+        assertEquals("480x640", render.getResolution());
+        assertEquals("started", render.getStatus());
+        assertEquals("e32445b743678c98230f238", render.getStreamId());
+        assertNull(render.getReason());
+
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
 }

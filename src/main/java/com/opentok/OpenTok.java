@@ -53,6 +53,8 @@ public class OpenTok {
             .readerFor(Sip.class);
     static protected ObjectReader broadcastReader = new ObjectMapper()
             .readerFor(Broadcast.class);
+    static protected ObjectReader renderReader = new ObjectMapper()
+            .readerFor(Render.class);
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -819,10 +821,10 @@ public class OpenTok {
      * such as phone numbers. (The OpenTok client libraries include properties for inspecting
      * the connection data for a client connected to a session.) See the
      * <a href="https://tokbox.com/developer/guides/signaling/">Token Creation developer guide</a>.
-.    *
+     *
      * @param properties The {@link SipProperties} object defining options for the SIP call.
      *
-     * @return The  {@link Sip} object.
+     * @return The {@link Sip} object.
      */
     public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
         if ((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
@@ -861,6 +863,28 @@ public class OpenTok {
      */
     public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
         client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
+    }
+
+    /**
+     * Use this method to create an Experience Composer for an OpenTok session. For more information, see the
+     * <a href=https://tokbox.com/developer/guides/experience-composer>Experience Composer developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param properties The {@link RenderProperties} object defining the properties for the Render call.
+     * @return The {@link Render} response object.
+     *
+     * @throws OpenTokException
+     */
+    public Render startRender(String sessionId, String token, RenderProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null) {
+            throw new InvalidArgumentException("Session id, token and properties are all required.");
+        }
+        String render = client.startRender(sessionId, token, properties);
+        try {
+            return renderReader.readValue(render);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
     }
 
     /**

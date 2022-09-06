@@ -1038,7 +1038,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.close();
             outputStream.close();
         } catch (Exception e) {
-            throw new OpenTokException("Could not force mute streams The JSON body encoding failed.", e);
+            throw new OpenTokException("Could not force mute streams. The JSON body encoding failed.", e);
         }
 
         Future<Response> request = this.preparePost(url)
@@ -1091,6 +1091,63 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 default:
                     throw new RequestException("Could not get information for streams. The server response was invalid." +
                             " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get streams information", e);
+        }
+    }
+
+    public String startRender(String sessionId, String token, RenderProperties properties) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            JsonFactory factory = new JsonFactory();
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
+            jGenerator.writeStartObject();
+            jGenerator.writeStringField("sessionId", sessionId);
+            jGenerator.writeStringField("token", token);
+            jGenerator.writeStringField("url", properties.url());
+            jGenerator.writeNumberField("maxDuration", properties.maxDuration());
+            if (properties.statusCallbackUrl() != null) {
+                jGenerator.writeStringField("statusCallbackUrl", properties.statusCallbackUrl());
+            }
+            if (properties.resolution() != null) {
+                jGenerator.writeStringField("resolution", properties.resolution());
+            }
+            if (properties.properties() != null) {
+                jGenerator.writeObjectFieldStart("properties");
+                jGenerator.writeStringField("name", properties.properties().name());
+                jGenerator.writeEndObject();
+            }
+            jGenerator.writeEndObject();
+            jGenerator.close();
+            outputStream.close();
+        }
+        catch (Exception e) {
+            throw new OpenTokException("Could not start render. The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Accept", "application/json")
+            .setBody(outputStream.toString())
+            .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 202:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
+                case 500:
+                    throw new RequestException("Could not start render. A server error occurred.");
+                default:
+                    throw new RequestException("Could not start render. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get streams information", e);
