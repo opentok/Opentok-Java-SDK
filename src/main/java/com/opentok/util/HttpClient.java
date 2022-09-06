@@ -1140,7 +1140,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 202:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID");
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID");
                 case 403:
                     throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
                 case 500:
@@ -1150,7 +1150,36 @@ public class HttpClient extends DefaultAsyncHttpClient {
                         " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not get streams information", e);
+            throw new RequestException("Could not start render", e);
+        }
+    }
+
+    public String listRenders(Integer offset, Integer count) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render";
+
+        BoundRequestBuilder rqBuilder = this.prepareGet(url).setHeader("Accept", "application/json");
+        if (offset != null) {
+            rqBuilder.addQueryParam("offset", offset.toString());
+        }
+        if (count != null) {
+            rqBuilder.addQueryParam("count", count.toString());
+        }
+
+        try {
+            Response response = rqBuilder.execute().get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
+                case 500:
+                    throw new RequestException("Could not list renders. A server error occurred.");
+                default:
+                    throw new RequestException("Could not list renders. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not start render", e);
         }
     }
 

@@ -39,22 +39,17 @@ public class OpenTok {
     private int apiKey;
     private String apiSecret;
     protected HttpClient client;
-    static protected ObjectReader archiveReader = new ObjectMapper()
-            .readerFor(Archive.class);
-    static protected ObjectReader archiveListReader = new ObjectMapper()
-            .readerFor(ArchiveList.class);
-    static protected ObjectReader createdSessionReader = new ObjectMapper()
-            .readerFor(CreatedSession[].class);
-    static protected ObjectReader streamReader = new ObjectMapper()
-            .readerFor(Stream.class);
-    static protected ObjectReader streamListReader = new ObjectMapper()
-            .readerFor(StreamList.class);
-    static protected ObjectReader sipReader = new ObjectMapper()
-            .readerFor(Sip.class);
-    static protected ObjectReader broadcastReader = new ObjectMapper()
-            .readerFor(Broadcast.class);
-    static protected ObjectReader renderReader = new ObjectMapper()
-            .readerFor(Render.class);
+    protected static final ObjectReader
+        archiveReader = new ObjectMapper().readerFor(Archive.class),
+        archiveListReader = new ObjectMapper().readerFor(ArchiveList.class),
+        createdSessionReader = new ObjectMapper().readerFor(CreatedSession[].class),
+        streamReader = new ObjectMapper().readerFor(Stream.class),
+        streamListReader = new ObjectMapper().readerFor(StreamList.class),
+        sipReader = new ObjectMapper().readerFor(Sip.class),
+        broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
+        renderReader = new ObjectMapper().readerFor(Render.class),
+        renderListReader = new ObjectMapper().readerFor(RenderList.class);
+
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -882,6 +877,19 @@ public class OpenTok {
         String render = client.startRender(sessionId, token, properties);
         try {
             return renderReader.readValue(render);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    public RenderList listRenders() throws OpenTokException {
+        return listRenders(null, null);
+    }
+
+    public RenderList listRenders(Integer offset, Integer count) throws OpenTokException {
+        String renderList = client.listRenders(offset, count);
+        try {
+            return renderListReader.readValue(renderList);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }

@@ -2383,12 +2383,12 @@ public class OpenTokTest {
         );
 
         RenderProperties properties = new RenderProperties.Builder()
-            .url("https://example.com/main")
-            .maxDuration(1800)
-            .properties(new RenderProperties.Properties("Composed stream for Live event #1"))
-            .resolution("720x1280")
-            .statusCallbackUrl("https://example.com/callback")
-            .build();
+                .url("https://example.com/main")
+                .maxDuration(1800)
+                .properties(new RenderProperties.Properties("Composed stream for Live event #1"))
+                .resolution("720x1280")
+                .statusCallbackUrl("https://example.com/callback")
+                .build();
 
         Render render = sdk.startRender(sessionId, token, properties);
         assertNotNull(render);
@@ -2406,6 +2406,77 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
             findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testListRenders() throws Exception {
+        String sessionId = "SESSION_ID";
+        String id = "d95f6496-df6e-4f49-86d6-832e00303602";
+        String projectId = "27086612";
+        long createdAt = 1547080532099L, updatedAt = 1547080532099L;
+        String url = "https://webapp.customer.com";
+        String resolution = "1280x720";
+        String status = "stopped";
+        String streamId = "d2334b35690a92f78945";
+
+        String endpoint = "/v2/project/"+apiKey+"/render";
+        stubFor(get(urlPathEqualTo(endpoint))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\n" +
+                    "  \"count\":2,\n" +
+                    "  \"items\":[\n" +
+                    "    {\n" +
+                    "      \"id\":\"80abaf0d-25a3-4efc-968f-6268d620668d\",\n" +
+                    "      \"sessionId\":\"1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg\",\n" +
+                    "      \"projectId\":\"27086612\",\n" +
+                    "      \"createdAt\":1547080511760,\n" +
+                    "      \"updatedAt\":1547080518965,\n" +
+                    "      \"url\": \"https://webapp2.customer.com\",\n" +
+                    "      \"resolution\": \"1280x720\",\n" +
+                    "      \"status\":\"started\",\n" +
+                    "      \"streamId\": \"d2334b35690a92f78945\",\n" +
+                    "      \"reason\":\"Maximum duration exceeded\"\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"id\":\""+id+"\",\n" +
+                    "      \"sessionId\":\""+sessionId+"\",\n" +
+                    "      \"projectId\":\""+projectId+"\",\n" +
+                    "      \"createdAt\":"+createdAt+",\n" +
+                    "      \"updatedAt\":"+updatedAt+",\n" +
+                    "      \"url\": \""+url+"\",\n" +
+                    "      \"resolution\": \""+resolution+"\",\n" +
+                    "      \"status\": \""+status+"\",\n" +
+                    "      \"streamId\": \""+streamId+"\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}"
+                )
+            )
+        );
+
+        RenderList renderList = sdk.listRenders();
+        assertNotNull(renderList);
+        renderList = sdk.listRenders(1, 5);
+        assertEquals(2, renderList.getCount());
+        assertEquals(renderList.getCount(), renderList.getItems().size());
+        Render render = renderList.getItems().get(1);
+        assertEquals(sessionId, render.getSessionId());
+        assertEquals(id, render.getId());
+        assertEquals(projectId, render.getProjectId());
+        assertEquals(createdAt, render.getCreatedAt());
+        assertEquals(updatedAt, render.getUpdatedAt());
+        assertEquals(url, render.getUrl());
+        assertEquals(resolution, render.getResolution());
+        assertEquals(status, render.getStatus());
+        assertEquals(streamId, render.getStreamId());
+        assertNull(render.getReason());
+
+        verify(getRequestedFor(urlMatching(endpoint)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(getRequestedFor(urlMatching(endpoint)))));
         Helpers.verifyUserAgent();
     }
 }
