@@ -65,6 +65,7 @@ public class BroadcastProperties {
             this.layout = layout;
             return this;
         }
+
         /**
          * Sets the maximum duration, in seconds, of the broadcast.
          * The broadcast will automatically stop when the maximum duration is reached.
@@ -159,8 +160,12 @@ public class BroadcastProperties {
         }
 
         /**
-         * Sets the MultiBroadcastTag of the stream. A unique MultiBroadcastTag will trigger a new broadcast on the
-         * session. Note: If no tag is provided only one broadcast will be allowed, to preserve backward compatibility.
+         * Set this to support multiple broadcasts for the same session simultaneously.
+         * Set this to a unique string for each simultaneous broadcast of an ongoing session.
+         * Note that the multiBroadcastTag value is not included in the response for the methods to list live streaming
+         * broadcasts and get information about a live streaming broadcast. See
+         * <a href=https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts>
+     *     Simultaneous Broadcasts documentation</a>.
          *
          * @param multiBroadcastTag A unique multi-broadcast tag.
          *

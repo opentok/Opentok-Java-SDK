@@ -122,7 +122,7 @@ public class Broadcast {
     }
 
     /**
-     * Returns the multiBroadcastTag if set in the request. A new Broadcast id will be returned when tag is unique.
+     * Returns the multiBroadcastTag if set for the Broadcast.
      */
     public String getMultiBroadcastTag() {
         return multiBroadcastTag;

@@ -258,8 +258,7 @@ public class Archive {
     }
 
     /**
-     * The MultiArchiveTag is the tag of the archive, with which to start, this is unique for each archive
-     * within session. If this was set in the request, this response will include a new archive ID.
+     * Returns the multiArchiveTag if set for the Archive.
      */
     public String getMultiArchiveTag() {
         return multiArchiveTag;
