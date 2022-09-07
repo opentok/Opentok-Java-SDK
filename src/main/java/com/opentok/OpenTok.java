@@ -867,6 +867,7 @@ public class OpenTok {
      *
      * @param sessionId The session ID.
      * @param properties The {@link RenderProperties} object defining the properties for the Render call.
+     *
      * @return The {@link Render} response object.
      *
      * @throws OpenTokException
@@ -884,9 +885,48 @@ public class OpenTok {
     }
 
     /**
+     * Use this method to get details on an Experience Composer.
+     *
+     * @param renderId The ID of the Experience Composer to retrieve.
+     *
+     * @return The {@link Render} response object associated with the provided ID.
+     *
+     * @throws OpenTokException
+     */
+    public Render getRender(String renderId) throws OpenTokException {
+        if (StringUtils.isEmpty(renderId)) {
+            throw new InvalidArgumentException("Render id is required.");
+        }
+        String render = client.getRender(renderId);
+        try {
+            return renderReader.readValue(render);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Use this method to stop an Experience Composer of an OpenTok session. Note that by default
+     * Experience Composers automatically stop 2 hours after they are started. You can also set a different
+     * maxDuration value when you create the Experience Composer. When the Experience Composer ends, an event is
+     * posted to the callback URL, if you have configured one for the project.
+     *
+     * @param renderId The ID of the Experience Composer to stop.
+     *
+     * @throws OpenTokException
+     */
+    public void stopRender(String renderId) throws OpenTokException {
+        if (StringUtils.isEmpty(renderId)) {
+            throw new InvalidArgumentException("Render id is required.");
+        }
+        client.stopRender(renderId);
+    }
+
+    /**
      * Use this method to get a list of Experience Composers associated with a project.
      *
      * @return The list of {@link Render} responses.
+     *
      * @throws OpenTokException
      */
     public List<Render> listRenders() throws OpenTokException {
@@ -900,6 +940,7 @@ public class OpenTok {
      * @param count (optional) Number of Renders to retrieve starting at offset. Maximum 1000.
      *
      * @return The list of {@link Render} responses.
+     *
      * @throws OpenTokException
      */
     public List<Render> listRenders(Integer offset, Integer count) throws OpenTokException {

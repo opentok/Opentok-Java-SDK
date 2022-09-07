@@ -1008,7 +1008,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             + "sessionId: " + sessionId);
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
-
                 case 408:
                     throw new RequestException("You passed in an invalid stream ID.");
                 case 500:
@@ -1142,11 +1141,65 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 400:
                     throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID");
                 case 403:
-                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
                 case 500:
                     throw new RequestException("Could not start render. A server error occurred.");
                 default:
                     throw new RequestException("Could not start render. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not start render", e);
+        }
+    }
+
+    public String getRender(String renderId) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
+
+        Future<Response> request = this.prepareGet(url)
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Accept", "application/json")
+            .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON.");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
+                case 404:
+                    throw new RequestException("No Render matching the specified ID was found.");
+                case 500:
+                    throw new RequestException("Could not get render. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get render. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get render '"+renderId+"'", e);
+        }
+    }
+
+    public void stopRender(String renderId) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
+        try {
+            Response response = this.prepareDelete(url).execute().get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return;
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON.");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
+                case 404:
+                    throw new RequestException("No Render matching the specified ID was found.");
+                case 500:
+                    throw new RequestException("Could not stop render. A server error occurred.");
+                default:
+                    throw new RequestException("Could not stop render. The server response was invalid." +
                         " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {

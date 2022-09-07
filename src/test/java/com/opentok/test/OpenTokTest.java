@@ -32,10 +32,7 @@ import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
@@ -2406,6 +2403,62 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(url)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
             findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testGetRender() throws Exception {
+        String renderId = "80abaf0d-25a3-4efc-968f-6268d620668d";
+        String url = "/v2/project/" + this.apiKey + "/render/" + renderId;
+        stubFor(get(urlEqualTo(url))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\n" +
+                    "  \"id\":\""+renderId+"\",\n" +
+                    "  \"sessionId\":\"SESSION_ID\",\n" +
+                    "  \"projectId\":\"27086612\",\n" +
+                    "  \"createdAt\":1547080532099,\n" +
+                    "  \"updatedAt\":1547080532199,\n" +
+                    "  \"url\": \"https://webapp.customer.com\",\n" +
+                    "  \"resolution\": \"480x640\",\n" +
+                    "  \"status\":\"failed\",\n" +
+                    "  \"reason\":\"Could not load URL\"\n" +
+                    "}"
+                )
+            )
+        );
+
+        Render render = sdk.getRender(renderId);
+        assertNotNull(render);
+        assertEquals(renderId, render.getId());
+        assertEquals("SESSION_ID", render.getSessionId());
+        assertEquals("27086612", render.getProjectId());
+        assertEquals(1547080532099L, render.getCreatedAt());
+        assertEquals(1547080532199L, render.getUpdatedAt());
+        assertEquals("https://webapp.customer.com", render.getUrl());
+        assertEquals("480x640", render.getResolution());
+        assertEquals("failed", render.getStatus());
+        assertEquals("Could not load URL", render.getReason());
+        assertNull(render.getStreamId());
+
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStopRender() throws Exception {
+        String renderId = "10abaf0d-25a3-4efc-968f-6268d620668d";
+        String url = "/v2/project/" + this.apiKey + "/render/" + renderId;
+        stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
+
+        sdk.stopRender(renderId);
+
+        verify(deleteRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(deleteRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
 
