@@ -2372,7 +2372,7 @@ public class OpenTokTest {
                     "  \"updatedAt\":1547080532199,\n" +
                     "  \"url\": \"https://webapp.customer.com\",\n" +
                     "  \"resolution\": \"480x640\",\n" +
-                    "  \"status\":\"started\",\n" +
+                    "  \"status\":\"starting\",\n" +
                     "  \"streamId\":\"e32445b743678c98230f238\"\n" +
                     "}"
                 )
@@ -2396,7 +2396,7 @@ public class OpenTokTest {
         assertEquals(1547080532199L, render.getUpdatedAt());
         assertEquals("https://webapp.customer.com", render.getUrl());
         assertEquals("480x640", render.getResolution());
-        assertEquals("started", render.getStatus());
+        assertEquals(RenderStatus.STARTING, render.getStatus());
         assertEquals("e32445b743678c98230f238", render.getStreamId());
         assertNull(render.getReason());
 
@@ -2438,7 +2438,7 @@ public class OpenTokTest {
         assertEquals(1547080532199L, render.getUpdatedAt());
         assertEquals("https://webapp.customer.com", render.getUrl());
         assertEquals("480x640", render.getResolution());
-        assertEquals("failed", render.getStatus());
+        assertEquals(RenderStatus.FAILED, render.getStatus());
         assertEquals("Could not load URL", render.getReason());
         assertNull(render.getStreamId());
 
@@ -2470,7 +2470,7 @@ public class OpenTokTest {
         long createdAt = 1547080532099L, updatedAt = 1547080532099L;
         String url = "https://webapp.customer.com";
         String resolution = "1280x720";
-        String status = "stopped";
+        RenderStatus status = RenderStatus.STOPPED;
         String streamId = "d2334b35690a92f78945";
 
         String endpoint = "/v2/project/"+apiKey+"/render";

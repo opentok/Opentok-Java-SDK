@@ -22,7 +22,7 @@ public class Render {
 	@JsonProperty private long updatedAt;
 	@JsonProperty private String url;
 	@JsonProperty private String resolution;
-	@JsonProperty private String status;
+	@JsonProperty private RenderStatus status;
 	@JsonProperty private String streamId;
 	@JsonProperty private String reason;
 
@@ -81,7 +81,7 @@ public class Render {
 	/**
 	 * The status of the Experience Composer.
 	 */
-	public String getStatus() {
+	public RenderStatus getStatus() {
 		return status;
 	}
 
