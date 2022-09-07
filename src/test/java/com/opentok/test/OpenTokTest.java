@@ -2457,12 +2457,11 @@ public class OpenTokTest {
             )
         );
 
-        RenderList renderList = sdk.listRenders();
+        List<Render> renderList = sdk.listRenders();
         assertNotNull(renderList);
         renderList = sdk.listRenders(1, 5);
-        assertEquals(2, renderList.getCount());
-        assertEquals(renderList.getCount(), renderList.getItems().size());
-        Render render = renderList.getItems().get(1);
+        assertEquals(2, renderList.size());
+        Render render = renderList.get(1);
         assertEquals(sessionId, render.getSessionId());
         assertEquals(id, render.getId());
         assertEquals(projectId, render.getProjectId());

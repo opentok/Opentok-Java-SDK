@@ -7,6 +7,7 @@
  */
 package com.opentok;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.opentok.exception.InvalidArgumentException;
@@ -48,7 +49,7 @@ public class OpenTok {
         sipReader = new ObjectMapper().readerFor(Sip.class),
         broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
         renderReader = new ObjectMapper().readerFor(Render.class),
-        renderListReader = new ObjectMapper().readerFor(RenderList.class);
+        renderListReader = new ObjectMapper().readerForListOf(Render.class);
 
     static final String defaultApiUrl = "https://api.opentok.com";
 
@@ -882,15 +883,31 @@ public class OpenTok {
         }
     }
 
-    public RenderList listRenders() throws OpenTokException {
+    /**
+     * Use this method to get a list of Experience Composers associated with a project.
+     *
+     * @return The list of {@link Render} responses.
+     * @throws OpenTokException
+     */
+    public List<Render> listRenders() throws OpenTokException {
         return listRenders(null, null);
     }
 
-    public RenderList listRenders(Integer offset, Integer count) throws OpenTokException {
-        String renderList = client.listRenders(offset, count);
+    /**
+     * Use this method to get a list of Experience Composers associated with a project.
+     *
+     * @param offset (optional) Start offset in the list of existing Renders.
+     * @param count (optional) Number of Renders to retrieve starting at offset. Maximum 1000.
+     *
+     * @return The list of {@link Render} responses.
+     * @throws OpenTokException
+     */
+    public List<Render> listRenders(Integer offset, Integer count) throws OpenTokException {
+        String response = client.listRenders(offset, count);
         try {
-            return renderListReader.readValue(renderList);
-        } catch (JsonProcessingException e) {
+            JsonNode root = new ObjectMapper().readTree(response);
+            return renderListReader.readValue(root.get("items"));
+        } catch (IOException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
     }
