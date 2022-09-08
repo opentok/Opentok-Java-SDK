@@ -639,7 +639,6 @@ public class OpenTokTest {
                                 "            \"duration\" : 14,\n" +
                                 "            \"id\" : \"5350f06f-0166-402e-bc27-09ba54948512\",\n" +
                                 "            \"name\" : \"\",\n" +
-                                "            \"multiArchiveTag\" : \"MyVideoArchiveTag\",\n" +
                                 "            \"partnerId\" : 123456,\n" +
                                 "            \"reason\" : \"\",\n" +
                                 "            \"sessionId\" : \"SESSIONID\",\n" +
@@ -708,7 +707,6 @@ public class OpenTokTest {
         assertEquals(60, archives.getTotalCount());
         assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
-        assertEquals("MyVideoArchiveTag", archives.get(1).getMultiArchiveTag());
         verify(getRequestedFor(urlMatching(archivePath)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(getRequestedFor(urlMatching(archivePath)))));
@@ -717,7 +715,6 @@ public class OpenTokTest {
 
     @Test
     public void testListArchivesWithOffSetCount() throws OpenTokException {
-        String sessionId = "SESSIONID";
         String url = archivePath + "?offset=1&count=1";
         stubFor(get(urlEqualTo(url))
                 .willReturn(aResponse()
@@ -1714,7 +1711,6 @@ public class OpenTokTest {
                                 "          \"upDatedAt\" : 1437676551000,\n" +
                                 "          \"resolution\" : \"1280x720\",\n" +
                                 "          \"status\" : \"started\",\n" +
-                                "          \"multiBroadcastTag\" : \"MyVideoBroadcastTag\",\n" +
                                 "          \"broadcastUrls\" : {" +
                                 "           \"hls\" : \"http://server/fakepath/playlist.m3u8\"," +
                                 "           \"rtmp\" : [{" +
@@ -1760,7 +1756,6 @@ public class OpenTokTest {
         assertTrue(broadcast.getUpdatedAt() > -1);
         assertTrue(broadcast.getProjectId() > -1);
         assertEquals(sessionId, broadcast.getSessionId());
-        assertEquals("MyVideoBroadcastTag", broadcast.getMultiBroadcastTag());
         assertEquals(Broadcast.StreamMode.AUTO, broadcast.getStreamMode());
         assertNotNull(broadcast.getId());
         verify(postRequestedFor(urlMatching(url)));

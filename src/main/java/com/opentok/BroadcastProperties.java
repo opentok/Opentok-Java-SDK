@@ -137,7 +137,7 @@ public class BroadcastProperties {
         }
 
         /**
-         * Sets the stream mode for this broadcast
+         * Sets the stream mode for this broadcast.
          *
          * When streams are selected automatically (<code>StreamMode.AUTO</code>, the default), all
          * streams in the session can be included in the archive. When streams are selected manually
@@ -165,7 +165,7 @@ public class BroadcastProperties {
          * Note that the multiBroadcastTag value is not included in the response for the methods to list live streaming
          * broadcasts and get information about a live streaming broadcast. See
          * <a href=https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts>
-     *     Simultaneous Broadcasts documentation</a>.
+         * Simultaneous Broadcasts documentation</a>.
          *
          * @param multiBroadcastTag A unique multi-broadcast tag.
          *

@@ -122,13 +122,6 @@ public class Broadcast {
     }
 
     /**
-     * Returns the multiBroadcastTag if set for the Broadcast.
-     */
-    public String getMultiBroadcastTag() {
-        return multiBroadcastTag;
-    }
-
-    /**
      * Details on the HLS and RTMP broadcast streams. For an HLS stream, the URL is provided.
      * See the <a href="https://tokbox.com/developer/guides/broadcast/live-streaming/">OpenTok
      * live streaming broadcast developer guide</a> for more information on how to use this URL.

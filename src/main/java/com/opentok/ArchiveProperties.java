@@ -166,7 +166,7 @@ public class ArchiveProperties {
          * is not included in the response for the methods to list archives and retrieve archive information. If you do
          * not specify a unique multiArchiveTag, you can only record one archive at a time for a given session. See
          * <a href=https://tokbox.com/developer/guides/archiving/#simultaneous-archives>
-     *     Simultaneous Archives documentation</a>.
+         * Simultaneous Archives documentation</a>.
          *
          * @param multiArchiveTag A unique archive tag.
          *
