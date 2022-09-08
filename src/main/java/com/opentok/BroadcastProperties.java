@@ -137,7 +137,7 @@ public class BroadcastProperties {
         }
 
         /**
-         * Sets the stream mode for this broadcast.
+         * Sets the stream mode for this broadcast
          *
          * When streams are selected automatically (<code>StreamMode.AUTO</code>, the default), all
          * streams in the session can be included in the archive. When streams are selected manually

@@ -257,6 +257,13 @@ public class Archive {
         return password;
     }
 
+    /**
+     * Returns the multiArchiveTag if set for the Archive.
+     */
+    public String getMultiArchiveTag() {
+        return multiArchiveTag;
+    }
+
     @Override
     public String toString() {
         try {
