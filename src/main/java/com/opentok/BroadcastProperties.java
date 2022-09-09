@@ -161,10 +161,8 @@ public class BroadcastProperties {
 
         /**
          * Set this to support multiple broadcasts for the same session simultaneously.
-         * Set this to a unique string for each simultaneous broadcast of an ongoing session.
-         * Note that the multiBroadcastTag value is not included in the response for the methods to list live streaming
-         * broadcasts and get information about a live streaming broadcast. See
-         * <a href=https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts>
+         * Set this to a unique string for each simultaneous broadcast of an ongoing session. See
+         * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts">
          * Simultaneous Broadcasts documentation</a>.
          *
          * @param multiBroadcastTag A unique multi-broadcast tag.
