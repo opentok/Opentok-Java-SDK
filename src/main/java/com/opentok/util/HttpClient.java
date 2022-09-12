@@ -215,6 +215,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
         }
+        if (properties.getMultiArchiveTag() != null) {
+            requestJson.put("multiArchiveTag", properties.getMultiArchiveTag());
+        }
 
         String requestBody;
         try {
@@ -518,6 +521,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
+        }
+        if (properties.getMultiBroadcastTag() != null) {
+            requestJson.put("multiBroadcastTag", properties.getMultiBroadcastTag());
         }
 
         ObjectNode outputs = requestJson.putObject("outputs");
