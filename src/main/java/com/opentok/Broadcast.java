@@ -51,6 +51,7 @@ public class Broadcast {
     @JsonProperty private long updatedAt;
     @JsonProperty private String resolution;
     @JsonProperty private String status;
+    @JsonProperty private String multiBroadcastTag;
     @JsonProperty private StreamMode streamMode = StreamMode.AUTO;
     private List<Rtmp> rtmpList = new ArrayList<>();
     private String hls;
@@ -118,6 +119,13 @@ public class Broadcast {
      */
     public String getStatus() {
         return status;
+    }
+
+    /**
+     * Returns the multiBroadcastTag if set for the Broadcast.
+     */
+    public String getMultiBroadcastTag() {
+        return multiBroadcastTag;
     }
 
     /**

@@ -19,12 +19,12 @@ import java.util.List;
  * {@link OpenTok#startBroadcast(String sessionId, BroadcastProperties properties)} method.
  */
 public class BroadcastProperties {
-
     private BroadcastLayout layout;
     private int maxDuration;
     private boolean hasHls;
     private List<RtmpProperties> rtmpList;
     private String resolution;
+    private String multiBroadcastTag;
     private StreamMode streamMode;
     private Hls hls;
 
@@ -36,6 +36,7 @@ public class BroadcastProperties {
         this.rtmpList = builder.rtmpList;
         this.resolution = builder.resolution;
         this.streamMode = builder.streamMode;
+        this.multiBroadcastTag = builder.multiBroadcastTag;
     }
 
     /**
@@ -47,7 +48,7 @@ public class BroadcastProperties {
         private BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.BESTFIT);
         private int maxDuration = 7200;
         private boolean hasHls = false;
-
+        private String multiBroadcastTag;
         private Hls hls;
         private List<RtmpProperties> rtmpList = new ArrayList<>();
         private String resolution = "640x480";
@@ -64,6 +65,7 @@ public class BroadcastProperties {
             this.layout = layout;
             return this;
         }
+
         /**
          * Sets the maximum duration, in seconds, of the broadcast.
          * The broadcast will automatically stop when the maximum duration is reached.
@@ -157,6 +159,21 @@ public class BroadcastProperties {
             return this;
         }
 
+        /**
+         * Set this to support multiple broadcasts for the same session simultaneously.
+         * Set this to a unique string for each simultaneous broadcast of an ongoing session. See
+         * <a href="https://tokbox.com/developer/guides/broadcast/live-streaming#simultaneous-broadcasts">
+         * Simultaneous Broadcasts documentation</a>.
+         *
+         * @param multiBroadcastTag A unique multi-broadcast tag.
+         *
+         * @return The BroadcastProperties.Builder object with the multiBroadcastTag setting.
+         */
+        public Builder multiBroadcastTag(String multiBroadcastTag) {
+            this.multiBroadcastTag = multiBroadcastTag;
+            return this;
+        }
+
          /**
          * Builds the BroadcastProperties object.
          *
@@ -207,6 +224,13 @@ public class BroadcastProperties {
      */
     public String resolution() {
         return resolution;
+    }
+
+    /**
+     * Returns the multiBroadcastTag, if present.
+     */
+    public String getMultiBroadcastTag() {
+        return multiBroadcastTag;
     }
 
     /**

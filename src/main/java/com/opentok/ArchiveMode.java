@@ -17,22 +17,16 @@ public enum ArchiveMode {
      * The session is not archived automatically. To archive the session, you can call the
      * OpenTok.StartArchive() method.
      */
-    MANUAL ("manual"),
+    MANUAL,
 
     /**
      * The session is archived automatically (as soon as there are clients connected
      * to the session).
      */
-    ALWAYS ("always");
-
-    private String serialized;
-
-    ArchiveMode(String s) {
-        serialized = s;
-    }
+    ALWAYS;
 
     @Override
     public String toString() {
-        return serialized;
+        return name().toLowerCase();
     }
 }
