@@ -1106,13 +1106,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeStartObject();
             jGenerator.writeStringField("sessionId", sessionId);
             jGenerator.writeStringField("token", token);
-            jGenerator.writeStringField("url", properties.url());
+            jGenerator.writeStringField("url", properties.url().toString());
             jGenerator.writeNumberField("maxDuration", properties.maxDuration());
-            if (properties.statusCallbackUrl() != null) {
-                jGenerator.writeStringField("statusCallbackUrl", properties.statusCallbackUrl());
-            }
             if (properties.resolution() != null) {
-                jGenerator.writeStringField("resolution", properties.resolution());
+                jGenerator.writeStringField("resolution", properties.resolution().toString());
             }
             if (properties.properties() != null) {
                 jGenerator.writeObjectFieldStart("properties");

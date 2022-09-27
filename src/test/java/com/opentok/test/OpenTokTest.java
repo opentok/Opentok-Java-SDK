@@ -2383,8 +2383,7 @@ public class OpenTokTest {
                 .url("https://example.com/main")
                 .maxDuration(1800)
                 .properties(new RenderProperties.Properties("Composed stream for Live event #1"))
-                .resolution("720x1280")
-                .statusCallbackUrl("https://example.com/callback")
+                .resolution(RenderProperties.Resolution.SD_VERTICAL)
                 .build();
 
         Render render = sdk.startRender(sessionId, token, properties);

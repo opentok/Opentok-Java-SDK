@@ -7,6 +7,8 @@
  */
 package com.opentok;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -19,7 +21,7 @@ public class RenderProperties {
 	 * Represents the <code>properties</code> parameter of {@linkplain RenderProperties}.
 	 */
 	public static class Properties {
-		private String name;
+		private final String name;
 
 		public Properties(String name) {
 			if ((this.name = name) == null || name.isEmpty()) {
@@ -35,28 +37,86 @@ public class RenderProperties {
 		}
 	}
 
-	private String url;
-	private int maxDuration;
-	private String resolution;
-	private String statusCallbackUrl;
-	private Properties properties;
+	/**
+	 * Represents the <code>resolution</code> parameter of {@linkplain RenderProperties}.
+	 */
+	public enum Resolution {
+		/**
+		 * 480x640
+		 */
+		SD_VERTICAL("480x640"),
+		/**
+		 * 640x480
+		 */
+		SD_HORIZONTAL("640x480"),
+		/**
+		 * 720x1280
+		 */
+		HD_VERTICAL("720x1280"),
+		/**
+		 * 1280x720
+		 */
+		HD_HORIZONTAL("1280x720");
+
+		private final String value;
+
+		Resolution(String value) {
+			this.value = value;
+		}
+
+		@JsonValue
+		public String toString() {
+			return value;
+		}
+	}
+
+	private final URI url;
+	private final int maxDuration;
+	private final Resolution resolution;
+	private final Properties properties;
 
 	private RenderProperties(Builder builder) {
 		this.url = Objects.requireNonNull(builder.url, "URL is required");
 		this.resolution = builder.resolution;
 		this.maxDuration = builder.maxDuration;
 		this.properties = builder.properties;
-		this.statusCallbackUrl = builder.statusCallbackUrl;
 	}
 
+	/**
+	 * Entry point for constructing an instance of {@linkplain RenderProperties}.
+	 *
+	 * @return A new Builder instance.
+	 */
+	public static Builder Builder() {
+		return new Builder();
+	}
+
+	/**
+	 * Builder for defining the parameters of {@link RenderProperties}.
+	 */
 	public static class Builder {
-		private String url;
+		private URI url;
 		private int maxDuration = 7200;
-		private String resolution = "1280x720";
-		private String statusCallbackUrl;
+		private Resolution resolution = Resolution.HD_HORIZONTAL;
 		private Properties properties;
 
+		/**
+		 * URL of the customer service where the callbacks will be received.
+		 *
+		 * @param url The URL as a String.
+		 * @return This Builder.
+		 */
 		public Builder url(String url) {
+			return url(URI.create(url));
+		}
+
+		/**
+		 * URL of the customer service where the callbacks will be received.
+		 *
+		 * @param url The URL as a URI.
+		 * @return This Builder.
+		 */
+		public Builder url(URI url) {
 			this.url = url;
 			return this;
 		}
@@ -66,16 +126,23 @@ public class RenderProperties {
 			return this;
 		}
 
-		public Builder resolution(String resolution) {
+		/**
+		 * Resolution of the display area for the composition.
+		 *
+		 * @param resolution The resolution, as an enum.
+		 * @return This Builder.
+		 */
+		public Builder resolution(Resolution resolution) {
 			this.resolution = resolution;
 			return this;
 		}
 
-		public Builder statusCallbackUrl(String statusCallbackUrl) {
-			this.statusCallbackUrl = statusCallbackUrl;
-			return this;
-		}
-
+		/**
+		 * Initial configuration of Publisher properties for the composed output stream.
+		 *
+		 * @param properties The properties value.
+		 * @return This Builder.
+		 */
 		public Builder properties(Properties properties) {
 			this.properties = properties;
 			return this;
@@ -91,7 +158,7 @@ public class RenderProperties {
 		}
 	}
 
-	public String url() {
+	public URI url() {
 		return url;
 	}
 
@@ -99,12 +166,8 @@ public class RenderProperties {
 		return maxDuration;
 	}
 
-	public String resolution() {
+	public Resolution resolution() {
 		return resolution;
-	}
-
-	public String statusCallbackUrl() {
-		return statusCallbackUrl;
 	}
 
 	public Properties properties() {
