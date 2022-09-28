@@ -543,7 +543,7 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to start a live streaming for an OpenTok session.
+     * Starts a live streaming broadcast for an OpenTok session.
      * This broadcasts the session to an HLS (HTTP live streaming) or to RTMP streams.
      * <p>
      * To successfully start broadcasting a session, at least one client must be connected to the session.
@@ -579,7 +579,7 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to stop a live broadcast of an OpenTok session.
+     * Stops a live streaming broadcast of an OpenTok session.
      * Note that broadcasts automatically stop 120 minutes after they are started.
      * <p>
      * For more information on broadcasting, see the
@@ -862,8 +862,8 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to create an Experience Composer for an OpenTok session. For more information, see the
-     * <a href=https://tokbox.com/developer/guides/experience-composer>Experience Composer developer guide</a>.
+     * Starts an Experience Composer render for an OpenTok session. For more information, see the
+     * <a href="https://tokbox.com/developer/guides/experience-composer">Experience Composer developer guide</a>.
      *
      * @param sessionId The session ID.
      * @param properties The {@link RenderProperties} object defining the properties for the Render call.
@@ -885,7 +885,7 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to get details on an Experience Composer.
+     * Gets a Render object, with details on an Experience Composer.
      *
      * @param renderId The ID of the Experience Composer to retrieve.
      *
@@ -906,7 +906,7 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to stop an Experience Composer of an OpenTok session. Note that by default
+     * Stops an Experience Composer of an OpenTok session. Note that by default
      * Experience Composers automatically stop 2 hours after they are started. You can also set a different
      * maxDuration value when you create the Experience Composer. When the Experience Composer ends, an event is
      * posted to the callback URL, if you have configured one for the project.
@@ -923,9 +923,10 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to get a list of Experience Composers associated with a project.
+     * Gets a list of Render objects, representing Experience Composers associated with the
+     * OpenTok project.
      *
-     * @return The list of {@link Render} responses.
+     * @return The list of {@link Render} objects.
      *
      * @throws OpenTokException
      */
@@ -934,12 +935,13 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to get a list of Experience Composers associated with a project.
+     * Gets a list of Render objects, representing a list of Experience Composers associated
+     * with the OpenTok project.
      *
      * @param offset (optional) Start offset in the list of existing Renders.
      * @param count (optional) Number of Renders to retrieve starting at offset. Maximum 1000.
      *
-     * @return The list of {@link Render} responses.
+     * @return The list of {@link Render} objects.
      *
      * @throws OpenTokException
      */
