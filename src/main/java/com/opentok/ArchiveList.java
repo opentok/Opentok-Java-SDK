@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Represents a list of archives of OpenTok session(s).
  */
-@JsonFormat(shape= JsonFormat.Shape.OBJECT)
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public class ArchiveList extends ArrayList<Archive> {
 
     private int totalCount;

@@ -1008,7 +1008,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             + "sessionId: " + sessionId);
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
-
                 case 408:
                     throw new RequestException("You passed in an invalid stream ID.");
                 case 500:
@@ -1038,7 +1037,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.close();
             outputStream.close();
         } catch (Exception e) {
-            throw new OpenTokException("Could not force mute streams The JSON body encoding failed.", e);
+            throw new OpenTokException("Could not force mute streams. The JSON body encoding failed.", e);
         }
 
         Future<Response> request = this.preparePost(url)
@@ -1094,6 +1093,143 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get streams information", e);
+        }
+    }
+
+    public String startRender(String sessionId, String token, RenderProperties properties) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            JsonFactory factory = new JsonFactory();
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
+            jGenerator.writeStartObject();
+            jGenerator.writeStringField("sessionId", sessionId);
+            jGenerator.writeStringField("token", token);
+            jGenerator.writeStringField("url", properties.url().toString());
+            jGenerator.writeNumberField("maxDuration", properties.maxDuration());
+            if (properties.resolution() != null) {
+                jGenerator.writeStringField("resolution", properties.resolution().toString());
+            }
+            if (properties.properties() != null) {
+                jGenerator.writeObjectFieldStart("properties");
+                jGenerator.writeStringField("name", properties.properties().name());
+                jGenerator.writeEndObject();
+            }
+            jGenerator.writeEndObject();
+            jGenerator.close();
+            outputStream.close();
+        }
+        catch (Exception e) {
+            throw new OpenTokException("Could not start render. The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Accept", "application/json")
+            .setBody(outputStream.toString())
+            .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 202:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
+                case 500:
+                    throw new RequestException("Could not start render. A server error occurred.");
+                default:
+                    throw new RequestException("Could not start render. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not start render", e);
+        }
+    }
+
+    public String getRender(String renderId) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
+
+        Future<Response> request = this.prepareGet(url)
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Accept", "application/json")
+            .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON.");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
+                case 404:
+                    throw new RequestException("No Render matching the specified ID was found.");
+                case 500:
+                    throw new RequestException("Could not get render. A server error occurred.");
+                default:
+                    throw new RequestException("Could not get render. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not get render '"+renderId+"'", e);
+        }
+    }
+
+    public void stopRender(String renderId) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
+        try {
+            Response response = this.prepareDelete(url).execute().get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return;
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON.");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
+                case 404:
+                    throw new RequestException("No Render matching the specified ID was found.");
+                case 500:
+                    throw new RequestException("Could not stop render. A server error occurred.");
+                default:
+                    throw new RequestException("Could not stop render. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not start render", e);
+        }
+    }
+
+    public String listRenders(Integer offset, Integer count) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render";
+
+        BoundRequestBuilder rqBuilder = this.prepareGet(url).setHeader("Accept", "application/json");
+        if (offset != null) {
+            rqBuilder.addQueryParam("offset", offset.toString());
+        }
+        if (count != null) {
+            rqBuilder.addQueryParam("count", count.toString());
+        }
+
+        try {
+            Response response = rqBuilder.execute().get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
+                case 500:
+                    throw new RequestException("Could not list renders. A server error occurred.");
+                default:
+                    throw new RequestException("Could not list renders. The server response was invalid." +
+                        " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not start render", e);
         }
     }
 

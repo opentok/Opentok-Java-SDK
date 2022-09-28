@@ -32,10 +32,7 @@ import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
@@ -2305,7 +2302,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testforceDisconnect() throws OpenTokException {
+    public void testForceDisconnect() throws OpenTokException {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId;
@@ -2358,4 +2355,179 @@ public class OpenTokTest {
         Helpers.verifyUserAgent();
     }
 
+    @Test
+    public void testStartRender() throws Exception {
+        String sessionId = "1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg";
+        String token = "TOKEN";
+        String url = "/v2/project/" + this.apiKey + "/render";
+        stubFor(post(urlEqualTo(url))
+            .willReturn(aResponse()
+                .withStatus(202)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\n" +
+                    "  \"id\":\"80abaf0d-25a3-4efc-968f-6268d620668d\",\n" +
+                    "  \"sessionId\":\""+sessionId+"\",\n" +
+                    "  \"projectId\":\"27086612\",\n" +
+                    "  \"createdAt\":1547080532099,\n" +
+                    "  \"updatedAt\":1547080532199,\n" +
+                    "  \"url\": \"https://webapp.customer.com\",\n" +
+                    "  \"resolution\": \"480x640\",\n" +
+                    "  \"status\":\"starting\",\n" +
+                    "  \"streamId\":\"e32445b743678c98230f238\"\n" +
+                    "}"
+                )
+            )
+        );
+
+        RenderProperties properties = new RenderProperties.Builder()
+                .url("https://example.com/main")
+                .maxDuration(1800)
+                .properties(new RenderProperties.Properties("Composed stream for Live event #1"))
+                .resolution(RenderProperties.Resolution.SD_VERTICAL)
+                .build();
+
+        Render render = sdk.startRender(sessionId, token, properties);
+        assertNotNull(render);
+        assertEquals("80abaf0d-25a3-4efc-968f-6268d620668d", render.getId());
+        assertEquals(sessionId, render.getSessionId());
+        assertEquals("27086612", render.getProjectId());
+        assertEquals(1547080532099L, render.getCreatedAt());
+        assertEquals(1547080532199L, render.getUpdatedAt());
+        assertEquals("https://webapp.customer.com", render.getUrl());
+        assertEquals("480x640", render.getResolution());
+        assertEquals(RenderStatus.STARTING, render.getStatus());
+        assertEquals("e32445b743678c98230f238", render.getStreamId());
+        assertNull(render.getReason());
+
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testGetRender() throws Exception {
+        String renderId = "80abaf0d-25a3-4efc-968f-6268d620668d";
+        String url = "/v2/project/" + this.apiKey + "/render/" + renderId;
+        stubFor(get(urlEqualTo(url))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\n" +
+                    "  \"id\":\""+renderId+"\",\n" +
+                    "  \"sessionId\":\"SESSION_ID\",\n" +
+                    "  \"projectId\":\"27086612\",\n" +
+                    "  \"createdAt\":1547080532099,\n" +
+                    "  \"updatedAt\":1547080532199,\n" +
+                    "  \"url\": \"https://webapp.customer.com\",\n" +
+                    "  \"resolution\": \"480x640\",\n" +
+                    "  \"status\":\"failed\",\n" +
+                    "  \"reason\":\"Could not load URL\"\n" +
+                    "}"
+                )
+            )
+        );
+
+        Render render = sdk.getRender(renderId);
+        assertNotNull(render);
+        assertEquals(renderId, render.getId());
+        assertEquals("SESSION_ID", render.getSessionId());
+        assertEquals("27086612", render.getProjectId());
+        assertEquals(1547080532099L, render.getCreatedAt());
+        assertEquals(1547080532199L, render.getUpdatedAt());
+        assertEquals("https://webapp.customer.com", render.getUrl());
+        assertEquals("480x640", render.getResolution());
+        assertEquals(RenderStatus.FAILED, render.getStatus());
+        assertEquals("Could not load URL", render.getReason());
+        assertNull(render.getStreamId());
+
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(getRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStopRender() throws Exception {
+        String renderId = "10abaf0d-25a3-4efc-968f-6268d620668d";
+        String url = "/v2/project/" + this.apiKey + "/render/" + renderId;
+        stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
+
+        sdk.stopRender(renderId);
+
+        verify(deleteRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(deleteRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testListRenders() throws Exception {
+        String sessionId = "SESSION_ID";
+        String id = "d95f6496-df6e-4f49-86d6-832e00303602";
+        String projectId = "27086612";
+        long createdAt = 1547080532099L, updatedAt = 1547080532099L;
+        String url = "https://webapp.customer.com";
+        String resolution = "1280x720";
+        RenderStatus status = RenderStatus.STOPPED;
+        String streamId = "d2334b35690a92f78945";
+
+        String endpoint = "/v2/project/"+apiKey+"/render";
+        stubFor(get(urlPathEqualTo(endpoint))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\n" +
+                    "  \"count\":2,\n" +
+                    "  \"items\":[\n" +
+                    "    {\n" +
+                    "      \"id\":\"80abaf0d-25a3-4efc-968f-6268d620668d\",\n" +
+                    "      \"sessionId\":\"1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg\",\n" +
+                    "      \"projectId\":\"27086612\",\n" +
+                    "      \"createdAt\":1547080511760,\n" +
+                    "      \"updatedAt\":1547080518965,\n" +
+                    "      \"url\": \"https://webapp2.customer.com\",\n" +
+                    "      \"resolution\": \"1280x720\",\n" +
+                    "      \"status\":\"started\",\n" +
+                    "      \"streamId\": \"d2334b35690a92f78945\",\n" +
+                    "      \"reason\":\"Maximum duration exceeded\"\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"id\":\""+id+"\",\n" +
+                    "      \"sessionId\":\""+sessionId+"\",\n" +
+                    "      \"projectId\":\""+projectId+"\",\n" +
+                    "      \"createdAt\":"+createdAt+",\n" +
+                    "      \"updatedAt\":"+updatedAt+",\n" +
+                    "      \"url\": \""+url+"\",\n" +
+                    "      \"resolution\": \""+resolution+"\",\n" +
+                    "      \"status\": \""+status+"\",\n" +
+                    "      \"streamId\": \""+streamId+"\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}"
+                )
+            )
+        );
+
+        List<Render> renderList = sdk.listRenders();
+        assertNotNull(renderList);
+        renderList = sdk.listRenders(1, 5);
+        assertEquals(2, renderList.size());
+        Render render = renderList.get(1);
+        assertEquals(sessionId, render.getSessionId());
+        assertEquals(id, render.getId());
+        assertEquals(projectId, render.getProjectId());
+        assertEquals(createdAt, render.getCreatedAt());
+        assertEquals(updatedAt, render.getUpdatedAt());
+        assertEquals(url, render.getUrl());
+        assertEquals(resolution, render.getResolution());
+        assertEquals(status, render.getStatus());
+        assertEquals(streamId, render.getStreamId());
+        assertNull(render.getReason());
+
+        verify(getRequestedFor(urlMatching(endpoint)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(getRequestedFor(urlMatching(endpoint)))));
+        Helpers.verifyUserAgent();
+    }
 }
