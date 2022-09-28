@@ -16,6 +16,7 @@ The OpenTok Java SDK provides methods for:
 * [Sending signals to clients connected to a session](https://tokbox.com/developer/guides/signaling/)
 * [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
 * [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
+* Working with OpenTok [Experience Composers](https://tokbox.com/developer/guides/experience-composer)
 
 ## Installation
 
@@ -411,10 +412,9 @@ For more information on signaling and exception codes, refer to the documentatio
 
 You can broadcast OpenTok publishing streams to an HLS (HTTP live streaming) or
 to RTMP streams. To successfully start broadcasting a session, at least one client must be
-connected to the session. You can only have one active live streaming broadcast at a time
-for a session (however, having more than one would not be useful).
+connected to the session.
 The live streaming broadcast can target one HLS endpoint and up to five
-RTMP servers simulteneously for a session. You can only start live streaming
+RTMP servers simultaneously for a session. You can only start live streaming
 for sessions that use the OpenTok Media Router (with the media mode set to routed);
 you cannot use live streaming with sessions that have the media mode set to relayed.
 (See the [OpenTok Media Router and media
@@ -570,6 +570,25 @@ SipProperties properties = new SipProperties.Builder()
 
  Sip sip = opentok.dial(sessionId, token, properties);
 ```
+
+### Working with Experience Composers
+
+You can start an [Experience Composer](https://tokbox.com/developer/guides/experience-composer)
+by calling the `OpenTok.startRender(String sessionId, String token, RenderProperties properties)`
+method:
+
+```java
+RenderProperties properties = new RenderProperties.Builder()
+         .url(("http://example.com/path-to-page/")
+         .build();
+
+Render render = opentok.startRender(sessionId, token, properties);
+```
+
+You can stop an Experience Composer by calling the `OpenTok.stopRender(String renderId)` method.
+
+You can get information about Experience Composers by calling the `OpenTok.getRender(String renderId)`,
+`OpenTok.listRenders()` or `OpenTok.listRenders(Integer offset, Integer count)` methods.
 
 ## Samples
 

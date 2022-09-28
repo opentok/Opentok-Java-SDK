@@ -7,6 +7,7 @@
  */
 package com.opentok;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.opentok.exception.InvalidArgumentException;
@@ -39,20 +40,17 @@ public class OpenTok {
     private int apiKey;
     private String apiSecret;
     protected HttpClient client;
-    static protected ObjectReader archiveReader = new ObjectMapper()
-            .readerFor(Archive.class);
-    static protected ObjectReader archiveListReader = new ObjectMapper()
-            .readerFor(ArchiveList.class);
-    static protected ObjectReader createdSessionReader = new ObjectMapper()
-            .readerFor(CreatedSession[].class);
-    static protected ObjectReader streamReader = new ObjectMapper()
-            .readerFor(Stream.class);
-    static protected ObjectReader streamListReader = new ObjectMapper()
-            .readerFor(StreamList.class);
-    static protected ObjectReader sipReader = new ObjectMapper()
-            .readerFor(Sip.class);
-    static protected ObjectReader broadcastReader = new ObjectMapper()
-            .readerFor(Broadcast.class);
+    protected static final ObjectReader
+        archiveReader = new ObjectMapper().readerFor(Archive.class),
+        archiveListReader = new ObjectMapper().readerFor(ArchiveList.class),
+        createdSessionReader = new ObjectMapper().readerFor(CreatedSession[].class),
+        streamReader = new ObjectMapper().readerFor(Stream.class),
+        streamListReader = new ObjectMapper().readerFor(StreamList.class),
+        sipReader = new ObjectMapper().readerFor(Sip.class),
+        broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
+        renderReader = new ObjectMapper().readerFor(Render.class),
+        renderListReader = new ObjectMapper().readerForListOf(Render.class);
+
     static final String defaultApiUrl = "https://api.opentok.com";
 
     /**
@@ -545,7 +543,7 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to start a live streaming for an OpenTok session.
+     * Starts a live streaming broadcast for an OpenTok session.
      * This broadcasts the session to an HLS (HTTP live streaming) or to RTMP streams.
      * <p>
      * To successfully start broadcasting a session, at least one client must be connected to the session.
@@ -581,7 +579,7 @@ public class OpenTok {
     }
 
     /**
-     * Use this method to stop a live broadcast of an OpenTok session.
+     * Stops a live streaming broadcast of an OpenTok session.
      * Note that broadcasts automatically stop 120 minutes after they are started.
      * <p>
      * For more information on broadcasting, see the
@@ -819,10 +817,10 @@ public class OpenTok {
      * such as phone numbers. (The OpenTok client libraries include properties for inspecting
      * the connection data for a client connected to a session.) See the
      * <a href="https://tokbox.com/developer/guides/signaling/">Token Creation developer guide</a>.
-.    *
+     *
      * @param properties The {@link SipProperties} object defining options for the SIP call.
      *
-     * @return The  {@link Sip} object.
+     * @return The {@link Sip} object.
      */
     public Sip dial(String sessionId, String token, SipProperties properties) throws OpenTokException {
         if ((StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null || StringUtils.isEmpty(properties.sipUri()))) {
@@ -861,6 +859,100 @@ public class OpenTok {
      */
     public void playDTMF(String sessionId, String connectionId, String dtmfDigits) throws OpenTokException {
         client.playDtmfSingle(sessionId, connectionId, dtmfDigits);
+    }
+
+    /**
+     * Starts an Experience Composer render for an OpenTok session. For more information, see the
+     * <a href="https://tokbox.com/developer/guides/experience-composer">Experience Composer developer guide</a>.
+     *
+     * @param sessionId The session ID.
+     * @param properties The {@link RenderProperties} object defining the properties for the Render call.
+     *
+     * @return The {@link Render} response object.
+     *
+     * @throws OpenTokException
+     */
+    public Render startRender(String sessionId, String token, RenderProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(sessionId) || StringUtils.isEmpty(token) || properties == null) {
+            throw new InvalidArgumentException("Session id, token and properties are all required.");
+        }
+        String render = client.startRender(sessionId, token, properties);
+        try {
+            return renderReader.readValue(render);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gets a Render object, with details on an Experience Composer.
+     *
+     * @param renderId The ID of the Experience Composer to retrieve.
+     *
+     * @return The {@link Render} response object associated with the provided ID.
+     *
+     * @throws OpenTokException
+     */
+    public Render getRender(String renderId) throws OpenTokException {
+        if (StringUtils.isEmpty(renderId)) {
+            throw new InvalidArgumentException("Render id is required.");
+        }
+        String render = client.getRender(renderId);
+        try {
+            return renderReader.readValue(render);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Stops an Experience Composer of an OpenTok session. Note that by default
+     * Experience Composers automatically stop 2 hours after they are started. You can also set a different
+     * maxDuration value when you create the Experience Composer. When the Experience Composer ends, an event is
+     * posted to the callback URL, if you have configured one for the project.
+     *
+     * @param renderId The ID of the Experience Composer to stop.
+     *
+     * @throws OpenTokException
+     */
+    public void stopRender(String renderId) throws OpenTokException {
+        if (StringUtils.isEmpty(renderId)) {
+            throw new InvalidArgumentException("Render id is required.");
+        }
+        client.stopRender(renderId);
+    }
+
+    /**
+     * Gets a list of Render objects, representing Experience Composers associated with the
+     * OpenTok project.
+     *
+     * @return The list of {@link Render} objects.
+     *
+     * @throws OpenTokException
+     */
+    public List<Render> listRenders() throws OpenTokException {
+        return listRenders(null, null);
+    }
+
+    /**
+     * Gets a list of Render objects, representing a list of Experience Composers associated
+     * with the OpenTok project.
+     *
+     * @param offset (optional) Start offset in the list of existing Renders.
+     * @param count (optional) Number of Renders to retrieve starting at offset. Maximum 1000.
+     *
+     * @return The list of {@link Render} objects.
+     *
+     * @throws OpenTokException
+     */
+    public List<Render> listRenders(Integer offset, Integer count) throws OpenTokException {
+        String response = client.listRenders(offset, count);
+        try {
+            JsonNode root = new ObjectMapper().readTree(response);
+            return renderListReader.readValue(root.get("items"));
+        } catch (IOException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
     }
 
     /**
