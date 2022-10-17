@@ -1126,7 +1126,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
         Future<Response> request = preparePost(url)
                 .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
-                .setHeader("X-OPENTOK-AUTH", token)
                 .execute();
 
         try {

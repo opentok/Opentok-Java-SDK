@@ -2565,9 +2565,11 @@ public class OpenTokTest {
         String sessionId = UUID.randomUUID().toString();
         String callId = UUID.randomUUID().toString();
         String connectionId = UUID.randomUUID().toString();
+        String endpoint = "ws://service.com/wsendpoint";
+        String requestJson = "{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\""+endpoint+"\"}}";
 
         stubFor(post(urlEqualTo(url))
-                .withRequestBody(equalToJson("{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\"ws://service.com/wsendpoint\",\"streams\":[],\"headers\":{}}}"))
+                .withRequestBody(equalToJson(requestJson))
                 .willReturn(aResponse()
                         .withBody("{\"id\": \""+callId+"\", \"connectionId\": \""+connectionId+"\"}")
                         .withStatus(200)
@@ -2575,10 +2577,7 @@ public class OpenTokTest {
         );
 
         AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder()
-            .uri("ws://service.com/wsendpoint")
-            .addStreams()
-            .addHeaders(Collections.emptyMap())
-            .build();
+                .uri(endpoint).build();
 
         assertTrue(connectProperties.streams() == null || connectProperties.streams().isEmpty());
         assertTrue(connectProperties.headers() == null || connectProperties.headers().isEmpty());
