@@ -2577,7 +2577,7 @@ public class OpenTokTest {
         AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder()
             .uri("ws://service.com/wsendpoint")
             .addStreams()
-            .headers(Collections.emptyMap())
+            .addHeaders(Collections.emptyMap())
             .build();
 
         assertTrue(connectProperties.streams() == null || connectProperties.streams().isEmpty());
@@ -2643,8 +2643,8 @@ public class OpenTokTest {
         assertNotNull(cp1.type());
 
         AudioStreamerConnectionProperties cp2 = new AudioStreamerConnectionProperties.Builder()
-            .streams(new HashSet<>())
-            .headers(new HashMap<>())
+            .addStreams(new HashSet<>())
+            .addHeaders(new HashMap<>())
             .addStream("STREAMID")
             .addStreams(new LinkedList<>())
             .addHeader("k1", "v1")

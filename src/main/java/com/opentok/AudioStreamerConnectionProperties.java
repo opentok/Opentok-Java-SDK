@@ -41,8 +41,7 @@ public class AudioStreamerConnectionProperties {
 
 	/**
 	 * Additional headers to include in the request body.
-	 *
-	 * NOTE: The maximum length of this should be 512 bytes.
+	 * NOTE: The maximum length is 512 bytes.
 	 *
 	 * @return An immutable map of additional properties, if present.
 	 */
@@ -98,19 +97,7 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Sets the collection of stream IDs to the parameter.
-		 *
-		 * @param streams The collection of stream IDs.
-		 *
-		 * @return This builder with the streams property set.
-		 */
-		public Builder streams(Collection<String> streams) {
-			this.streams = Objects.requireNonNull(streams);
-			return this;
-		}
-
-		/**
-		 * Adds the stream ID to the streams property.
+		 * Adds an OpenTok stream (with the corresponding stream ID) to the include in the WebSocket audio.
 		 *
 		 * @param stream The Stream ID to add.
 		 *
@@ -125,7 +112,7 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Adds the stream IDs to the streams property.
+		 * Adds the OpenTok streams (with the corresponding stream IDs) to the include in the WebSocket audio.
 		 *
 		 * @param streams The stream IDs to add.
 		 *
@@ -136,7 +123,7 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Adds the stream IDs to the streams property.
+		 * Adds the OpenTok streams (with the corresponding stream IDs) to the include in the WebSocket audio.
 		 *
 		 * @param streams The collection of stream IDs to add.
 		 *
@@ -148,14 +135,14 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Sets the map of additional headers to the parameter.
+		 * Puts all entries of the map into the headers parameter.
 		 *
-		 * @param headers The map of header properties.
+		 * @param headers The map of header key-value pairs to append.
 		 *
-		 * @return This builder with the headers property set.
+		 * @return This builder with the specified headers included.
 		 */
-		public Builder headers(Map<String, String> headers) {
-			this.headers = Objects.requireNonNull(headers);
+		public Builder addHeaders(Map<String, String> headers) {
+			this.headers.putAll(Objects.requireNonNull(headers));
 			return this;
 		}
 
