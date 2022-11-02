@@ -68,32 +68,25 @@ public class AudioStreamerConnectionProperties {
 	 * Intermediary stateful object used to construct {@link AudioStreamerConnectionProperties}.
 	 */
 	public static class Builder {
-		private URI uri;
-		private Collection<String> streams = new ArrayList<>();
-		private Map<String, String> headers = new HashMap<>();
+		private final URI uri;
+		private final Collection<String> streams = new ArrayList<>();
+		private final Map<String, String> headers = new HashMap<>();
 
 		/**
 		 * Call this method and pass in the uri where your service is listening.
-		 * This parameter is mandatory.
 		 *
-		 * @param uri A valid URI.
-		 *
-		 * @return The ConnectProperties.Builder object with the uri setting.
+		 * @param uri The URI where your service is listening.
 		 */
-		public Builder uri(URI uri) {
+		public Builder(URI uri) {
 			this.uri = uri;
-			return this;
 		}
 
 		/**
-		 * Call this method and pass in the uri where your service is listening.
 		 *
-		 * @param uri A valid string representation of a URI.
-		 *
-		 * @return The ConnectProperties.Builder object with the uri setting.
+		 * @param uri The URI where your service is listening, as a string.
 		 */
-		public Builder uri(String uri) {
-			return uri(URI.create(uri));
+		public Builder(String uri) {
+			this(URI.create(uri));
 		}
 
 		/**
