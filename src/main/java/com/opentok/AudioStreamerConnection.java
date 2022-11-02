@@ -32,7 +32,7 @@ public class AudioStreamerConnection {
 	}
 
 	/**
-	 * A unique call ID identifying the Audio Streamer WebSocket connection.
+	 * A unique ID identifying the Audio Streamer WebSocket connection.
 	 */
 	public String getId() {
 		return id;

@@ -22,8 +22,8 @@ public class AudioStreamerConnectionProperties {
 	private final Map<String, String> headers;
 
 	/**
-	 * Path of the WebSocket service endpoint.
-	 * 
+	 * The WebSocket URI to be used for the destination of the audio stream.
+	 *
 	 * @return A valid, non-null URI.
 	 */
 	public URI uri() {
@@ -31,7 +31,8 @@ public class AudioStreamerConnectionProperties {
 	}
 
 	/**
-	 * Stream IDs to include in the request body.
+	 * A collection of stream IDs for the OpenTok streams included in the WebSocket audio.
+	 * If this collection is empty, all streams in the session will be included.
 	 *
 	 * @return An immutable collection of stream IDs, if present.
 	 */
@@ -73,26 +74,33 @@ public class AudioStreamerConnectionProperties {
 		private final Map<String, String> headers = new HashMap<>();
 
 		/**
-		 * Call this method and pass in the uri where your service is listening.
+		 * Constructor for the AudioStreamerConnectionProperties.Builder, using a URI to
+		 * define the WebSocket URI.
 		 *
-		 * @param uri The URI where your service is listening.
+		 * @param uri The publicly reachable WebSocket URI to be used for the destination
+		 * of the audio stream.
 		 */
 		public Builder(URI uri) {
 			this.uri = uri;
 		}
 
 		/**
+		 * Constructor for the AudioStreamerConnectionProperties.Builder, using a string to
+		 * define the WebSocket URI.
 		 *
-		 * @param uri The URI where your service is listening, as a string.
+		 * @param uri The publicly reachable WebSocket URI to be used for the destination of
+		 * the audio stream, as a string (such as "wss://example.com/ws-endpoint").
 		 */
 		public Builder(String uri) {
 			this(URI.create(uri));
 		}
 
 		/**
-		 * Adds an OpenTok stream (with the corresponding stream ID) to the include in the WebSocket audio.
+		 * Adds an OpenTok stream (with the corresponding stream ID) to include in the WebSocket audio.
+		 * If the AudioStreamerConnectionProperties includes no streams, all streams in the session
+		 * will be included.
 		 *
-		 * @param stream The Stream ID to add.
+		 * @param stream The stream ID.
 		 *
 		 * @return This builder with the additional stream ID.
 		 */
@@ -105,7 +113,9 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Adds the OpenTok streams (with the corresponding stream IDs) to the include in the WebSocket audio.
+		 * Adds OpenTok streams (with the corresponding stream IDs) to include in the WebSocket audio.
+		 * If the AudioStreamerConnectionProperties includes no streams, all streams in the session
+		 * will be included.
 		 *
 		 * @param streams The stream IDs to add.
 		 *
@@ -116,7 +126,9 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Adds the OpenTok streams (with the corresponding stream IDs) to the include in the WebSocket audio.
+		 * Adds OpenTok streams (with the corresponding stream IDs) to include in the WebSocket audio.
+		 * If the AudioStreamerConnectionProperties includes no streams, all streams in the session
+		 * will be included.
 		 *
 		 * @param streams The collection of stream IDs to add.
 		 *
@@ -128,7 +140,8 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Puts all entries of the map into the headers parameter.
+		 * Puts all entries of the map into the headers parameter. The headers will
+		 * be sent to your WebSocket server with each message.
 		 *
 		 * @param headers The map of header key-value pairs to append.
 		 *
@@ -140,7 +153,8 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Adds a header entry to this object's headers property.
+		 * Adds a header entry to this object's headers property. The header will
+		 * be sent to your WebSocket server with each message.
 		 *
 		 * @param key Header key.
 		 * @param value Header value.
@@ -156,7 +170,7 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Builds the ConnectProperties object.
+		 * Builds the AudioStreamerConnectionProperties object.
 		 *
 		 * @return The constructed {@link AudioStreamerConnectionProperties} object.
 		 */
