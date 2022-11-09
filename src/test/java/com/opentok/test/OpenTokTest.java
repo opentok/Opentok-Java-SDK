@@ -10,7 +10,6 @@ package com.opentok.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.ValueMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -133,15 +132,10 @@ public class OpenTokTest {
     @Test
     public void testSignalWithEmoji() throws OpenTokException {
         String sessionId = "SESSIONID";
-        boolean exceptionThrown = false;
-
+        String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/signal";
         SignalProperties properties = new SignalProperties.Builder().type("test").data("\uD83D\uDE01").build();
-        try {
-            sdk.signal(sessionId, properties);
-        } catch (RequestException e) {
-            exceptionThrown = true;
-        }
-        assertTrue(exceptionThrown);
+        stubFor(post(urlEqualTo(path)).willReturn(aResponse().withStatus(413)));
+        assertThrows(RequestException.class, () -> sdk.signal(sessionId, properties));
     }
 
     @Test
@@ -149,9 +143,7 @@ public class OpenTokTest {
         String sessionId = "SESSIONID";
         String connectionId = "CONNECTIONID";
         String path = "/v2/project/" + apiKey + "/session/" + sessionId + "/connection/" + connectionId + "/signal";
-        stubFor(post(urlEqualTo(path))
-                .willReturn(aResponse()
-                        .withStatus(204)));
+        stubFor(post(urlEqualTo(path)).willReturn(aResponse().withStatus(204)));
         SignalProperties properties = new SignalProperties.Builder().type("test").data("Signal test string").build();
         sdk.signal(sessionId, connectionId, properties);
 
@@ -999,8 +991,6 @@ public class OpenTokTest {
                                 "        }")));
 
         String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasVideo\":true,\"hasAudio\":true,\"outputMode\":\"composed\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}}",sessionId);
-        ValueMatchingStrategy valueMatchingStrategy = new ValueMatchingStrategy();
-        valueMatchingStrategy.setEqualToJson(expectedJson);
 
         ArchiveLayout layout = new ArchiveLayout(ScreenShareLayoutType.BESTFIT);
         assertEquals(ScreenShareLayoutType.BESTFIT, layout.getScreenshareType());
@@ -1012,7 +1002,7 @@ public class OpenTokTest {
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
-        verify(postRequestedFor(urlMatching(archivePath)).withRequestBody(valueMatchingStrategy));
+        verify(postRequestedFor(urlMatching(archivePath)).withRequestBody(equalToJson(expectedJson)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(archivePath)))));
         Helpers.verifyUserAgent();
@@ -1086,11 +1076,9 @@ public class OpenTokTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
-        ValueMatchingStrategy strategy = new ValueMatchingStrategy();
         String expectedJson = "{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}";
-        strategy.setEqualToJson(expectedJson);
         sdk.setArchiveLayout(archiveId, properties);
-        verify(putRequestedFor(urlMatching(url)).withRequestBody(strategy));
+        verify(putRequestedFor(urlMatching(url)).withRequestBody(equalToJson(expectedJson)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(putRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
@@ -1121,72 +1109,37 @@ public class OpenTokTest {
 
         sdk.setArchiveLayout(archiveId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
-                findAll(putRequestedFor(urlMatching(url)))));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(putRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
     }
 
     @Test
     public void testSetArchiveLayoutCustomWithNoStyleSheet() throws OpenTokException {
-        boolean exception = false;
         String archiveId = "ARCHIVEID";
         ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.CUSTOM)).build();
-        try {
-            sdk.setArchiveLayout(archiveId, properties);
-        } catch (RequestException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(RequestException.class, () -> sdk.setArchiveLayout(archiveId, properties));
     }
 
     @Test
     public void testSetArchiveLayoutNonCustomWithStyleSheet() throws OpenTokException {
-        boolean exception = false;
         String archiveId = "ARCHIVEID";
         ArchiveProperties properties = new ArchiveProperties.Builder().layout(new ArchiveLayout(ArchiveLayout.Type.BESTFIT, "stream { position: absolute; }")).build();
-        String url = "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/layout";
-        try {
-            sdk.setArchiveLayout(archiveId, properties);
-        } catch (RequestException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        assertThrows(RequestException.class, () -> sdk.setArchiveLayout(archiveId, properties));
     }
 
-    @Test
+    @Test(expected = InvalidArgumentException.class)
     public void testSetArchiveLayoutWithNoProperties() throws OpenTokException {
-        boolean exception = false;
-        String archiveId = "ARCHIVEID";
-        try {
-            sdk.setArchiveLayout(archiveId, null);
-        } catch (InvalidArgumentException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        sdk.setArchiveLayout("ARCHIVEID", null);
     }
 
-    @Test
+    @Test(expected = InvalidArgumentException.class)
     public void testSetArchiveStreamsLayoutWithNoProps() throws OpenTokException {
-        boolean exception = false;
-        String sessionId = "SESSIONID";
-        try {
-            sdk.setStreamLayouts(sessionId, null);
-        } catch (InvalidArgumentException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        sdk.setStreamLayouts("SESSIONID", null);
     }
 
-    @Test
+    @Test(expected = InvalidArgumentException.class)
     public void testSetArchiveStreamsLayoutWithNoSessionID() throws OpenTokException {
-        boolean exception = false;
-        String sessionId = "";
-        try {
-            sdk.setStreamLayouts(sessionId, new StreamListProperties.Builder().build());
-        } catch (InvalidArgumentException e) {
-            exception = true;
-        }
-        assertTrue(exception);
+        sdk.setStreamLayouts("", new StreamListProperties.Builder().build());
     }
 
     @Test
@@ -1856,14 +1809,13 @@ public class OpenTokTest {
                 .maxDuration(5400)
                 .layout(layout)
                 .build();
+
         String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
-        ValueMatchingStrategy validationStrat = new ValueMatchingStrategy();
-        validationStrat.setEqualToJson(expectedJson);
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         assertNotNull(broadcast);
         assertEquals(sessionId, broadcast.getSessionId());
         assertNotNull(broadcast.getId());
-        verify(postRequestedFor(urlMatching(broadcastPath)).withRequestBody(validationStrat));
+        verify(postRequestedFor(urlMatching(broadcastPath)).withRequestBody(equalToJson(expectedJson)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(broadcastPath)))));
         Helpers.verifyUserAgent();
     }
@@ -2155,11 +2107,10 @@ public class OpenTokTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
+
         String expectedJson = "{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}";
-        ValueMatchingStrategy strategy = new ValueMatchingStrategy();
-        strategy.setEqualToJson(expectedJson);
         sdk.setBroadcastLayout(broadcastId, properties);
-        verify(putRequestedFor(urlMatching(url)).withRequestBody(strategy));
+        verify(putRequestedFor(urlMatching(url)).withRequestBody(equalToJson(expectedJson)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(putRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
@@ -2590,14 +2541,14 @@ public class OpenTokTest {
         String url = "/v2/project/" + apiKey + "/connect";
         String sessionId = UUID.randomUUID().toString();
         String uri = "ws://service.com/wsendpoint";
+        String json = "{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\""+uri+"\"}}";
 
         stubFor(post(urlEqualTo(url))
-                .withRequestBody(equalToJson("{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\"ws://service.com/wsendpoint\",\"streams\":[],\"headers\":{}}}"))
+                .withRequestBody(equalToJson(json))
                 .willReturn(aResponse().withStatus(503))
         );
 
         AudioStreamerConnectionProperties connectProperties = new AudioStreamerConnectionProperties.Builder(uri).build();
-
         assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
     }
 
