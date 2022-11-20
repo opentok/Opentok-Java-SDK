@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.github.tomakehurst:wiremock:1.58'
+    testImplementation 'com.github.tomakehurst:wiremock:2.7.0'
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
