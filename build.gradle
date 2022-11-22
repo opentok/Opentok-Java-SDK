@@ -5,15 +5,17 @@ plugins {
     id 'jacoco'
     id 'signing'
     id 'maven-publish'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id "com.github.hierynomus.license" version "0.16.1"
 }
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '4.8.0'
-
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+ext.githubPath = 'opentok/opentok-java-sdk'
 
 repositories {
     mavenCentral()
@@ -25,9 +27,9 @@ dependencies {
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'org.bitbucket.b_c:jose4j:0.8.0'
+    implementation 'org.bitbucket.b_c:jose4j:0.9.1'
 }
 
 task sourcesJar(type: Jar) {
@@ -87,11 +89,11 @@ publishing {
                 artifactId = 'opentok-server-sdk'
                 packaging = 'jar'
                 description = "The OpenTok Java SDK lets you generate sessions and tokens for OpenTok applications. This version of the SDK also includes support for working with OpenTok 2.0 archives."
-                url = "https://github.com/opentok/opentok-java-sdk"
+                url = "https://github.com/$githubPath"
                 licenses {
                     license {
                         name = 'MIT License'
-                        url = "https://raw.github.com/opentok/opentok-java-sdk/main/LICENCE.txt"
+                        url = "https://raw.github.com/$githubPath/main/LICENCE.txt"
                     }
                 }
                 developers {
@@ -126,25 +128,25 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git@github.com/opentok/opentok-java-sdk"
-                    developerConnection = "scm:git@github.com/opentok/opentok-java-sdk"
-                    url = "http://github.com/opentok/opentok-java-sdk"
+                    connection = "scm:git@github.com/$githubPath"
+                    developerConnection = "scm:git@github.com/$githubPath"
+                    url = "https://github.com/$githubPath"
                 }
 
                 issueManagement {
                     system = "GitHub"
-                    url = "https://http://github.com/opentok/opentok-java-sdk"
+                    url = "https://github.com/$githubPath"
                 }
             }
         }
     }
+}
+
+nexusPublishing {
     repositories {
-        maven {
-            def releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            def snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            credentials.username(System.getenv("OSS_USERNAME"))
-            credentials.password(System.getenv("OSS_PASSWORD"))
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        sonatype {
+            username = System.getenv("OSS_USERNAME")
+            password = System.getenv("OSS_PASSWORD")
         }
     }
 }

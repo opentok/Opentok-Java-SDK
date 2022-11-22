@@ -33,7 +33,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>[4.4.1,5.0)</version>
+    <version>4.8.0</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '[4.4.1,5.0)'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.8.0'
 }
 ```
 
@@ -52,7 +52,7 @@ dependencies {
 Download the jar file for the latest release from the
 [Releases](https://github.com/opentok/opentok-java-sdk/releases) page. Include it in the classpath
 for your own project by
-[using the JDK directly](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/classpath.html)
+[using the JDK directly](http://docs.oracle.com/javase/8/docs/technotes/tools/windows/classpath.html)
 or in your IDE of choice.
 
 ## Usage
