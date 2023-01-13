@@ -23,13 +23,13 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.github.tomakehurst:wiremock:1.58'
+    testImplementation 'com.github.tomakehurst:wiremock:2.27.2'
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'org.bitbucket.b_c:jose4j:0.9.1'
+    implementation 'org.bitbucket.b_c:jose4j:0.9.2'
 }
 
 task sourcesJar(type: Jar) {

@@ -6,6 +6,7 @@
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,9 +38,10 @@ import java.util.Map;
  */
 public class OpenTok {
 
-    private int apiKey;
-    private String apiSecret;
+    private final int apiKey;
+    private final String apiSecret;
     protected HttpClient client;
+
     protected static final ObjectReader
         archiveReader = new ObjectMapper().readerFor(Archive.class),
         archiveListReader = new ObjectMapper().readerFor(ArchiveList.class),

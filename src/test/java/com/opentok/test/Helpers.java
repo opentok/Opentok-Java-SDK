@@ -7,7 +7,7 @@
  */
 package com.opentok.test;
 
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.opentok.constants.Version;
