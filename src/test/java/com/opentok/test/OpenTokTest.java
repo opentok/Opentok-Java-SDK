@@ -87,8 +87,14 @@ public class OpenTokTest {
                               "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
                               "\"media_server_url\":\"\"}]")));
 
-            Session session = sdk.createSession();
+            sdk.createSession();
         });
+        CreatedSession createdSession = CreatedSession.makeSession();
+        assertNull(createdSession.getCreateDt());
+        assertNull(createdSession.getMediaServerURL());
+        assertNull(createdSession.getProjectId());
+        assertNull(createdSession.getPartnerId());
+
     }
 
     @Test
@@ -2079,6 +2085,7 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
+        assertThrows(InvalidArgumentException.class, () -> sdk.getBroadcast(""));
     }
 
     @Test
