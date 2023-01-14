@@ -1,3 +1,5 @@
+github_checks: false
+
 # Team Yaml
 coverage:
   round: down
