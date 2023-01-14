@@ -1552,10 +1552,12 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(path)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(path)))));
         Helpers.verifyUserAgent();
+        assertThrows(InvalidArgumentException.class, () -> sdk.forceMuteStream("", streamID));
+        assertThrows(InvalidArgumentException.class, () -> sdk.forceMuteStream(sessionID, ""));
     }
 
     @Test
-    public void TestForceMuteAllStreamWithIdList() throws OpenTokException {
+    public void testForceMuteAllStreamWithIdList() throws OpenTokException {
         String sessionID = "SESSIONID";
         String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
         stubFor(post(urlEqualTo(path))
@@ -1572,10 +1574,11 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
+        assertThrows(InvalidArgumentException.class, () -> sdk.forceMuteAll("", properties));
     }
 
     @Test
-    public void TestDisableForceMute() throws OpenTokException {
+    public void testDisableForceMute() throws OpenTokException {
         String sessionID = "SESSIONID";
         String path = "/v2/project/" + this.apiKey + "/session/" + sessionID + "/mute";
         stubFor(post(urlEqualTo(path))
@@ -1587,6 +1590,7 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
+        assertThrows(InvalidArgumentException.class, () -> sdk.disableForceMute(""));
     }
 
     @Test
@@ -2270,6 +2274,8 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(path)))));
         Helpers.verifyUserAgent();
+        assertThrows(InvalidArgumentException.class, () -> sdk.forceDisconnect("", connectionId));
+        assertThrows(InvalidArgumentException.class, () -> sdk.forceDisconnect(sessionId, ""));
     }
 
     @Test
@@ -2358,6 +2364,8 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
         Helpers.verifyUserAgent();
+
+        assertThrows(InvalidArgumentException.class, () -> sdk.startRender("", token, properties));
     }
 
     @Test
