@@ -1,13 +1,13 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2022 Vonage.
+ * Copyright (C) 2023 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok.test;
 
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.opentok.constants.Version;
