@@ -8,8 +8,8 @@ repositories {
 dependencies {
     implementation project(':')
     implementation 'com.github.codingricky:spark-core-16:1.1'
-    implementation 'org.freemarker:freemarker:2.3.19'
-    implementation 'org.slf4j:slf4j-simple:1.7.6'
+    implementation 'org.freemarker:freemarker:2.3.32'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
 }
 
 run.systemProperty 'API_KEY', ''
