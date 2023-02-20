@@ -52,7 +52,7 @@ public class OpenTok {
         broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
         renderReader = new ObjectMapper().readerFor(Render.class),
         renderListReader = new ObjectMapper().readerForListOf(Render.class),
-        connectReader = new ObjectMapper().readerFor(AudioStreamerConnection.class);
+        connectReader = new ObjectMapper().readerFor(AudioConnector.class);
 
     static final String defaultApiUrl = "https://api.opentok.com";
 
@@ -866,19 +866,19 @@ public class OpenTok {
 
     /**
      * Send audio from a Vonage Video API session to a WebSocket. For more information, see the
-     * <a href="https://tokbox.com/developer/guides/audio-streamer/">Audio Streamer developer guide</a>.
+     * <a href="https://tokbox.com/developer/guides/audio-connector/">Audio Connector developer guide</a>.
      *
      * @param sessionId The session ID.
-     * @param token The OpenTok token to be used for the Audio Streamer connection to the
+     * @param token The OpenTok token to be used for the Audio Connector connection to the
      *              OpenTok session. You can add token data to identify that the connection
-     *              is the Audio Streamer endpoint or for other identifying data.
+     *              is the Audio Connector endpoint or for other identifying data.
      * @param properties The ConnectProperties object defines options used in the request
-     *                   to the Audio Streamer API endpoint.
+     *                   to the Audio Connector API endpoint.
      *
      * @return The Audio Stream response object from the server.
      *
      */
-    public AudioStreamerConnection connectAudioStream(String sessionId, String token, AudioStreamerConnectionProperties properties) throws OpenTokException {
+    public AudioConnector connectAudioStream(String sessionId, String token, AudioConnectorProperties properties) throws OpenTokException {
         try {
             return connectReader.readValue(client.connectAudioStream(sessionId, token, properties));
         } catch (JsonProcessingException ex) {

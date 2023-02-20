@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2022 Vonage.
+ * Copyright (C) 2023 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -14,9 +14,9 @@ import java.util.*;
 
 /**
  * Defines values for the <code>properties</code> parameter of the
- * {@link OpenTok#connectAudioStream(String, String, AudioStreamerConnectionProperties)} method.
+ * {@link OpenTok#connectAudioStream(String, String, AudioConnectorProperties)} method.
  */
-public class AudioStreamerConnectionProperties {
+public class AudioConnectorProperties {
 	private final URI uri;
 	private final Collection<String> streams;
 	private final Map<String, String> headers;
@@ -31,6 +31,7 @@ public class AudioStreamerConnectionProperties {
 	}
 
 	/**
+	 * (OPTIONAL)
 	 * A collection of stream IDs for the OpenTok streams included in the WebSocket audio.
 	 * If this collection is empty, all streams in the session will be included.
 	 *
@@ -59,14 +60,14 @@ public class AudioStreamerConnectionProperties {
 		return "websocket";
 	}
 
-	protected AudioStreamerConnectionProperties(Builder builder) {
+	protected AudioConnectorProperties(Builder builder) {
 		this.uri = Objects.requireNonNull(builder.uri);
 		this.streams = builder.streams.isEmpty() ? null : Collections.unmodifiableCollection(builder.streams);
 		this.headers = builder.headers.isEmpty() ? null : Collections.unmodifiableMap(builder.headers);
 	}
 
 	/**
-	 * Intermediary stateful object used to construct {@link AudioStreamerConnectionProperties}.
+	 * Intermediary stateful object used to construct {@link AudioConnectorProperties}.
 	 */
 	public static class Builder {
 		private final URI uri;
@@ -74,7 +75,7 @@ public class AudioStreamerConnectionProperties {
 		private final Map<String, String> headers = new HashMap<>();
 
 		/**
-		 * Constructor for the AudioStreamerConnectionProperties.Builder, using a URI to
+		 * Constructor for the AudioConnectorProperties.Builder, using a URI to
 		 * define the WebSocket URI.
 		 *
 		 * @param uri The publicly reachable WebSocket URI to be used for the destination
@@ -85,7 +86,7 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Constructor for the AudioStreamerConnectionProperties.Builder, using a string to
+		 * Constructor for the AudioConnectorProperties.Builder, using a string to
 		 * define the WebSocket URI.
 		 *
 		 * @param uri The publicly reachable WebSocket URI to be used for the destination of
@@ -97,7 +98,7 @@ public class AudioStreamerConnectionProperties {
 
 		/**
 		 * Adds an OpenTok stream (with the corresponding stream ID) to include in the WebSocket audio.
-		 * If the AudioStreamerConnectionProperties includes no streams, all streams in the session
+		 * If the AudioConnectorProperties includes no streams, all streams in the session
 		 * will be included.
 		 *
 		 * @param stream The stream ID.
@@ -114,7 +115,7 @@ public class AudioStreamerConnectionProperties {
 
 		/**
 		 * Adds OpenTok streams (with the corresponding stream IDs) to include in the WebSocket audio.
-		 * If the AudioStreamerConnectionProperties includes no streams, all streams in the session
+		 * If the AudioConnectorProperties includes no streams, all streams in the session
 		 * will be included.
 		 *
 		 * @param streams The stream IDs to add.
@@ -127,7 +128,7 @@ public class AudioStreamerConnectionProperties {
 
 		/**
 		 * Adds OpenTok streams (with the corresponding stream IDs) to include in the WebSocket audio.
-		 * If the AudioStreamerConnectionProperties includes no streams, all streams in the session
+		 * If the AudioConnectorProperties includes no streams, all streams in the session
 		 * will be included.
 		 *
 		 * @param streams The collection of stream IDs to add.
@@ -170,12 +171,12 @@ public class AudioStreamerConnectionProperties {
 		}
 
 		/**
-		 * Builds the AudioStreamerConnectionProperties object.
+		 * Builds the AudioConnectorProperties object.
 		 *
-		 * @return The constructed {@link AudioStreamerConnectionProperties} object.
+		 * @return The constructed {@link AudioConnectorProperties} object.
 		 */
-		public AudioStreamerConnectionProperties build() {
-			return new AudioStreamerConnectionProperties(this);
+		public AudioConnectorProperties build() {
+			return new AudioConnectorProperties(this);
 		}
 	}
 

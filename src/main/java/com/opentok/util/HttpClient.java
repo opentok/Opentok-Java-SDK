@@ -1096,7 +1096,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
     }
 
-    public String connectAudioStream(String sessionId, String token, AudioStreamerConnectionProperties properties) throws OpenTokException {
+    public String connectAudioStream(String sessionId, String token, AudioConnectorProperties properties) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/connect";
 
         ObjectNode requestJson = JsonNodeFactory.instance.objectNode()

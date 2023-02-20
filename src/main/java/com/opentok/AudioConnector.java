@@ -1,6 +1,6 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2022 Vonage.
+ * Copyright (C) 2023 Vonage.
  * http://www.tokbox.com
  *
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
@@ -15,31 +15,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Represents an Audio Stream connection response.
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AudioStreamerConnection {
-
+public class AudioConnector {
 	@JsonProperty private String id;
 	@JsonProperty private String connectionId;
 
-	protected AudioStreamerConnection() {}
+	protected AudioConnector() {}
 
 	/**
 	 * Do not call this method. To initiate an audio stream connection to a session, call the
-	 * {@link OpenTok#connectAudioStream(String, String, AudioStreamerConnectionProperties)} method.
+	 * {@link OpenTok#connectAudioStream(String, String, AudioConnectorProperties)} method.
 	 */
 	@JsonCreator
-	public static AudioStreamerConnection makeAudioStreamerConnection() {
-		return new AudioStreamerConnection();
+	public static AudioConnector makeConnection() {
+		return new AudioConnector();
 	}
 
 	/**
-	 * A unique ID identifying the Audio Streamer WebSocket connection.
+	 * @return A unique ID identifying the Audio Connector WebSocket connection.
 	 */
 	public String getId() {
 		return id;
 	}
 
 	/**
-	 * The OpenTok connection ID for the Audio Streamer WebSocket connection in the OpenTok session.
+	 * @return The OpenTok connection ID for the Audio Connector WebSocket connection in the OpenTok session.
 	 */
 	public String getConnectionId() {
 		return connectionId;
