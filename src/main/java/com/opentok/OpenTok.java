@@ -875,7 +875,7 @@ public class OpenTok {
      * @param properties The ConnectProperties object defines options used in the request
      *                   to the Audio Connector API endpoint.
      *
-     * @return The Audio Stream response object from the server.
+     * @return The Audio Connect response object from the server.
      *
      */
     public AudioConnector connectAudioStream(String sessionId, String token, AudioConnectorProperties properties) throws OpenTokException {

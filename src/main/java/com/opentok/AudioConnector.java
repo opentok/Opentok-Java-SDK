@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Represents an Audio Stream connection response.
+ * Represents an Audio Connector instance.
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AudioConnector {
