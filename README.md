@@ -579,7 +579,7 @@ method:
 
 ```java
 RenderProperties properties = new RenderProperties.Builder()
-         .url(("http://example.com/path-to-page/")
+         .url("http://example.com/path-to-page/")
          .build();
 
 Render render = opentok.startRender(sessionId, token, properties);
@@ -589,6 +589,22 @@ You can stop an Experience Composer by calling the `OpenTok.stopRender(String re
 
 You can get information about Experience Composers by calling the `OpenTok.getRender(String renderId)`,
 `OpenTok.listRenders()` or `OpenTok.listRenders(Integer offset, Integer count)` methods.
+
+### Working with Audio Connector
+
+You can start an [Audio Connector stream](https://tokbox.com/developer/guides/audio-connector)
+by calling the `OpenTok.connectAudioStream(String sessionId, String token, AudioConnectorProperties properties)`
+method:
+
+```java
+AudioConnectorProperties properties = new AudioConnectorProperties.Builder("wss://service.com/ws-endpoint")
+        .addStreams("streamId-1", "streamId-2")
+        .addHeader("X-CustomHeader-Key", "headerValue")
+        .build();
+
+AudioConnector ac = opentok.connectAudioStream(sessionId, token, properties);
+```
+
 
 ## Samples
 
