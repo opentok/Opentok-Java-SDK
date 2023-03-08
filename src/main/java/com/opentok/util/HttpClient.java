@@ -1096,6 +1096,61 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
     }
 
+    public String connectAudioStream(String sessionId, String token, AudioConnectorProperties properties) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/connect";
+
+        ObjectNode requestJson = JsonNodeFactory.instance.objectNode()
+                .put("sessionId", sessionId)
+                .put("token", token);
+
+        ObjectNode mainBody = requestJson.putObject(properties.type());
+        mainBody.put("uri", properties.uri().toString());
+        Collection<String> streamsProperty = properties.streams();
+        if (streamsProperty != null && !streamsProperty.isEmpty()) {
+            ArrayNode streams = mainBody.putArray("streams");
+            streamsProperty.forEach(streams::add);
+        }
+        Map<String, String> headersProperty = properties.headers();
+        if (headersProperty != null && !headersProperty.isEmpty()) {
+            ObjectNode headers = mainBody.putObject("headers");
+            headersProperty.forEach(headers::put);
+        }
+
+        String requestBody;
+        try {
+            requestBody = new ObjectMapper().writeValueAsString(requestJson);
+        } catch (JsonProcessingException ex) {
+            throw new OpenTokException("Could not connect audio stream(s). The JSON body encoding failed", ex);
+        }
+
+        Future<Response> request = preparePost(url)
+                .setBody(requestBody)
+                .setHeader("Content-Type", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
+                            + "sessionId: " + sessionId);
+                case 403:
+                    throw new RequestException("Invalid OpenTok API key or JWT token.");
+                case 409:
+                    throw new RequestException("Conflict. Only routed sessions are allowed to initiate Connect Calls.");
+                case 500:
+                    throw new RequestException("OpenTok server error.");
+                default:
+                    throw new RequestException("Could not connect audio stream. The server response was invalid." +
+                            " Response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new RequestException("Could not get stream information", ex);
+        }
+    }
+
     public String startRender(String sessionId, String token, RenderProperties properties) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render";
 
@@ -1125,10 +1180,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
 
         Future<Response> request = this.preparePost(url)
-            .setHeader("Content-Type", "application/json")
-            .setHeader("Accept", "application/json")
-            .setBody(outputStream.toString())
-            .execute();
+                .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
+                .setBody(outputStream.toString())
+                .execute();
 
         try {
             Response response = request.get();
@@ -1143,7 +1198,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start render. A server error occurred.");
                 default:
                     throw new RequestException("Could not start render. The server response was invalid." +
-                        " response code: " + response.getStatusCode());
+                            " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not start render", e);
@@ -1154,9 +1209,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
 
         Future<Response> request = this.prepareGet(url)
-            .setHeader("Content-Type", "application/json")
-            .setHeader("Accept", "application/json")
-            .execute();
+                .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
+                .execute();
 
         try {
             Response response = request.get();
@@ -1173,7 +1228,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get render. A server error occurred.");
                 default:
                     throw new RequestException("Could not get render. The server response was invalid." +
-                        " response code: " + response.getStatusCode());
+                            " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not get render '"+renderId+"'", e);
@@ -1197,7 +1252,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not stop render. A server error occurred.");
                 default:
                     throw new RequestException("Could not stop render. The server response was invalid." +
-                        " response code: " + response.getStatusCode());
+                            " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not start render", e);
@@ -1226,13 +1281,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not list renders. A server error occurred.");
                 default:
                     throw new RequestException("Could not list renders. The server response was invalid." +
-                        " response code: " + response.getStatusCode());
+                            " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RequestException("Could not start render", e);
         }
     }
-
     public enum ProxyAuthScheme {
         BASIC,
         DIGEST,
