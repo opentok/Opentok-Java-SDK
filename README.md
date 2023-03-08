@@ -16,7 +16,8 @@ The OpenTok Java SDK provides methods for:
 * [Sending signals to clients connected to a session](https://tokbox.com/developer/guides/signaling/)
 * [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
 * [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
-* Working with OpenTok [Experience Composers](https://tokbox.com/developer/guides/experience-composer)
+* Working with [Experience Composers](https://tokbox.com/developer/guides/experience-composer)
+* Working with [Audio Connectors](/https://tokbox.com/developer/guides/audio-connector)
 
 ## Installation
 
