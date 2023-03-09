@@ -1815,11 +1815,10 @@ public class OpenTokTest {
         BroadcastLayout layout = new BroadcastLayout(ScreenShareLayoutType.PIP);
 
         BroadcastProperties properties = new BroadcastProperties.Builder()
-              .hasHls(true)
-              .maxDuration(5400)
-              .layout(layout)
-              .build();
-
+                .hasHls(true)
+                .maxDuration(5400)
+                .layout(layout)
+                .build();
         String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         assertNotNull(broadcast);
@@ -2492,5 +2491,138 @@ public class OpenTokTest {
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(endpoint)))));
         Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testConnectAudioStream200() throws OpenTokException {
+        String url = "/v2/project/" + apiKey + "/connect";
+        String callId = UUID.randomUUID().toString();
+        String connectionId = UUID.randomUUID().toString();
+        String sessionId = UUID.randomUUID().toString();
+        String uri = "ws://service.com/wsendpoint";
+
+        stubFor(post(urlEqualTo(url))
+                .withRequestBody(equalToJson("{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\"ws://service.com/wsendpoint\",\"streams\":[\"STREAMID1\",\"STREAMID2\"],\"headers\":{\"key1\":\"header1\",\"content-type\":\"audio/l16;rate=16000\"}}}"))
+                .willReturn(aResponse()
+                        .withBody("{\"id\": \""+callId+"\", \"connectionId\": \""+connectionId+"\"}")
+                        .withStatus(200)
+                ));
+
+        AudioConnectorProperties connectProperties = new AudioConnectorProperties.Builder(uri)
+                .addHeader("content-type", "audio/l16;rate=16000")
+                .addHeader("key1", "header1")
+                .addStreams("STREAMID1", "STREAMID2")
+                .build();
+
+        AudioConnector connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
+
+        assertNotNull(connectResponse);
+        assertEquals(connectionId, connectResponse.getConnectionId());
+        assertEquals(callId, connectResponse.getId());
+    }
+
+    @Test
+    public void testConnectAudioStreamNoHeadersOrStreams() throws OpenTokException {
+        String url = "/v2/project/" + apiKey + "/connect";
+        String sessionId = UUID.randomUUID().toString();
+        String callId = UUID.randomUUID().toString();
+        String connectionId = UUID.randomUUID().toString();
+        String endpoint = "ws://service.com/wsendpoint";
+        String requestJson = "{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\""+endpoint+"\"}}";
+
+        stubFor(post(urlEqualTo(url))
+                .withRequestBody(equalToJson(requestJson))
+                .willReturn(aResponse()
+                        .withBody("{\"id\": \""+callId+"\", \"connectionId\": \""+connectionId+"\"}")
+                        .withStatus(200)
+                )
+        );
+
+        AudioConnectorProperties connectProperties = new AudioConnectorProperties.Builder(endpoint).build();
+
+        assertTrue(connectProperties.streams() == null || connectProperties.streams().isEmpty());
+        assertTrue(connectProperties.headers() == null || connectProperties.headers().isEmpty());
+
+        AudioConnector connectResponse = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
+
+        assertNotNull(connectResponse);
+        assertEquals(connectionId, connectResponse.getConnectionId());
+        assertEquals(callId, connectResponse.getId());
+    }
+
+    @Test
+    public void testConnectAudioStreamUnknownResponseCode() throws OpenTokException {
+        String url = "/v2/project/" + apiKey + "/connect";
+        String sessionId = UUID.randomUUID().toString();
+        String uri = "ws://service.com/wsendpoint";
+        String json = "{\"sessionId\":\""+sessionId+"\",\"token\":\""+apiSecret+"\",\"websocket\":{\"uri\":\""+uri+"\"}}";
+
+        stubFor(post(urlEqualTo(url))
+                .withRequestBody(equalToJson(json))
+                .willReturn(aResponse().withStatus(503))
+        );
+
+        AudioConnectorProperties connectProperties = new AudioConnectorProperties.Builder(uri).build();
+        assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
+    }
+
+    @Test
+    public void testConnectAudioStreamErrors() throws OpenTokException {
+        String url = "/v2/project/" + apiKey + "/connect";
+        String sessionId = UUID.randomUUID().toString();
+        String uri = "ws://service.com/wsendpoint";
+        AudioConnectorProperties connectProperties = new AudioConnectorProperties.Builder(uri).build();
+
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(400)));
+        assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
+
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(403)));
+        assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
+
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(404)));
+        assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
+
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(500)));
+        assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
+    }
+
+    @Test
+    public void testConnectProperties() throws Exception {
+        assertThrows(
+    "Should not be possible to construct audio stream without URI",
+            Exception.class,
+            () -> new AudioConnectorProperties.Builder((java.net.URI) null).build()
+        );
+        assertThrows(
+                "Should not be possible to construct audio stream without URI",
+                Exception.class,
+                () -> new AudioConnectorProperties.Builder((String) null).build()
+        );
+        String uriStr = "ws://service.com/wsendpoint";
+        AudioConnectorProperties cp1 = new AudioConnectorProperties.Builder(new URI(uriStr)).build();
+        assertTrue(cp1.headers() == null || cp1.headers().isEmpty());
+        assertTrue(cp1.streams() == null || cp1.streams().isEmpty());
+        assertNotNull(cp1.uri());
+        assertNotNull(cp1.type());
+
+        AudioConnectorProperties cp2 = new AudioConnectorProperties.Builder(uriStr)
+            .addStreams(new HashSet<>())
+            .addHeaders(new HashMap<>())
+            .addStream("STREAMID")
+            .addStreams(new LinkedList<>())
+            .addHeader("k1", "v1")
+            .build();
+
+        assertThrows(UnsupportedOperationException.class, () -> cp2.headers().put("k2", "v2"));
+        assertThrows(UnsupportedOperationException.class, () -> cp2.headers().clear());
+        assertThrows(UnsupportedOperationException.class, () -> cp2.streams().add("streamID_2"));
+        assertThrows(UnsupportedOperationException.class, () -> cp2.streams().clear());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                new AudioConnectorProperties.Builder(uriStr).addHeader(" ", "value").build()
+        );
+        assertThrows(IllegalArgumentException.class, () ->
+                new AudioConnectorProperties.Builder(uriStr).addStream(" ").build()
+        );
     }
 }

@@ -16,7 +16,8 @@ The OpenTok Java SDK provides methods for:
 * [Sending signals to clients connected to a session](https://tokbox.com/developer/guides/signaling/)
 * [Disconnecting clients from sessions](https://tokbox.com/developer/guides/moderation/rest/)
 * [Forcing clients in a session to disconnect or mute published audio](https://tokbox.com/developer/guides/moderation/)
-* Working with OpenTok [Experience Composers](https://tokbox.com/developer/guides/experience-composer)
+* Working with [Experience Composers](https://tokbox.com/developer/guides/experience-composer)
+* Working with [Audio Connectors](/https://tokbox.com/developer/guides/audio-connector)
 
 ## Installation
 
@@ -33,7 +34,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>4.8.1</version>
+    <version>4.9.0</version>
 </dependency>
 ```
 
@@ -43,7 +44,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.8.1'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.9.0'
 }
 ```
 
@@ -579,7 +580,7 @@ method:
 
 ```java
 RenderProperties properties = new RenderProperties.Builder()
-         .url(("http://example.com/path-to-page/")
+         .url("http://example.com/path-to-page/")
          .build();
 
 Render render = opentok.startRender(sessionId, token, properties);
@@ -589,6 +590,22 @@ You can stop an Experience Composer by calling the `OpenTok.stopRender(String re
 
 You can get information about Experience Composers by calling the `OpenTok.getRender(String renderId)`,
 `OpenTok.listRenders()` or `OpenTok.listRenders(Integer offset, Integer count)` methods.
+
+### Working with Audio Connector
+
+You can start an [Audio Connector stream](https://tokbox.com/developer/guides/audio-connector)
+by calling the `OpenTok.connectAudioStream(String sessionId, String token, AudioConnectorProperties properties)`
+method:
+
+```java
+AudioConnectorProperties properties = new AudioConnectorProperties.Builder("wss://service.com/ws-endpoint")
+        .addStreams("streamId-1", "streamId-2")
+        .addHeader("X-CustomHeader-Key", "headerValue")
+        .build();
+
+AudioConnector ac = opentok.connectAudioStream(sessionId, token, properties);
+```
+
 
 ## Samples
 
