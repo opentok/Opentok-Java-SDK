@@ -243,7 +243,7 @@ public class OpenTok {
      */
     public Session createSession(SessionProperties properties) throws OpenTokException {
         final SessionProperties _properties = properties != null ? properties : new SessionProperties.Builder().build();
-        final Map<String, Collection<String>> params = _properties.toMap();
+        final Map<String, List<String>> params = _properties.toMap();
         final String response = client.createSession(params);
 
         try {

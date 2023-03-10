@@ -10,10 +10,7 @@ package com.opentok;
 import com.opentok.exception.InvalidArgumentException;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -23,16 +20,16 @@ import java.util.Map;
  * @see OpenTok#createSession(com.opentok.SessionProperties properties)
  */
 public class SessionProperties {
-
-
     private String location;
     private MediaMode mediaMode;
     private ArchiveMode archiveMode;
+    private boolean e2ee;
 
     private SessionProperties(Builder builder) {
         this.location = builder.location;
         this.mediaMode = builder.mediaMode;
         this.archiveMode = builder.archiveMode;
+        this.e2ee = builder.e2ee;
     }
 
     /**
@@ -41,10 +38,10 @@ public class SessionProperties {
      * @see SessionProperties
      */
     public static class Builder {
-        private String location = null;
+        private String location;
         private MediaMode mediaMode = MediaMode.RELAYED;
         private ArchiveMode archiveMode = ArchiveMode.MANUAL;
-        
+        private boolean e2ee = false;
 
         /**
          * Call this method to set an IP address that the OpenTok servers will use to
@@ -108,7 +105,7 @@ public class SessionProperties {
         /**
          * Call this method to determine whether the session will be automatically archived (<code>ArchiveMode.ALWAYS</code>)
          * or not (<code>ArchiveMode.MANUAL</code>).
-         *
+         * <p>
          * Using an always archived session also requires the routed media mode (<code>MediaMode.ROUTED</code>).
          *
          * @param archiveMode The Archive mode.
@@ -117,6 +114,19 @@ public class SessionProperties {
          */
         public Builder archiveMode(ArchiveMode archiveMode) {
             this.archiveMode = archiveMode;
+            return this;
+        }
+
+        /**
+         * End-to-end encryption (or E2EE) allows application developers to encrypt media in routed sessions
+         * from client to client. Media is already encrypted P2P, client to client, through WebRTC protocols
+         * when using a relayed session. This feature adds an encryption layer by encrypting the media payload at the
+         * client so that it will remain encrypted through the media server when routing media to other clients.
+         *
+         * @return The SessionProperties.Builder object with the e2ee property set to {@code true}.
+         */
+        public Builder endToEndEncryption() {
+            this.e2ee = true;
             return this;
         }
 
@@ -133,6 +143,7 @@ public class SessionProperties {
             return new SessionProperties(this);
         }
     }
+
     /**
     * The location hint IP address. See {@link SessionProperties.Builder#location(String location)}.
     */
@@ -159,23 +170,39 @@ public class SessionProperties {
     }
 
     /**
+     * End-to-end encryption (or E2EE) allows application developers to encrypt media in routed sessions from client
+     * to client. Media is already encrypted P2P, client to client, through WebRTC protocols when using a relayed
+     * session. This feature adds an encryption layer by encrypting the media payload at the client so that it will
+     * remain encrypted through the media server when routing media to other clients.
+     *
+     * @return {@code true} if end-to-end encryption is enabled, {@code false} otherwise.
+     */
+    public boolean isEndToEndEncrypted() {
+        return e2ee;
+    }
+
+    /**
      * Returns the session properties as a Map.
      */
-    public Map<String, Collection<String>> toMap() {
-        Map<String, Collection<String>> params = new HashMap<>();
+    public Map<String, List<String>> toMap() {
+        Map<String, List<String>> params = new HashMap<>();
         if (null != location) {
-            ArrayList<String> valueList = new ArrayList<>();
+            ArrayList<String> valueList = new ArrayList<>(1);
             valueList.add(location);
             params.put("location", valueList);
         }
 
-        ArrayList<String> mediaModeValueList = new ArrayList<>();
+        ArrayList<String> mediaModeValueList = new ArrayList<>(1);
         mediaModeValueList.add(mediaMode.toString());
         params.put("p2p.preference", mediaModeValueList);
 
-        ArrayList<String> archiveModeValueList = new ArrayList<>();
+        ArrayList<String> archiveModeValueList = new ArrayList<>(1);
         archiveModeValueList.add(archiveMode.toString());
         params.put("archiveMode", archiveModeValueList);
+
+        ArrayList<String> e2eeValueList = new ArrayList<>(1);
+        e2eeValueList.add(""+e2ee);
+        params.put("e2ee", e2eeValueList);
 
         return params;
     }

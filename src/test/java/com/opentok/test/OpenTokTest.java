@@ -220,6 +220,7 @@ public class OpenTokTest {
         Session session = sdk.createSession();
 
         assertNotNull(session);
+        assertFalse(session.getProperties().isEndToEndEncrypted());
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
@@ -252,6 +253,8 @@ public class OpenTokTest {
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
+        assertEquals(properties, session.getProperties());
+        assertFalse(session.getProperties().isEndToEndEncrypted());
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
@@ -284,6 +287,8 @@ public class OpenTokTest {
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
+        assertEquals(properties, session.getProperties());
+        assertFalse(session.getProperties().isEndToEndEncrypted());
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
@@ -294,6 +299,39 @@ public class OpenTokTest {
               .withRequestBody(matching(".*location=" + locationHint + ".*")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testCreateEncryptedSession() throws OpenTokException {
+        String sessionId = "SESSION1D";
+        stubFor(post(urlEqualTo(SESSION_CREATE))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                    "\"partner_id\":\"123456\"," +
+                    "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                    "\"media_server_url\":\"\"}]")));
+
+        SessionProperties properties = new SessionProperties.Builder()
+            .endToEndEncryption()
+            .build();
+        Session session = sdk.createSession(properties);
+
+        assertNotNull(session);
+        assertEquals(properties, session.getProperties());
+        assertTrue(session.getProperties().isEndToEndEncrypted());
+        assertEquals(apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+        assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
+        assertNull(session.getProperties().getLocation());
+
+        verify(postRequestedFor(urlMatching(SESSION_CREATE))
+            // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+            .withRequestBody(matching(".*e2ee=true.*")));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
 

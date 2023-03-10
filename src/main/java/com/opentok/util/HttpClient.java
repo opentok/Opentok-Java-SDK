@@ -48,17 +48,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         this.apiUrl = builder.apiUrl;
     }
 
-    public String createSession(Map<String, Collection<String>> params) throws RequestException {
-        Map<String, List<String>> paramsWithList = null;
-        if (params != null) {
-            paramsWithList = new HashMap<>();
-            for (Entry<String, Collection<String>> entry : params.entrySet()) {
-                paramsWithList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
-            }
-        }
-
+    public String createSession(Map<String, List<String>> params) throws RequestException {
         Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
-                .setFormParams(paramsWithList)
+                .setFormParams(params)
                 .setHeader("Accept", "application/json") // XML version is deprecated
                 .execute();
 
