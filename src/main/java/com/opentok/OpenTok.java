@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.opentok.constants.DefaultUserAgent;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
@@ -63,9 +64,7 @@ public class OpenTok {
      * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">Vonage Video API account page</a>.)
      */
     public OpenTok(int apiKey, String apiSecret) {
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret.trim();
-        this.client = new HttpClient.Builder(apiKey, apiSecret).build();
+        this(apiKey, apiSecret, new HttpClient.Builder(apiKey, apiSecret).build());
     }
 
     private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
@@ -991,6 +990,7 @@ public class OpenTok {
         private int apiKey;
         private String apiSecret;
         private String apiUrl;
+        private String appendUserAgent;
         private Proxy proxy;
         private ProxyAuthScheme proxyAuthScheme;
         private String principal;
@@ -1046,6 +1046,18 @@ public class OpenTok {
         }
 
         /**
+         * Append a custom string to the client's User-Agent. This is to enable tracking for custom integrations.
+         *
+         * @param appendUserAgent The string to append to the user agent.
+         *
+         * @return This Builder with the additional user agent string.
+         */
+        public Builder appendToUserAgent(String appendUserAgent) {
+            this.appendUserAgent = appendUserAgent;
+            return this;
+        }
+
+        /**
          * Builds the OpenTok object with the settings provided to this
          * Builder object.
          *
@@ -1062,6 +1074,9 @@ public class OpenTok {
             }
             if (requestTimeout != 0) {
                 clientBuilder.requestTimeoutMS(requestTimeout);
+            }
+            if (appendUserAgent != null && !appendUserAgent.trim().isEmpty()) {
+                clientBuilder.userAgent(DefaultUserAgent.DEFAULT_USER_AGENT+" "+appendUserAgent);
             }
 
             return new OpenTok(apiKey, apiSecret, clientBuilder.build());
