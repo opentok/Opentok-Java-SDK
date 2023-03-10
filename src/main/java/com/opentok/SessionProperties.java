@@ -122,6 +122,8 @@ public class SessionProperties {
          * from client to client. Media is already encrypted P2P, client to client, through WebRTC protocols
          * when using a relayed session. This feature adds an encryption layer by encrypting the media payload at the
          * client so that it will remain encrypted through the media server when routing media to other clients.
+         * Therefore, you must also set {@link #mediaMode(MediaMode)} to {@linkplain MediaMode#ROUTED} when
+         * calling this method.
          *
          * @return The SessionProperties.Builder object with the e2ee property set to {@code true}.
          */
@@ -136,10 +138,21 @@ public class SessionProperties {
          * @return The SessionProperties object.
          */
         public SessionProperties build() {
-            // Would throw in this case, but would introduce a backwards incompatible change.
-            //if (this.archiveMode == ArchiveMode.ALWAYS && this.mediaMode != MediaMode.ROUTED) {
-            //    throw new InvalidArgumentException("A session with always archive mode must also have the routed media mode.");
-            //}
+            if (this.archiveMode == ArchiveMode.ALWAYS && this.mediaMode != MediaMode.ROUTED) {
+                throw new IllegalStateException(
+                    "A session with ALWAYS archive mode must also have the ROUTED media mode."
+                );
+            }
+            if (e2ee && mediaMode != MediaMode.ROUTED) {
+                throw new IllegalStateException(
+                    "A session with RELAYED media mode cannot have end-to-end encryption enabled."
+                );
+            }
+            if (e2ee && archiveMode == ArchiveMode.ALWAYS) {
+                throw new IllegalStateException(
+                    "A session with ALWAYS archive mode cannot have end-to-end encryption enabled."
+                );
+            }
             return new SessionProperties(this);
         }
     }
