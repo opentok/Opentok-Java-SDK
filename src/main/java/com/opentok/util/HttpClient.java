@@ -500,6 +500,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
         ObjectNode requestJson = nodeFactory.objectNode();
         requestJson.put("sessionId", sessionId);
         requestJson.put("streamMode", properties.streamMode().toString());
+        requestJson.put("hasAudio", properties.hasAudio());
+        requestJson.put("hasVideo", properties.hasVideo());
 
         if (properties.layout() != null) {
             ObjectNode layout = requestJson.putObject("layout");
@@ -568,7 +570,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input  properties like resolution etc.");
                 case 403:
                     throw new RequestException("Could not start an OpenTok Broadcast. The request was not authorized.");
-
                 case 409:
                     throw new RequestException("The broadcast has already been started for the session. SessionId = " + sessionId);
                 case 500:
