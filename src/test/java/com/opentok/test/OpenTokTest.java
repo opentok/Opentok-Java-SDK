@@ -15,6 +15,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.opentok.*;
 import com.opentok.Archive.OutputMode;
+import com.opentok.constants.DefaultUserAgent;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
@@ -68,12 +69,32 @@ public class OpenTokTest {
         sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).build();
     }
 
+    @Test
+    public void testUserAgent() throws Exception {
+        stubFor(post(anyUrl())
+            .withHeader("User-Agent", equalTo(DefaultUserAgent.DEFAULT_USER_AGENT))
+            .willReturn(aResponse().withStatus(200))
+        );
+        sdk.disableForceMute("SESSION_ID");
+        verify(postRequestedFor(anyUrl()));
+
+        sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).appendToUserAgent("Test_UA").build();
+        stubFor(post(anyUrl())
+            .withHeader("User-Agent", equalTo(DefaultUserAgent.DEFAULT_USER_AGENT+" Test_UA"))
+            .willReturn(aResponse().withStatus(200))
+        );
+        sdk.disableForceMute("SESSION_ID");
+        verify(postRequestedFor(anyUrl()));
+        WireMock.reset();
+    }
+
     /**
      * Test that a request throws exception if request exceeds configured timeout
      */
     @Test
     public void testConfigureRequestTimeout() {
         assertThrows(RequestException.class, () -> {
+            sdk.close();
             sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(6).build();
 
             String sessionId = "SESSIONID";
@@ -94,7 +115,6 @@ public class OpenTokTest {
         assertNull(createdSession.getMediaServerURL());
         assertNull(createdSession.getProjectId());
         assertNull(createdSession.getPartnerId());
-
     }
 
     @Test
