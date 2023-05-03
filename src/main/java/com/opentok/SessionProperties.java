@@ -180,10 +180,10 @@ public class SessionProperties {
     }
 
     /**
-     * End-to-end encryption (or E2EE) allows application developers to encrypt media in routed sessions from client
-     * to client. Media is already encrypted P2P, client to client, through WebRTC protocols when using a relayed
-     * session. This feature adds an encryption layer by encrypting the media payload at the client so that it will
-     * remain encrypted through the media server when routing media to other clients.
+     * Defines whether the session will use
+     * <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>.
+     * See {@link com.opentok.SessionProperties.Builder#endToEndEncryption()}.
+     * 
      *
      * @return {@code true} if end-to-end encryption is enabled, {@code false} otherwise.
      */
