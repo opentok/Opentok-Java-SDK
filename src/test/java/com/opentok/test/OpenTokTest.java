@@ -20,6 +20,7 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.common.returnsreceiver.qual.This;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -240,6 +241,7 @@ public class OpenTokTest {
         Session session = sdk.createSession();
 
         assertNotNull(session);
+        assertFalse(session.getProperties().isEndToEndEncrypted());
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
@@ -272,6 +274,8 @@ public class OpenTokTest {
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
+        assertEquals(properties, session.getProperties());
+        assertFalse(session.getProperties().isEndToEndEncrypted());
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
@@ -304,6 +308,8 @@ public class OpenTokTest {
         Session session = sdk.createSession(properties);
 
         assertNotNull(session);
+        assertEquals(properties, session.getProperties());
+        assertFalse(session.getProperties().isEndToEndEncrypted());
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(MediaMode.RELAYED, session.getProperties().mediaMode());
@@ -314,6 +320,41 @@ public class OpenTokTest {
               .withRequestBody(matching(".*location=" + locationHint + ".*")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
+        Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testCreateEncryptedSession() throws OpenTokException {
+        String sessionId = "SESSION1D";
+        stubFor(post(urlEqualTo(SESSION_CREATE))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
+                    "\"partner_id\":\"123456\"," +
+                    "\"create_dt\":\"Mon Mar 17 00:41:31 PDT 2014\"," +
+                    "\"media_server_url\":\"\"}]")));
+
+        SessionProperties properties = new SessionProperties.Builder()
+            .endToEndEncryption()
+            .mediaMode(MediaMode.ROUTED)
+            .build();
+        Session session = sdk.createSession(properties);
+
+        assertNotNull(session);
+        assertEquals(properties, session.getProperties());
+        assertTrue(session.getProperties().isEndToEndEncrypted());
+        assertEquals(apiKey, session.getApiKey());
+        assertEquals(sessionId, session.getSessionId());
+        assertEquals(MediaMode.ROUTED, session.getProperties().mediaMode());
+        assertEquals(ArchiveMode.MANUAL, session.getProperties().archiveMode());
+        assertNull(session.getProperties().getLocation());
+
+        verify(postRequestedFor(urlMatching(SESSION_CREATE))
+            // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
+            .withRequestBody(matching(".*e2ee=true.*")));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+            findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
     }
 
@@ -331,6 +372,7 @@ public class OpenTokTest {
 
         SessionProperties properties = new SessionProperties.Builder()
               .archiveMode(ArchiveMode.ALWAYS)
+              .mediaMode(MediaMode.ROUTED)
               .build();
         Session session = sdk.createSession(properties);
 
@@ -355,16 +397,36 @@ public class OpenTokTest {
               .build();
     }
 
-//    This is not part of the API because it would introduce a backwards incompatible change.
-//    @Test(expected = InvalidArgumentException.class)
-//    public void testCreateInvalidAlwaysArchivedAndRelayedSession() throws OpenTokException {
-//        SessionProperties properties = new SessionProperties.Builder()
-//                .mediaMode(MediaMode.RELAYED)
-//                .archiveMode(ArchiveMode.ALWAYS)
-//                .build();
-//    }
+    @Test(expected = IllegalStateException.class)
+    public void testCreateInvalidAlwaysArchivedAndRelayedSession() {
+        new SessionProperties.Builder()
+                .mediaMode(MediaMode.RELAYED)
+                .archiveMode(ArchiveMode.ALWAYS)
+                .build();
+    }
 
-    // TODO: test session creation conditions that result in errors
+    @Test(expected = IllegalStateException.class)
+    public void testCreateInvalidAlwaysArchivedAndE2eeSession() {
+        new SessionProperties.Builder()
+            .mediaMode(MediaMode.ROUTED)
+            .endToEndEncryption()
+            .archiveMode(ArchiveMode.ALWAYS)
+            .build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCreateInvalidRelayedMediaAndE2eeSession() {
+        new SessionProperties.Builder()
+            .archiveMode(ArchiveMode.MANUAL)
+            .endToEndEncryption()
+            .mediaMode(MediaMode.RELAYED)
+            .build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCreateInvalidE2eeSessionDefault() {
+        new SessionProperties.Builder().endToEndEncryption().build();
+    }
 
     @Test
     public void testTokenDefault() throws

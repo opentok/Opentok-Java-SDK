@@ -27,17 +27,13 @@ import org.apache.commons.codec.binary.Base64;
 * to get the session ID.
 */
 public class Session {
-
     private String sessionId;
     private int apiKey;
     private String apiSecret;
     private SessionProperties properties;
     
     protected Session(String sessionId, int apiKey, String apiSecret) {
-        this.sessionId = sessionId;
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
-        this.properties = new SessionProperties.Builder().build();
+        this(sessionId, apiKey, apiSecret, new SessionProperties.Builder().build());
     }
     
     protected Session(String sessionId, int apiKey, String apiSecret, SessionProperties properties) {
@@ -83,7 +79,6 @@ public class Session {
      * @see #generateToken(TokenOptions tokenOptions)
      */
     public String generateToken() throws OpenTokException {
-        // NOTE: maybe there should be a static object for the defaultTokenOptions?
         return this.generateToken(new TokenOptions.Builder().build());
     }
 
