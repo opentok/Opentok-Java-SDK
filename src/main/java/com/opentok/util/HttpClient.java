@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opentok.*;
 import com.opentok.constants.DefaultApiUrl;
+import com.opentok.constants.DefaultUserAgent;
 import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
@@ -38,7 +39,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class HttpClient extends DefaultAsyncHttpClient {
-
     private final String apiUrl;
     private final int apiKey;
 
@@ -48,17 +48,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         this.apiUrl = builder.apiUrl;
     }
 
-    public String createSession(Map<String, Collection<String>> params) throws RequestException {
-        Map<String, List<String>> paramsWithList = null;
-        if (params != null) {
-            paramsWithList = new HashMap<>();
-            for (Entry<String, Collection<String>> entry : params.entrySet()) {
-                paramsWithList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
-            }
-        }
-
+    public String createSession(Map<String, List<String>> params) throws RequestException {
         Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
-                .setFormParams(paramsWithList)
+                .setFormParams(params)
                 .setHeader("Accept", "application/json") // XML version is deprecated
                 .execute();
 
@@ -1303,6 +1295,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         private String principal;
         private String password;
         private String apiUrl;
+        private String userAgent = DefaultUserAgent.DEFAULT_USER_AGENT;
         private AsyncHttpClientConfig config;
         private int requestTimeoutMS;
 
@@ -1340,18 +1333,29 @@ public class HttpClient extends DefaultAsyncHttpClient {
             return this;
         }
 
+        /**
+         * Sets the user agent to a custom value.
+         *
+         * @param userAgent The user agent.
+         *
+         * @return This Builder with user agent string.
+         */
+        public Builder userAgent(String userAgent) {
+            this.userAgent = userAgent;
+            return this;
+        }
+
         public HttpClient build() {
             DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder()
-                    .setUserAgent("Opentok-Java-SDK/" + Version.VERSION + " JRE/" + System.getProperty("java.version"))
+                    .setUserAgent(userAgent)
                     .addRequestFilter(new TokenAuthRequestFilter(apiKey, apiSecret));
+
             if (apiUrl == null) {
                 apiUrl = DefaultApiUrl.DEFAULT_API_URI;
             }
-
             if (proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(proxy, proxyAuthScheme, principal, password));
             }
-
             if (requestTimeoutMS != 0) {
                 configBuilder.setRequestTimeout(requestTimeoutMS);
             }

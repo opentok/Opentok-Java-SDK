@@ -10,10 +10,7 @@ package com.opentok;
 import com.opentok.exception.InvalidArgumentException;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -23,16 +20,16 @@ import java.util.Map;
  * @see OpenTok#createSession(com.opentok.SessionProperties properties)
  */
 public class SessionProperties {
-
-
     private String location;
     private MediaMode mediaMode;
     private ArchiveMode archiveMode;
+    private boolean e2ee;
 
     private SessionProperties(Builder builder) {
         this.location = builder.location;
         this.mediaMode = builder.mediaMode;
         this.archiveMode = builder.archiveMode;
+        this.e2ee = builder.e2ee;
     }
 
     /**
@@ -41,10 +38,10 @@ public class SessionProperties {
      * @see SessionProperties
      */
     public static class Builder {
-        private String location = null;
+        private String location;
         private MediaMode mediaMode = MediaMode.RELAYED;
         private ArchiveMode archiveMode = ArchiveMode.MANUAL;
-        
+        private boolean e2ee = false;
 
         /**
          * Call this method to set an IP address that the OpenTok servers will use to
@@ -108,7 +105,7 @@ public class SessionProperties {
         /**
          * Call this method to determine whether the session will be automatically archived (<code>ArchiveMode.ALWAYS</code>)
          * or not (<code>ArchiveMode.MANUAL</code>).
-         *
+         * <p>
          * Using an always archived session also requires the routed media mode (<code>MediaMode.ROUTED</code>).
          *
          * @param archiveMode The Archive mode.
@@ -121,18 +118,42 @@ public class SessionProperties {
         }
 
         /**
+         * Enables <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a> for a routed session.
+         * You must also set {@link #mediaMode(MediaMode)} to {@linkplain MediaMode#ROUTED} when
+         * calling this method.
+         *
+         * @return The SessionProperties.Builder object with the e2ee property set to {@code true}.
+         */
+        public Builder endToEndEncryption() {
+            this.e2ee = true;
+            return this;
+        }
+
+        /**
          * Builds the SessionProperties object.
          *
          * @return The SessionProperties object.
          */
         public SessionProperties build() {
-            // Would throw in this case, but would introduce a backwards incompatible change.
-            //if (this.archiveMode == ArchiveMode.ALWAYS && this.mediaMode != MediaMode.ROUTED) {
-            //    throw new InvalidArgumentException("A session with always archive mode must also have the routed media mode.");
-            //}
+            if (this.archiveMode == ArchiveMode.ALWAYS && this.mediaMode != MediaMode.ROUTED) {
+                throw new IllegalStateException(
+                    "A session with ALWAYS archive mode must also have the ROUTED media mode."
+                );
+            }
+            if (e2ee && mediaMode != MediaMode.ROUTED) {
+                throw new IllegalStateException(
+                    "A session with RELAYED media mode cannot have end-to-end encryption enabled."
+                );
+            }
+            if (e2ee && archiveMode == ArchiveMode.ALWAYS) {
+                throw new IllegalStateException(
+                    "A session with ALWAYS archive mode cannot have end-to-end encryption enabled."
+                );
+            }
             return new SessionProperties(this);
         }
     }
+
     /**
     * The location hint IP address. See {@link SessionProperties.Builder#location(String location)}.
     */
@@ -159,23 +180,41 @@ public class SessionProperties {
     }
 
     /**
+     * Defines whether the session will use
+     * <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>.
+     * See {@link com.opentok.SessionProperties.Builder#endToEndEncryption()}.
+     * 
+     *
+     * @return {@code true} if end-to-end encryption is enabled, {@code false} otherwise.
+     */
+    public boolean isEndToEndEncrypted() {
+        return e2ee;
+    }
+
+    /**
      * Returns the session properties as a Map.
      */
-    public Map<String, Collection<String>> toMap() {
-        Map<String, Collection<String>> params = new HashMap<>();
+    public Map<String, List<String>> toMap() {
+        Map<String, List<String>> params = new HashMap<>();
         if (null != location) {
-            ArrayList<String> valueList = new ArrayList<>();
+            ArrayList<String> valueList = new ArrayList<>(1);
             valueList.add(location);
             params.put("location", valueList);
         }
 
-        ArrayList<String> mediaModeValueList = new ArrayList<>();
+        ArrayList<String> mediaModeValueList = new ArrayList<>(1);
         mediaModeValueList.add(mediaMode.toString());
         params.put("p2p.preference", mediaModeValueList);
 
-        ArrayList<String> archiveModeValueList = new ArrayList<>();
+        ArrayList<String> archiveModeValueList = new ArrayList<>(1);
         archiveModeValueList.add(archiveMode.toString());
         params.put("archiveMode", archiveModeValueList);
+
+        if (e2ee) {
+            ArrayList<String> e2eeValueList = new ArrayList<>(1);
+            e2eeValueList.add("" + e2ee);
+            params.put("e2ee", e2eeValueList);
+        }
 
         return params;
     }

@@ -7,6 +7,7 @@
  */
 package com.opentok.constants;
 
-public class Version {
-    public static final String VERSION = "4.10.0";
+public class DefaultUserAgent {
+    public static final String DEFAULT_USER_AGENT =
+        "Opentok-Java-SDK/"+Version.VERSION+" JRE/"+System.getProperty("java.version");
 }
