@@ -20,16 +20,19 @@ import java.util.*;
  * @see OpenTok#createSession(com.opentok.SessionProperties properties)
  */
 public class SessionProperties {
-    private String location;
+    private String location, archiveName;
     private MediaMode mediaMode;
     private ArchiveMode archiveMode;
+    private Resolution archiveResolution;
     private boolean e2ee;
 
     private SessionProperties(Builder builder) {
-        this.location = builder.location;
-        this.mediaMode = builder.mediaMode;
-        this.archiveMode = builder.archiveMode;
-        this.e2ee = builder.e2ee;
+        location = builder.location;
+        mediaMode = builder.mediaMode;
+        archiveMode = builder.archiveMode;
+        e2ee = builder.e2ee;
+        archiveName = builder.archiveName;
+        archiveResolution = builder.archiveResolution;
     }
 
     /**
@@ -38,9 +41,10 @@ public class SessionProperties {
      * @see SessionProperties
      */
     public static class Builder {
-        private String location;
+        private String location, archiveName;
         private MediaMode mediaMode = MediaMode.RELAYED;
         private ArchiveMode archiveMode = ArchiveMode.MANUAL;
+        private Resolution archiveResolution;
         private boolean e2ee = false;
 
         /**
@@ -118,6 +122,32 @@ public class SessionProperties {
         }
 
         /**
+         * Indicates the archive resolution for all the archives in auto archived session. A session that begins with
+         * archive mode {@link ArchiveMode#ALWAYS} will use this resolution for all archives of that session.
+         *
+         * @param archiveResolution The auto archive resolution as an enum.
+         *
+         * @return The SessionProperties.Builder object with the archive resolution setting.
+         */
+        public Builder archiveResolution(Resolution archiveResolution) {
+            this.archiveResolution = archiveResolution;
+            return this;
+        }
+
+        /**
+         * Indicates the archive name for all the archives in auto archived session. A session that begins with
+         * archive mode {@link ArchiveMode#ALWAYS} will use this archive name for all archives of that session.
+         *
+         * @param archiveName The archive name, maximum 80 characters in length.
+         *
+         * @return The SessionProperties.Builder object with the archive name setting.
+         */
+        public Builder archiveName(String archiveName) {
+            this.archiveName = archiveName;
+            return this;
+        }
+
+        /**
          * Enables <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a> for a routed session.
          * You must also set {@link #mediaMode(MediaMode)} to {@linkplain MediaMode#ROUTED} when
          * calling this method.
@@ -135,7 +165,7 @@ public class SessionProperties {
          * @return The SessionProperties object.
          */
         public SessionProperties build() {
-            if (this.archiveMode == ArchiveMode.ALWAYS && this.mediaMode != MediaMode.ROUTED) {
+            if (archiveMode == ArchiveMode.ALWAYS && mediaMode != MediaMode.ROUTED) {
                 throw new IllegalStateException(
                     "A session with ALWAYS archive mode must also have the ROUTED media mode."
                 );
@@ -149,6 +179,17 @@ public class SessionProperties {
                 throw new IllegalStateException(
                     "A session with ALWAYS archive mode cannot have end-to-end encryption enabled."
                 );
+            }
+            if (archiveMode == ArchiveMode.MANUAL) {
+                if (archiveResolution != null) {
+                    throw new IllegalStateException("Resolution cannot be set for manual archives.");
+                }
+                if (archiveName != null) {
+                    throw new IllegalStateException("Name cannot be set for manual archives.");
+                }
+            }
+            if (archiveName != null && (archiveName.trim().length() < 1 || archiveName.length() > 80)) {
+                throw new IllegalArgumentException("Archive name must be between 1 and 80 characters.");
             }
             return new SessionProperties(this);
         }
@@ -180,10 +221,29 @@ public class SessionProperties {
     }
 
     /**
+     * Indicates the archive resolution for all the archives in auto archived session. A session that begins with
+     * archive mode {@link ArchiveMode#ALWAYS} will use this resolution for all archives of that session.
+     *
+     * @return The archive name, or {@code null} if not set (the default).
+     */
+    public String archiveName() {
+        return archiveName;
+    }
+
+    /**
+     * Indicates the archive resolution for all the archives in auto archived session. A session that begins with
+     * archive mode {@link ArchiveMode#ALWAYS} will use this resolution for all archives of that session.
+     *
+     * @return The archive resolution enum, or {@code null} if not set (the default).
+     */
+    public Resolution archiveResolution() {
+        return archiveResolution;
+    }
+
+    /**
      * Defines whether the session will use
      * <a href="https://tokbox.com/developer/guides/end-to-end-encryption">end-to-end encryption</a>.
      * See {@link com.opentok.SessionProperties.Builder#endToEndEncryption()}.
-     * 
      *
      * @return {@code true} if end-to-end encryption is enabled, {@code false} otherwise.
      */
@@ -192,27 +252,41 @@ public class SessionProperties {
     }
 
     /**
-     * Returns the session properties as a Map.
+     * Serializes the properties for making a request.
+     *
+     * @return The session properties as a Map.
      */
     public Map<String, List<String>> toMap() {
         Map<String, List<String>> params = new HashMap<>();
-        if (null != location) {
+
+        if (location != null) {
             ArrayList<String> valueList = new ArrayList<>(1);
             valueList.add(location);
             params.put("location", valueList);
         }
-
-        ArrayList<String> mediaModeValueList = new ArrayList<>(1);
-        mediaModeValueList.add(mediaMode.toString());
-        params.put("p2p.preference", mediaModeValueList);
-
-        ArrayList<String> archiveModeValueList = new ArrayList<>(1);
-        archiveModeValueList.add(archiveMode.toString());
-        params.put("archiveMode", archiveModeValueList);
-
+        if (mediaMode != null) {
+            ArrayList<String> mediaModeValueList = new ArrayList<>(1);
+            mediaModeValueList.add(mediaMode.toString());
+            params.put("p2p.preference", mediaModeValueList);
+        }
+        if (archiveMode != null) {
+            ArrayList<String> archiveModeValueList = new ArrayList<>(1);
+            archiveModeValueList.add(archiveMode.toString());
+            params.put("archiveMode", archiveModeValueList);
+        }
+        if (archiveResolution != null) {
+            ArrayList<String> archiveResolutionValueList = new ArrayList<>(1);
+            archiveResolutionValueList.add(archiveResolution.toString());
+            params.put("archiveResolution", archiveResolutionValueList);
+        }
+        if (archiveName != null) {
+            ArrayList<String> archiveNameValueList = new ArrayList<>(1);
+            archiveNameValueList.add(archiveName);
+            params.put("archiveName", archiveNameValueList);
+        }
         if (e2ee) {
             ArrayList<String> e2eeValueList = new ArrayList<>(1);
-            e2eeValueList.add("" + e2ee);
+            e2eeValueList.add(String.valueOf(e2ee));
             params.put("e2ee", e2eeValueList);
         }
 

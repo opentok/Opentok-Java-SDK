@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.opentok.*;
@@ -373,6 +374,8 @@ public class OpenTokTest {
         SessionProperties properties = new SessionProperties.Builder()
               .archiveMode(ArchiveMode.ALWAYS)
               .mediaMode(MediaMode.ROUTED)
+              .archiveResolution(Resolution.HD_PORTRAIT)
+              .archiveName("720pTest")
               .build();
         Session session = sdk.createSession(properties);
 
@@ -380,14 +383,46 @@ public class OpenTokTest {
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(ArchiveMode.ALWAYS, session.getProperties().archiveMode());
-
+        assertEquals(Resolution.HD_PORTRAIT, session.getProperties().archiveResolution());
 
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
               // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-              .withRequestBody(matching(".*archiveMode=always.*")));
+              .withRequestBody(matching(".*archiveMode=always.*"))
+              .withRequestBody(matching(".*archiveResolution=720x1280.*"))
+              .withRequestBody(matching(".*archiveName=720pTest.*")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testAutoArchiveSessionValidation() {
+        SessionProperties.Builder builder = new SessionProperties.Builder()
+                .archiveMode(ArchiveMode.ALWAYS)
+                .mediaMode(MediaMode.ROUTED);
+
+        SessionProperties plain = builder.build();
+        assertNull(plain.archiveName());
+        assertNull(plain.archiveResolution());
+
+        assertEquals(1, builder.archiveName("A").build().archiveName().length());
+        assertThrows(IllegalArgumentException.class, () -> builder.archiveName("").build());
+        StringBuilder sb = new StringBuilder(80);
+        for (int i = 0; i < 10; sb.append("Archive").append(i++));
+        assertEquals(80, builder.archiveName(sb.toString()).build().archiveName().length());
+        assertThrows(IllegalArgumentException.class, () -> builder.archiveName(sb.append("N").toString()).build());
+
+        builder.archiveName("Test").archiveMode(ArchiveMode.MANUAL);
+        assertThrows(IllegalStateException.class, builder::build);
+
+        SessionProperties fhd = builder
+                .archiveMode(ArchiveMode.ALWAYS)
+                .archiveResolution(Resolution.FHD_LANDSCAPE)
+                .archiveName(null).build();
+        assertEquals("1920x1080", fhd.archiveResolution().toString());
+        assertNull(fhd.archiveName());
+
+        assertThrows(IllegalStateException.class, () -> builder.archiveMode(ArchiveMode.MANUAL).build());
     }
 
     @Test(expected = InvalidArgumentException.class)
