@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.opentok.*;
@@ -373,6 +374,8 @@ public class OpenTokTest {
         SessionProperties properties = new SessionProperties.Builder()
               .archiveMode(ArchiveMode.ALWAYS)
               .mediaMode(MediaMode.ROUTED)
+              .archiveResolution(Resolution.HD_VERTICAL)
+              .archiveName("720pTest")
               .build();
         Session session = sdk.createSession(properties);
 
@@ -380,14 +383,46 @@ public class OpenTokTest {
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(ArchiveMode.ALWAYS, session.getProperties().archiveMode());
-
+        assertEquals(Resolution.HD_VERTICAL, session.getProperties().archiveResolution());
 
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
               // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
-              .withRequestBody(matching(".*archiveMode=always.*")));
+              .withRequestBody(matching(".*archiveMode=always.*"))
+              .withRequestBody(matching(".*archiveResolution=720x1280.*"))
+              .withRequestBody(matching(".*archiveName=720pTest.*")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
         Helpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testAutoArchiveSessionValidation() {
+        SessionProperties.Builder builder = new SessionProperties.Builder()
+                .archiveMode(ArchiveMode.ALWAYS)
+                .mediaMode(MediaMode.ROUTED);
+
+        SessionProperties plain = builder.build();
+        assertNull(plain.archiveName());
+        assertNull(plain.archiveResolution());
+
+        assertEquals(1, builder.archiveName("A").build().archiveName().length());
+        assertThrows(IllegalArgumentException.class, () -> builder.archiveName("").build());
+        StringBuilder sb = new StringBuilder(80);
+        for (int i = 0; i < 10; sb.append("Archive").append(i++));
+        assertEquals(80, builder.archiveName(sb.toString()).build().archiveName().length());
+        assertThrows(IllegalArgumentException.class, () -> builder.archiveName(sb.append("N").toString()).build());
+
+        builder.archiveName("Test").archiveMode(ArchiveMode.MANUAL);
+        assertThrows(IllegalStateException.class, builder::build);
+
+        SessionProperties fhd = builder
+                .archiveMode(ArchiveMode.ALWAYS)
+                .archiveResolution(Resolution.FHD_HORIZONTAL)
+                .archiveName(null).build();
+        assertEquals("1920x1080", fhd.archiveResolution().toString());
+        assertNull(fhd.archiveName());
+
+        assertThrows(IllegalStateException.class, () -> builder.archiveMode(ArchiveMode.MANUAL).build());
     }
 
     @Test(expected = InvalidArgumentException.class)
@@ -1742,6 +1777,13 @@ public class OpenTokTest {
         String sessionId = "SESSIONID";
         String url = "/v2/project/" + this.apiKey + "/broadcast";
         stubFor(post(urlEqualTo(url))
+              .withRequestBody(equalTo("{\"sessionId\":\"SESSIONID\",\"streamMode\":\"auto\"," +
+                    "\"hasAudio\":false,\"hasVideo\":false,\"layout\":{\"type\":\"pip\"},\"maxDuration\":1000," +
+                    "\"resolution\":\"1920x1080\",\"multiBroadcastTag\":\"MyVideoBroadcastTag\",\"outputs\":{" +
+                    "\"hls\":{},\"rtmp\":[{\"id\":\"foo\",\"serverUrl\":\"rtmp://myfooserver/myfooapp\"," +
+                    "\"streamName\":\"myfoostream\"},{\"id\":\"bar\",\"serverUrl\":" +
+                    "\"rtmp://mybarserver/mybarapp\",\"streamName\":\"mybarstream\"}]}}"
+              ))
               .willReturn(aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
@@ -1750,7 +1792,9 @@ public class OpenTokTest {
                           "          \"sessionId\" : \"SESSIONID\",\n" +
                           "          \"projectId\" : 123456,\n" +
                           "          \"createdAt\" : 1437676551000,\n" +
-                          "          \"upDatedAt\" : 1437676551000,\n" +
+                          "          \"updatedAt\" : 1437676551000,\n" +
+                          "          \"hasAudio\" : false,\n" +
+                          "          \"hasVideo\" : false,\n" +
                           "          \"resolution\" : \"1280x720\",\n" +
                           "          \"status\" : \"started\",\n" +
                           "          \"multiBroadcastTag\" : \"MyVideoBroadcastTag\",\n" +
@@ -1779,7 +1823,8 @@ public class OpenTokTest {
               .addRtmpProperties(rtmpProps)
               .addRtmpProperties(rtmpNextProps)
               .maxDuration(1000)
-              .resolution("640x480")
+              .resolution("1920x1080")
+              .hasAudio(false).hasVideo(false)
               .multiBroadcastTag("MyVideoBroadcastTag")
               .layout(layout)
               .streamMode(Broadcast.StreamMode.AUTO)
@@ -1794,6 +1839,8 @@ public class OpenTokTest {
         assertNotNull(rtmp.getStreamName());
         assertNotNull(broadcast.toString());
         assertNotNull(broadcast.getStatus());
+        assertFalse(broadcast.hasAudio());
+        assertFalse(broadcast.hasVideo());
         assertEquals("1280x720", broadcast.getResolution());
         assertTrue(broadcast.getCreatedAt() > 0);
         assertTrue(broadcast.getUpdatedAt() > -1);
@@ -1901,7 +1948,7 @@ public class OpenTokTest {
                 .maxDuration(5400)
                 .layout(layout)
                 .build();
-        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasAudio\":true,\"hasVideo\":true,\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         assertNotNull(broadcast);
         assertEquals(sessionId, broadcast.getSessionId());

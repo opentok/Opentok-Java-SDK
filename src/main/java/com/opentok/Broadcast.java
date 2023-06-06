@@ -34,14 +34,17 @@ public class Broadcast {
          */
         AUTO,
         /**
-         * Strams will be included in the archive based on calls to the
+         * Streams will be included in the archive based on calls to the
          * {@link OpenTok#addBroadcastStream(String, String, boolean, boolean)} and
          * {@link OpenTok#removeBroadcastStream(String, String)} methods.
          */
         MANUAL;
 
         @JsonValue
-        public String toString() { return super.toString().toLowerCase(); }
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 
     @JsonProperty private String id;
@@ -52,8 +55,10 @@ public class Broadcast {
     @JsonProperty private String resolution;
     @JsonProperty private String status;
     @JsonProperty private String multiBroadcastTag;
+    @JsonProperty private boolean hasAudio = true;
+    @JsonProperty private boolean hasVideo = true;
     @JsonProperty private StreamMode streamMode = StreamMode.AUTO;
-    private List<Rtmp> rtmpList = new ArrayList<>();
+    private List<Rtmp> rtmpList = new ArrayList<>(5);
     private String hls;
 
     /**
@@ -165,13 +170,18 @@ public class Broadcast {
         return rtmpList;
     }
 
-    @Override
-    public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            return "";
-        }
+    /**
+     * Whether the broadcast has audio (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasAudio() {
+        return hasAudio;
+    }
+
+    /**
+     * Whether the broadcast has video (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasVideo() {
+        return hasVideo;
     }
 
     /**
@@ -182,4 +192,12 @@ public class Broadcast {
         return streamMode;
     }
 
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
+    }
 }

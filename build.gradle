@@ -11,7 +11,7 @@ plugins {
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '4.10.0'
+version = '4.11.0'
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
@@ -27,10 +27,10 @@ dependencies {
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-validator:commons-validator:1.7'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'org.bitbucket.b_c:jose4j:0.9.3'
-    implementation 'io.netty:netty-handler:4.1.89.Final'
+    implementation 'io.netty:netty-handler:4.1.93.Final'
 }
 
 task sourcesJar(type: Jar) {

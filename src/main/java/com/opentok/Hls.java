@@ -13,7 +13,6 @@ package com.opentok;
  * {@link BroadcastProperties#hls()} method.
  */
 public class Hls {
-
 	private final boolean dvr;
 	private final boolean lowLatency;
 
