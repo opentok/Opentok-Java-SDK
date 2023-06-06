@@ -19,19 +19,23 @@ import java.util.List;
  * {@link OpenTok#startBroadcast(String sessionId, BroadcastProperties properties)} method.
  */
 public class BroadcastProperties {
-    private BroadcastLayout layout;
-    private int maxDuration;
-    private boolean hasHls;
-    private List<RtmpProperties> rtmpList;
-    private String resolution;
-    private String multiBroadcastTag;
-    private StreamMode streamMode;
-    private Hls hls;
+    private final BroadcastLayout layout;
+    private final int maxDuration;
+    private final boolean hasHls;
+    private final boolean hasAudio;
+    private final boolean hasVideo;
+    private final List<RtmpProperties> rtmpList;
+    private final String resolution;
+    private final String multiBroadcastTag;
+    private final StreamMode streamMode;
+    private final Hls hls;
 
     private BroadcastProperties(Builder builder) {
         this.layout = builder.layout;
         this.maxDuration = builder.maxDuration;
         this.hasHls = builder.hasHls;
+        this.hasAudio = builder.hasAudio;
+        this.hasVideo = builder.hasVideo;
         this.hls = builder.hls;
         this.rtmpList = builder.rtmpList;
         this.resolution = builder.resolution;
@@ -48,9 +52,11 @@ public class BroadcastProperties {
         private BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.BESTFIT);
         private int maxDuration = 7200;
         private boolean hasHls = false;
+        private boolean hasAudio = true;
+        private boolean hasVideo = true;
         private String multiBroadcastTag;
         private Hls hls;
-        private List<RtmpProperties> rtmpList = new ArrayList<>();
+        private final List<RtmpProperties> rtmpList = new ArrayList<>(5);
         private String resolution = "640x480";
         private StreamMode streamMode = StreamMode.AUTO;
 
@@ -108,6 +114,30 @@ public class BroadcastProperties {
         }
 
         /**
+         * Whether to include audio in the broadcast ({@code true} by default).
+         *
+         * @param hasAudio {@code true} if audio should be included, {@code false} otherwise.
+         *
+         * @return The BroadcastProperties.Builder object with the hasAudio setting.
+         */
+        public Builder hasAudio(boolean hasAudio) {
+            this.hasAudio = hasAudio;
+            return this;
+        }
+
+        /**
+         * Whether to include video in the broadcast ({@code true} by default).
+         *
+         * @param hasVideo {@code true} if video should be included, {@code false} otherwise.
+         *
+         * @return The BroadcastProperties.Builder object with the hasVideo setting.
+         */
+        public Builder hasVideo(boolean hasVideo) {
+            this.hasVideo = hasVideo;
+            return this;
+        }
+
+        /**
          * Call this method to set a list of RTMP broadcast streams. There is a limit of
          * 5 RTMP streams.
          *
@@ -115,7 +145,7 @@ public class BroadcastProperties {
          *
          * @return The BroadcastProperties.Builder object with the list of RtmpProperties setting.
          */
-        public Builder addRtmpProperties (RtmpProperties rtmpProps) throws InvalidArgumentException {
+        public Builder addRtmpProperties(RtmpProperties rtmpProps) throws InvalidArgumentException {
             if (this.rtmpList.size() >= 5) {
                 throw new InvalidArgumentException("Cannot add more than 5 RtmpProperties properties");
             }
@@ -207,6 +237,20 @@ public class BroadcastProperties {
     }
 
     /**
+     * Whether the broadcast has audio (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasAudio() {
+        return hasAudio;
+    }
+
+    /**
+     * Whether the broadcast has video (<code>true</code>) or not (<code>false</code>).
+     */
+    public boolean hasVideo() {
+        return hasVideo;
+    }
+
+    /**
      * The HLS configuration object, or <code>null</code> if {@link BroadcastProperties#hasHls} is false.
      */
     public Hls hls() {
@@ -219,6 +263,7 @@ public class BroadcastProperties {
     public List<RtmpProperties> rtmpList() {
         return rtmpList;
     }
+
     /**
      * Returns the resolution of the broadcast.
      */
@@ -236,5 +281,7 @@ public class BroadcastProperties {
     /**
      * The stream mode of the broadcast.
      */
-    public StreamMode streamMode() { return streamMode; }
+    public StreamMode streamMode() {
+        return streamMode;
+    }
 }

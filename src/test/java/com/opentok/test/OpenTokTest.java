@@ -1776,6 +1776,13 @@ public class OpenTokTest {
         String sessionId = "SESSIONID";
         String url = "/v2/project/" + this.apiKey + "/broadcast";
         stubFor(post(urlEqualTo(url))
+              .withRequestBody(equalTo("{\"sessionId\":\"SESSIONID\",\"streamMode\":\"auto\"," +
+                    "\"hasAudio\":false,\"hasVideo\":false,\"layout\":{\"type\":\"pip\"},\"maxDuration\":1000," +
+                    "\"resolution\":\"1920x1080\",\"multiBroadcastTag\":\"MyVideoBroadcastTag\",\"outputs\":{" +
+                    "\"hls\":{},\"rtmp\":[{\"id\":\"foo\",\"serverUrl\":\"rtmp://myfooserver/myfooapp\"," +
+                    "\"streamName\":\"myfoostream\"},{\"id\":\"bar\",\"serverUrl\":" +
+                    "\"rtmp://mybarserver/mybarapp\",\"streamName\":\"mybarstream\"}]}}"
+              ))
               .willReturn(aResponse()
                     .withStatus(200)
                     .withHeader("Content-Type", "application/json")
@@ -1784,7 +1791,9 @@ public class OpenTokTest {
                           "          \"sessionId\" : \"SESSIONID\",\n" +
                           "          \"projectId\" : 123456,\n" +
                           "          \"createdAt\" : 1437676551000,\n" +
-                          "          \"upDatedAt\" : 1437676551000,\n" +
+                          "          \"updatedAt\" : 1437676551000,\n" +
+                          "          \"hasAudio\" : false,\n" +
+                          "          \"hasVideo\" : false,\n" +
                           "          \"resolution\" : \"1280x720\",\n" +
                           "          \"status\" : \"started\",\n" +
                           "          \"multiBroadcastTag\" : \"MyVideoBroadcastTag\",\n" +
@@ -1813,7 +1822,8 @@ public class OpenTokTest {
               .addRtmpProperties(rtmpProps)
               .addRtmpProperties(rtmpNextProps)
               .maxDuration(1000)
-              .resolution("640x480")
+              .resolution("1920x1080")
+              .hasAudio(false).hasVideo(false)
               .multiBroadcastTag("MyVideoBroadcastTag")
               .layout(layout)
               .streamMode(Broadcast.StreamMode.AUTO)
@@ -1828,6 +1838,8 @@ public class OpenTokTest {
         assertNotNull(rtmp.getStreamName());
         assertNotNull(broadcast.toString());
         assertNotNull(broadcast.getStatus());
+        assertFalse(broadcast.hasAudio());
+        assertFalse(broadcast.hasVideo());
         assertEquals("1280x720", broadcast.getResolution());
         assertTrue(broadcast.getCreatedAt() > 0);
         assertTrue(broadcast.getUpdatedAt() > -1);
@@ -1935,7 +1947,7 @@ public class OpenTokTest {
                 .maxDuration(5400)
                 .layout(layout)
                 .build();
-        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasAudio\":true,\"hasVideo\":true,\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         assertNotNull(broadcast);
         assertEquals(sessionId, broadcast.getSessionId());
