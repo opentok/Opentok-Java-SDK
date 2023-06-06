@@ -15,38 +15,38 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Defines valid video resolutions for an archive.
+ * Defines valid video resolutions.
  */
 public enum Resolution {
 	/**
 	 * 480p landscape (640x480)
 	 */
-	SD_LANDSCAPE("640x480"),
+	SD_HORIZONTAL("640x480"),
 
 	/**
 	 * 480p portrait (480x640)
 	 */
-	SD_PORTRAIT("480x640"),
+	SD_VERTICAL("480x640"),
 
 	/**
 	 * 720p landscape (1280x720)
 	 */
-	HD_LANDSCAPE("1280x720"),
+	HD_HORIZONTAL("1280x720"),
 
 	/**
 	 * 720p portrait (720x1280)
 	 */
-	HD_PORTRAIT("720x1280"),
+	HD_VERTICAL("720x1280"),
 
 	/**
 	 * 1080p landscape (1920x1080)
 	 */
-	FHD_LANDSCAPE("1920x1080"),
+	FHD_HORIZONTAL("1920x1080"),
 
 	/**
 	 * 1080p portrait (1080x1920)
 	 */
-	FHD_PORTRAIT("1080x1920");
+	FHD_VERTICAL("1080x1920");
 
 	private static final Map<String, Resolution> RESOLUTION_INDEX =
 			Arrays.stream(Resolution.values()).collect(Collectors.toMap(

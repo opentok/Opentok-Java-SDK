@@ -21,7 +21,6 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import org.apache.commons.lang.StringUtils;
-import org.checkerframework.common.returnsreceiver.qual.This;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -374,7 +373,7 @@ public class OpenTokTest {
         SessionProperties properties = new SessionProperties.Builder()
               .archiveMode(ArchiveMode.ALWAYS)
               .mediaMode(MediaMode.ROUTED)
-              .archiveResolution(Resolution.HD_PORTRAIT)
+              .archiveResolution(Resolution.HD_VERTICAL)
               .archiveName("720pTest")
               .build();
         Session session = sdk.createSession(properties);
@@ -383,7 +382,7 @@ public class OpenTokTest {
         assertEquals(apiKey, session.getApiKey());
         assertEquals(sessionId, session.getSessionId());
         assertEquals(ArchiveMode.ALWAYS, session.getProperties().archiveMode());
-        assertEquals(Resolution.HD_PORTRAIT, session.getProperties().archiveResolution());
+        assertEquals(Resolution.HD_VERTICAL, session.getProperties().archiveResolution());
 
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
               // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
@@ -417,7 +416,7 @@ public class OpenTokTest {
 
         SessionProperties fhd = builder
                 .archiveMode(ArchiveMode.ALWAYS)
-                .archiveResolution(Resolution.FHD_LANDSCAPE)
+                .archiveResolution(Resolution.FHD_HORIZONTAL)
                 .archiveName(null).build();
         assertEquals("1920x1080", fhd.archiveResolution().toString());
         assertNull(fhd.archiveName());
