@@ -81,8 +81,7 @@ During development the version number should end in "-alpha.x" or "-beta.x", whe
 
 ### Branches
 
-*  `dev` - the main development branch.
-*  `master` - reflects the latest stable release.
+*  `main` - the main development branch.
 *  `feat.foo` - feature branches. these are used for longer running tasks that cannot be accomplished in one commit.
    once merged into master, these branches should be deleted.
 *  `vx.x.x` - if development for a future version/milestone has begun while master is working towards a sooner
