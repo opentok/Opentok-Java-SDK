@@ -290,6 +290,12 @@ public class SessionProperties {
             params.put("e2ee", e2eeValueList);
         }
 
+        if (e2ee) {
+            ArrayList<String> e2eeValueList = new ArrayList<>(1);
+            e2eeValueList.add("" + e2ee);
+            params.put("e2ee", e2eeValueList);
+        }
+
         return params;
     }
 
