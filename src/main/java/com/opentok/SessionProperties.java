@@ -8,8 +8,10 @@
 package com.opentok;
 
 import com.opentok.exception.InvalidArgumentException;
-import org.apache.commons.validator.routines.InetAddressValidator;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 
 
@@ -52,12 +54,20 @@ public class SessionProperties {
          * situate the session in its global network. If you do not set a location hint,
          * the OpenTok servers will be based on the first client connecting to the session.
          *
-         * @param location The IP address to serve as the locaion hint.
+         * @param location The IP address to serve as the location hint.
          *
          * @return The SessionProperties.Builder object with the location hint setting.
          */
         public Builder location(String location) throws InvalidArgumentException {
-            if (!InetAddressValidator.getInstance().isValidInet4Address(location)) {
+            boolean valid;
+            try {
+                InetAddress ip = InetAddress.getByName(location);
+                valid = ip instanceof Inet4Address && ip.getHostAddress().equals(location);
+            }
+            catch (UnknownHostException ex) {
+                valid = false;
+            }
+            if (!valid) {
                 throw new InvalidArgumentException("Location must be a valid IPv4 address. location = " + location);
             }
             this.location = location;
