@@ -2346,6 +2346,7 @@ public class OpenTokTest {
               .password("password")
               .secure(true)
               .video(true)
+              .streams("Stream ID 1", "STREAM_ID2")
               .observeForceMute(true)
               .build();
         Sip sip = sdk.dial(sessionId, token, properties);

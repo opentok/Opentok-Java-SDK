@@ -825,6 +825,15 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeFieldName("observeForceMute");
             jGenerator.writeBoolean(props.observeForceMute());
 
+            String[] streams = props.streams();
+            if (streams != null && streams.length > 0) {
+                jGenerator.writeArrayFieldStart("streams");
+                for (String streamId : streams) {
+                    jGenerator.writeString(streamId);
+                }
+                jGenerator.writeEndArray();
+            }
+
             jGenerator.writeEndObject();      // end sip
             jGenerator.writeEndObject();      // end main object
             jGenerator.close();
