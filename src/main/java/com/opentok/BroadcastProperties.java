@@ -21,6 +21,7 @@ import java.util.List;
 public class BroadcastProperties {
     private final BroadcastLayout layout;
     private final int maxDuration;
+    private final int maxBitrate;
     private final boolean hasHls;
     private final boolean hasAudio;
     private final boolean hasVideo;
@@ -31,16 +32,17 @@ public class BroadcastProperties {
     private final Hls hls;
 
     private BroadcastProperties(Builder builder) {
-        this.layout = builder.layout;
-        this.maxDuration = builder.maxDuration;
-        this.hasHls = builder.hasHls;
-        this.hasAudio = builder.hasAudio;
-        this.hasVideo = builder.hasVideo;
-        this.hls = builder.hls;
-        this.rtmpList = builder.rtmpList;
-        this.resolution = builder.resolution;
-        this.streamMode = builder.streamMode;
-        this.multiBroadcastTag = builder.multiBroadcastTag;
+        layout = builder.layout;
+        maxDuration = builder.maxDuration;
+        maxBitrate = builder.maxBitrate;
+        hasHls = builder.hasHls;
+        hasAudio = builder.hasAudio;
+        hasVideo = builder.hasVideo;
+        hls = builder.hls;
+        rtmpList = builder.rtmpList;
+        resolution = builder.resolution;
+        streamMode = builder.streamMode;
+        multiBroadcastTag = builder.multiBroadcastTag;
     }
 
     /**
@@ -51,6 +53,7 @@ public class BroadcastProperties {
     public static class Builder {
         private BroadcastLayout layout = new BroadcastLayout(BroadcastLayout.Type.BESTFIT);
         private int maxDuration = 7200;
+        private int maxBitrate = 2_000_000;
         private boolean hasHls = false;
         private boolean hasAudio = true;
         private boolean hasVideo = true;
@@ -67,7 +70,7 @@ public class BroadcastProperties {
          *
          * @return The BroadcastProperties.Builder object with the layout setting.
          */
-        public Builder layout(BroadcastLayout layout){
+        public Builder layout(BroadcastLayout layout) {
             this.layout = layout;
             return this;
         }
@@ -82,11 +85,28 @@ public class BroadcastProperties {
          *
          * @return The BroadcastProperties.Builder object with the maxDuration setting.
          */
-        public Builder maxDuration(int maxDuration)  throws InvalidArgumentException {
-            if (maxDuration < 60 || maxDuration > 36000) {
+        public Builder maxDuration(int maxDuration) throws InvalidArgumentException {
+            if (maxDuration < 60 || maxDuration > 36_000) {
                 throw new InvalidArgumentException("maxDuration value must be between 60 and 36000 (inclusive).");
             }
             this.maxDuration = maxDuration;
+            return this;
+        }
+
+        /**
+         * Sets the maximum bitrate in bits per second for broadcast composing.
+         *
+         * @param maxBitrate The maximum bitrate in bits per second.
+         *
+         * @return The BroadcastProperties.Builder object with the maxBitrate setting.
+         *
+         * @throws InvalidArgumentException If the bitrate is out of bounds.
+         */
+        public Builder maxBitrate(int maxBitrate) throws InvalidArgumentException {
+            if (maxBitrate < 100_000 || maxBitrate > 6_000_000) {
+                throw new InvalidArgumentException("maxBitrate value must be between 100_000 and 6_000_000.");
+            }
+            this.maxBitrate = maxBitrate;
             return this;
         }
 
@@ -227,6 +247,13 @@ public class BroadcastProperties {
      */
     public int maxDuration() {
         return maxDuration;
+    }
+
+    /**
+     * The maximum bitrate in bits per second of the broadcast.
+     */
+    public int maxBitrate() {
+        return maxBitrate;
     }
 
     /**

@@ -513,6 +513,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.maxDuration() > 0) {
             requestJson.put("maxDuration", properties.maxDuration());
         }
+        if (properties.maxBitrate() > 0) {
+            requestJson.put("maxBitrate", properties.maxBitrate());
+        }
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
         }
