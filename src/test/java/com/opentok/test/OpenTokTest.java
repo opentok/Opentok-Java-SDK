@@ -21,7 +21,6 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import org.apache.commons.lang.StringUtils;
-import org.checkerframework.common.returnsreceiver.qual.This;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -1779,8 +1778,8 @@ public class OpenTokTest {
         stubFor(post(urlEqualTo(url))
               .withRequestBody(equalTo("{\"sessionId\":\"SESSIONID\",\"streamMode\":\"auto\"," +
                     "\"hasAudio\":false,\"hasVideo\":false,\"layout\":{\"type\":\"pip\"},\"maxDuration\":1000," +
-                    "\"resolution\":\"1920x1080\",\"multiBroadcastTag\":\"MyVideoBroadcastTag\",\"outputs\":{" +
-                    "\"hls\":{},\"rtmp\":[{\"id\":\"foo\",\"serverUrl\":\"rtmp://myfooserver/myfooapp\"," +
+                    "\"maxBitrate\":524288,\"resolution\":\"1920x1080\",\"multiBroadcastTag\":\"MyVideoBroadcastTag\"," +
+                    "\"outputs\":{\"hls\":{},\"rtmp\":[{\"id\":\"foo\",\"serverUrl\":\"rtmp://myfooserver/myfooapp\"," +
                     "\"streamName\":\"myfoostream\"},{\"id\":\"bar\",\"serverUrl\":" +
                     "\"rtmp://mybarserver/mybarapp\",\"streamName\":\"mybarstream\"}]}}"
               ))
@@ -1792,7 +1791,9 @@ public class OpenTokTest {
                           "          \"sessionId\" : \"SESSIONID\",\n" +
                           "          \"projectId\" : 123456,\n" +
                           "          \"createdAt\" : 1437676551000,\n" +
-                          "          \"updatedAt\" : 1437676551000,\n" +
+                          "          \"updatedAt\" : 1447676551000,\n" +
+                          "          \"maxDuration\": 5400,\n" +
+                          "          \"maxBitrate\": 7234560,\n" +
                           "          \"hasAudio\" : false,\n" +
                           "          \"hasVideo\" : false,\n" +
                           "          \"resolution\" : \"1280x720\",\n" +
@@ -1800,15 +1801,17 @@ public class OpenTokTest {
                           "          \"multiBroadcastTag\" : \"MyVideoBroadcastTag\",\n" +
                           "          \"broadcastUrls\" : {" +
                           "           \"hls\" : \"http://server/fakepath/playlist.m3u8\"," +
+                          "           \"hlsStatus\" : \"ready\"," +
                           "           \"rtmp\" : [{" +
                           "           \"id\" : \"foo\"," +
                           "           \"serverUrl\" : \"rtmp://myfooserver/myfooapp\"," +
-                          "           \"streamName\" : \"myfoostream\"" +
-                          "           }," +
-                          "           {                          " +
+                          "           \"streamName\" : \"myfoostream\"," +
+                          "           \"status\" : \"live\"" +
+                          "           },{" +
                           "           \"id\" : \"bar\"," +
                           "           \"serverUrl\" : \"rtmp://mybarserver/mybarapp\"," +
-                          "           \"streamName\" : \"mybarstream\"" +
+                          "           \"streamName\" : \"mybarstream\"," +
+                          "           \"status\" : \"offline\"" +
                           "           }]" +
                           "           }" +
                           "           }" +
@@ -1823,6 +1826,7 @@ public class OpenTokTest {
               .addRtmpProperties(rtmpProps)
               .addRtmpProperties(rtmpNextProps)
               .maxDuration(1000)
+              .maxBitrate(524288)
               .resolution("1920x1080")
               .hasAudio(false).hasVideo(false)
               .multiBroadcastTag("MyVideoBroadcastTag")
@@ -1838,13 +1842,15 @@ public class OpenTokTest {
         assertNotNull(rtmp.getServerUrl());
         assertNotNull(rtmp.getStreamName());
         assertNotNull(broadcast.toString());
-        assertNotNull(broadcast.getStatus());
+        assertEquals("started", broadcast.getStatus());
         assertFalse(broadcast.hasAudio());
         assertFalse(broadcast.hasVideo());
+        assertEquals(7234560, broadcast.getMaxBitrate());
+        assertEquals(5400, broadcast.getMaxDuration());
         assertEquals("1280x720", broadcast.getResolution());
-        assertTrue(broadcast.getCreatedAt() > 0);
-        assertTrue(broadcast.getUpdatedAt() > -1);
-        assertTrue(broadcast.getProjectId() > -1);
+        assertEquals(1437676551000L, broadcast.getCreatedAt());
+        assertEquals(1447676551000L, broadcast.getUpdatedAt());
+        assertEquals(123456, broadcast.getProjectId());
         assertEquals(sessionId, broadcast.getSessionId());
         assertEquals("MyVideoBroadcastTag", broadcast.getMultiBroadcastTag());
         assertEquals(Broadcast.StreamMode.AUTO, broadcast.getStreamMode());
@@ -1931,6 +1937,7 @@ public class OpenTokTest {
         broadcastRootNode.put("updatedAt", "1437676551000");
         broadcastRootNode.put("status", "started");
         broadcastRootNode.put("maxDuration", "5400");
+        broadcastRootNode.put("maxBitrate", "2000000");
         broadcastRootNode.put("resolution", "1280x720");
         broadcastRootNode.put("partnerId", "12345678");
         broadcastRootNode.put("event", "broadcast");
@@ -1948,7 +1955,7 @@ public class OpenTokTest {
                 .maxDuration(5400)
                 .layout(layout)
                 .build();
-        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasAudio\":true,\"hasVideo\":true,\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
+        String expectedJson = String.format("{\"sessionId\":\"%s\",\"streamMode\":\"auto\",\"hasAudio\":true,\"hasVideo\":true,\"layout\":{\"type\":\"bestFit\",\"screenshareType\":\"pip\"},\"maxDuration\":5400,\"maxBitrate\":2000000,\"resolution\":\"640x480\",\"outputs\":{\"hls\":{},\"rtmp\":[]}}",sessionId);
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         assertNotNull(broadcast);
         assertEquals(sessionId, broadcast.getSessionId());
@@ -2339,6 +2346,7 @@ public class OpenTokTest {
               .password("password")
               .secure(true)
               .video(true)
+              .streams("Stream ID 1", "STREAM_ID2")
               .observeForceMute(true)
               .build();
         Sip sip = sdk.dial(sessionId, token, properties);

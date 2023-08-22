@@ -52,8 +52,11 @@ public class Broadcast {
     @JsonProperty private int projectId;
     @JsonProperty private long createdAt;
     @JsonProperty private long updatedAt;
+    @JsonProperty private int maxDuration;
+    @JsonProperty private int maxBitrate;
     @JsonProperty private String resolution;
     @JsonProperty private String status;
+    @JsonProperty private String hlsStatus;
     @JsonProperty private String multiBroadcastTag;
     @JsonProperty private boolean hasAudio = true;
     @JsonProperty private boolean hasVideo = true;
@@ -113,6 +116,24 @@ public class Broadcast {
     }
 
     /**
+     * The maximum duration of the broadcast in seconds.
+     *
+     * @return The maximum duration.
+     */
+    public int getMaxDuration() {
+        return maxDuration;
+    }
+
+    /**
+     * Maximum bitrate (bits per second) is an optional value allowed for the broadcast composing.
+     *
+     * @return The maximum bitrate.
+     */
+    public int getMaxBitrate() {
+        return maxBitrate;
+    }
+
+    /**
      * The broadcast resolution.
      */
     public String getResolution() {
@@ -145,6 +166,7 @@ public class Broadcast {
     private void unpack(Map<String,Object> broadcastUrls) {
         if (broadcastUrls == null) return;
         hls = (String) broadcastUrls.get("hls");
+        hlsStatus = (String) broadcastUrls.get("hlsStatus");
         Iterable<Map<String,String>> rtmpResponse = (Iterable<Map<String,String>>)broadcastUrls.get("rtmp");
         if (rtmpResponse == null) return;
         for (Map<String,String> element : rtmpResponse) {
@@ -152,6 +174,7 @@ public class Broadcast {
             rtmp.setId(element.get("id"));
             rtmp.setServerUrl(element.get("serverUrl"));
             rtmp.setStreamName(element.get("streamName"));
+            rtmp.setStatus(element.get("status"));
             this.rtmpList.add(rtmp);
         }
     }
@@ -161,6 +184,15 @@ public class Broadcast {
      */
     public String getHls() {
         return hls;
+    }
+
+    /**
+     * The HLS status of the broadcast if known. One of: "connecting", "ready", "live", "ended", "error".
+     *
+     * @return The HLS status as a string (if applicable).
+     */
+    public String getHlsStatus() {
+        return hlsStatus;
     }
 
     /**

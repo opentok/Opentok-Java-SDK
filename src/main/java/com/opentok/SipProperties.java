@@ -7,6 +7,9 @@
  */
 package com.opentok;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Defines values for the <code>properties</code> parameter of the
  * {@link OpenTok#dial(String, String, SipProperties)} method.
@@ -22,16 +25,18 @@ public class SipProperties {
     private Boolean secure;
     private Boolean video;
     private Boolean observeForceMute;
+    private String[] streams;
 
     private SipProperties(Builder builder) {
-        this.sipUri = builder.sipUri;
-        this.from = builder.from;
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.headersJsonStartingWithXDash = builder.headersJsonStartingWithXDash;
-        this.secure = builder.secure;
-        this.video = builder.video;
-        this.observeForceMute = builder.observeForceMute;
+        sipUri = builder.sipUri;
+        from = builder.from;
+        userName = builder.userName;
+        password = builder.password;
+        headersJsonStartingWithXDash = builder.headersJsonStartingWithXDash;
+        secure = builder.secure;
+        video = builder.video;
+        observeForceMute = builder.observeForceMute;
+        streams = builder.streams;
     }
 
     /**
@@ -48,7 +53,7 @@ public class SipProperties {
         private boolean secure = false;
         private boolean video = false;
         private boolean observeForceMute = false;
-
+        private String[] streams = null;
 
         /**
          * Call this method to set the SIP URI.
@@ -168,6 +173,19 @@ public class SipProperties {
         }
 
         /**
+         * The stream IDs of the participants' which will be subscribed by the SIP participant.
+         * If not provided, all streams in session will be selected.
+         *
+         * @param streams Stream IDs to select.
+         *
+         * @return The SipProperties.Builder object with the streams setting.
+         */
+        public Builder streams(String... streams) {
+            this.streams = streams;
+            return this;
+        }
+
+        /**
          * Builds the SipProperties object.
          *
          * @return The SipProperties object.
@@ -222,10 +240,23 @@ public class SipProperties {
     /**
      * Return the video value (<code>true</code> or <code>false</code>).
      */
-    public boolean video() { return video; }
+    public boolean video() {
+        return video;
+    }
 
     /**
      * Returns the observeForceMute value (<code>true</code> or <code>false</code>).
      */
-    public boolean observeForceMute() { return observeForceMute; }
+    public boolean observeForceMute() {
+        return observeForceMute;
+    }
+
+    /**
+     * Returns the subscribed stream IDs.
+     *
+     * @return The selected stream IDs as an array.
+     */
+    public String[] streams() {
+        return streams;
+    }
 }

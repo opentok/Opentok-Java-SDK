@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 

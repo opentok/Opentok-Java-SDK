@@ -513,6 +513,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
         if (properties.maxDuration() > 0) {
             requestJson.put("maxDuration", properties.maxDuration());
         }
+        if (properties.maxBitrate() > 0) {
+            requestJson.put("maxBitrate", properties.maxBitrate());
+        }
         if (properties.resolution() != null) {
             requestJson.put("resolution", properties.resolution());
         }
@@ -821,6 +824,15 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
             jGenerator.writeFieldName("observeForceMute");
             jGenerator.writeBoolean(props.observeForceMute());
+
+            String[] streams = props.streams();
+            if (streams != null && streams.length > 0) {
+                jGenerator.writeArrayFieldStart("streams");
+                for (String streamId : streams) {
+                    jGenerator.writeString(streamId);
+                }
+                jGenerator.writeEndArray();
+            }
 
             jGenerator.writeEndObject();      // end sip
             jGenerator.writeEndObject();      // end main object
