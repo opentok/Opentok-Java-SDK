@@ -2762,4 +2762,92 @@ public class OpenTokTest {
                 new AudioConnectorProperties.Builder(uriStr).addStream(" ").build()
         );
     }
+
+    @Test
+    public void testStartCaptions() throws Exception {
+        String sessionId = "1_MX4yNzA4NjYxMn5-MTU0NzA4MDUyMTEzNn5sOXU5ZnlWYXplRnZGblV4RUo3dXJpZk1-fg";
+        String token = "A valid OpenTok token with the role set to moderator";
+        String statusCallbackUrl = "https://send-status-to.me";
+        String languageCode = "en-GB";
+        int maxDuration = 1800;
+        boolean partialCaptions = false;
+        String captionsId = "7c0680fc-6274-4de5-a66f-d0648e8d3ac2";
+        String url = "/v2/project/" + this.apiKey + "/captions";
+        stubFor(post(urlEqualTo(url))
+                .withHeader("Accept", equalTo("application/json"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(equalToJson("{\n" +
+                        "  \"sessionId\": \""+sessionId+"\",\n" +
+                        "  \"token\": \""+token+"\",\n" +
+                        "  \"languageCode\": \""+languageCode+"\",\n" +
+                        "  \"maxDuration\": "+maxDuration+",\n" +
+                        "  \"partialCaptions\": "+partialCaptions+",\n" +
+                        "  \"statusCallbackUrl\": \""+statusCallbackUrl+"\"\n" +
+                        "}"
+                )).willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "  \"captionsId\": \""+captionsId+"\"\n" +
+                                "}"
+                        )
+                )
+        );
+
+        CaptionProperties properties = CaptionProperties.Builder()
+                .languageCode(languageCode)
+                .statusCallbackUrl(statusCallbackUrl)
+                .maxDuration(maxDuration)
+                .partialCaptions(partialCaptions)
+                .build();
+
+        Caption caption = sdk.startCaptions(sessionId, token, properties);
+        assertNotNull(caption);
+        assertEquals(captionsId, caption.getCaptionsId());
+        assertTrue(caption.toString().contains(captionsId));
+
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+
+        assertThrows(InvalidArgumentException.class, () -> sdk.startCaptions("", token, properties));
+        assertThrows(InvalidArgumentException.class, () -> sdk.startCaptions(sessionId, "", properties));
+
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(409)));
+        assertThrows(RequestException.class, () -> sdk.startCaptions(sessionId, token, null));
+    }
+
+    @Test
+    public void testCaptionProperties() throws Exception {
+        CaptionProperties.Builder builder = CaptionProperties.Builder();
+        CaptionProperties properties = builder.build();
+        assertEquals(14400, properties.getMaxDuration());
+        assertEquals("en-US", properties.getLanguageCode());
+        assertTrue(properties.partialCaptions());
+        assertNull(properties.getStatusCallbackUrl());
+
+        assertThrows(IllegalArgumentException.class, () -> builder.maxDuration(14401).build());
+        assertThrows(IllegalArgumentException.class, () -> builder.maxDuration(-1).build());
+        assertThrows(IllegalArgumentException.class, () -> builder.statusCallbackUrl("invalid").build());
+        assertThrows(IllegalArgumentException.class, () -> builder.languageCode("invalid").build());
+    }
+
+    @Test
+    public void testStopCaptions() throws Exception {
+        String captionsId = UUID.randomUUID().toString();
+        String url = "/v2/project/" + this.apiKey + "/captions/" + captionsId + "/stop";
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(202)));
+
+        sdk.stopCaptions(captionsId);
+
+        verify(postRequestedFor(urlMatching(url)));
+        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(deleteRequestedFor(urlMatching(url)))));
+        Helpers.verifyUserAgent();
+
+        assertThrows(InvalidArgumentException.class, () -> sdk.stopCaptions(""));
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(404)));
+        assertThrows(RequestException.class, () -> sdk.stopCaptions(captionsId));
+    }
 }

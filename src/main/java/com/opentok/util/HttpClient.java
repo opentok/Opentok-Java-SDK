@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opentok.*;
 import com.opentok.constants.DefaultApiUrl;
 import com.opentok.constants.DefaultUserAgent;
-import com.opentok.constants.Version;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
@@ -34,7 +33,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -1214,7 +1212,6 @@ public class HttpClient extends DefaultAsyncHttpClient {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
 
         Future<Response> request = this.prepareGet(url)
-                .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
                 .execute();
 
@@ -1260,7 +1257,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             " response code: " + response.getStatusCode());
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RequestException("Could not start render", e);
+            throw new RequestException("Could not stop render", e);
         }
     }
 
@@ -1292,6 +1289,82 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new RequestException("Could not start render", e);
         }
     }
+
+    public String startCaption(String sessionId, String token, CaptionProperties properties) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/captions";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            JsonFactory factory = new JsonFactory();
+            JsonGenerator jGenerator = factory.createGenerator(outputStream);
+            jGenerator.writeStartObject();
+            jGenerator.writeStringField("sessionId", sessionId);
+            jGenerator.writeStringField("token", token);
+            jGenerator.writeStringField("languageCode", properties.getLanguageCode());
+            jGenerator.writeNumberField("maxDuration", properties.getMaxDuration());
+            jGenerator.writeBooleanField("partialCaptions", properties.partialCaptions());
+            String statusCallbackUrl = properties.getStatusCallbackUrl();
+            if (StringUtils.isNotEmpty(statusCallbackUrl)) {
+                jGenerator.writeStringField("statusCallbackUrl", statusCallbackUrl);
+            }
+            jGenerator.writeEndObject();
+            jGenerator.close();
+            outputStream.close();
+        }
+        catch (Exception e) {
+            throw new OpenTokException("Could not start live captions. The JSON body encoding failed.", e);
+        }
+
+        Future<Response> request = this.preparePost(url)
+                .setHeader("Content-Type", "application/json")
+                .setHeader("Accept", "application/json")
+                .setBody(outputStream.toString())
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200: case 202:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON.");
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT.");
+                case 409:
+                    throw new RequestException("Live captions have already started for this OpenTok session.");
+                case 500:
+                    throw new RequestException("Could not stop live captions. A server error occurred.");
+                default:
+                    throw new RequestException("Could not stop render. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not stop captions", e);
+        }
+    }
+
+    public void stopCaption(String captionsId) throws OpenTokException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/captions/" + captionsId + "/stop";
+        try {
+            Response response = this.preparePost(url).execute().get();
+            switch (response.getStatusCode()) {
+                case 200: case 202:
+                    return;
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT.");
+                case 404:
+                    throw new RequestException("No live caption matching the specified ID was found.");
+                case 500:
+                    throw new RequestException("Could not stop live captions. A server error occurred.");
+                default:
+                    throw new RequestException("Could not stop render. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not stop captions", e);
+        }
+    }
+
     public enum ProxyAuthScheme {
         BASIC,
         DIGEST,
