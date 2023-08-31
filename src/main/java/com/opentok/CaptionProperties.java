@@ -90,7 +90,7 @@ public class CaptionProperties {
         /**
          * The BCP-47 code for a spoken language used on this call. The default value is "en-US". The following
          * language codes are supported: "en-AU" (English, Australia), "en-GB" (Englsh, UK), "es-US" (English, US),
-         * "zh-CN” (Chinese, Simplified), "fr-FR" (French), "fr-CA" (French, Canadian), "de-DE" (German),
+         * "zh-CN" (Chinese, Simplified), "fr-FR" (French), "fr-CA" (French, Canadian), "de-DE" (German),
          * "hi-IN" (Hindi, Indian), "it-IT" (Italian), "ja-JP" (Japanese), "ko-KR" (Korean),
          * "pt-BR" (Portuguese, Brazilian), "th-TH" (Thai).
          *

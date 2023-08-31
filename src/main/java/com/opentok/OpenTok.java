@@ -979,7 +979,6 @@ public class OpenTok {
         }
     }
 
-
     /**
      * Use the Live Captions API to transcribe audio streams and generate real-time captions for your application.
      * Live Captions is enabled by default for all projects, and it is a usage-based product. The Live Captions
