@@ -52,7 +52,8 @@ public class OpenTok {
         broadcastReader = new ObjectMapper().readerFor(Broadcast.class),
         renderReader = new ObjectMapper().readerFor(Render.class),
         renderListReader = new ObjectMapper().readerForListOf(Render.class),
-        connectReader = new ObjectMapper().readerFor(AudioConnector.class);
+        connectReader = new ObjectMapper().readerFor(AudioConnector.class),
+        captionReader = new ObjectMapper().readerFor(Caption.class);
 
     static final String defaultApiUrl = "https://api.opentok.com";
 
@@ -976,6 +977,55 @@ public class OpenTok {
         } catch (IOException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
+    }
+
+    /**
+     * Use the Live Captions API to transcribe audio streams and generate real-time captions for your application.
+     * Live Captions is enabled by default for all projects, and it is a usage-based product. The Live Captions
+     * feature is only supported in routed sessions (sessions that use the OpenTok Media Router). You can send up to
+     * 50 audio streams from a single Vonage session at a time to the transcription service for captions.
+     *
+     * @param sessionId The session ID of the OpenTok session. The audio from Publishers publishing into
+     * this session will be used to generate the captions.
+     *
+     * @param token A valid OpenTok token with role set to Moderator.
+     *
+     * @param properties The {@link CaptionProperties} object defining optional properties of the live captioning.
+     *
+     * @return A {@link Caption} response containing the captions ID for this call.
+     *
+     * @throws OpenTokException
+     */
+    public Caption startCaptions(String sessionId, String token, CaptionProperties properties) throws OpenTokException {
+        if (StringUtils.isEmpty(sessionId)) {
+            throw new InvalidArgumentException("Session ID is required.");
+        }
+        if (StringUtils.isEmpty(token)) {
+            throw new InvalidArgumentException("Token is required.");
+        }
+        String captions = client.startCaption(sessionId, token,
+                properties != null ? properties : CaptionProperties.Builder().build()
+        );
+        try {
+            return captionReader.readValue(captions);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Use this method to stop live captions for a session.
+     *
+     * @param captionsId The unique ID for the audio captioning session,
+     * as obtained from {@linkplain Caption#getCaptionsId()}.
+     *
+     * @throws OpenTokException
+     */
+    public void stopCaptions(String captionsId) throws OpenTokException {
+        if (StringUtils.isEmpty(captionsId)) {
+            throw new InvalidArgumentException("Captions id is required.");
+        }
+        client.stopCaption(captionsId);
     }
 
     /**
