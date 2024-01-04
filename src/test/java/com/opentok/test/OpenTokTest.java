@@ -1,8 +1,8 @@
 /**
  * OpenTok Java SDK
- * Copyright (C) 2023 Vonage.
+ * Copyright (C) 2024 Vonage.
  * http://www.tokbox.com
- *
+ * 
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
 package com.opentok.test;
@@ -698,12 +698,11 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testPatchArchived() throws OpenTokException {
+    public void testPatchArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         String streamId = "abc123efg456";
         stubFor(patch(urlEqualTo(archivePath + "/" + archiveId + "/streams"))
-              .willReturn(aResponse()
-                    .withStatus(200)));
+              .willReturn(aResponse().withStatus(204)));
         sdk.addArchiveStream(archiveId, streamId, true, true);
         verify(patchRequestedFor(urlMatching(archivePath + "/" + archiveId + "/streams")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -712,7 +711,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testPatchArchivedExpectException() throws OpenTokException {
+    public void testPatchArchiveExpectException() throws OpenTokException {
         String archiveId = "ARCHIVEID";
         Exception exception = assertThrows(OpenTokException.class, () -> sdk.removeArchiveStream(archiveId, ""));
         String got = exception.getMessage();
@@ -2140,8 +2139,7 @@ public class OpenTokTest {
         String broadcastId = "BROADCASTID";
         String streamId = "abc123efg456";
         stubFor(patch(urlEqualTo(broadcastPath + "/" + broadcastId + "/streams"))
-              .willReturn(aResponse()
-                    .withStatus(200)));
+              .willReturn(aResponse().withStatus(204)));
         sdk.addBroadcastStream(broadcastId, streamId, true, true);
         verify(patchRequestedFor(urlMatching(broadcastPath + "/" + broadcastId + "/streams")));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,

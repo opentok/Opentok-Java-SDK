@@ -11,7 +11,7 @@ plugins {
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '4.13.1'
+version = '4.13.2'
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
@@ -23,18 +23,18 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.0'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.1'
     testImplementation 'commons-fileupload:commons-fileupload:1.5'
     testImplementation 'net.minidev:json-smart:2.4.11'
     testImplementation 'com.google.guava:guava:32.0.1-jre'
 
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-codec:commons-codec:1.16.0'
-    implementation 'io.netty:netty-codec-http:4.1.100.Final'
-    implementation 'io.netty:netty-handler:4.1.100.Final'
+    implementation 'io.netty:netty-codec-http:4.1.104.Final'
+    implementation 'io.netty:netty-handler:4.1.104.Final'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
-    implementation 'org.bitbucket.b_c:jose4j:0.9.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    implementation 'org.bitbucket.b_c:jose4j:0.9.4'
 }
 
 task sourcesJar(type: Jar) {
