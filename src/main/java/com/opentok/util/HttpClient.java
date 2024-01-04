@@ -338,7 +338,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {
-                case 200:
+                case 204:
                     return response.getResponseBody();
                 case 400:
                     throw new RequestException("Could not patch opentok archive. A invalid request. Check input properties.");
@@ -667,7 +667,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         try {
             Response response = request.get();
             switch (response.getStatusCode()) {
-                case 200:
+                case 204:
                     return response.getResponseBody();
                 case 400:
                     throw new RequestException("Could not patch opentok broadcast. A invalid request. Check input properties.");
