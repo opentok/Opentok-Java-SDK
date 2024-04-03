@@ -30,7 +30,7 @@ dependencies {
 
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-codec:commons-codec:1.16.0'
-    implementation 'io.netty:netty-codec-http:4.1.104.Final'
+    implementation 'io.netty:netty-codec-http:4.1.108.Final'
     implementation 'io.netty:netty-handler:4.1.104.Final'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
