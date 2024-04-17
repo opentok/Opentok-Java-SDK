@@ -503,30 +503,43 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testTokenRoles() throws
-          OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
-          SignatureException, InvalidKeyException {
+    public void testRoleStringValues() {
+        for (Role role : Role.values()) {
+            String roleStr = null;
+            switch (role) {
+                case MODERATOR: roleStr = "moderator"; break;
+                case PUBLISHER: roleStr = "publisher"; break;
+                case SUBSCRIBER: roleStr = "subscriber"; break;
+                case PUBLISHER_ONLY: roleStr = "publisheronly"; break;
+            }
+            assertEquals(roleStr, role.toString());
+        }
+    }
+
+    @Test
+    public void testTokenRoles() throws Exception {
 
         int apiKey = 123456;
         String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
         OpenTok opentok = new OpenTok(apiKey, apiSecret);
         String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        Role role = Role.SUBSCRIBER;
+
+        for (Role role : Role.values()) {
+            String roleToken = sdk.generateToken(sessionId,
+                    new TokenOptions.Builder().role(role).build()
+            );
+
+            assertNotNull(roleToken);
+            assertTrue(Helpers.verifyTokenSignature(roleToken, apiSecret));
+            Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
+            assertEquals(role.toString(), roleTokenData.get("role"));
+        }
 
         String defaultToken = opentok.generateToken(sessionId);
-        String roleToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
-              .role(role)
-              .build());
-
         assertNotNull(defaultToken);
-        assertNotNull(roleToken);
         assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
-        assertTrue(Helpers.verifyTokenSignature(roleToken, apiSecret));
-
         Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
         assertEquals("publisher", defaultTokenData.get("role"));
-        Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
-        assertEquals(role.toString(), roleTokenData.get("role"));
     }
 
     @Test
