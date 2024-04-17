@@ -11,7 +11,7 @@ plugins {
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '4.13.2'
+version = '4.14.0'
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'junit:junit:4.14.0'
     testImplementation 'com.github.tomakehurst:wiremock-jre8:2.35.2'
     testImplementation 'commons-fileupload:commons-fileupload:1.5'
     testImplementation 'net.minidev:json-smart:2.5.1'
