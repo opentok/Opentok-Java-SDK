@@ -13,7 +13,7 @@ group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '4.14.0'
 
-ext.githubPath = 'opentok/opentok-java-sdk'
+ext.githubPath = "opentok/$archivesBaseName"
 
 repositories {
     mavenCentral()
@@ -57,6 +57,7 @@ task javadocJar(type: Jar) {
     archiveClassifier.set("javadoc")
     from javadoc
 }
+
 javadoc {
     title = 'OpenTok Java SDK Reference'
     destinationDir = file('docs')
@@ -78,11 +79,6 @@ jacocoTestReport {
 }
 check.dependsOn jacocoTestReport
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 license {
     header rootProject.file('codequality/HEADER')
     ext.year = LocalDate.now().getYear()
@@ -90,6 +86,11 @@ license {
 
 artifacts {
     archives javadocJar, sourcesJar
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 publishing {

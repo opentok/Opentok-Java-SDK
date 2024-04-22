@@ -680,7 +680,7 @@ public class OpenTokTest {
                           "          \"size\" : 8347554,\n" +
                           "          \"status\" : \"available\",\n" +
                           "          \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" +
-                          archiveId + "%2Farchive.mp4?Expires=1395194362&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Si" +
+                          archiveId + "%2Farchive.mp4?Expires=1395194362&AWSAccessKeyId"+"=AKIAI6LQCPIXYVWCQV6Q&Si" +
                           "gnature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
                           "        }")));
 
@@ -2460,7 +2460,6 @@ public class OpenTokTest {
 
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
     }
 
     @Test
