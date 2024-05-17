@@ -21,16 +21,16 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.wiremock:wiremock:3.5.3'
+    testImplementation 'org.wiremock:wiremock:3.5.4'
     testImplementation 'net.minidev:json-smart:2.5.1'
-    testImplementation 'com.google.guava:guava:33.1.0-jre'
+    testImplementation 'com.google.guava:guava:33.2.0-jre'
 
     implementation 'commons-lang:commons-lang:2.6'
-    implementation 'commons-codec:commons-codec:1.16.1'
+    implementation 'commons-codec:commons-codec:1.17.0'
     implementation 'io.netty:netty-codec-http:4.1.109.Final'
     implementation 'io.netty:netty-handler:4.1.109.Final'
     implementation 'org.asynchttpclient:async-http-client:2.12.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
     implementation 'org.bitbucket.b_c:jose4j:0.9.6'
 }
 
