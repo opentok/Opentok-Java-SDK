@@ -5,6 +5,19 @@ on:
       - main
   pull_request:
 
+permissions:
+  actions: write
+  checks: write
+  contents: read
+  deployments: read
+  issues: write
+  discussions: read
+  packages: none
+  pages: read
+  pull-requests: write
+  security-events: write
+  statuses: write
+
 jobs:
   build_only:
     runs-on: ${{ matrix.os }}
