@@ -22,6 +22,7 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.wiremock:wiremock:3.5.4'
+    testImplementation 'org.xmlunit:xmlunit-core:2.10.0'
     testImplementation 'net.minidev:json-smart:2.5.1'
     testImplementation 'com.google.guava:guava:33.2.0-jre'
 
