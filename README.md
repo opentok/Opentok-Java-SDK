@@ -45,7 +45,7 @@ When you use Maven as your build tool, you can manage dependencies in the `pom.x
 <dependency>
     <groupId>com.tokbox</groupId>
     <artifactId>opentok-server-sdk</artifactId>
-    <version>4.14.0</version>
+    <version>4.14.1</version>
 </dependency>
 ```
 
@@ -55,7 +55,7 @@ When you use Gradle as your build tool, you can manage dependencies in the `buil
 
 ```groovy
 dependencies {
-  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.14.0'
+  compile group: 'com.tokbox', name: 'opentok-server-sdk', version: '4.14.1'
 }
 ```
 
