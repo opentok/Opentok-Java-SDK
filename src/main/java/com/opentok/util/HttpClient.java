@@ -923,6 +923,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID: " + streamId);
                 case 500:
                     throw new RequestException("OpenTok server error.");
                 default:
@@ -947,6 +949,8 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
+                case 408:
+                    throw new RequestException("You passed in an invalid stream ID: "+streamId);
                 case 500:
                     throw new RequestException("OpenTok server error.");
                 default:
