@@ -2720,8 +2720,15 @@ public class OpenTokTest {
         String uri = "ws://service.com/wsendpoint";
         AudioConnectorProperties connectProperties = new AudioConnectorProperties.Builder(uri).build();
 
-        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(400)));
-        assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
+        String expected400Msg = "Oops! Something went wrong - bad request.";
+        stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(400).withBody(expected400Msg)));
+        try {
+            AudioConnector parsed = sdk.connectAudioStream(sessionId, apiSecret, connectProperties);
+            fail("Expected RequestException, but got "+parsed);
+        }
+        catch (RequestException ex) {
+            assertEquals(expected400Msg, ex.getMessage());
+        }
 
         stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(403)));
         assertThrows(RequestException.class, () -> sdk.connectAudioStream(sessionId, apiSecret, connectProperties));
