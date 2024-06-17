@@ -91,7 +91,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 204:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not send a signal. One of the signal properties is invalid.");
+                    throw new RequestException("Could not send a signal: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not send a signal. The request was not authorized.");
                 case 404:
@@ -227,7 +227,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not start an OpenTok Archive. A bad request, check input archive properties like resolution etc.");
+                    throw new RequestException("Could not start an OpenTok Archive: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not start an OpenTok Archive. The request was not authorized.");
                 case 404:
@@ -259,9 +259,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    // NOTE: the REST api spec talks about sessionId and action, both of which aren't required.
-                    //       see: https://github.com/opentok/OpenTok-2.0-archiving-samples/blob/master/REST-API.md#stop_archive
-                    throw new RequestException("Could not stop an OpenTok Archive.");
+                    throw new RequestException("Could not stop an OpenTok Archive: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not stop an OpenTok Archive. The request was not authorized.");
                 case 404:
@@ -327,7 +325,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
-            throw new OpenTokException("Could not patch opentok archive. The JSON body encoding failed");
+            throw new OpenTokException("Could not patch OpenTok archive. The JSON body encoding failed");
         }
 
         Future<Response> request = this.preparePatch(url)
@@ -341,22 +339,22 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 204:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not patch opentok archive. A invalid request. Check input properties.");
+                    throw new RequestException("Could not patch OpenTok archive: "+response.getResponseBody());
                 case 404:
-                    throw new RequestException("Could not patch opentok archive. Archive or stream not found.");
+                    throw new RequestException("Could not patch OpenTok archive. Archive or stream not found.");
                 case 405:
-                    throw new RequestException("Could not patch opentok archive. Stream mode not supported for patching.");
+                    throw new RequestException("Could not patch OpenTok archive. Stream mode not supported for patching.");
                 case 403:
-                    throw new RequestException("Could not patch opentok archive. The request was unauthorized.");
+                    throw new RequestException("Could not patch OpenTok archive. The request was unauthorized.");
                 case 500:
-                    throw new RequestException("Could not patch opentok archive. A server error occurred");
+                    throw new RequestException("Could not patch OpenTok archive. A server error occurred");
                 default:
-                    throw new RequestException("Could not patch opentok archive. The server response was invalid. Response code: " +
+                    throw new RequestException("Could not patch OpenTok archive. The server response was invalid. Response code: " +
                             response.getStatusCode());
             }
 
         } catch (ExecutionException | InterruptedException e) {
-            throw new RequestException("Could not patch an opentok archive.", e);
+            throw new RequestException("Could not patch an OpenTok archive.", e);
         }
     }
 
@@ -411,7 +409,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                    throw new RequestException("Could not set the layout: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not set the layout. The request was not authorized.");
                 case 500:
@@ -467,7 +465,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                    throw new RequestException("Could not set the layout: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not set the layout. The request was not authorized.");
                 case 500:
@@ -560,7 +558,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input  properties like resolution etc.");
+                    throw new RequestException("Could not start an OpenTok Broadcast: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not start an OpenTok Broadcast. The request was not authorized.");
                 case 409:
@@ -590,7 +588,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not start an OpenTok Broadcast. A bad request, check input  properties like resolution etc.");
+                    throw new RequestException("Could not start an OpenTok Broadcast: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not start an OpenTok Broadcast. The request was not authorized.");
                 case 404:
@@ -620,7 +618,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not get Broadcast stream information. A bad request, check input  properties.");
+                    throw new RequestException("Could not get Broadcast stream information: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not get Broadcast stream information.. The request was not authorized.");
                 case 404:
@@ -641,10 +639,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
 
-        if (removeStream != null && !removeStream.equals("")) {
+        if (removeStream != null && !removeStream.isEmpty()) {
             requestJson.put("removeStream", removeStream);
         }
-        else if(addStream != null && !addStream.equals("")) {
+        else if(addStream != null && !addStream.isEmpty()) {
             requestJson.put("hasAudio", hasAudio);
             requestJson.put("hasVideo", hasVideo);
             requestJson.put("addStream", addStream);
@@ -657,7 +655,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         try {
             requestBody = new ObjectMapper().writeValueAsString(requestJson);
         } catch (JsonProcessingException e) {
-            throw new OpenTokException("Could not patch opentok archive. The JSON body encoding failed");
+            throw new OpenTokException("Could not patch OpenTok archive. The JSON body encoding failed");
         }
 
         Future<Response> request = this.preparePatch(url)
@@ -670,22 +668,22 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 204:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not patch opentok broadcast. A invalid request. Check input properties.");
+                    throw new RequestException("Could not patch OpenTok broadcast: "+response.getResponseBody());
                 case 404:
-                    throw new RequestException("Could not patch opentok broadcast. Archive or stream not found.");
+                    throw new RequestException("Could not patch OpenTok broadcast. Archive or stream not found.");
                 case 405:
-                    throw new RequestException("Could not patch opentok broadcast. Stream mode not supported for patching.");
+                    throw new RequestException("Could not patch OpenTok broadcast. Stream mode not supported for patching.");
                 case 403:
-                    throw new RequestException("Could not patch opentok broadcast. The request was unauthorized.");
+                    throw new RequestException("Could not patch OpenTok broadcast. The request was unauthorized.");
                 case 500:
-                    throw new RequestException("Could not patch opentok broadcast. A server error occurred");
+                    throw new RequestException("Could not patch OpenTok broadcast. A server error occurred");
                 default:
-                    throw new RequestException("Could not patch opentok broadcast. The server response was invalid. Response code: " +
+                    throw new RequestException("Could not patch OpenTok broadcast. The server response was invalid. Response code: " +
                             response.getStatusCode());
             }
 
         } catch (ExecutionException | InterruptedException e) {
-            throw new RequestException("Could not patch an opentok broadcast.", e);
+            throw new RequestException("Could not patch an OpenTok broadcast.", e);
         }
     }
 
@@ -741,7 +739,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
+                    throw new RequestException("Could not set the layout: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not set the layout. The request was not authorized.");
                 case 500:
@@ -765,7 +763,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 204:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not force disconnect. One of the arguments — sessionId or connectionId — is invalid.");
+                    throw new RequestException("Could not force disconnect: "+response.getResponseBody());
                 case 403:
                     throw new RequestException("Could not force disconnect. You are not authorized to forceDisconnect, check your authentication credentials.");
                 case 404:
@@ -853,7 +851,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Could not set the sip dial. Either an invalid sessionId or the custom header does not start with the X- prefix.");
+                    throw new RequestException("Could not set the SIP dial. Either an invalid sessionId or the custom header does not start with the X- prefix.");
                 case 403:
                     throw new RequestException("Could not set the sip dial. The request was not authorized.");
                 case 404:
@@ -922,14 +920,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID. "
-                            + "sessionId: " + sessionId + "streamId: " + streamId);
+                    throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
-
-                case 408:
-                    throw new RequestException("You passed in an invalid stream ID." +
-                            "streamId: " + streamId);
                 case 500:
                     throw new RequestException("OpenTok server error.");
                 default:
@@ -951,14 +944,9 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
-                            + "sessionId: " + sessionId + "streamId: " + streamId);
+                    throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
-
-                case 408:
-                    throw new RequestException("You passed in an invalid stream ID." +
-                            "streamId: " + streamId);
                 case 500:
                     throw new RequestException("OpenTok server error.");
                 default:
@@ -983,7 +971,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             jGenerator.writeStartObject();
             jGenerator.writeBooleanField("active", true);
 
-            jGenerator.writeFieldName("excudedStreamIds");
+            jGenerator.writeFieldName("excludedStreamIds");
 
             StringJoiner sj = new StringJoiner(",");
             properties.getExcludedStreamIds().forEach(e -> sj.add(doubleQuotes + e + doubleQuotes));
@@ -1007,8 +995,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
-                            + "sessionId: " + sessionId);
+                    throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
                 case 408:
@@ -1054,8 +1041,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
-                            + "sessionId: " + sessionId);
+                    throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
                 case 408:
@@ -1083,7 +1069,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request. This response may indicate that data in your request data is invalid JSON. Or it may indicate that you do not pass in a session ID or you passed in an invalid stream ID");
+                    throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("You passed in an invalid OpenTok API key or JWT token");
                 case 408:
@@ -1137,8 +1123,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 case 200:
                     return response.getResponseBody();
                 case 400:
-                    throw new RequestException("Invalid request invalid session ID or invalid stream ID. "
-                            + "sessionId: " + sessionId);
+                    throw new RequestException(response.getResponseBody());
                 case 403:
                     throw new RequestException("Invalid OpenTok API key or JWT token.");
                 case 409:
