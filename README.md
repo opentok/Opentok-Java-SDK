@@ -1,7 +1,10 @@
 # OpenTok Java SDK
 
-[![Build Status](https://travis-ci.org/opentok/Opentok-Java-SDK.svg?branch=main)](https://travis-ci.org/opentok/Opentok-Java-SDK)
+![Java](https://img.shields.io/badge/java-8%2B-blue)
+[![Maven Release](https://maven-badges.herokuapp.com/maven-central/com.tokbox/opentok-server-sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.tokbox/opentok-server-sdk)
+[![Build Status](https://github.com/opentok/Opentok-Java-SDK/actions/workflows/build.yml/badge.svg)](https://github.com/opentok/Opentok-Java-SDK/actions/workflows/build.yml")
  [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 
 <img src="https://assets.tokbox.com/img/vonage/Vonage_VideoAPI_black.svg" height="48px" alt="Tokbox is now known as Vonage" />
 
