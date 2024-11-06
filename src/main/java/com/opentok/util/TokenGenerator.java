@@ -13,9 +13,9 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
-
 import javax.crypto.spec.SecretKeySpec;
-import java.util.concurrent.TimeUnit;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 public class TokenGenerator {
 
@@ -30,13 +30,12 @@ public class TokenGenerator {
     public static String generateToken(final Integer apiKey, final String apiSecret)
             throws OpenTokException {
 
-        //This is the default expire time we use for rest endpoints.
-        final long defaultExpireTime = System.currentTimeMillis() / 1000L
-                + TimeUnit.MINUTES.toSeconds(3);
         final JwtClaims claims = new JwtClaims();
         claims.setIssuer(apiKey.toString());
         claims.setStringClaim(ISSUER_TYPE, PROJECT_ISSUER_TYPE);
         claims.setGeneratedJwtId(); // JTI a unique identifier for the JWT.
+        //This is the default expire time we use for rest endpoints.
+        final long defaultExpireTime = Instant.now().plus(3, ChronoUnit.MINUTES).getEpochSecond();
 
         return getToken(claims, defaultExpireTime, apiSecret);
     }
