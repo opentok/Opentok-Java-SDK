@@ -1,6 +1,5 @@
 import java.time.LocalDate
 
-
 plugins {
     id 'java-library'
     id 'jacoco'

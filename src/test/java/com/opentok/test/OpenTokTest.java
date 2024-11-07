@@ -41,6 +41,7 @@ public class OpenTokTest {
     private String archivePath = "/v2/project/" + apiKey + "/archive";
     private String broadcastPath = "/v2/project/" + apiKey + "/broadcast";
     private String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
+    private String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
     private String apiUrl = "http://localhost:8080";
     private OpenTok sdk;
 
@@ -463,16 +464,16 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testTokenDefault() throws
+    public void testTokenDefault() throws Exception {
+
+    }
+
+    @Test
+    public void testLegacyTokenDefault() throws
           OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
           SignatureException, InvalidKeyException {
 
-        int apiKey = 123456;
-        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
-        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-
-        String token = opentok.generateToken(sessionId);
+        String token = sdk.generateToken(sessionId, new TokenOptions.Builder().useLegacyT1Token().build());
         assertNotNull(token);
         assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
 
@@ -483,17 +484,12 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testTokenLayoutClass() throws
+    public void testLegacyTokenLayoutClass() throws
           OpenTokException, UnsupportedEncodingException, NoSuchAlgorithmException,
           SignatureException, InvalidKeyException {
 
-        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        new OpenTok(123456, apiSecret);
-        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-
         String token = sdk.generateToken(sessionId, new TokenOptions.Builder()
-              .initialLayoutClassList(Arrays.asList("full", "focus"))
-              .build());
+              .initialLayoutClassList(Arrays.asList("full", "focus")).useLegacyT1Token().build());
 
         assertNotNull(token);
         assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
@@ -505,28 +501,21 @@ public class OpenTokTest {
     @Test
     public void testRoleStringValues() {
         for (Role role : Role.values()) {
-            String roleStr = null;
-            switch (role) {
-                case MODERATOR: roleStr = "moderator"; break;
-                case PUBLISHER: roleStr = "publisher"; break;
-                case SUBSCRIBER: roleStr = "subscriber"; break;
-                case PUBLISHER_ONLY: roleStr = "publisheronly"; break;
-            }
+            String roleStr = switch (role) {
+                case MODERATOR -> "moderator";
+                case PUBLISHER -> "publisher";
+                case SUBSCRIBER -> "subscriber";
+                case PUBLISHER_ONLY -> "publisheronly";
+            };
             assertEquals(roleStr, role.toString());
         }
     }
 
     @Test
-    public void testTokenRoles() throws Exception {
-
-        int apiKey = 123456;
-        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
-        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-
+    public void testLegacyTokenRoles() throws Exception {
         for (Role role : Role.values()) {
             String roleToken = sdk.generateToken(sessionId,
-                    new TokenOptions.Builder().role(role).build()
+                    new TokenOptions.Builder().role(role).useLegacyT1Token().build()
             );
 
             assertNotNull(roleToken);
@@ -534,96 +523,62 @@ public class OpenTokTest {
             Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
             assertEquals(role.toString(), roleTokenData.get("role"));
         }
-
-        String defaultToken = opentok.generateToken(sessionId);
-        assertNotNull(defaultToken);
-        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
-        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
-        assertEquals("publisher", defaultTokenData.get("role"));
     }
 
     @Test
-    public void testTokenExpireTime() throws
+    public void testLegacyTokenExpireTime() throws
           OpenTokException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
           UnsupportedEncodingException {
 
-        int apiKey = 123456;
-        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         long now = System.currentTimeMillis() / 1000L;
         long inOneHour = now + (60 * 60);
-        long inOneDay = now + (60 * 60 * 24);
         long inThirtyDays = now + (60 * 60 * 24 * 30);
         ArrayList<Exception> exceptions = new ArrayList<>();
 
-        String defaultToken = opentok.generateToken(sessionId);
-        String oneHourToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
-              .expireTime(inOneHour)
-              .build());
+        String oneHourToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+              .expireTime(inOneHour).useLegacyT1Token().build());
         try {
-            opentok.generateToken(sessionId, new TokenOptions.Builder()
-                  .expireTime(now - 10)
-                  .build());
+            sdk.generateToken(sessionId, new TokenOptions.Builder()
+                  .expireTime(now - 10).useLegacyT1Token().build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
         try {
-            opentok.generateToken(sessionId, new TokenOptions.Builder()
-                  .expireTime(inThirtyDays + (60 * 60 * 24) /* 31 days */)
-                  .build());
+            sdk.generateToken(sessionId, new TokenOptions.Builder()
+                  .expireTime(inThirtyDays + 86400).useLegacyT1Token().build());
         } catch (Exception exception) {
             exceptions.add(exception);
         }
 
-        assertNotNull(defaultToken);
         assertNotNull(oneHourToken);
-        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
         assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiSecret));
-
-        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
-        assertEquals(Long.toString(inOneDay), defaultTokenData.get("expire_time"));
         Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
         assertEquals(Long.toString(inOneHour), oneHourTokenData.get("expire_time"));
         assertEquals(2, exceptions.size());
         for (Exception e : exceptions) {
             assertEquals(InvalidArgumentException.class, e.getClass());
         }
-
     }
 
     @Test
-    public void testTokenConnectionData() throws
+    public void testLegacyTokenConnectionData() throws
           OpenTokException, SignatureException, NoSuchAlgorithmException, InvalidKeyException,
           UnsupportedEncodingException {
 
-        int apiKey = 123456;
-        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
-        // purposely contains some exotic characters
         String actualData = "{\"name\":\"%foo ç &\"}";
         Exception tooLongException = null;
 
-        String defaultToken = opentok.generateToken(sessionId);
-        String dataBearingToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
-              .data(actualData)
-              .build());
+        String dataBearingToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+              .data(actualData).useLegacyT1Token().build());
         try {
-            String dataTooLongToken = opentok.generateToken(sessionId, new TokenOptions.Builder()
-                  .data(StringUtils.repeat("x", 1001))
-                  .build());
+            String dataTooLongToken = sdk.generateToken(sessionId, new TokenOptions.Builder()
+                  .data(StringUtils.repeat("x", 1001)).useLegacyT1Token().build());
         } catch (InvalidArgumentException e) {
             tooLongException = e;
         }
 
-        assertNotNull(defaultToken);
         assertNotNull(dataBearingToken);
-        assertTrue(Helpers.verifyTokenSignature(defaultToken, apiSecret));
         assertTrue(Helpers.verifyTokenSignature(dataBearingToken, apiSecret));
-
-        Map<String, String> defaultTokenData = Helpers.decodeToken(defaultToken);
-        assertNull(defaultTokenData.get("connection_data"));
         Map<String, String> dataBearingTokenData = Helpers.decodeToken(dataBearingToken);
         assertEquals(actualData, dataBearingTokenData.get("connection_data"));
         assertEquals(InvalidArgumentException.class, tooLongException.getClass());
@@ -632,23 +587,20 @@ public class OpenTokTest {
 
     @Test
     public void testTokenBadSessionId() throws OpenTokException {
-        int apiKey = 123456;
-        String apiSecret = "1234567890abcdef1234567890abcdef1234567890";
-        OpenTok opentok = new OpenTok(apiKey, apiSecret);
         ArrayList<Exception> exceptions = new ArrayList<>();
 
         try {
-            opentok.generateToken(null);
+            sdk.generateToken(null);
         } catch (Exception e) {
             exceptions.add(e);
         }
         try {
-            opentok.generateToken("");
+            sdk.generateToken("");
         } catch (Exception e) {
             exceptions.add(e);
         }
         try {
-            opentok.generateToken("NOT A VALID SESSION ID");
+            sdk.generateToken("NOT A VALID SESSION ID");
         } catch (Exception e) {
             exceptions.add(e);
         }
