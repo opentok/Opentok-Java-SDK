@@ -18,7 +18,9 @@ import java.util.Random;
 
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.util.Crypto;
+import com.opentok.util.TokenGenerator;
 import org.apache.commons.codec.binary.Base64;
+import org.jose4j.jwt.JwtClaims;
 
 
 /**
@@ -99,92 +101,103 @@ public class Session {
      * @return The token string.
      */
     public String generateToken(TokenOptions tokenOptions) throws OpenTokException {
-        // Token format
-        //
-        // | ------------------------------  tokenStringBuilder ----------------------------- |
-        // | "T1=="+Base64Encode(| --------------------- innerBuilder --------------------- |)|
-        //                       | "partner_id={apiKey}&sig={sig}:| -- dataStringBuilder -- |
 
         if (tokenOptions == null) {
             throw new InvalidArgumentException("Token options cannot be null");
         }
 
         Role role = tokenOptions.getRole();
-        double expireTime = tokenOptions.getExpireTime(); // will be 0 if nothing was explicitly set
-        String data = tokenOptions.getData();             // will be null if nothing was explicitly set
-        long create_time = System.currentTimeMillis() / 1000;
+        String data = tokenOptions.getData();
+        int nonce = new Random().nextInt();
+        long iat = System.currentTimeMillis() / 1000L;
+        long exp = tokenOptions.getExpireTime();
 
-        StringBuilder dataStringBuilder = new StringBuilder();
-        Random random = new Random();
-        int nonce = random.nextInt();
-        dataStringBuilder
-            .append("session_id=").append(sessionId)
-            .append("&create_time=").append(create_time)
-            .append("&nonce=").append(nonce)
-            .append("&role=").append(role);
-
-        if (tokenOptions.getInitialLayoutClassList() != null ) {
-            dataStringBuilder.append("&initial_layout_class_list=");
-            dataStringBuilder.append(String.join(" ", tokenOptions.getInitialLayoutClassList()));
-        }
-
-        long now = System.currentTimeMillis() / 1000L;
-        if (expireTime == 0) {
-            expireTime = now + (60*60*24); // 1 day
-        }
-        else if (expireTime < now) {
+        if (exp == 0) {
+            exp = iat + (60 * 60 * 24); // 1 day
+        } else if (exp < iat) {
             throw new InvalidArgumentException(
-                    "Expire time must be in the future. Relative time: "+ (expireTime - now)
+                    "Expire time must be in the future. Relative time: " + (exp - iat)
+            );
+        } else if (exp > (iat + (60 * 60 * 24 * 30) /* 30 days */)) {
+            throw new InvalidArgumentException(
+                    "Expire time must be in the next 30 days. Too large by " + (exp - (iat + (60 * 60 * 24 * 30)))
             );
         }
-        else if (expireTime > (now + (60*60*24*30) /* 30 days */)) {
-            throw new InvalidArgumentException(
-                "Expire time must be in the next 30 days. Too large by "+ (expireTime - (now + (60*60*24*30)))
-            );
-        }
-        // NOTE: Double.toString() would print the value with scientific notation
-        dataStringBuilder.append(String.format("&expire_time=%.0f", expireTime));
 
-        if (data != null) {
-            if (data.length() > 1000) {
-                throw new InvalidArgumentException(
-                    "Connection data must be less than 1000 characters. length: " + data.length()
-                );
+        if (tokenOptions.isLegacyT1Token()) {
+            // Token format
+            //
+            // | ------------------------------  tokenStringBuilder ----------------------------- |
+            // | "T1=="+Base64Encode(| --------------------- innerBuilder --------------------- |)|
+            //                       | "partner_id={apiKey}&sig={sig}:| -- dataStringBuilder -- |
+
+            StringBuilder dataStringBuilder = new StringBuilder()
+                    .append("session_id=").append(sessionId)
+                    .append("&create_time=").append(iat)
+                    .append("&nonce=").append(nonce)
+                    .append("&role=").append(role);
+
+            if (tokenOptions.getInitialLayoutClassList() != null) {
+                dataStringBuilder
+                        .append("&initial_layout_class_list=")
+                        .append(String.join(" ", tokenOptions.getInitialLayoutClassList()));
             }
-            dataStringBuilder.append("&connection_data=");
+
+            dataStringBuilder.append("&expire_time=").append(exp);
+
+            if (data != null) {
+                if (data.length() > 1000) {
+                    throw new InvalidArgumentException(
+                            "Connection data must be less than 1000 characters. length: " + data.length()
+                    );
+                }
+                dataStringBuilder.append("&connection_data=");
+                try {
+                    dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
+                }
+                catch (UnsupportedEncodingException e) {
+                    throw new InvalidArgumentException(
+                            "Error during URL encode of your connection data: " + e.getMessage()
+                    );
+                }
+            }
+
+
+            StringBuilder tokenStringBuilder = new StringBuilder();
             try {
-                dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
+                tokenStringBuilder.append("T1==");
+
+                String innerBuilder = "partner_id=" +
+                        this.apiKey +
+                        "&sig=" +
+                        Crypto.signData(dataStringBuilder.toString(), this.apiSecret) +
+                        ":" +
+                        dataStringBuilder;
+
+                tokenStringBuilder.append(
+                        Base64.encodeBase64String(innerBuilder.getBytes(StandardCharsets.UTF_8))
+                                .replace("+", "-")
+                                .replace("/", "_")
+                );
+
             }
-            catch (UnsupportedEncodingException e) {
-                throw new InvalidArgumentException(
-                    "Error during URL encode of your connection data: " +  e.getMessage()
+            catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException e) {
+                throw new OpenTokException("Could not generate token, a signing error occurred.", e);
+            }
+            return tokenStringBuilder.toString();
+        }
+        else {
+            JwtClaims claims = new JwtClaims();
+            claims.setClaim("nonce", nonce);
+            claims.setClaim("role", role.toString());
+            claims.setClaim("session_id", sessionId);
+            if (tokenOptions.getInitialLayoutClassList() != null) {
+                claims.setClaim("initial_layout_class_list",
+                        String.join(" ", tokenOptions.getInitialLayoutClassList())
                 );
             }
+            claims.setClaim("scope", "session.connect");
+            return TokenGenerator.generateToken(claims, exp, apiKey, apiSecret);
         }
-
-
-        StringBuilder tokenStringBuilder = new StringBuilder();
-        try {
-            tokenStringBuilder.append("T1==");
-
-            String innerBuilder = "partner_id=" +
-                    this.apiKey +
-                    "&sig=" +
-                    Crypto.signData(dataStringBuilder.toString(), this.apiSecret) +
-                    ":" +
-                    dataStringBuilder;
-
-            tokenStringBuilder.append(
-                    Base64.encodeBase64String(innerBuilder.getBytes(StandardCharsets.UTF_8))
-                        .replace("+", "-")
-                        .replace("/", "_")
-            );
-
-        }
-        catch (SignatureException | NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new OpenTokException("Could not generate token, a signing error occurred.", e);
-        }
-
-        return tokenStringBuilder.toString();
     }
 }

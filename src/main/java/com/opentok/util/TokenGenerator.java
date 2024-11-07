@@ -31,20 +31,19 @@ public class TokenGenerator {
             throws OpenTokException {
 
         final JwtClaims claims = new JwtClaims();
-        claims.setIssuer(apiKey.toString());
-        claims.setStringClaim(ISSUER_TYPE, PROJECT_ISSUER_TYPE);
-        claims.setGeneratedJwtId(); // JTI a unique identifier for the JWT.
         //This is the default expire time we use for rest endpoints.
         final long defaultExpireTime = Instant.now().plus(3, ChronoUnit.MINUTES).getEpochSecond();
-
-        return getToken(claims, defaultExpireTime, apiSecret);
+        return generateToken(claims, defaultExpireTime, apiKey, apiSecret);
     }
 
-    private static String getToken(final JwtClaims claims, final long expireTime,
-                                   final String apiSecret) throws OpenTokException {
+    public static String generateToken(final JwtClaims claims, final long expireTime,
+                                final int apiKey, final String apiSecret) throws OpenTokException {
         final SecretKeySpec spec = new SecretKeySpec(apiSecret.getBytes(),
                 AlgorithmIdentifiers.HMAC_SHA256);
 
+        claims.setStringClaim(ISSUER_TYPE, PROJECT_ISSUER_TYPE);
+        claims.setIssuer(apiKey + "");
+        claims.setGeneratedJwtId(); // JTI a unique identifier for the JWT.
         claims.setExpirationTime(NumericDate.fromSeconds(expireTime));
         claims.setIssuedAtToNow();
 
