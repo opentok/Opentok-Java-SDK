@@ -20,7 +20,10 @@ import com.opentok.constants.DefaultUserAgent;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
+import io.jsonwebtoken.JwtParserBuilder;
 import org.apache.commons.lang.StringUtils;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -465,6 +468,8 @@ public class OpenTokTest {
 
     @Test
     public void testTokenDefault() throws Exception {
+        String token = sdk.generateToken(sessionId);
+        assertNotNull(token);
 
     }
 
