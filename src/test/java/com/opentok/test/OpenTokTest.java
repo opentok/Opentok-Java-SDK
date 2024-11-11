@@ -489,7 +489,7 @@ public class OpenTokTest {
         assertNotNull(claims.get("jti"));
         long iat = claims.getIssuedAt().toInstant().getEpochSecond();
         assertTrue(iat >= nowSeconds);
-        assertTrue(iat <= nowSeconds + 5);
+        assertTrue(iat <= nowSeconds + 3);
         long exp = claims.getExpiration().toInstant().getEpochSecond();
         assertTrue(exp >= iat + 86400);
         assertTrue(exp <= iat + 86405);
@@ -520,10 +520,10 @@ public class OpenTokTest {
         assertNotNull(claims.get("jti"));
         assertEquals(data, claims.get("connection_data"));
         assertEquals(expireTime, claims.getExpiration().toInstant().getEpochSecond());
-        assertEquals(
-                initialLayoutClassList.stream().collect(Collectors.joining(" ")),
-                claims.get("initial_layout_class_list")
-        );
+        long iat = claims.getIssuedAt().toInstant().getEpochSecond();
+        assertTrue(iat >= nowSeconds);
+        assertTrue(iat <= nowSeconds + 3);
+        assertEquals(String.join(" ", initialLayoutClassList), claims.get("initial_layout_class_list"));
     }
 
     @Test
