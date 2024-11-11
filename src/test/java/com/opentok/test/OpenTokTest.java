@@ -38,6 +38,7 @@ import java.security.SignatureException;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
@@ -472,7 +473,7 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testTokenDefault() throws Exception {
+    public void testTokenDefault() {
         long nowSeconds = Instant.now().getEpochSecond();
         String token = sdk.generateToken(sessionId);
         assertNotNull(token);
@@ -492,6 +493,37 @@ public class OpenTokTest {
         long exp = claims.getExpiration().toInstant().getEpochSecond();
         assertTrue(exp >= iat + 86400);
         assertTrue(exp <= iat + 86405);
+    }
+
+    @Test
+    public void testTokenAllOptionalParameters() {
+        String data = "{\"F00\":\"%bar ç &\"}";
+        var initialLayoutClassList = List.of("full", "pretty", "min", "focus");
+        long nowSeconds = Instant.now().getEpochSecond();
+        long expireTime = nowSeconds + 3210;
+        var options = new TokenOptions.Builder()
+                .data(data).role(Role.MODERATOR)
+                .initialLayoutClassList(initialLayoutClassList)
+                .expireTime(expireTime).build();
+
+        String token = sdk.generateToken(sessionId, options);
+        assertNotNull(token);
+        var key = new SecretKeySpec(apiSecret.getBytes(), "HmacSHA256");
+        var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        assertNotNull(claims);
+        assertEquals(Integer.class, claims.get("nonce").getClass());
+        assertEquals(sessionId, claims.get("session_id"));
+        assertEquals("moderator", claims.get("role"));
+        assertEquals("session.connect", claims.get("scope"));
+        assertEquals(apiKey + "", claims.get("iss"));
+        assertEquals("project", claims.get("ist"));
+        assertNotNull(claims.get("jti"));
+        assertEquals(data, claims.get("connection_data"));
+        assertEquals(expireTime, claims.getExpiration().toInstant().getEpochSecond());
+        assertEquals(
+                initialLayoutClassList.stream().collect(Collectors.joining(" ")),
+                claims.get("initial_layout_class_list")
+        );
     }
 
     @Test

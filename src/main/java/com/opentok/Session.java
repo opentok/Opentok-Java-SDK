@@ -191,12 +191,15 @@ public class Session {
             claims.setClaim("nonce", nonce);
             claims.setClaim("role", role.toString());
             claims.setClaim("session_id", sessionId);
+            claims.setClaim("scope", "session.connect");
             if (tokenOptions.getInitialLayoutClassList() != null) {
                 claims.setClaim("initial_layout_class_list",
                         String.join(" ", tokenOptions.getInitialLayoutClassList())
                 );
             }
-            claims.setClaim("scope", "session.connect");
+            if (tokenOptions.getData() != null) {
+                claims.setClaim("connection_data", tokenOptions.getData());
+            }
             return TokenGenerator.generateToken(claims, exp, apiKey, apiSecret);
         }
     }
