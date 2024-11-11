@@ -10,7 +10,7 @@ package com.opentok.exception;
 /**
 * Defines exceptions in the OpenTok SDK.
 */
-public class OpenTokException extends Exception {
+public class OpenTokException extends RuntimeException {
 	private static final long serialVersionUID = 6059658348908505724L;
 
     /**

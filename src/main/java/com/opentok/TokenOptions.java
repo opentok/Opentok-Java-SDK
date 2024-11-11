@@ -24,18 +24,20 @@ public class TokenOptions {
     private long expireTime;
     private String data;
     private List<String> initialLayoutClassList;
+    private boolean legacyT1Token;
 
     private TokenOptions(Builder builder) {
-        this.role = builder.role != null ? builder.role : Role.PUBLISHER;
+        role = builder.role != null ? builder.role : Role.PUBLISHER;
+        legacyT1Token = builder.legacyT1Token;
 
         // default value calculated at token generation time
-        this.expireTime = builder.expireTime;
+        expireTime = builder.expireTime;
 
         // default value of null means to omit the key "connection_data" from the token
-        this.data = builder.data;
+        data = builder.data;
 
         // default value of null means to omit the key "initialLayoutClassList" from the token
-        this.initialLayoutClassList = builder.initialLayoutClassList;
+        initialLayoutClassList = builder.initialLayoutClassList;
     }
 
     /**
@@ -70,6 +72,16 @@ public class TokenOptions {
     }
 
     /**
+     * Returns whether the generated token will be in the old T1 format instead of JWT.
+     *
+     * @return {@code true} if the token will be in the old T1 format, {@code false} otherwise.
+     * @since 4.15.0
+     */
+    public boolean isLegacyT1Token() {
+        return legacyT1Token;
+    }
+
+    /**
      * Use this class to create a TokenOptions object.
      *
      * @see TokenOptions
@@ -79,6 +91,7 @@ public class TokenOptions {
         private long expireTime = 0;
         private String data;
         private List<String> initialLayoutClassList;
+        private boolean legacyT1Token = false;
 
         /**
          * Sets the role for the token. Each role defines a set of permissions granted to the token.
@@ -145,6 +158,18 @@ public class TokenOptions {
         */
         public Builder initialLayoutClassList (List<String> initialLayoutClassList) {
             this.initialLayoutClassList = initialLayoutClassList;
+            return this;
+        }
+
+        /**
+         * Use this method to generate a legacy T1 token instead of a JWT.
+         *
+         * @return This builder.
+         *
+         * @since 4.15.0
+         */
+        public Builder useLegacyT1Token() {
+            legacyT1Token = true;
             return this;
         }
 
