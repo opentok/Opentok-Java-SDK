@@ -493,6 +493,9 @@ public class OpenTokTest {
         long exp = claims.getExpiration().toInstant().getEpochSecond();
         assertTrue(exp >= iat + 86400);
         assertTrue(exp <= iat + 86405);
+        assertNull(claims.get("connection_data"));
+        assertNull(claims.get("data"));
+        assertNull(claims.get("initial_layout_class_list"));
     }
 
     @Test
