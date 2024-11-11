@@ -109,7 +109,7 @@ public class Session {
         Role role = tokenOptions.getRole();
         String data = tokenOptions.getData();
         int nonce = new Random().nextInt();
-        long iat = System.currentTimeMillis() / 1000L;
+        long iat = System.currentTimeMillis() / 1000;
         long exp = tokenOptions.getExpireTime();
 
         if (exp == 0) {

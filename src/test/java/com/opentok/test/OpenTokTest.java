@@ -21,6 +21,7 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import io.jsonwebtoken.JwtParserBuilder;
+import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -31,12 +32,16 @@ import org.junit.Test;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.spec.X509EncodedKeySpec;
+import java.time.Instant;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
+import javax.crypto.spec.SecretKeySpec;
 
 public class OpenTokTest {
     private final String SESSION_CREATE = "/session/create";
@@ -468,9 +473,25 @@ public class OpenTokTest {
 
     @Test
     public void testTokenDefault() throws Exception {
+        long nowSeconds = Instant.now().getEpochSecond();
         String token = sdk.generateToken(sessionId);
         assertNotNull(token);
-
+        var key = new SecretKeySpec(apiSecret.getBytes(), "HmacSHA256");
+        var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        assertNotNull(claims);
+        assertEquals(Integer.class, claims.get("nonce").getClass());
+        assertEquals(sessionId, claims.get("session_id"));
+        assertEquals("publisher", claims.get("role"));
+        assertEquals("session.connect", claims.get("scope"));
+        assertEquals(apiKey + "", claims.get("iss"));
+        assertEquals("project", claims.get("ist"));
+        assertNotNull(claims.get("jti"));
+        long iat = claims.getIssuedAt().toInstant().getEpochSecond();
+        assertTrue(iat >= nowSeconds);
+        assertTrue(iat <= nowSeconds + 5);
+        long exp = claims.getExpiration().toInstant().getEpochSecond();
+        assertTrue(exp >= iat + 86400);
+        assertTrue(exp <= iat + 86405);
     }
 
     @Test
