@@ -28,6 +28,7 @@ dependencies {
     testImplementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
     testImplementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
+    implementation 'com.vonage:jwt:2.0.0'
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-codec:commons-codec:1.17.1'
     implementation 'io.netty:netty-codec-http:4.1.114.Final'

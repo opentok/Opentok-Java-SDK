@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
