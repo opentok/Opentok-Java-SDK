@@ -11,9 +11,12 @@ import com.opentok.exception.OpenTokException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
 
 import com.opentok.exception.InvalidArgumentException;
@@ -29,9 +32,9 @@ import org.jose4j.jwt.JwtClaims;
 * to get the session ID.
 */
 public class Session {
-    private String sessionId;
+    private String sessionId, apiSecret, applicationId;
+    private Path privateKeyPath;
     private int apiKey;
-    private String apiSecret;
     private SessionProperties properties;
     
     protected Session(String sessionId, int apiKey, String apiSecret) {
@@ -43,6 +46,13 @@ public class Session {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
         this.properties = properties;
+    }
+
+    protected Session(String sessionId, String applicationId, Path privateKeyPath, SessionProperties properties) {
+        this.sessionId = sessionId;
+        this.properties = properties;
+        this.applicationId = applicationId;
+        this.privateKeyPath = privateKeyPath;
     }
     
     /**
@@ -124,6 +134,30 @@ public class Session {
             );
         }
 
+        Map<String, Object> claims = new LinkedHashMap<>();
+        claims.put("session_id", sessionId);
+        claims.put("nonce", nonce);
+        claims.put("role", role.toString());
+        claims.put("scope", "session.connect");
+        if (tokenOptions.getInitialLayoutClassList() != null) {
+            claims.put("initial_layout_class_list", String.join(" ", tokenOptions.getInitialLayoutClassList()));
+        }
+        if (data != null) {
+            if (data.length() > 1000) {
+                throw new InvalidArgumentException(
+                        "Connection data must be less than 1000 characters. length: " + data.length()
+                );
+            }
+            try {
+                claims.put("connection_data", tokenOptions.isLegacyT1Token() ? URLEncoder.encode(data, "UTF-8") : data);
+            }
+            catch (UnsupportedEncodingException e) {
+                throw new InvalidArgumentException(
+                        "Error during URL encode of your connection data: " + e.getMessage()
+                );
+            }
+        }
+
         if (tokenOptions.isLegacyT1Token()) {
             // Token format
             //
@@ -132,34 +166,11 @@ public class Session {
             //                       | "partner_id={apiKey}&sig={sig}:| -- dataStringBuilder -- |
 
             StringBuilder dataStringBuilder = new StringBuilder()
-                    .append("session_id=").append(sessionId)
-                    .append("&create_time=").append(iat)
-                    .append("&nonce=").append(nonce)
-                    .append("&role=").append(role);
+                    .append("create_time=").append(iat)
+                    .append("&expire_time=").append(exp);
 
-            if (tokenOptions.getInitialLayoutClassList() != null) {
-                dataStringBuilder
-                        .append("&initial_layout_class_list=")
-                        .append(String.join(" ", tokenOptions.getInitialLayoutClassList()));
-            }
-
-            dataStringBuilder.append("&expire_time=").append(exp);
-
-            if (data != null) {
-                if (data.length() > 1000) {
-                    throw new InvalidArgumentException(
-                            "Connection data must be less than 1000 characters. length: " + data.length()
-                    );
-                }
-                dataStringBuilder.append("&connection_data=");
-                try {
-                    dataStringBuilder.append(URLEncoder.encode(data, "UTF-8"));
-                }
-                catch (UnsupportedEncodingException e) {
-                    throw new InvalidArgumentException(
-                            "Error during URL encode of your connection data: " + e.getMessage()
-                    );
-                }
+            for (Map.Entry<String, Object> entry : claims.entrySet()) {
+                dataStringBuilder.append('&').append(entry.getKey()).append('=').append(entry.getValue());
             }
 
 
@@ -186,21 +197,18 @@ public class Session {
             }
             return tokenStringBuilder.toString();
         }
+        else if (applicationId == null && privateKeyPath == null && apiKey != 0 && apiSecret != null) {
+            JwtClaims jwtClaims = new JwtClaims();
+            for (Map.Entry<String, Object> entry : claims.entrySet()) {
+                jwtClaims.setClaim(entry.getKey(), entry.getValue());
+            }
+            return TokenGenerator.generateToken(jwtClaims, exp, apiKey, apiSecret);
+        }
+        else if (applicationId != null && privateKeyPath != null) {
+            return TokenGenerator.generateToken(claims, exp, applicationId, privateKeyPath);
+        }
         else {
-            JwtClaims claims = new JwtClaims();
-            claims.setClaim("nonce", nonce);
-            claims.setClaim("role", role.toString());
-            claims.setClaim("session_id", sessionId);
-            claims.setClaim("scope", "session.connect");
-            if (tokenOptions.getInitialLayoutClassList() != null) {
-                claims.setClaim("initial_layout_class_list",
-                        String.join(" ", tokenOptions.getInitialLayoutClassList())
-                );
-            }
-            if (tokenOptions.getData() != null) {
-                claims.setClaim("connection_data", tokenOptions.getData());
-            }
-            return TokenGenerator.generateToken(claims, exp, apiKey, apiSecret);
+            throw new IllegalStateException("Insufficient auth credentials.");
         }
     }
 }

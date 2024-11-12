@@ -679,6 +679,10 @@ public class OpenTokTest {
     @Test
     public void testGetArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
+        String url = "http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" + archiveId +
+                "%2Farchive.mp4?Expires=13951" +
+                "94362&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
         stubFor(get(urlEqualTo(archivePath + "/" + archiveId))
               .willReturn(aResponse()
                     .withStatus(200)
@@ -693,9 +697,7 @@ public class OpenTokTest {
                           "          \"sessionId\" : \"SESSIONID\",\n" +
                           "          \"size\" : 8347554,\n" +
                           "          \"status\" : \"available\",\n" +
-                          "          \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" +
-                          archiveId + "%2Farchive.mp4?Expires=1395194362&kid=AKIAI6LQCPIXYVWCQV6Q&Si" +
-                          "gnature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "          \"url\" : \""+url+"\"\n" +
                           "        }")));
 
         Archive archive = sdk.getArchive(archiveId);
@@ -715,8 +717,7 @@ public class OpenTokTest {
         assertEquals("SESSIONID", archive.getSessionId());
         assertEquals(8347554, archive.getSize());
         assertEquals(Archive.Status.AVAILABLE, archive.getStatus());
-        assertEquals("http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" + archiveId + "%2Farchive.mp4?Expires=13951" +
-              "94362&kid=AKIAI6LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", archive.getUrl());
+        assertEquals(url, archive.getUrl());
 
         verify(getRequestedFor(urlMatching(archivePath + "/" + archiveId)));
         assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
@@ -749,6 +750,7 @@ public class OpenTokTest {
     // TODO: test get archive failure scenarios
     @Test
     public void testListArchives() throws OpenTokException {
+        String url = "http://tokbox.com.archive2.s3.amazonaws.com/123456d%2Farchive.mp4?Expires=1395188695";
         stubFor(get(urlEqualTo(archivePath))
               .willReturn(aResponse()
                     .withStatus(200)
@@ -765,9 +767,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 247145329511,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187910000,\n" +
                           "            \"duration\" : 14,\n" +
@@ -779,9 +779,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 1952651,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F5350f06" +
-                          "f-0166-402e-bc27-09ba54948512%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187836000,\n" +
                           "            \"duration\" : 62,\n" +
@@ -792,9 +790,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 8347554,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Ff6e7ee5" +
-                          "8-d6cf-4a59-896b-6d56b158ec71%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395183243000,\n" +
                           "            \"duration\" : 544,\n" +
@@ -805,9 +801,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 78499758,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F30b3ebf" +
-                          "1-ba36-4f5b-8def-6f70d9986fe9%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394396753000,\n" +
                           "            \"duration\" : 24,\n" +
@@ -818,9 +812,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2227849,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fb8f64de" +
-                          "1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394321113000,\n" +
                           "            \"duration\" : 1294,\n" +
@@ -831,9 +823,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 42165242,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F832641b" +
-                          "f-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          } ]\n" +
                           "        }")));
         ArchiveList archives = sdk.listArchives();
@@ -851,7 +841,6 @@ public class OpenTokTest {
 
     @Test
     public void testListArchivesWithOffSetCount() throws OpenTokException {
-        String sessionId = "SESSIONID";
         String url = archivePath + "?offset=1&count=1";
         stubFor(get(urlEqualTo(url))
               .willReturn(aResponse()
@@ -869,9 +858,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2909274,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }]\n" +
                           "        }")));
 
@@ -908,9 +895,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2909274,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }]\n" +
                           "        }")));
         ArchiveList archives = sdk.listArchives(sessionId, 1, 1);
@@ -945,9 +930,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2909274,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187910000,\n" +
                           "            \"duration\" : 14,\n" +
@@ -958,9 +941,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 1952651,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F5350f06" +
-                          "f-0166-402e-bc27-09ba54948512%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187836000,\n" +
                           "            \"duration\" : 62,\n" +
@@ -971,9 +952,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 8347554,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Ff6e7ee5" +
-                          "8-d6cf-4a59-896b-6d56b158ec71%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395183243000,\n" +
                           "            \"duration\" : 544,\n" +
@@ -984,9 +963,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 78499758,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F30b3ebf" +
-                          "1-ba36-4f5b-8def-6f70d9986fe9%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394396753000,\n" +
                           "            \"duration\" : 24,\n" +
@@ -997,9 +974,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2227849,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fb8f64de" +
-                          "1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394321113000,\n" +
                           "            \"duration\" : 1294,\n" +
@@ -1010,9 +985,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 42165242,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F832641b" +
-                          "f-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          } ]\n" +
                           "        }")));
         ArchiveList archives = sdk.listArchives(sessionId);

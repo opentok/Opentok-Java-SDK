@@ -62,7 +62,8 @@ public class Helpers {
 
     public static boolean verifyTokenAuth(Integer apiKey, String apiSecret, List<LoggedRequest> requests) {
         for (Request request: requests) {
-            if (!verifyJWTClaims(request.getHeader("X-OPENTOK-AUTH"), apiKey, apiSecret)) {
+            String token = request.getHeader("X-OPENTOK-AUTH");
+            if (!verifyJWTClaims(token, apiKey, apiSecret)) {
                 return false;
             }
         }

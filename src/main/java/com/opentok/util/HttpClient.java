@@ -1525,7 +1525,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
             headerName = "Authorization";
             try {
                 Jwt jwtGenerator = Jwt.builder().applicationId(applicationId).privateKeyPath(privateKeyPath).build();
-                tokenGenerator = jwtGenerator::generate;
+                tokenGenerator = () -> "Bearer " + jwtGenerator.generate();
             }
             catch (IOException ex) {
                 throw new InvalidArgumentException("Could not create a JWT generator: " + ex.getMessage());
@@ -1536,7 +1536,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         public <T> FilterContext<T> filter(FilterContext<T> ctx) throws FilterException {
             return new FilterContext.FilterContextBuilder<>(ctx)
                     .request(ctx.getRequest().toBuilder()
-                        .addHeader(headerName, "Bearer " + tokenGenerator.get())
+                        .addHeader(headerName, tokenGenerator.get())
                         .build()
                     ).build();
         }
