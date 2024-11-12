@@ -5,7 +5,7 @@
  * 
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
-package com.opentok.test;
+package com.opentok;
 
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -34,7 +34,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.opentok.util.Crypto.signData;
 import static com.opentok.util.TokenGenerator.*;
 
-public class Helpers {
+public class TestHelpers {
 
     public static final String JTI = "jti";
 

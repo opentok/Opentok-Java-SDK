@@ -132,21 +132,29 @@ public class OpenTok {
      * @return The token string.
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
-        List<String> sessionIdParts;
+        Session session;
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session not valid");
         }
 
-        try {
-            sessionIdParts = Crypto.decodeSessionId(sessionId);
-        } catch (UnsupportedEncodingException e) {
-            throw new InvalidArgumentException("Session ID was not valid");
+        if (privateKeyPath == null && apiSecret != null) {
+            List<String> sessionIdParts;
+            try {
+                sessionIdParts = Crypto.decodeSessionId(sessionId);
+            }
+            catch (UnsupportedEncodingException e) {
+                throw new InvalidArgumentException("Session ID was not valid");
+            }
+            if (!sessionIdParts.contains(Integer.toString(apiKey))) {
+                throw new InvalidArgumentException("Session ID was not valid");
+            }
+            session = new Session(sessionId, apiKey, apiSecret);
         }
-        if (!sessionIdParts.contains(Integer.toString(apiKey))) {
-            throw new InvalidArgumentException("Session ID was not valid");
+        else {
+            session = new Session(sessionId, applicationId, privateKeyPath);
         }
 
-        return new Session(sessionId, apiKey, apiSecret).generateToken(tokenOptions);
+        return session.generateToken(tokenOptions);
     }
 
     /**

@@ -48,6 +48,10 @@ public class Session {
         this.properties = properties;
     }
 
+    protected Session(String sessionId, String applicationId, Path privateKeyPath) {
+        this(sessionId, applicationId, privateKeyPath, new SessionProperties.Builder().build());
+    }
+
     protected Session(String sessionId, String applicationId, Path privateKeyPath, SessionProperties properties) {
         this.sessionId = sessionId;
         this.properties = properties;

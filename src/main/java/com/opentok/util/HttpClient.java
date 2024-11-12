@@ -34,7 +34,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -47,6 +46,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
         super(builder.config);
         apiKey = builder.apiKey;
         apiUrl = builder.apiUrl;
+    }
+
+    public String getApiUrl() {
+        return apiUrl;
     }
 
     public String createSession(Map<String, List<String>> params) throws RequestException {
@@ -1528,7 +1531,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                 tokenGenerator = () -> "Bearer " + jwtGenerator.generate();
             }
             catch (IOException ex) {
-                throw new InvalidArgumentException("Could not create a JWT generator: " + ex.getMessage());
+                throw new InvalidArgumentException("Could not create a JWT generator: " + ex);
             }
         }
 
