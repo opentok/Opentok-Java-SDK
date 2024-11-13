@@ -113,13 +113,14 @@ public class Archive {
     }
 
     @JsonProperty private long createdAt;
-    @JsonProperty private int duration = 0;
+    @JsonProperty private int duration;
     @JsonProperty private String id;
     @JsonProperty private String name;
     @JsonProperty private int partnerId;
     @JsonProperty private String reason;
     @JsonProperty private String sessionId;
-    @JsonProperty private long size = 0;
+    @JsonProperty private long size;
+    @JsonProperty private int maxBitrate;
     @JsonProperty private Status status;
     @JsonProperty private String url;
     @JsonProperty private boolean hasVideo = true;
@@ -200,6 +201,15 @@ public class Archive {
      */
     public long getSize() {
         return size;
+    }
+
+    /**
+     * The maximum bitrate of the archive, in bits per second.
+     *
+     * @since 4.15.0
+     */
+    public int getMaxBitrate() {
+        return maxBitrate;
     }
 
     /**
