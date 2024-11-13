@@ -19,7 +19,6 @@ import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import com.opentok.util.HttpClient.ProxyAuthScheme;
 import org.apache.commons.lang.StringUtils;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
@@ -58,8 +57,6 @@ public class OpenTok {
         connectReader = new ObjectMapper().readerFor(AudioConnector.class),
         captionReader = new ObjectMapper().readerFor(Caption.class);
 
-    static final String defaultApiUrl = "https://api.opentok.com";
-
     /**
      * Creates an OpenTok object.
      *
@@ -70,6 +67,17 @@ public class OpenTok {
         this(apiKey, apiSecret, null, null, new HttpClient.Builder(apiKey, apiSecret).build());
     }
 
+    /**
+     * Creates an OpenTok object for use with the <a href=https://developer.vonage.com/en/api/video>
+     * Vonage Video API</a>. This is intended as a short-term step towards full migration to Vonage.
+     * See <a href=https://developer.vonage.com/en/video/transition-guides/server-sdks/java?source=video>
+     * the Java SDK transition guide</a> for details.
+     *
+     * @param applicationId Your Vonage application UUID with video capabilities enabled.
+     * @param privateKeyPath Absolute path to the private key for your application.
+     *
+     * @since 4.15.0
+     */
     public OpenTok(String applicationId, Path privateKeyPath) {
         this(0, null, applicationId, privateKeyPath, new HttpClient.Builder(applicationId, privateKeyPath).build());
     }
@@ -94,7 +102,7 @@ public class OpenTok {
      * import com.opentok.TokenOptions;
      *
      * class Test {
-     *     public static void main(String argv[]) throws OpenTokException {
+     *     public static void main(String args[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key (see https://tokbox.com/account).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
      *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);

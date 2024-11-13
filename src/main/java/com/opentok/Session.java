@@ -58,17 +58,27 @@ public class Session {
         this.applicationId = applicationId;
         this.privateKeyPath = privateKeyPath;
     }
-    
+
     /**
-    * Returns the OpenTok API key used to generate the session.
-    */
+     * Gets the Vonage application ID, if applicable.
+     *
+     * @return The Vonage application UUID as a string, or {@code null} if using OpenTok API key and secret.
+     * @since 4.15.0
+     */
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    /**
+     * Returns the OpenTok API key used to generate the session.
+     */
     public int getApiKey() {
         return apiKey;
     }
 
     /**
-    * Returns the session ID, which uniquely identifies the session.
-    */
+     * Returns the session ID, which uniquely identifies the session.
+     */
     public String getSessionId() {
         return sessionId;
     }
