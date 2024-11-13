@@ -5,7 +5,7 @@
  * 
  * Licensed under The MIT License (MIT). See LICENSE file for more information.
  */
-package com.opentok.test;
+package com.opentok;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,31 +14,30 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.opentok.*;
 import com.opentok.Archive.OutputMode;
 import com.opentok.constants.DefaultUserAgent;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
-import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang.StringUtils;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
@@ -106,13 +105,13 @@ public class OpenTokTest {
     public void testConfigureRequestTimeout() {
         assertThrows(RequestException.class, () -> {
             sdk.close();
-            sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(6).build();
+            sdk = new OpenTok.Builder(apiKey, apiSecret).apiUrl(apiUrl).requestTimeout(3).build();
 
             String sessionId = "SESSIONID";
             stubFor(post(urlEqualTo(SESSION_CREATE))
                   .willReturn(aResponse()
                         .withStatus(200)
-                        .withFixedDelay(7000)
+                        .withFixedDelay(3200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("[{\"session_id\":\"" + sessionId + "\",\"project_id\":\"00000000\"," +
                               "\"partner_id\":\"123456\"," +
@@ -149,9 +148,9 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching(path))
               .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -190,9 +189,9 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching(path))
               .withRequestBody(equalToJson("{ \"type\":\"test\",\"data\":\"Signal test string\" }")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -261,9 +260,9 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
               .withRequestBody(matching(".*p2p.preference=enabled.*"))
               .withRequestBody(matching(".*archiveMode=manual.*")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -294,9 +293,9 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
               // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
               .withRequestBody(matching(".*p2p.preference=disabled.*")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -328,9 +327,9 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
               // TODO: this is a pretty bad way to verify, ideally we can decode the body and then query the object
               .withRequestBody(matching(".*location=" + locationHint + ".*")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -363,9 +362,9 @@ public class OpenTokTest {
         verify(postRequestedFor(urlMatching(SESSION_CREATE))
             // NOTE: this is a pretty bad way to verify, ideally we can decode the body and then query the object
             .withRequestBody(matching(".*e2ee=true.*")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
             findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -399,9 +398,9 @@ public class OpenTokTest {
               .withRequestBody(matching(".*archiveMode=always.*"))
               .withRequestBody(matching(".*archiveResolution=720x1280.*"))
               .withRequestBody(matching(".*archiveName=720pTest.*")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -536,9 +535,9 @@ public class OpenTokTest {
 
         String token = sdk.generateToken(sessionId, new TokenOptions.Builder().useLegacyT1Token().build());
         assertNotNull(token);
-        assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
+        assertTrue(TestHelpers.verifyTokenSignature(token, apiSecret));
 
-        Map<String, String> tokenData = Helpers.decodeToken(token);
+        Map<String, String> tokenData = TestHelpers.decodeToken(token);
         assertEquals(Integer.toString(apiKey), tokenData.get("partner_id"));
         assertNotNull(tokenData.get("create_time"));
         assertNotNull(tokenData.get("nonce"));
@@ -553,9 +552,9 @@ public class OpenTokTest {
               .initialLayoutClassList(Arrays.asList("full", "focus")).useLegacyT1Token().build());
 
         assertNotNull(token);
-        assertTrue(Helpers.verifyTokenSignature(token, apiSecret));
+        assertTrue(TestHelpers.verifyTokenSignature(token, apiSecret));
 
-        Map<String, String> tokenData = Helpers.decodeToken(token);
+        Map<String, String> tokenData = TestHelpers.decodeToken(token);
         assertEquals("full focus", tokenData.get("initial_layout_class_list"));
     }
 
@@ -580,8 +579,8 @@ public class OpenTokTest {
             );
 
             assertNotNull(roleToken);
-            assertTrue(Helpers.verifyTokenSignature(roleToken, apiSecret));
-            Map<String, String> roleTokenData = Helpers.decodeToken(roleToken);
+            assertTrue(TestHelpers.verifyTokenSignature(roleToken, apiSecret));
+            Map<String, String> roleTokenData = TestHelpers.decodeToken(roleToken);
             assertEquals(role.toString(), roleTokenData.get("role"));
         }
     }
@@ -612,8 +611,8 @@ public class OpenTokTest {
         }
 
         assertNotNull(oneHourToken);
-        assertTrue(Helpers.verifyTokenSignature(oneHourToken, apiSecret));
-        Map<String, String> oneHourTokenData = Helpers.decodeToken(oneHourToken);
+        assertTrue(TestHelpers.verifyTokenSignature(oneHourToken, apiSecret));
+        Map<String, String> oneHourTokenData = TestHelpers.decodeToken(oneHourToken);
         assertEquals(Long.toString(inOneHour), oneHourTokenData.get("expire_time"));
         assertEquals(2, exceptions.size());
         for (Exception e : exceptions) {
@@ -639,8 +638,8 @@ public class OpenTokTest {
         }
 
         assertNotNull(dataBearingToken);
-        assertTrue(Helpers.verifyTokenSignature(dataBearingToken, apiSecret));
-        Map<String, String> dataBearingTokenData = Helpers.decodeToken(dataBearingToken);
+        assertTrue(TestHelpers.verifyTokenSignature(dataBearingToken, apiSecret));
+        Map<String, String> dataBearingTokenData = TestHelpers.decodeToken(dataBearingToken);
         assertEquals(actualData, dataBearingTokenData.get("connection_data"));
         assertEquals(InvalidArgumentException.class, tooLongException.getClass());
     }
@@ -678,6 +677,10 @@ public class OpenTokTest {
     @Test
     public void testGetArchive() throws OpenTokException {
         String archiveId = "ARCHIVEID";
+        String url = "http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" + archiveId +
+                "%2Farchive.mp4?Expires=13951" +
+                "94362&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
         stubFor(get(urlEqualTo(archivePath + "/" + archiveId))
               .willReturn(aResponse()
                     .withStatus(200)
@@ -692,9 +695,7 @@ public class OpenTokTest {
                           "          \"sessionId\" : \"SESSIONID\",\n" +
                           "          \"size\" : 8347554,\n" +
                           "          \"status\" : \"available\",\n" +
-                          "          \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" +
-                          archiveId + "%2Farchive.mp4?Expires=1395194362&kid=AKIAI6LQCPIXYVWCQV6Q&Si" +
-                          "gnature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "          \"url\" : \""+url+"\"\n" +
                           "        }")));
 
         Archive archive = sdk.getArchive(archiveId);
@@ -714,13 +715,12 @@ public class OpenTokTest {
         assertEquals("SESSIONID", archive.getSessionId());
         assertEquals(8347554, archive.getSize());
         assertEquals(Archive.Status.AVAILABLE, archive.getStatus());
-        assertEquals("http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" + archiveId + "%2Farchive.mp4?Expires=13951" +
-              "94362&kid=AKIAI6LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", archive.getUrl());
+        assertEquals(url, archive.getUrl());
 
         verify(getRequestedFor(urlMatching(archivePath + "/" + archiveId)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -731,9 +731,9 @@ public class OpenTokTest {
               .willReturn(aResponse().withStatus(204)));
         sdk.addArchiveStream(archiveId, streamId, true, true);
         verify(patchRequestedFor(urlMatching(archivePath + "/" + archiveId + "/streams")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -748,6 +748,7 @@ public class OpenTokTest {
     // TODO: test get archive failure scenarios
     @Test
     public void testListArchives() throws OpenTokException {
+        String url = "http://tokbox.com.archive2.s3.amazonaws.com/123456d%2Farchive.mp4?Expires=1395188695";
         stubFor(get(urlEqualTo(archivePath))
               .willReturn(aResponse()
                     .withStatus(200)
@@ -764,9 +765,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 247145329511,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187910000,\n" +
                           "            \"duration\" : 14,\n" +
@@ -778,9 +777,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 1952651,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F5350f06" +
-                          "f-0166-402e-bc27-09ba54948512%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187836000,\n" +
                           "            \"duration\" : 62,\n" +
@@ -791,9 +788,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 8347554,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Ff6e7ee5" +
-                          "8-d6cf-4a59-896b-6d56b158ec71%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395183243000,\n" +
                           "            \"duration\" : 544,\n" +
@@ -804,9 +799,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 78499758,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F30b3ebf" +
-                          "1-ba36-4f5b-8def-6f70d9986fe9%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394396753000,\n" +
                           "            \"duration\" : 24,\n" +
@@ -817,9 +810,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2227849,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fb8f64de" +
-                          "1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394321113000,\n" +
                           "            \"duration\" : 1294,\n" +
@@ -830,9 +821,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 42165242,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F832641b" +
-                          "f-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          } ]\n" +
                           "        }")));
         ArchiveList archives = sdk.listArchives();
@@ -843,14 +832,13 @@ public class OpenTokTest {
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         assertEquals("MyVideoArchiveTag", archives.get(1).getMultiArchiveTag());
         verify(getRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
     public void testListArchivesWithOffSetCount() throws OpenTokException {
-        String sessionId = "SESSIONID";
         String url = archivePath + "?offset=1&count=1";
         stubFor(get(urlEqualTo(url))
               .willReturn(aResponse()
@@ -868,9 +856,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2909274,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }]\n" +
                           "        }")));
 
@@ -882,9 +868,9 @@ public class OpenTokTest {
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
 
         verify(getRequestedFor(urlEqualTo(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -907,9 +893,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2909274,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }]\n" +
                           "        }")));
         ArchiveList archives = sdk.listArchives(sessionId, 1, 1);
@@ -919,9 +903,9 @@ public class OpenTokTest {
         assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -944,9 +928,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2909274,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fef546c5" +
-                          "a-4fd7-4e59-ab3d-f1cfb4148d1d%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187910000,\n" +
                           "            \"duration\" : 14,\n" +
@@ -957,9 +939,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 1952651,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F5350f06" +
-                          "f-0166-402e-bc27-09ba54948512%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395187836000,\n" +
                           "            \"duration\" : 62,\n" +
@@ -970,9 +950,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 8347554,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Ff6e7ee5" +
-                          "8-d6cf-4a59-896b-6d56b158ec71%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1395183243000,\n" +
                           "            \"duration\" : 544,\n" +
@@ -983,9 +961,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 78499758,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F30b3ebf" +
-                          "1-ba36-4f5b-8def-6f70d9986fe9%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394396753000,\n" +
                           "            \"duration\" : 24,\n" +
@@ -996,9 +972,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 2227849,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2Fb8f64de" +
-                          "1-e218-4091-9544-4cbf369fc238%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          }, {\n" +
                           "            \"createdAt\" : 1394321113000,\n" +
                           "            \"duration\" : 1294,\n" +
@@ -1009,9 +983,7 @@ public class OpenTokTest {
                           "            \"sessionId\" : \"SESSIONID\",\n" +
                           "            \"size\" : 42165242,\n" +
                           "            \"status\" : \"available\",\n" +
-                          "            \"url\" : \"http://tokbox.com.archive2.s3.amazonaws.com/123456%2F832641b" +
-                          "f-5dbf-41a1-ad94-fea213e59a92%2Farchive.mp4?Expires=1395188695&kid=AKIAI6" +
-                          "LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" +
+                          "            \"url\" : \""+url+"\"\n" +
                           "          } ]\n" +
                           "        }")));
         ArchiveList archives = sdk.listArchives(sessionId);
@@ -1021,9 +993,9 @@ public class OpenTokTest {
         assertNotNull(archives.get(0));
         assertEquals("ef546c5a-4fd7-4e59-ab3d-f1cfb4148d1d", archives.get(0).getId());
         verify(getRequestedFor(urlEqualTo(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1112,9 +1084,9 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1150,9 +1122,9 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
         verify(postRequestedFor(urlMatching(archivePath)).withRequestBody(equalToJson(expectedJson)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1181,9 +1153,9 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertEquals(archive.getResolution(), "1280x720");
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1209,9 +1181,9 @@ public class OpenTokTest {
 
         sdk.setArchiveLayout(archiveId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1226,9 +1198,9 @@ public class OpenTokTest {
         String expectedJson = "{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}";
         sdk.setArchiveLayout(archiveId, properties);
         verify(putRequestedFor(urlMatching(url)).withRequestBody(equalToJson(expectedJson)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1256,8 +1228,8 @@ public class OpenTokTest {
 
         sdk.setArchiveLayout(archiveId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret, findAll(putRequestedFor(urlMatching(url)))));
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1304,9 +1276,9 @@ public class OpenTokTest {
                     .withHeader("Content-Type", "application/json")));
         sdk.setStreamLayouts(sessionId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1323,9 +1295,9 @@ public class OpenTokTest {
                     .withHeader("Content-Type", "application/json")));
         sdk.setStreamLayouts(sessionId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1342,9 +1314,9 @@ public class OpenTokTest {
                     .withHeader("Content-Type", "application/json")));
         sdk.setStreamLayouts(sessionId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1374,9 +1346,9 @@ public class OpenTokTest {
         assertEquals(name, archive.getName());
         assertNotNull(archive.getId());
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1406,9 +1378,9 @@ public class OpenTokTest {
         assertEquals(sessionId, archive.getSessionId());
         assertNotNull(archive.getId());
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1440,9 +1412,9 @@ public class OpenTokTest {
         assertNotNull(archive.getId());
         assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1475,9 +1447,9 @@ public class OpenTokTest {
         assertNotNull(archive.getId());
         assertEquals(OutputMode.COMPOSED, archive.getOutputMode());
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1520,9 +1492,9 @@ public class OpenTokTest {
         assertNotNull(archive.getId());
         assertEquals(OutputMode.INDIVIDUAL, archive.getOutputMode());
         verify(postRequestedFor(urlMatching(archivePath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     // TODO: test start archive with name
@@ -1554,9 +1526,9 @@ public class OpenTokTest {
         assertEquals("SESSIONID", archive.getSessionId());
         assertEquals(archiveId, archive.getId());
         verify(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath + "/" + archiveId + "/stop")))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     // TODO: test stop archive failure scenarios
@@ -1571,9 +1543,9 @@ public class OpenTokTest {
 
         sdk.deleteArchive(archiveId);
         verify(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(archivePath + "/" + archiveId)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     // TODO: test delete archive failure scenarios
@@ -1677,9 +1649,9 @@ public class OpenTokTest {
         assertEquals("camera", stream.getVideoType());
 
         verify(getRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1691,8 +1663,8 @@ public class OpenTokTest {
               .willReturn(aResponse().withStatus(200)));
         sdk.forceMuteStream(sessionID, streamID);
         verify(postRequestedFor(urlMatching(path)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(path)))));
+        TestHelpers.verifyUserAgent();
         assertThrows(InvalidArgumentException.class, () -> sdk.forceMuteStream("", streamID));
         assertThrows(InvalidArgumentException.class, () -> sdk.forceMuteStream(sessionID, ""));
     }
@@ -1712,9 +1684,9 @@ public class OpenTokTest {
               .excludedStreamIds(excludedList).build();
         sdk.forceMuteAll(sessionID, properties);
         verify(postRequestedFor(urlMatching(path)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
         assertThrows(InvalidArgumentException.class, () -> sdk.forceMuteAll("", properties));
     }
 
@@ -1728,9 +1700,9 @@ public class OpenTokTest {
                     .withHeader("Content-Type", "application/json")));
         sdk.disableForceMute(sessionID);
         verify(postRequestedFor(urlMatching(path)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
         assertThrows(InvalidArgumentException.class, () -> sdk.disableForceMute(""));
     }
 
@@ -1769,9 +1741,9 @@ public class OpenTokTest {
         assertEquals("screen", stream2.getVideoType());
 
         verify(getRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1881,9 +1853,9 @@ public class OpenTokTest {
         assertEquals(Broadcast.StreamMode.AUTO, broadcast.getStreamMode());
         assertNotNull(broadcast.getId());
         verify(postRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1941,9 +1913,9 @@ public class OpenTokTest {
               .build();
         Broadcast broadcast = sdk.startBroadcast(sessionId, properties);
         verify(postRequestedFor(urlMatching(broadcastPath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(broadcastPath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -1986,8 +1958,8 @@ public class OpenTokTest {
         assertEquals(sessionId, broadcast.getSessionId());
         assertNotNull(broadcast.getId());
         verify(postRequestedFor(urlMatching(broadcastPath)).withRequestBody(equalToJson(expectedJson)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(broadcastPath)))));
-        Helpers.verifyUserAgent();
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret, findAll(postRequestedFor(urlMatching(broadcastPath)))));
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2046,9 +2018,9 @@ public class OpenTokTest {
         assertEquals(sessionId, broadcast.getSessionId());
         assertNotNull(broadcast.getId());
         verify(postRequestedFor(urlMatching(broadcastPath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(broadcastPath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2095,9 +2067,9 @@ public class OpenTokTest {
         assertNotNull(broadcast.getId());
         assertNull(broadcast.getHls());
         verify(postRequestedFor(urlMatching(broadcastPath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(broadcastPath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2135,9 +2107,9 @@ public class OpenTokTest {
         assertNotNull(broadcast.getId());
         assertTrue(broadcast.getRtmpList().isEmpty());
         verify(postRequestedFor(urlMatching(broadcastPath)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(broadcastPath)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2168,9 +2140,9 @@ public class OpenTokTest {
               .willReturn(aResponse().withStatus(204)));
         sdk.addBroadcastStream(broadcastId, streamId, true, true);
         verify(patchRequestedFor(urlMatching(broadcastPath + "/" + broadcastId + "/streams")));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(archivePath + "/" + broadcastId)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2203,9 +2175,9 @@ public class OpenTokTest {
         assertNotNull(broadcast);
         assertEquals(broadcastId, broadcast.getId());
         verify(postRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2245,9 +2217,9 @@ public class OpenTokTest {
         assertEquals("http://server/fakepath/playlist.m3u8", broadcast.getHls());
         assertEquals(2, broadcast.getRtmpList().size());
         verify(getRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
         assertThrows(InvalidArgumentException.class, () -> sdk.getBroadcast(""));
     }
 
@@ -2263,9 +2235,9 @@ public class OpenTokTest {
 
         sdk.setBroadcastLayout(broadcastId, properties);
         verify(putRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2281,9 +2253,9 @@ public class OpenTokTest {
         String expectedJson = "{\"type\":\"bestFit\",\"screenshareType\":\"pip\"}";
         sdk.setBroadcastLayout(broadcastId, properties);
         verify(putRequestedFor(urlMatching(url)).withRequestBody(equalToJson(expectedJson)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(putRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2379,9 +2351,9 @@ public class OpenTokTest {
         assertNotNull(sip.getConnectionId());
         assertNotNull(sip.getStreamId());
         verify(postRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2396,9 +2368,9 @@ public class OpenTokTest {
 
         sdk.playDTMF(sessionId, dtmfString);
         verify(postRequestedFor(urlMatching(path)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2415,9 +2387,9 @@ public class OpenTokTest {
 
         sdk.playDTMF(sessionId, connectionId, dtmfString);
         verify(postRequestedFor(urlMatching(path)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2431,9 +2403,9 @@ public class OpenTokTest {
                     .withHeader("Content-Type", "application/json")));
         sdk.forceDisconnect(sessionId, connectionId);
         verify(deleteRequestedFor(urlMatching(path)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(path)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
         assertThrows(InvalidArgumentException.class, () -> sdk.forceDisconnect("", connectionId));
         assertThrows(InvalidArgumentException.class, () -> sdk.forceDisconnect(sessionId, ""));
     }
@@ -2471,7 +2443,7 @@ public class OpenTokTest {
 
         verify(postRequestedFor(urlMatching(SESSION_CREATE)));
 
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(SESSION_CREATE)))));
     }
 
@@ -2520,9 +2492,9 @@ public class OpenTokTest {
         assertNull(render.getReason());
 
         verify(postRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
 
         assertThrows(InvalidArgumentException.class, () -> sdk.startRender("", token, properties));
     }
@@ -2564,9 +2536,9 @@ public class OpenTokTest {
         assertNull(render.getStreamId());
 
         verify(getRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2578,9 +2550,9 @@ public class OpenTokTest {
         sdk.stopRender(renderId);
 
         verify(deleteRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(deleteRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2648,9 +2620,9 @@ public class OpenTokTest {
         assertNull(render.getReason());
 
         verify(getRequestedFor(urlMatching(endpoint)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(getRequestedFor(urlMatching(endpoint)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
     }
 
     @Test
@@ -2837,9 +2809,9 @@ public class OpenTokTest {
         assertTrue(caption.toString().contains(captionsId));
 
         verify(postRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(postRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
 
         assertThrows(InvalidArgumentException.class, () -> sdk.startCaptions("", token, properties));
         assertThrows(InvalidArgumentException.class, () -> sdk.startCaptions(sessionId, "", properties));
@@ -2872,12 +2844,54 @@ public class OpenTokTest {
         sdk.stopCaptions(captionsId);
 
         verify(postRequestedFor(urlMatching(url)));
-        assertTrue(Helpers.verifyTokenAuth(apiKey, apiSecret,
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
                 findAll(deleteRequestedFor(urlMatching(url)))));
-        Helpers.verifyUserAgent();
+        TestHelpers.verifyUserAgent();
 
         assertThrows(InvalidArgumentException.class, () -> sdk.stopCaptions(""));
         stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(404)));
         assertThrows(RequestException.class, () -> sdk.stopCaptions(captionsId));
+    }
+
+    @Test
+    public void testVonageShim() throws Exception {
+        String appId = UUID.randomUUID().toString();
+        String testResourceDir = Paths.get(getClass().getResource("").toURI()).toString()
+                .replace("classes\\java", "classes/java")
+                .replace("classes/java", "resources");
+        var privateKeyPath = Paths.get(testResourceDir, "application_key");
+        OpenTok vonage = new OpenTok(appId, privateKeyPath);
+        assertNotNull(vonage);
+        assertEquals("https://video.api.vonage.com", vonage.client.getApiUrl());
+
+        String data = "{\"key\":\"value\", \"F00B4R\": true}";
+        String token = vonage.generateToken(sessionId, new TokenOptions.Builder()
+                .role(Role.PUBLISHER_ONLY).data(data)
+                .initialLayoutClassList(List.of("focus"))
+                .build()
+        );
+        assertNotNull(token);
+        var publicKeyPath = Paths.get(testResourceDir, "application_public_key.der");
+        var spec = new X509EncodedKeySpec(Files.readAllBytes(publicKeyPath));
+        var key = KeyFactory.getInstance("RSA").generatePublic(spec);
+        var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+
+        assertNotNull(claims);
+        assertEquals(appId, claims.get("application_id"));
+        assertEquals(sessionId, claims.get("session_id"));
+        assertNotNull(claims.get("nonce"));
+        assertNotNull(claims.get("jti"));
+        assertEquals("publisheronly", claims.get("role"));
+        assertEquals("session.connect", claims.get("scope"));
+        assertEquals(data, claims.get("connection_data"));
+        assertEquals("focus", claims.get("initial_layout_class_list"));
+
+        var exp = claims.getExpiration().toInstant();
+        var iat = claims.getIssuedAt().toInstant();
+        assertTrue(iat.isAfter(Instant.now().minus(1, ChronoUnit.MINUTES)));
+        assertTrue(iat.isBefore(Instant.now().plus(1, ChronoUnit.MINUTES)));
+        assertTrue(exp.isAfter(iat));
+        assertTrue(iat.plus(86402, ChronoUnit.SECONDS).isAfter(exp));
+        assertTrue(iat.plus(86398, ChronoUnit.SECONDS).isBefore(exp));
     }
 }

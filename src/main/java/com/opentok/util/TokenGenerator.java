@@ -8,14 +8,18 @@
 package com.opentok.util;
 
 import com.opentok.exception.OpenTokException;
+import com.vonage.jwt.Jwt;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 public class TokenGenerator {
 
@@ -34,6 +38,21 @@ public class TokenGenerator {
         //This is the default expire time we use for rest endpoints.
         final long defaultExpireTime = Instant.now().plus(3, ChronoUnit.MINUTES).getEpochSecond();
         return generateToken(claims, defaultExpireTime, apiKey, apiSecret);
+    }
+
+    public static String generateToken(Map<String, Object> claims, final long expireTime,
+                                       final String applicationId, final Path privateKeyPath) throws OpenTokException {
+        try {
+            claims.put(EXP, expireTime);
+            return Jwt.builder()
+                    .applicationId(applicationId)
+                    .privateKeyPath(privateKeyPath)
+                    .claims(claims)
+                    .build().generate();
+        }
+        catch (IOException ex) {
+            throw new OpenTokException("Could not generate token: " + ex.getMessage());
+        }
     }
 
     public static String generateToken(final JwtClaims claims, final long expireTime,

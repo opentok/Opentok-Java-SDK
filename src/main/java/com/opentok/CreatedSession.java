@@ -7,15 +7,14 @@
  */
 package com.opentok;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Used internally.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CreatedSession {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -25,6 +24,9 @@ public class CreatedSession {
 
     @JsonProperty("project_id")
     private String projectId;
+
+    @JsonProperty("application_id")
+    private String applicationId;
 
     @JsonProperty("partner_id")
     private String partnerId;
@@ -53,6 +55,10 @@ public class CreatedSession {
 
     public String getProjectId() {
         return projectId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
     }
 
     public String getPartnerId() {

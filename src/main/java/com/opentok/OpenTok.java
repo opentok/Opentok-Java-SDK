@@ -19,12 +19,14 @@ import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import com.opentok.util.HttpClient.ProxyAuthScheme;
 import org.apache.commons.lang.StringUtils;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Contains methods for creating OpenTok sessions, generating tokens, and working with archives.
@@ -37,9 +39,9 @@ import java.util.Map;
  * Be sure to include the entire OpenTok server SDK on your web server.
  */
 public class OpenTok {
-
     private final int apiKey;
-    private final String apiSecret;
+    private final String apiSecret, applicationId;
+    private final Path privateKeyPath;
     protected HttpClient client;
 
     protected static final ObjectReader
@@ -55,8 +57,6 @@ public class OpenTok {
         connectReader = new ObjectMapper().readerFor(AudioConnector.class),
         captionReader = new ObjectMapper().readerFor(Caption.class);
 
-    static final String defaultApiUrl = "https://api.opentok.com";
-
     /**
      * Creates an OpenTok object.
      *
@@ -64,12 +64,30 @@ public class OpenTok {
      * @param apiSecret Your OpenTok API secret. (See your <a href="https://tokbox.com/account">Vonage Video API account page</a>.)
      */
     public OpenTok(int apiKey, String apiSecret) {
-        this(apiKey, apiSecret, new HttpClient.Builder(apiKey, apiSecret).build());
+        this(apiKey, apiSecret, null, null, new HttpClient.Builder(apiKey, apiSecret).build());
     }
 
-    private OpenTok(int apiKey, String apiSecret, HttpClient httpClient) {
+    /**
+     * Creates an OpenTok object for use with the
+     * <a href=https://developer.vonage.com/en/api/video>Vonage Video API</a>. This is intended as a short-term step
+     * towards full migration to Vonage. See the
+     * <a href=https://developer.vonage.com/en/video/transition-guides/server-sdks/java>Java SDK transition guide</a>
+     * for details.
+     *
+     * @param applicationId Your Vonage application UUID with video capabilities enabled.
+     * @param privateKeyPath Absolute path to the private key for your application.
+     *
+     * @since 4.15.0
+     */
+    public OpenTok(String applicationId, Path privateKeyPath) {
+        this(0, null, applicationId, privateKeyPath, new HttpClient.Builder(applicationId, privateKeyPath).build());
+    }
+
+    private OpenTok(int apiKey, String apiSecret, String applicationId, Path privateKeyPath, HttpClient httpClient) {
         this.apiKey = apiKey;
-        this.apiSecret = apiSecret.trim();
+        this.apiSecret = apiSecret != null ? apiSecret.trim() : null;
+        this.applicationId = applicationId;
+        this.privateKeyPath = privateKeyPath;
         this.client = httpClient;
     }
 
@@ -85,7 +103,7 @@ public class OpenTok {
      * import com.opentok.TokenOptions;
      *
      * class Test {
-     *     public static void main(String argv[]) throws OpenTokException {
+     *     public static void main(String args[]) throws OpenTokException {
      *         int API_KEY = 0; // Replace with your OpenTok API key (see https://tokbox.com/account).
      *         String API_SECRET = ""; // Replace with your OpenTok API secret.
      *         OpenTok sdk = new OpenTok(API_KEY, API_SECRET);
@@ -123,22 +141,28 @@ public class OpenTok {
      * @return The token string.
      */
     public String generateToken(String sessionId, TokenOptions tokenOptions) throws OpenTokException {
-        List<String> sessionIdParts;
+        Session session;
         if (sessionId == null || sessionId.isEmpty()) {
             throw new InvalidArgumentException("Session not valid");
         }
 
-        try {
-            sessionIdParts = Crypto.decodeSessionId(sessionId);
-        } catch (UnsupportedEncodingException e) {
-            throw new InvalidArgumentException("Session ID was not valid");
+        if (privateKeyPath == null && apiSecret != null) {
+            List<String> sessionIdParts;
+            try {
+                sessionIdParts = Crypto.decodeSessionId(sessionId);
+            }
+            catch (UnsupportedEncodingException e) {
+                throw new InvalidArgumentException("Session ID was not valid");
+            }
+            if (!sessionIdParts.contains(Integer.toString(apiKey))) {
+                throw new InvalidArgumentException("Session ID was not valid");
+            }
+            session = new Session(sessionId, apiKey, apiSecret);
         }
-        if (!sessionIdParts.contains(Integer.toString(apiKey))) {
-            throw new InvalidArgumentException("Session ID was not valid");
+        else {
+            session = new Session(sessionId, applicationId, privateKeyPath);
         }
 
-        // NOTE: kind of wasteful of a Session instance
-        Session session = new Session(sessionId, apiKey, apiSecret);
         return session.generateToken(tokenOptions);
     }
 
@@ -1036,15 +1060,11 @@ public class OpenTok {
      * {@link OpenTok OpenTok()} constructor to build the OpenTok object.
      */
     public static class Builder {
-        private int apiKey;
-        private String apiSecret;
-        private String apiUrl;
-        private String appendUserAgent;
+        private int apiKey, requestTimeout;
+        private String apiSecret, applicationId, apiUrl, appendUserAgent, principal, password;
+        private Path privateKeyPath;
         private Proxy proxy;
         private ProxyAuthScheme proxyAuthScheme;
-        private String principal;
-        private String password;
-        private int requestTimeout;
 
         /**
          * Constructs a new OpenTok.Builder object.
@@ -1058,6 +1078,13 @@ public class OpenTok {
         public Builder(int apiKey, String apiSecret) {
             this.apiKey = apiKey;
             this.apiSecret = apiSecret;
+        }
+
+        public Builder(String applicationId, Path privateKeyPath) {
+            this.applicationId = UUID.fromString(
+                    Objects.requireNonNull(applicationId, "Vonage Application ID is required")
+            ).toString();
+            this.privateKeyPath = Objects.requireNonNull(privateKeyPath, "Private key path is required.");
         }
 
         /**
@@ -1113,7 +1140,7 @@ public class OpenTok {
          * @return The OpenTok object.
          */
         public OpenTok build() {
-            HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret);
+            HttpClient.Builder clientBuilder = new HttpClient.Builder(apiKey, apiSecret, applicationId, privateKeyPath);
 
             if (apiUrl != null) {
                 clientBuilder.apiUrl(apiUrl);
@@ -1128,7 +1155,7 @@ public class OpenTok {
                 clientBuilder.userAgent(DefaultUserAgent.DEFAULT_USER_AGENT+" "+appendUserAgent);
             }
 
-            return new OpenTok(apiKey, apiSecret, clientBuilder.build());
+            return new OpenTok(apiKey, apiSecret, applicationId, privateKeyPath, clientBuilder.build());
         }
     }
 

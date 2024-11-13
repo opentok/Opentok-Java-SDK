@@ -20,6 +20,7 @@ import com.opentok.constants.DefaultUserAgent;
 import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
+import com.vonage.jwt.Jwt;
 import org.apache.commons.lang.StringUtils;
 import org.asynchttpclient.*;
 import org.asynchttpclient.Realm.AuthScheme;
@@ -27,23 +28,28 @@ import org.asynchttpclient.filter.FilterContext;
 import org.asynchttpclient.filter.FilterException;
 import org.asynchttpclient.filter.RequestFilter;
 import org.asynchttpclient.proxy.ProxyServer;
-
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
 
 public class HttpClient extends DefaultAsyncHttpClient {
-    private final String apiUrl;
-    private final int apiKey;
+    private final String apiUrl, apiKey;
 
     private HttpClient(Builder builder) {
         super(builder.config);
-        this.apiKey = builder.apiKey;
-        this.apiUrl = builder.apiUrl;
+        apiKey = builder.apiKey;
+        apiUrl = builder.apiUrl;
+    }
+
+    public String getApiUrl() {
+        return apiUrl;
     }
 
     public String createSession(Map<String, List<String>> params) throws RequestException {
@@ -67,7 +73,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
 
     public String signal(String sessionId, String connectionId, SignalProperties properties) throws OpenTokException {
-        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + (connectionId != null && connectionId.length() > 0 ? "/connection/" + connectionId : "") + "/signal";
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + (connectionId != null && !connectionId.isEmpty() ? "/connection/" + connectionId : "") + "/signal";
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestJson = nodeFactory.objectNode();
 
@@ -1363,8 +1369,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
 
     public static class Builder {
-        private final int apiKey;
+        private final String apiKey;
         private final String apiSecret;
+        private final Path privateKeyPath;
+        private final boolean vonage;
         private Proxy proxy;
         private ProxyAuthScheme proxyAuthScheme;
         private String principal;
@@ -1375,8 +1383,22 @@ public class HttpClient extends DefaultAsyncHttpClient {
         private int requestTimeoutMS;
 
         public Builder(int apiKey, String apiSecret) {
-            this.apiKey = apiKey;
+            this(apiKey, apiSecret, null, null);
+        }
+
+        public Builder(String applicationId, Path privateKeyPath) {
+            this(UUID.fromString(applicationId), privateKeyPath);
+        }
+
+        public Builder(UUID applicationId, Path privateKeyPath) {
+            this(0, null, applicationId.toString(), privateKeyPath);
+        }
+
+        public Builder(int apiKey, String apiSecret, String applicationId, Path privateKeyPath) {
+            vonage = applicationId != null;
+            this.apiKey = vonage ? applicationId : apiKey + "";
             this.apiSecret = apiSecret;
+            this.privateKeyPath = privateKeyPath;
         }
 
         public Builder apiUrl(String apiUrl) {
@@ -1423,10 +1445,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
         public HttpClient build() {
             DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder()
                     .setUserAgent(userAgent)
-                    .addRequestFilter(new TokenAuthRequestFilter(apiKey, apiSecret));
+                    .addRequestFilter(vonage ?
+                            new TokenAuthRequestFilter(UUID.fromString(apiKey), privateKeyPath) :
+                            new TokenAuthRequestFilter(Integer.parseInt(apiKey), apiSecret)
+                    );
 
             if (apiUrl == null) {
-                apiUrl = DefaultApiUrl.DEFAULT_API_URI;
+                apiUrl = vonage ? DefaultApiUrl.VONAGE_API_URL : DefaultApiUrl.DEFAULT_API_URI;
             }
             if (proxy != null) {
                 configBuilder.setProxyServer(createProxyServer(proxy, proxyAuthScheme, principal, password));
@@ -1491,29 +1516,32 @@ public class HttpClient extends DefaultAsyncHttpClient {
     }
 
     static class TokenAuthRequestFilter implements RequestFilter {
-
-        private final int apiKey;
-        private final String apiSecret;
-        private final String authHeader = "X-OPENTOK-AUTH";
+        private final Supplier<String> tokenGenerator;
+        private final String headerName;
 
         public TokenAuthRequestFilter(int apiKey, String apiSecret) {
-            this.apiKey = apiKey;
-            this.apiSecret = apiSecret;
+            headerName = "X-OPENTOK-AUTH";
+            tokenGenerator = () -> TokenGenerator.generateToken(apiKey, apiSecret);
+        }
+
+        public TokenAuthRequestFilter(UUID applicationId, Path privateKeyPath) {
+            headerName = "Authorization";
+            try {
+                Jwt jwtGenerator = Jwt.builder().applicationId(applicationId).privateKeyPath(privateKeyPath).build();
+                tokenGenerator = () -> "Bearer " + jwtGenerator.generate();
+            }
+            catch (IOException ex) {
+                throw new InvalidArgumentException("Could not create a JWT generator: " + ex);
+            }
         }
 
         @Override
         public <T> FilterContext<T> filter(FilterContext<T> ctx) throws FilterException {
-            try {
-                return new FilterContext.FilterContextBuilder<>(ctx)
-                        .request(ctx.getRequest().toBuilder()
-                            .addHeader(authHeader, TokenGenerator.generateToken(apiKey, apiSecret))
-                            .build()
-                        )
-                        .build();
-            } catch (OpenTokException e) {
-                e.printStackTrace();
-                return null;
-            }
+            return new FilterContext.FilterContextBuilder<>(ctx)
+                    .request(ctx.getRequest().toBuilder()
+                        .addHeader(headerName, tokenGenerator.get())
+                        .build()
+                    ).build();
         }
     }
 }
