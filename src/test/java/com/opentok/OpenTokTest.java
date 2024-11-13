@@ -1075,9 +1075,11 @@ public class OpenTokTest {
               .streamMode(Archive.StreamMode.AUTO)
               .resolution("1920x1080")
               .multiArchiveTag("MyArchiveTag")
+              .maxBitrate(3214560)
               .build();
 
         assertNotNull(properties.toMap());
+        assertEquals(Integer.valueOf(3214560), properties.maxBitrate());
 
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
@@ -1566,6 +1568,7 @@ public class OpenTokTest {
                           "          \"partnerId\" : 123456,\n" +
                           "          \"reason\" : \"\",\n" +
                           "          \"sessionId\" : \"SESSIONID\",\n" +
+                          "          \"maxBitrate\" : 2000000,\n" +
                           "          \"size\" : 8347554,\n" +
                           "          \"status\" : \"expired\",\n" +
                           "          \"url\" : null\n" +
@@ -1574,6 +1577,7 @@ public class OpenTokTest {
         Archive archive = sdk.getArchive(archiveId);
         assertNotNull(archive);
         assertEquals(Archive.Status.EXPIRED, archive.getStatus());
+        assertEquals(2000000, archive.getMaxBitrate());
     }
 
     // NOTE: this test is pretty sloppy

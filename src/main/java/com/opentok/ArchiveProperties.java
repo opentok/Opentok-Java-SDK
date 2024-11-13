@@ -28,6 +28,7 @@ public class ArchiveProperties {
     private String multiArchiveTag;
     private boolean hasAudio;
     private boolean hasVideo;
+    private Integer maxBitrate;
     private OutputMode outputMode;
     private StreamMode streamMode;
     private ArchiveLayout layout;
@@ -37,6 +38,7 @@ public class ArchiveProperties {
         this.resolution = builder.resolution;
         this.hasAudio = builder.hasAudio;
         this.hasVideo = builder.hasVideo;
+        this.maxBitrate = builder.maxBitrate;
         this.outputMode = builder.outputMode;
         this.streamMode = builder.streamMode;
         this.layout = builder.layout;
@@ -54,6 +56,7 @@ public class ArchiveProperties {
         private String multiArchiveTag = null;
         private boolean hasAudio = true;
         private boolean hasVideo = true;
+        private Integer maxBitrate;
         private OutputMode outputMode = OutputMode.COMPOSED;
         private StreamMode streamMode = StreamMode.AUTO;
         private ArchiveLayout layout = null;
@@ -109,6 +112,19 @@ public class ArchiveProperties {
          */
         public Builder hasVideo(boolean hasVideo) {
             this.hasVideo = hasVideo;
+            return this;
+        }
+
+        /**
+         * Sets the maximum bitrate (bps) for the archive. Minimum is 100000, maximum is 6000000.
+         *
+         * @param maxBitrate The maximum bitrate (in bits per second) for the archiving.
+         *
+         * @return The ArchiveProperties.Builder object with the maxBitrate setting.
+         * @since 4.15.0
+         */
+        public Builder maxBitrate(int maxBitrate) {
+            this.maxBitrate = maxBitrate;
             return this;
         }
 
@@ -222,6 +238,16 @@ public class ArchiveProperties {
     }
 
     /**
+     * Gets the maximum bitrate (bps) for the archive if specified.
+     *
+     * @return The maximum bitrate (in bits per second) for the archiving, or {@code null} if unspecified (the default).
+     * @since 4.15.0
+     */
+    public Integer maxBitrate() {
+        return maxBitrate;
+    }
+
+    /**
      * The output mode of the archive.
      */
     public OutputMode outputMode() {
@@ -246,41 +272,47 @@ public class ArchiveProperties {
     public Map<String, Collection<String>> toMap() {
         Map<String, Collection<String>> params = new HashMap<>();
         if (name != null) {
-            ArrayList<String> valueList = new ArrayList<>();
+            ArrayList<String> valueList = new ArrayList<>(1);
             valueList.add(name);
             params.put("name", valueList);
         }
         if (resolution != null) {
-            ArrayList<String> valueList = new ArrayList<>();
+            ArrayList<String> valueList = new ArrayList<>(1);
             valueList.add(resolution);
             params.put("resolution", valueList);
         }
-        ArrayList<String> valueList = new ArrayList<>();
+        ArrayList<String> valueList = new ArrayList<>(1);
         valueList.add(Boolean.toString(hasAudio));
         params.put("hasAudio", valueList);
 
-        valueList = new ArrayList<>();
+        valueList = new ArrayList<>(1);
         valueList.add(Boolean.toString(hasVideo));
         params.put("hasVideo", valueList);
 
-        valueList = new ArrayList<>();
+        valueList = new ArrayList<>(1);
         valueList.add(outputMode.toString());
         params.put("outputMode", valueList);
 
-        valueList = new ArrayList<>();
+        valueList = new ArrayList<>(1);
         valueList.add(streamMode.toString());
         params.put("streamMode", valueList);
 
         if (layout != null) {
-            valueList = new ArrayList<>();
+            valueList = new ArrayList<>(1);
             valueList.add(layout.toString());
             params.put("layout", valueList);
         }
 
         if (multiArchiveTag != null) {
-            valueList = new ArrayList<>();
+            valueList = new ArrayList<>(1);
             valueList.add(multiArchiveTag);
             params.put("multiArchiveTag", valueList);
+        }
+
+        if (maxBitrate != null) {
+            valueList = new ArrayList<>(1);
+            valueList.add(maxBitrate.toString());
+            params.put("maxBitrate", valueList);
         }
 
         return params;
