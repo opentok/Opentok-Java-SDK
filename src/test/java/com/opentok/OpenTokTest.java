@@ -2856,7 +2856,7 @@ public class OpenTokTest {
     @Test
     public void testVonageShim() throws Exception {
         String appId = UUID.randomUUID().toString();
-        String testResourceDir = getClass().getResource("").getPath().replace("classes/java", "resources");
+        String testResourceDir = Paths.get(getClass().getResource("").toURI()).toString().replace("classes/java", "resources");
         var privateKeyPath = Paths.get(testResourceDir, "application_key");
         OpenTok vonage = new OpenTok(appId, privateKeyPath);
         assertNotNull(vonage);
