@@ -27,12 +27,16 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -2850,16 +2854,42 @@ public class OpenTokTest {
     }
 
     @Test
-    public void testVonageShimConstructor() throws Exception {
+    public void testVonageShim() throws Exception {
         String appId = UUID.randomUUID().toString();
-        Path privateKeyPath = Paths.get(
-                getClass().getResource("").getPath().replace("classes/java", "resources"),
-                "application_key"
-        );
+        String testResourceDir = getClass().getResource("").getPath().replace("classes/java", "resources");
+        var privateKeyPath = Paths.get(testResourceDir, "application_key");
         OpenTok vonage = new OpenTok(appId, privateKeyPath);
         assertNotNull(vonage);
         assertEquals("https://video.api.vonage.com", vonage.client.getApiUrl());
-        String token = vonage.generateToken(sessionId);
-        //TestHelpers.verifyVonageToken(appId, privateKeyPath, sessionId, token);
+
+        String data = "{\"key\":\"value\", \"F00B4R\": true}";
+        String token = vonage.generateToken(sessionId, new TokenOptions.Builder()
+                .role(Role.PUBLISHER_ONLY).data(data)
+                .initialLayoutClassList(List.of("focus"))
+                .build()
+        );
+        assertNotNull(token);
+        var publicKeyPath = Paths.get(testResourceDir, "application_public_key.der");
+        var spec = new X509EncodedKeySpec(Files.readAllBytes(publicKeyPath));
+        var key = KeyFactory.getInstance("RSA").generatePublic(spec);
+        var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+
+        assertNotNull(claims);
+        assertEquals(appId, claims.get("application_id"));
+        assertEquals(sessionId, claims.get("session_id"));
+        assertNotNull(claims.get("nonce"));
+        assertNotNull(claims.get("jti"));
+        assertEquals("publisheronly", claims.get("role"));
+        assertEquals("session.connect", claims.get("scope"));
+        assertEquals(data, claims.get("connection_data"));
+        assertEquals("focus", claims.get("initial_layout_class_list"));
+
+        var exp = claims.getExpiration().toInstant();
+        var iat = claims.getIssuedAt().toInstant();
+        assertTrue(iat.isAfter(Instant.now().minus(1, ChronoUnit.MINUTES)));
+        assertTrue(iat.isBefore(Instant.now().plus(1, ChronoUnit.MINUTES)));
+        assertTrue(exp.isAfter(iat));
+        assertTrue(iat.plus(86402, ChronoUnit.SECONDS).isAfter(exp));
+        assertTrue(iat.plus(86398, ChronoUnit.SECONDS).isBefore(exp));
     }
 }

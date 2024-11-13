@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ public class TokenGenerator {
     public static String generateToken(Map<String, Object> claims, final long expireTime,
                                        final String applicationId, final Path privateKeyPath) throws OpenTokException {
         try {
+            claims.put(EXP, expireTime);
             return Jwt.builder()
                     .applicationId(applicationId)
                     .privateKeyPath(privateKeyPath)
