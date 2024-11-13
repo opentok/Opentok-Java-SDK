@@ -9,7 +9,7 @@ package com.opentok;
 
 /**
  * Represents HLS options for a live streaming broadcast. Pass this object
- * into the {@link BroadcastProperties.Builder#hls()} method. It is returned by the
+ * into the {@link BroadcastProperties.Builder#hls(Hls)} method. It is returned by the
  * {@link BroadcastProperties#hls()} method.
  */
 public class Hls {

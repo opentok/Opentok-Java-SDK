@@ -69,6 +69,7 @@ javadoc {
     options {
         locale 'en_US'
         setMemberLevel JavadocMemberLevel.PUBLIC
+        addBooleanOption('Xdoclint:none', true)
     }
 }
 

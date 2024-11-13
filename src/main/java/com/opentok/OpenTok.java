@@ -68,10 +68,11 @@ public class OpenTok {
     }
 
     /**
-     * Creates an OpenTok object for use with the <a href=https://developer.vonage.com/en/api/video>
-     * Vonage Video API</a>. This is intended as a short-term step towards full migration to Vonage.
-     * See <a href=https://developer.vonage.com/en/video/transition-guides/server-sdks/java?source=video>
-     * the Java SDK transition guide</a> for details.
+     * Creates an OpenTok object for use with the
+     * <a href=https://developer.vonage.com/en/api/video>Vonage Video API</a>. This is intended as a short-term step
+     * towards full migration to Vonage. See the
+     * <a href=https://developer.vonage.com/en/video/transition-guides/server-sdks/java>Java SDK transition guide</a>
+     * for details.
      *
      * @param applicationId Your Vonage application UUID with video capabilities enabled.
      * @param privateKeyPath Absolute path to the private key for your application.
