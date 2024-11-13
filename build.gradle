@@ -98,6 +98,12 @@ java {
     withJavadocJar()
 }
 
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
