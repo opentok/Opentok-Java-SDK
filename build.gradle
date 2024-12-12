@@ -33,7 +33,7 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.17.1'
     implementation 'io.netty:netty-codec-http:4.1.115.Final'
     implementation 'io.netty:netty-handler:4.1.115.Final'
-    implementation 'org.asynchttpclient:async-http-client:2.12.3'
+    implementation 'org.asynchttpclient:async-http-client:3.0.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
     implementation 'org.bitbucket.b_c:jose4j:0.9.6'
 }
