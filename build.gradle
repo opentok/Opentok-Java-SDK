@@ -14,7 +14,7 @@ group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '4.15.0'
 
-ext.githubPath = "opentok/$archivesBaseName"
+ext.githubPath = "opentok/Opentok-Java-SDK"
 
 repositories {
     mavenCentral()
