@@ -117,7 +117,7 @@ publishing {
                 licenses {
                     license {
                         name = 'MIT License'
-                        url = "https://raw.github.com/$githubPath/main/LICENCE.txt"
+                        url = "https://raw.github.com/$githubPath/refs/heads/main/LICENSE"
                     }
                 }
                 developers {
