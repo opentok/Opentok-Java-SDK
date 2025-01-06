@@ -23,7 +23,7 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.wiremock:wiremock:3.10.0'
-    testImplementation 'com.google.guava:guava:33.3.1-jre'
+    testImplementation 'com.google.guava:guava:33.4.0-jre'
     testImplementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     testImplementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
     testImplementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
@@ -31,9 +31,9 @@ dependencies {
     implementation 'com.vonage:jwt:2.0.0'
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-codec:commons-codec:1.17.1'
-    implementation 'io.netty:netty-codec-http:4.1.115.Final'
-    implementation 'io.netty:netty-handler:4.1.115.Final'
-    implementation 'org.asynchttpclient:async-http-client:2.12.3'
+    implementation 'io.netty:netty-codec-http:4.1.116.Final'
+    implementation 'io.netty:netty-handler:4.1.116.Final'
+    implementation 'org.asynchttpclient:async-http-client:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
     implementation 'org.bitbucket.b_c:jose4j:0.9.6'
 }
