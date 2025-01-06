@@ -14,7 +14,7 @@ group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
 version = '4.15.1'
 
-ext.githubPath = "opentok/$archivesBaseName"
+ext.githubPath = "opentok/Opentok-Java-SDK"
 
 repositories {
     mavenCentral()
@@ -117,7 +117,7 @@ publishing {
                 licenses {
                     license {
                         name = 'MIT License'
-                        url = "https://raw.github.com/$githubPath/main/LICENCE.txt"
+                        url = "https://raw.github.com/$githubPath/refs/heads/main/LICENSE"
                     }
                 }
                 developers {
