@@ -31,7 +31,7 @@ dependencies {
     implementation 'com.vonage:jwt:2.0.0'
     implementation 'commons-lang:commons-lang:2.6'
     implementation 'commons-codec:commons-codec:1.17.1'
-    implementation 'io.netty:netty-codec-http:4.1.116.Final'
+    implementation 'io.netty:netty-codec-http:4.1.118.Final'
     implementation 'io.netty:netty-handler:4.1.116.Final'
     implementation 'org.asynchttpclient:async-http-client:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
