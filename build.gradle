@@ -12,7 +12,7 @@ plugins {
 
 group = 'com.tokbox'
 archivesBaseName = 'opentok-server-sdk'
-version = '4.15.1'
+version = '4.16.0'
 
 ext.githubPath = "opentok/Opentok-Java-SDK"
 
@@ -23,18 +23,18 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.wiremock:wiremock:3.10.0'
-    testImplementation 'com.google.guava:guava:33.4.0-jre'
+    testImplementation 'com.google.guava:guava:33.4.6-jre'
     testImplementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     testImplementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
     testImplementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-    implementation 'com.vonage:jwt:2.0.0'
+    implementation 'com.vonage:jwt:2.0.1'
     implementation 'commons-lang:commons-lang:2.6'
-    implementation 'commons-codec:commons-codec:1.17.1'
-    implementation 'io.netty:netty-codec-http:4.1.116.Final'
-    implementation 'io.netty:netty-handler:4.1.116.Final'
+    implementation 'commons-codec:commons-codec:1.18.0'
+    implementation 'io.netty:netty-codec-http:4.1.119.Final'
+    implementation 'io.netty:netty-handler:4.1.119.Final'
     implementation 'org.asynchttpclient:async-http-client:2.12.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
     implementation 'org.bitbucket.b_c:jose4j:0.9.6'
 }
 
@@ -74,7 +74,7 @@ javadoc {
 }
 
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.13"
 }
 jacocoTestReport {
     reports {

@@ -130,6 +130,7 @@ public class Archive {
     @JsonProperty private String password;
     @JsonProperty private String resolution;
     @JsonProperty private String multiArchiveTag;
+    @JsonProperty private int quantizationParameter;
 
     protected Archive() {
     }
@@ -272,6 +273,16 @@ public class Archive {
      */
     public String getMultiArchiveTag() {
         return multiArchiveTag;
+    }
+
+    /**
+     * Returns the quantization parameter if set for the Archive.
+     *
+     * @return The quantization parameter, between 15 and 40.
+     * @since 4.16.0
+     */
+    public int getQuantizationParameter() {
+        return quantizationParameter;
     }
 
     @Override
