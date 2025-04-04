@@ -29,6 +29,7 @@ public class ArchiveProperties {
     private boolean hasAudio;
     private boolean hasVideo;
     private Integer maxBitrate;
+    private Integer quantizationParameter;
     private OutputMode outputMode;
     private StreamMode streamMode;
     private ArchiveLayout layout;
@@ -39,6 +40,7 @@ public class ArchiveProperties {
         this.hasAudio = builder.hasAudio;
         this.hasVideo = builder.hasVideo;
         this.maxBitrate = builder.maxBitrate;
+        this.quantizationParameter = builder.quantizationParameter;
         this.outputMode = builder.outputMode;
         this.streamMode = builder.streamMode;
         this.layout = builder.layout;
@@ -56,7 +58,7 @@ public class ArchiveProperties {
         private String multiArchiveTag = null;
         private boolean hasAudio = true;
         private boolean hasVideo = true;
-        private Integer maxBitrate;
+        private Integer maxBitrate, quantizationParameter;
         private OutputMode outputMode = OutputMode.COMPOSED;
         private StreamMode streamMode = StreamMode.AUTO;
         private ArchiveLayout layout = null;
@@ -125,6 +127,22 @@ public class ArchiveProperties {
          */
         public Builder maxBitrate(int maxBitrate) {
             this.maxBitrate = maxBitrate;
+            return this;
+        }
+
+        /**
+         * Sets the quantization parameter for the archive. Minimum is 15, maximum is 45.
+         * This property is mutually exclusive with {@linkplain #maxBitrate(int)}, since
+         * it uses variable bitrate. It is only applicable to composed archives.
+         *
+         * @param quantizationParameter The quantization parameter as an int. Smaller values generate higher quality
+         *                              and larger archives, larger values generate lower quality and smaller archives.
+         *
+         * @return The ArchiveProperties.Builder object with the quantizationParameter setting.
+         * @since 4.16.0
+         */
+        public Builder quantizationParameter(int quantizationParameter) {
+            this.quantizationParameter = quantizationParameter;
             return this;
         }
 
@@ -248,6 +266,16 @@ public class ArchiveProperties {
     }
 
     /**
+     * Gets the quantization parameter for the archive if specified.
+     *
+     * @return The quantization parameter, or {@code null} if unspecified (the default).
+     * @since 4.16.0
+     */
+    public Integer quantizationParameter() {
+        return quantizationParameter;
+    }
+
+    /**
      * The output mode of the archive.
      */
     public OutputMode outputMode() {
@@ -257,7 +285,9 @@ public class ArchiveProperties {
     /**
      * The stream mode of the archive.
      */
-    public StreamMode streamMode() { return streamMode; }
+    public StreamMode streamMode() {
+        return streamMode;
+    }
 
     /**
      * Returns the custom layout of the archive (composed archives only).
@@ -313,6 +343,12 @@ public class ArchiveProperties {
             valueList = new ArrayList<>(1);
             valueList.add(maxBitrate.toString());
             params.put("maxBitrate", valueList);
+        }
+
+        if (quantizationParameter != null) {
+            valueList = new ArrayList<>(1);
+            valueList.add(quantizationParameter.toString());
+            params.put("quantizationParameter", valueList);
         }
 
         return params;

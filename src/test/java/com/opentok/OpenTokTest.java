@@ -1063,6 +1063,7 @@ public class OpenTokTest {
                           "          \"partnerId\" : 123456,\n" +
                           "          \"reason\" : \"\",\n" +
                           "          \"sessionId\" : \"SESSIONID\",\n" +
+                          "          \"maxBitrate\" : 3214560,\n" +
                           "          \"size\" : 0,\n" +
                           "          \"status\" : \"started\",\n" +
                           "          \"url\" : null\n" +
@@ -1080,14 +1081,57 @@ public class OpenTokTest {
 
         assertNotNull(properties.toMap());
         assertEquals(Integer.valueOf(3214560), properties.maxBitrate());
+        assertNull(properties.quantizationParameter());
 
         Archive archive = sdk.startArchive(sessionId, properties);
         assertNotNull(archive);
         assertEquals(sessionId, archive.getSessionId());
+        assertEquals(properties.maxBitrate().intValue(), archive.getMaxBitrate());
+        assertEquals(0, archive.getQuantizationParameter());
         assertNotNull(archive.getId());
         verify(postRequestedFor(urlMatching(archivePath)));
         assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
               findAll(postRequestedFor(urlMatching(archivePath)))));
+        TestHelpers.verifyUserAgent();
+    }
+
+    @Test
+    public void testStartArchiveWithQuantizationParameter() throws OpenTokException {
+        stubFor(post(urlEqualTo(archivePath))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "          \"createdAt\" : 1395183243556,\n" +
+                                "          \"duration\" : 0,\n" +
+                                "          \"id\" : \"30b3ebf1-ba36-4f5b-8def-6f70d9986fe9\",\n" +
+                                "          \"name\" : \"\",\n" +
+                                "          \"partnerId\" : 123456,\n" +
+                                "          \"reason\" : \"\",\n" +
+                                "          \"sessionId\" : \""+sessionId+"\",\n" +
+                                "          \"size\" : 1023,\n" +
+                                "          \"quantizationParameter\" : \"29\",\n" +
+                                "          \"status\" : \"started\",\n" +
+                                "          \"url\" : \"http://example.org/archive\"\n" +
+                                "        }")));
+
+        ArchiveProperties properties = new ArchiveProperties.Builder()
+                .outputMode(OutputMode.COMPOSED)
+                .quantizationParameter(29)
+                .build();
+
+        assertNotNull(properties.toMap());
+        assertEquals(Integer.valueOf(29), properties.quantizationParameter());
+        assertNull(properties.maxBitrate());
+
+        Archive archive = sdk.startArchive(sessionId, properties);
+        assertNotNull(archive);
+        assertEquals(sessionId, archive.getSessionId());
+        assertEquals(properties.quantizationParameter().intValue(), archive.getQuantizationParameter());
+        assertNotNull(archive.getId());
+        verify(postRequestedFor(urlMatching(archivePath)));
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
+                findAll(postRequestedFor(urlMatching(archivePath)))));
         TestHelpers.verifyUserAgent();
     }
 
