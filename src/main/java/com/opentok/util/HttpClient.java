@@ -21,7 +21,7 @@ import com.opentok.exception.InvalidArgumentException;
 import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.vonage.jwt.Jwt;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.*;
 import org.asynchttpclient.Realm.AuthScheme;
 import org.asynchttpclient.filter.FilterContext;

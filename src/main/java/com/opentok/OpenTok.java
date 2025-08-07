@@ -18,7 +18,7 @@ import com.opentok.exception.RequestException;
 import com.opentok.util.Crypto;
 import com.opentok.util.HttpClient;
 import com.opentok.util.HttpClient.ProxyAuthScheme;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
