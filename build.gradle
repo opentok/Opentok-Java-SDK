@@ -29,7 +29,7 @@ dependencies {
     testImplementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
     implementation 'com.vonage:jwt:2.0.1'
-    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
     implementation 'commons-codec:commons-codec:1.18.0'
     implementation 'io.netty:netty-codec-http:4.1.119.Final'
     implementation 'io.netty:netty-handler:4.1.119.Final'
