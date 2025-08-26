@@ -2,6 +2,7 @@ import java.time.LocalDate
 
 plugins {
     id 'java-library'
+    id 'base'
     id 'jacoco'
     id 'signing'
     id 'maven-publish'
@@ -11,7 +12,7 @@ plugins {
 }
 
 group = 'com.tokbox'
-archivesBaseName = 'opentok-server-sdk'
+base.archivesName = 'opentok-server-sdk'
 version = '4.16.1'
 
 ext.githubPath = "opentok/Opentok-Java-SDK"

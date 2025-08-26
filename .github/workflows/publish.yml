@@ -41,8 +41,8 @@ jobs:
         env:
           signingKey: ${{secrets.SIGNING_KEY}}
           signingPassword: ${{secrets.SIGNING_PASSWORD}}
-          OSS_USERNAME: ${{secrets.OSS_USERNAME}}
-          OSS_PASSWORD: ${{secrets.OSS_PASSWORD}}
+          OSS_USERNAME: ${{secrets.MAVEN_USERNAME}}
+          OSS_PASSWORD: ${{secrets.MAVEN_SECRET}}
         run: |
           OSS_USERNAME=$OSS_USERNAME OSS_PASSWORD=$OSS_PASSWORD
           signingKey=$signingKey signingPassword=$signingPassword
