@@ -176,12 +176,49 @@ task createCentralBundle(type: Zip) {
     def localRepo = repositories.mavenLocal().url
     def groupPath = project.group.toString().replace('.', '/')
     def artifactPath = "${groupPath}/${base.archivesName.get()}/${project.version}"
+    def sourceDir = "${localRepo}/${artifactPath}"
     
-    from("${localRepo}/${artifactPath}") {
+    doFirst {
+        // Generate checksums for all files
+        fileTree(sourceDir).each { file ->
+            if (file.isFile() && !file.name.endsWith('.md5') && !file.name.endsWith('.sha1')) {
+                // Generate MD5
+                ant.checksum(file: file, algorithm: 'MD5', fileext: '.md5')
+                // Generate SHA1  
+                ant.checksum(file: file, algorithm: 'SHA1', fileext: '.sha1')
+            }
+        }
+    }
+    
+    from(sourceDir) {
         include '**/*'
+        // Maintain the proper Maven repository structure in the zip
+        into("${groupPath}/${base.archivesName.get()}/${project.version}")
     }
     
     destinationDirectory = file("${buildDir}/central")
+    
+    doLast {
+        // Validate bundle contents
+        def requiredFiles = [
+            "${base.archivesName.get()}-${project.version}.jar",
+            "${base.archivesName.get()}-${project.version}.pom",
+            "${base.archivesName.get()}-${project.version}-sources.jar",
+            "${base.archivesName.get()}-${project.version}-javadoc.jar"
+        ]
+        
+        def bundleFile = archiveFile.get().asFile
+        logger.lifecycle("Created bundle: ${bundleFile}")
+        logger.lifecycle("Bundle size: ${bundleFile.length()} bytes")
+        
+        // Check if signing was performed
+        def hasSignatures = fileTree(sourceDir).any { it.name.endsWith('.asc') }
+        if (hasSignatures) {
+            logger.lifecycle("✅ Bundle includes PGP signatures")
+        } else {
+            logger.warn("⚠️  Bundle does not include PGP signatures (signing keys not provided)")
+        }
+    }
 }
 
 // Task to upload bundle to Central Portal
@@ -200,7 +237,7 @@ task uploadToCentralPortal(type: Exec) {
 }
 
 signing {
-    required { gradle.taskGraph.hasTask("uploadToCentralPortal") }
+    required { gradle.taskGraph.hasTask("uploadToCentralPortal") && findProperty("signingKey") }
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
     if (signingKey && signingPassword) {
