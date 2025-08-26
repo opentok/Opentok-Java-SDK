@@ -39,11 +39,12 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
       - name: Publish with Gradle
         env:
-          signingKey: ${{secrets.SIGNING_KEY}}
-          signingPassword: ${{secrets.SIGNING_PASSWORD}}
+          SIGNING_KEY: ${{secrets.SIGNING_KEY}}
+          SIGNING_PASSWORD: ${{secrets.SIGNING_PASSWORD}}
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
           MAVEN_SECRET: ${{secrets.MAVEN_SECRET}}
         run: |
-          MAVEN_USERNAME=$MAVEN_USERNAME MAVEN_SECRET=$MAVEN_SECRET
-          signingKey=$signingKey signingPassword=$signingPassword
-          gradle publishMavenJavaPublicationToCentralRepository --info
+          gradle publishMavenJavaPublicationToCentralRepository \
+            -PsigningKey="${SIGNING_KEY}" \
+            -PsigningPassword="${SIGNING_PASSWORD}" \
+            --info

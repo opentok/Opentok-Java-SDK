@@ -177,8 +177,11 @@ publishing {
 }
 
 signing {
+    required { gradle.taskGraph.hasTask("publishMavenJavaPublicationToCentralRepository") }
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
+    if (signingKey && signingPassword) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenJava
+    }
 }
