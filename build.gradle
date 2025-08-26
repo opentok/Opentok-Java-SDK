@@ -105,16 +105,6 @@ test {
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "central"
-            url = "https://central.sonatype.com/api/v1/publisher/upload"
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_SECRET")
-            }
-        }
-    }
     publications {
         mavenJava(MavenPublication) {
             from components.java
@@ -176,8 +166,41 @@ publishing {
     }
 }
 
+// Task to create a bundle for Central Portal upload
+task createCentralBundle(type: Zip) {
+    dependsOn 'publishToMavenLocal'
+    archiveBaseName = 'central-bundle'
+    archiveVersion = project.version
+    archiveExtension = 'zip'
+    
+    def localRepo = repositories.mavenLocal().url
+    def groupPath = project.group.toString().replace('.', '/')
+    def artifactPath = "${groupPath}/${base.archivesName.get()}/${project.version}"
+    
+    from("${localRepo}/${artifactPath}") {
+        include '**/*'
+    }
+    
+    destinationDirectory = file("${buildDir}/central")
+}
+
+// Task to upload bundle to Central Portal
+task uploadToCentralPortal(type: Exec) {
+    dependsOn 'createCentralBundle'
+    
+    def username = System.getenv("MAVEN_USERNAME")
+    def password = System.getenv("MAVEN_SECRET")
+    def bundleFile = "${buildDir}/central/central-bundle-${project.version}.zip"
+    
+    commandLine 'curl', '-X', 'POST',
+        '-H', 'Content-Type: multipart/form-data',
+        '-F', "bundle=@${bundleFile}",
+        '-u', "${username}:${password}",
+        'https://central.sonatype.com/api/v1/publisher/upload'
+}
+
 signing {
-    required { gradle.taskGraph.hasTask("publishMavenJavaPublicationToCentralRepository") }
+    required { gradle.taskGraph.hasTask("uploadToCentralPortal") }
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
     if (signingKey && signingPassword) {

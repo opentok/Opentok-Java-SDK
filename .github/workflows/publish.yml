@@ -1,4 +1,4 @@
-name: Publish to Maven Central
+name: Publish to Maven Central Portal
 on:
   release:
     types: [published]
@@ -44,7 +44,7 @@ jobs:
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
           MAVEN_SECRET: ${{secrets.MAVEN_SECRET}}
         run: |
-          gradle publishMavenJavaPublicationToCentralRepository \
+          gradle uploadToCentralPortal \
             -PsigningKey="${SIGNING_KEY}" \
             -PsigningPassword="${SIGNING_PASSWORD}" \
             --info
