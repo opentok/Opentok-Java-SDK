@@ -6,7 +6,6 @@ plugins {
     id 'jacoco'
     id 'signing'
     id 'maven-publish'
-    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
     id 'com.github.hierynomus.license' version '0.16.1'
     id 'com.github.ben-manes.versions' version '0.51.0'
 }
@@ -106,6 +105,16 @@ test {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "central"
+            url = "https://central.sonatype.com/api/v1/publisher/upload"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_SECRET")
+            }
+        }
+    }
     publications {
         mavenJava(MavenPublication) {
             from components.java
@@ -163,15 +172,6 @@ publishing {
                     url = "https://github.com/$githubPath"
                 }
             }
-        }
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            username = System.getenv("MAVEN_USERNAME")
-            password = System.getenv("MAVEN_SECRET")
         }
     }
 }

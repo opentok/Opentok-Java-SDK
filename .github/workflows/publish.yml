@@ -1,4 +1,4 @@
-name: Publish to Nexus
+name: Publish to Maven Central
 on:
   release:
     types: [published]
@@ -41,9 +41,9 @@ jobs:
         env:
           signingKey: ${{secrets.SIGNING_KEY}}
           signingPassword: ${{secrets.SIGNING_PASSWORD}}
-          OSS_USERNAME: ${{secrets.MAVEN_USERNAME}}
-          OSS_PASSWORD: ${{secrets.MAVEN_SECRET}}
+          MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
+          MAVEN_SECRET: ${{secrets.MAVEN_SECRET}}
         run: |
-          OSS_USERNAME=$OSS_USERNAME OSS_PASSWORD=$OSS_PASSWORD
+          MAVEN_USERNAME=$MAVEN_USERNAME MAVEN_SECRET=$MAVEN_SECRET
           signingKey=$signingKey signingPassword=$signingPassword
-          gradle publishToSonatype closeAndReleaseSonatypeStagingRepository --info
+          gradle publishMavenJavaPublicationToCentralRepository --info
