@@ -169,8 +169,8 @@ publishing {
 nexusPublishing {
     repositories {
         sonatype {
-            username = System.getenv("OSS_USERNAME")
-            password = System.getenv("OSS_PASSWORD")
+            username = System.getenv("MAVEN_USERNAME")
+            password = System.getenv("MAVEN_SECRET")
         }
     }
 }
