@@ -31,10 +31,21 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      # Install the target JDK first so Gradle's toolchain auto-detection can
+      # find it for compiling main sources via javaToolchains.compilerFor.
+      - name: Setup target JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'zulu'
+
+      # Gradle 9.x requires JVM 17+ to run. This overrides JAVA_HOME to Java 17
+      # so the wrapper starts, while the target JDK above is used by the toolchain
+      # to compile main sources with -PjavaTarget=${{ matrix.java }}.
+      - name: Setup Java 17 to run Gradle
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
           distribution: 'zulu'
 
       - name: Grant execute permission for gradlew
@@ -48,7 +59,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test -PjavaTarget=${{ matrix.java }}
 
   test:
     runs-on: ${{ matrix.os }}
@@ -78,7 +89,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -PjavaTarget=${{ matrix.java }}
 
       - name: Run Codecov
         uses: codecov/codecov-action@v4
