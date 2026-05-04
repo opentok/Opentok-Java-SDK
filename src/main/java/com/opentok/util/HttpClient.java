@@ -1098,6 +1098,34 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
     }
 
+    public String listConnections(String sessionId) throws RequestException {
+        String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection";
+        Future<Response> request = this.prepareGet(url)
+                .setHeader("Accept", "application/json")
+                .execute();
+
+        try {
+            Response response = request.get();
+            switch (response.getStatusCode()) {
+                case 200:
+                    return response.getResponseBody();
+                case 400:
+                    throw new RequestException(response.getResponseBody());
+                case 403:
+                    throw new RequestException("You passed in an invalid OpenTok API key or JWT token.");
+                case 404:
+                    throw new RequestException("Session not found: " + sessionId);
+                case 500:
+                    throw new RequestException("Could not list connections. A server error occurred.");
+                default:
+                    throw new RequestException("Could not list connections. The server response was invalid." +
+                            " response code: " + response.getStatusCode());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RequestException("Could not list connections", e);
+        }
+    }
+
     public String connectAudioStream(String sessionId, String token, AudioConnectorProperties properties) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/connect";
 
