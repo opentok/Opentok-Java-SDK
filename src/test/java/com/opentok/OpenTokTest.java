@@ -2942,4 +2942,52 @@ public class OpenTokTest {
         assertTrue(iat.plus(86402, ChronoUnit.SECONDS).isAfter(exp));
         assertTrue(iat.plus(86398, ChronoUnit.SECONDS).isBefore(exp));
     }
+
+    @Test
+    public void testListConnections() throws OpenTokException {
+        String sessionID = "SESSIONID";
+        String url = "/v2/project/" + apiKey + "/session/" + sessionID + "/connection";
+        stubFor(get(urlEqualTo(url))
+              .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\n" +
+                          "  \"count\": 2,\n" +
+                          "  \"projectId\": \"" + apiKey + "\",\n" +
+                          "  \"sessionId\": \"" + sessionID + "\",\n" +
+                          "  \"items\": [\n" +
+                          "    {\n" +
+                          "      \"connectionId\": \"527775e1-626e-42c3-b0e8-e2122d20661a\",\n" +
+                          "      \"createdAt\": 1747655658197,\n" +
+                          "      \"connectionState\": \"Connected\"\n" +
+                          "    },\n" +
+                          "    {\n" +
+                          "      \"connectionId\": \"c6db93f0-8692-438c-944b-cfbaf577c878\",\n" +
+                          "      \"createdAt\": 1747655658227,\n" +
+                          "      \"connectionState\": \"Disconnected\"\n" +
+                          "    }\n" +
+                          "  ]\n" +
+                          "}")));
+        ConnectionList connections = sdk.listConnections(sessionID);
+        assertNotNull(connections);
+        assertEquals(2, connections.getCount());
+        assertEquals(String.valueOf(apiKey), connections.getProjectId());
+        assertEquals(sessionID, connections.getSessionId());
+        assertEquals(2, connections.size());
+        Connection conn1 = connections.get(0);
+        assertEquals("527775e1-626e-42c3-b0e8-e2122d20661a", conn1.getConnectionId());
+        assertEquals(1747655658197L, conn1.getCreatedAt());
+        assertEquals(Connection.ConnectionState.CONNECTED, conn1.getConnectionState());
+        Connection conn2 = connections.get(1);
+        assertEquals("c6db93f0-8692-438c-944b-cfbaf577c878", conn2.getConnectionId());
+        assertEquals(1747655658227L, conn2.getCreatedAt());
+        assertEquals(Connection.ConnectionState.DISCONNECTED, conn2.getConnectionState());
+
+        verify(getRequestedFor(urlMatching(url)));
+        assertTrue(TestHelpers.verifyTokenAuth(apiKey, apiSecret,
+              findAll(getRequestedFor(urlMatching(url)))));
+        TestHelpers.verifyUserAgent();
+        assertThrows(InvalidArgumentException.class, () -> sdk.listConnections(""));
+        assertThrows(InvalidArgumentException.class, () -> sdk.listConnections(null));
+    }
 }

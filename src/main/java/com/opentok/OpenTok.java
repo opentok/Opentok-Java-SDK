@@ -55,7 +55,8 @@ public class OpenTok {
         renderReader = new ObjectMapper().readerFor(Render.class),
         renderListReader = new ObjectMapper().readerForListOf(Render.class),
         connectReader = new ObjectMapper().readerFor(AudioConnector.class),
-        captionReader = new ObjectMapper().readerFor(Caption.class);
+        captionReader = new ObjectMapper().readerFor(Caption.class),
+        connectionListReader = new ObjectMapper().readerFor(ConnectionList.class);
 
     /**
      * Creates an OpenTok object.
@@ -828,6 +829,25 @@ public class OpenTok {
         String streams = client.listStreams(sessionId);
         try {
             return streamListReader.readValue(streams);
+        } catch (JsonProcessingException e) {
+            throw new RequestException("Exception mapping json: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gets a list of {@link Connection} objects for the given session ID.
+     *
+     * @param sessionId The session ID.
+     *
+     * @return The {@link ConnectionList} containing connection details.
+     */
+    public ConnectionList listConnections(String sessionId) throws OpenTokException {
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new InvalidArgumentException("Session ID is null or empty.");
+        }
+        String connections = client.listConnections(sessionId);
+        try {
+            return connectionListReader.readValue(connections);
         } catch (JsonProcessingException e) {
             throw new RequestException("Exception mapping json: " + e.getMessage());
         }
