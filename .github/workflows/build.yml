@@ -89,7 +89,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -PjavaTarget=${{ matrix.java }}
 
       - name: Run Codecov
         uses: codecov/codecov-action@v4
