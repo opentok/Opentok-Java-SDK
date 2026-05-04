@@ -38,18 +38,29 @@ dependencies {
     implementation 'org.bitbucket.b_c:jose4j:0.9.6'
 }
 
+// The target Java version for compiling main sources. Pass -PjavaTarget=11
+// (or 17, etc.) on the command line to test against a different version.
+// Defaults to 8, the minimum supported runtime version.
+def targetJava = project.findProperty('javaTarget') ? Integer.parseInt(project.findProperty('javaTarget').toString()) : 8
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.toVersion(targetJava)
     targetCompatibility = sourceCompatibility
 }
 
-// Enforce strict Java 8 API compatibility: --release 8 checks both bytecode
-// version and API usage against the Java 8 class library, catching accidental
-// use of Java 9+ APIs at compile time.
+// Use the JDK matching targetJava via Gradle toolchains. For Java 9+, enforce
+// API compatibility with --release. For Java 8, --release is not supported by
+// javac 8, so sourceCompatibility/targetCompatibility (set above) suffice.
 compileJava {
-    options.release = 8
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(targetJava)
+    }
+    if (targetJava >= 9) {
+        options.release = targetJava
+    }
 }
 
+// Tests always compile and run on Java 21 regardless of the target version.
 compileTestJava {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = sourceCompatibility
