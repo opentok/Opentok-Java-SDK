@@ -24,26 +24,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [8, 11, 17]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
-      # Install the target JDK first so Gradle's toolchain auto-detection can
-      # find it. This step sets JAVA_HOME_<version>_X64 env vars but does NOT
-      # set JAVA_HOME yet.
-      - name: Setup target JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'zulu'
-
-      # Gradle 9.x requires JVM 17+. This second setup-java call overrides
-      # JAVA_HOME to Java 17 so the wrapper can start, while the target JDK
-      # installed above remains available for toolchain-based compilation.
-      - name: Setup Java 17 to run Gradle
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
