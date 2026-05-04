@@ -10,6 +10,15 @@ this project. If you use this package within your own software as is but don't p
    do not have it already installed, you won't need to install it. The gradle wrapper is included in the project and you
    can invoke it using `./gradlew` substituted for `gradle`.
 
+## Java Requirements
+
+*  **Building** requires **Java 17 or later** (Gradle 9.x requires JVM 17+ to run).
+*  **Runtime support**: the compiled SDK JAR is compatible with **Java 8 and later** JREs.
+
+These are separate concerns. You can build with Java 17/21/25 and the output will run on Java 8+.
+The `compileJava` task uses `--release 8`, which enforces both bytecode version and API compatibility
+against the Java 8 class library, preventing accidental use of Java 9+ APIs.
+
 ## Tasks
 
 ### Building

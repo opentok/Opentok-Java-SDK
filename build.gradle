@@ -43,6 +43,13 @@ java {
     targetCompatibility = sourceCompatibility
 }
 
+// Enforce strict Java 8 API compatibility: --release 8 checks both bytecode
+// version and API usage against the Java 8 class library, catching accidental
+// use of Java 9+ APIs at compile time.
+compileJava {
+    options.release = 8
+}
+
 compileTestJava {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = sourceCompatibility
