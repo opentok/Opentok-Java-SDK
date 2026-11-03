@@ -1,0 +1,25 @@
+src/main/java/com/opentok/constants/Version.java
+  s_2220926af22a2c::t_f92eb53f612787 11
+.bumpversion.cfg
+  s_2220926af22a2c::t_bcb63fa9889e37 4
+README.md
+  s_2220926af22a2c::t_ce1784cb865f08 51
+build.gradle
+  s_2220926af22a2c::t_a5ea4d76d54111 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "09476eac583b630ca41a9b14da9697441f9f25d5",
+  "prompts": {},
+  "sessions": {
+    "s_2220926af22a2c": {
+      "agent_id": {
+        "tool": "kiro",
+        "id": "sess_addfbd7c-5212-4119-8ce4-29ac09bddbe3",
+        "model": "auto"
+      },
+      "human_author": "Chris Tankersley <chris@ctankersley.com>"
+    }
+  }
+}
