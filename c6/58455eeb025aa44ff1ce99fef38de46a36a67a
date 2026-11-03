@@ -1,0 +1,31 @@
+build.gradle
+  s_2220926af22a2c::t_40d1fdeda7021c 34
+src/test/java/com/opentok/util/HttpClientTest.java
+  s_2220926af22a2c::t_bb3664d4018279 1-228
+src/main/java/com/opentok/util/HttpClient.java
+  s_2220926af22a2c::t_557abf414798a6 1683,1685,1687,1692-1694,1696
+  s_2220926af22a2c::t_9aa77c3201ea43 1215
+  s_2220926af22a2c::t_e689964451e47f 116
+  s_2220926af22a2c::t_36b8870e2fce87 1337
+  s_2220926af22a2c::t_823ec9afbb4610 1447
+  s_2220926af22a2c::t_4ef478057fe4f8 25-48,50,55-57,62-67,69,74,81-110,127,167,193,233,307,338,1011,1063,1108,1135,1162,1268,1296,1320,1349,1401,1423
+  s_2220926af22a2c::t_786c3f6cb3bbe9 111,1514-1526,1528-1544,1547,1551-1565,1582-1583,1585-1608,1613,1617,1622,1633-1636,1638-1682,1684,1686,1688-1691,1695,1697-1721
+  s_2220926af22a2c::t_4fee2b1a1d623c 1304
+  s_2220926af22a2c::t_2c009753787eee 112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c658455eeb025aa44ff1ce99fef38de46a36a67a",
+  "prompts": {},
+  "sessions": {
+    "s_2220926af22a2c": {
+      "agent_id": {
+        "tool": "kiro",
+        "id": "sess_addfbd7c-5212-4119-8ce4-29ac09bddbe3",
+        "model": "auto"
+      },
+      "human_author": "Chris Tankersley <chris@ctankersley.com>"
+    }
+  }
+}
