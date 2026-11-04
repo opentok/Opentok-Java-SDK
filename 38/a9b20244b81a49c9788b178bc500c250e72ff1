@@ -1,0 +1,19 @@
+build.gradle
+  s_90e5bd70d312e6::t_ed40b8f99ed018 31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "38a9b20244b81a49c9788b178bc500c250e72ff1",
+  "prompts": {},
+  "sessions": {
+    "s_90e5bd70d312e6": {
+      "agent_id": {
+        "tool": "kiro",
+        "id": "sess_2865a675-1520-464c-9f70-0f0b84115f52",
+        "model": "auto"
+      },
+      "human_author": "Chris Tankersley <chris@ctankersley.com>"
+    }
+  }
+}
