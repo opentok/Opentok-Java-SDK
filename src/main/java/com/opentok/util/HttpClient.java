@@ -22,44 +22,101 @@ import com.opentok.exception.OpenTokException;
 import com.opentok.exception.RequestException;
 import com.vonage.jwt.Jwt;
 import org.apache.commons.lang3.StringUtils;
-import org.asynchttpclient.*;
-import org.asynchttpclient.Realm.AuthScheme;
-import org.asynchttpclient.filter.FilterContext;
-import org.asynchttpclient.filter.FilterException;
-import org.asynchttpclient.filter.RequestFilter;
-import org.asynchttpclient.proxy.ProxyServer;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-public class HttpClient extends DefaultAsyncHttpClient {
+public class HttpClient implements Closeable {
+    // Defaults carried over from the previous async-http-client configuration.
+    static final int DEFAULT_REQUEST_TIMEOUT_MS = 60_000;
+    static final int DEFAULT_CONNECT_TIMEOUT_MS = 5_000;
+    static final int MAX_CONNECTIONS = 100;
+
     private final String apiUrl, apiKey;
+    private final CloseableHttpClient httpClient;
 
     private HttpClient(Builder builder) {
-        super(builder.config);
         apiKey = builder.apiKey;
         apiUrl = builder.apiUrl;
+        httpClient = builder.httpClient;
     }
 
     public String getApiUrl() {
         return apiUrl;
     }
 
+    /**
+     * Releases pooled connections held by the underlying HTTP client.
+     */
+    @Override
+    public void close() {
+        try {
+            httpClient.close();
+        } catch (IOException e) {
+            // Nothing actionable for the caller if releasing connections fails.
+        }
+    }
+
+    private Request prepareGet(String url) {
+        return new Request("GET", url);
+    }
+
+    private Request preparePost(String url) {
+        return new Request("POST", url);
+    }
+
+    private Request preparePut(String url) {
+        return new Request("PUT", url);
+    }
+
+    private Request preparePatch(String url) {
+        return new Request("PATCH", url);
+    }
+
+    private Request prepareDelete(String url) {
+        return new Request("DELETE", url);
+    }
+
     public String createSession(Map<String, List<String>> params) throws RequestException {
-        Future<Response> request = this.preparePost(this.apiUrl + "/session/create")
+        Request request = this.preparePost(this.apiUrl + "/session/create")
                 .setFormParams(params)
-                .setHeader("Accept", "application/json") // XML version is deprecated
-                .execute();
+                .setHeader("Accept", "application/json"); // XML version is deprecated
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -67,7 +124,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not create an OpenTok Session. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not create an OpenTok Session", e);
         }
     }
@@ -86,13 +143,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (JsonProcessingException e) {
             throw new OpenTokException("Could not send a signal. The JSON body encoding failed.", e);
         }
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 204:
                     return response.getResponseBody();
@@ -108,19 +164,18 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not send a signal " +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not send a signal.", e);
         }
     }
 
     public String getArchive(String archiveId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId;
-        Future<Response> request = this.prepareGet(url)
-                .setHeader("Accept", "application/json")
-                .execute();
+        Request request = this.prepareGet(url)
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -135,7 +190,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not  get an OpenTok Archive", e);
         }
     }
@@ -159,12 +214,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
             url += (url.contains("?") ? "&" : "?") + "sessionId=" + sessionId;
         }
 
-        Future<Response> request = this.prepareGet(url)
-                .setHeader("Accept", "application/json")
-                .execute();
+        Request request = this.prepareGet(url)
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -176,7 +230,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get OpenTok Archives. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get OpenTok Archives", e);
         }
     }
@@ -224,14 +278,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (JsonProcessingException e) {
             throw new OpenTokException("Could not start an OpenTok Archive. The JSON body encoding failed.", e);
         }
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
-                .setHeader("Accept", "application/json")
-                .execute();
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -251,19 +304,18 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not start an OpenTok Archive.", e);
         }
     }
 
     public String stopArchive(String archiveId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId + "/stop";
-        Future<Response> request = this.preparePost(url)
-                .setHeader("Accept", "application/json")
-                .execute();
+        Request request = this.preparePost(url)
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -283,17 +335,17 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not stop an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not stop an OpenTok Archive.", e);
         }
     }
 
     public String deleteArchive(String archiveId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/archive/" + archiveId;
-        Future<Response> request = this.prepareDelete(url).execute();
+        Request request = this.prepareDelete(url);
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 204:
                     return response.getResponseBody();
@@ -308,7 +360,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get an OpenTok Archive. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not delete an OpenTok Archive. archiveId = " + archiveId, e);
         }
     }
@@ -337,13 +389,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not patch OpenTok archive. The JSON body encoding failed");
         }
 
-        Future<Response> request = this.preparePatch(url)
+        Request request = this.preparePatch(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 204:
                     return response.getResponseBody();
@@ -362,7 +413,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             response.getStatusCode());
             }
 
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not patch an OpenTok archive.", e);
         }
     }
@@ -407,13 +458,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (JsonProcessingException e) {
             throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
         }
-        Future<Response> request = this.preparePut(url)
+        Request request = this.preparePut(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -427,7 +477,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not set the layout. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not set the layout, archiveId = " + archiveId, e);
         }
     }
@@ -464,12 +514,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePut(url)
+        Request request = this.preparePut(url)
                 .setBody(outputStream.toString())
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -483,7 +532,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not set the layout. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not delete an OpenTok Archive, sessionId = " + sessionId, e);
         }
     }
@@ -555,14 +604,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not start an OpenTok Broadcast. The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(requestBody)
                 .setHeader("Content-Type", "application/json")
-                .setHeader("Accept", "application/json")
-                .execute();
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -578,7 +626,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Broadcast. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not start an OpenTok Broadcast.", e);
         }
     }
@@ -586,13 +634,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public String stopBroadcast(String broadcastId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId + "/stop";
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setHeader("Content-Type", "application/json")
-                .setHeader("Accept", "application/json")
-                .execute();
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -608,7 +655,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start an OpenTok Broadcast. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not start an OpenTok Broadcast.", e);
         }
     }
@@ -616,13 +663,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public String getBroadcast(String broadcastId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/broadcast/" + broadcastId;
 
-        Future<Response> request = this.prepareGet(url)
+        Request request = this.prepareGet(url)
                 .setHeader("Content-Type", "application/json")
-                .setHeader("Accept", "application/json")
-                .execute();
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -638,7 +684,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get Broadcast stream information.The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get Broadcast stream information.", e);
         }
     }
@@ -667,12 +713,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not patch OpenTok archive. The JSON body encoding failed");
         }
 
-        Future<Response> request = this.preparePatch(url)
+        Request request = this.preparePatch(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 204:
                     return response.getResponseBody();
@@ -691,7 +736,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                             response.getStatusCode());
             }
 
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not patch an OpenTok broadcast.", e);
         }
     }
@@ -737,13 +782,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (JsonProcessingException e) {
             throw new OpenTokException("Could not set the layout. The JSON body encoding failed.", e);
         }
-        Future<Response> request = this.preparePut(url)
+        Request request = this.preparePut(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -757,17 +801,17 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not set the layout. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not set the layout, broadcastId = " + broadcastId, e);
         }
     }
 
     public String forceDisconnect(String sessionId, String connectionId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection/" + connectionId;
-        Future<Response> request = this.prepareDelete(url).execute();
+        Request request = this.prepareDelete(url);
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 204:
                     return response.getResponseBody();
@@ -781,7 +825,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not force disconnect. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not force disconnect", e);
         }
     }
@@ -848,14 +892,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not set the sip dial. The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(outputStream.toString())
                 .setHeader("Content-Type", "application/json")
-                .setHeader("Accept", "application/json")
-                .execute();
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -873,7 +916,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not set the sip dial. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not set the sip dial, sessionId = " + sessionId, e);
         }
     }
@@ -889,13 +932,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
         } catch (JsonProcessingException e) {
             throw new OpenTokException("Could not send a signal. The JSON body encoding failed.", e);
         }
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -903,7 +945,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get a proper response. response code: " +
                             response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not play dtmf");
         }
     }
@@ -921,10 +963,10 @@ public class HttpClient extends DefaultAsyncHttpClient {
 
     public String getStream(String sessionId, String streamId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId;
-        Future<Response> request = this.prepareGet(url).execute();
+        Request request = this.prepareGet(url);
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -940,17 +982,17 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get stream information. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get stream information", e);
         }
     }
 
     public String forceMuteStream(String sessionId, String streamId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId + "/mute";
-        Future<Response> request = this.preparePost(url).execute();
+        Request request = this.preparePost(url);
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -966,7 +1008,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not mute stream. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get stream information", e);
         }
     }
@@ -997,13 +1039,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not force mute streams The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(outputStream.toString())
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1019,7 +1060,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not mute stream. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get stream information", e);
         }
     }
@@ -1043,13 +1084,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not force mute streams. The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setBody(outputStream.toString())
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1065,19 +1105,18 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not mute stream. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get stream information", e);
         }
     }
 
     public String listStreams(String sessionId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/stream";
-        Future<Response> request = this.prepareGet(url)
-                .setHeader("Accept", "application/json")
-                .execute();
+        Request request = this.prepareGet(url)
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1093,19 +1132,18 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get information for streams. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get streams information", e);
         }
     }
 
     public String listConnections(String sessionId) throws RequestException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/session/" + sessionId + "/connection";
-        Future<Response> request = this.prepareGet(url)
-                .setHeader("Accept", "application/json")
-                .execute();
+        Request request = this.prepareGet(url)
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1121,7 +1159,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not list connections. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not list connections", e);
         }
     }
@@ -1153,13 +1191,12 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not connect audio stream(s). The JSON body encoding failed", ex);
         }
 
-        Future<Response> request = preparePost(url)
+        Request request = preparePost(url)
                 .setBody(requestBody)
-                .setHeader("Content-Type", "application/json")
-                .execute();
+                .setHeader("Content-Type", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1175,7 +1212,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not connect audio stream. The server response was invalid." +
                             " Response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (IOException ex) {
             throw new RequestException("Could not get stream information", ex);
         }
     }
@@ -1208,14 +1245,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not start render. The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
-                .setBody(outputStream.toString())
-                .execute();
+                .setBody(outputStream.toString());
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 202:
                     return response.getResponseBody();
@@ -1229,7 +1265,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not start render. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not start render", e);
         }
     }
@@ -1237,12 +1273,11 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public String getRender(String renderId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
 
-        Future<Response> request = this.prepareGet(url)
-                .setHeader("Accept", "application/json")
-                .execute();
+        Request request = this.prepareGet(url)
+                .setHeader("Accept", "application/json");
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1258,7 +1293,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not get render. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not get render '"+renderId+"'", e);
         }
     }
@@ -1266,7 +1301,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public void stopRender(String renderId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render/" + renderId;
         try {
-            Response response = this.prepareDelete(url).execute().get();
+            Response response = this.prepareDelete(url).execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return;
@@ -1282,7 +1317,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not stop render. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not stop render", e);
         }
     }
@@ -1290,7 +1325,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public String listRenders(Integer offset, Integer count) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/render";
 
-        BoundRequestBuilder rqBuilder = this.prepareGet(url).setHeader("Accept", "application/json");
+        Request rqBuilder = this.prepareGet(url).setHeader("Accept", "application/json");
         if (offset != null) {
             rqBuilder.addQueryParam("offset", offset.toString());
         }
@@ -1299,7 +1334,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
 
         try {
-            Response response = rqBuilder.execute().get();
+            Response response = rqBuilder.execute();
             switch (response.getStatusCode()) {
                 case 200:
                     return response.getResponseBody();
@@ -1311,7 +1346,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not list renders. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not start render", e);
         }
     }
@@ -1341,14 +1376,13 @@ public class HttpClient extends DefaultAsyncHttpClient {
             throw new OpenTokException("Could not start live captions. The JSON body encoding failed.", e);
         }
 
-        Future<Response> request = this.preparePost(url)
+        Request request = this.preparePost(url)
                 .setHeader("Content-Type", "application/json")
                 .setHeader("Accept", "application/json")
-                .setBody(outputStream.toString())
-                .execute();
+                .setBody(outputStream.toString());
 
         try {
-            Response response = request.get();
+            Response response = request.execute();
             switch (response.getStatusCode()) {
                 case 200: case 202:
                     return response.getResponseBody();
@@ -1364,7 +1398,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not stop render. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not stop captions", e);
         }
     }
@@ -1372,7 +1406,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
     public void stopCaption(String captionsId) throws OpenTokException {
         String url = this.apiUrl + "/v2/project/" + this.apiKey + "/captions/" + captionsId + "/stop";
         try {
-            Response response = this.preparePost(url).execute().get();
+            Response response = this.preparePost(url).execute();
             switch (response.getStatusCode()) {
                 case 200: case 202:
                     return;
@@ -1386,7 +1420,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
                     throw new RequestException("Could not stop render. The server response was invalid." +
                             " response code: " + response.getStatusCode());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new RequestException("Could not stop captions", e);
         }
     }
@@ -1410,7 +1444,7 @@ public class HttpClient extends DefaultAsyncHttpClient {
         private String password;
         private String apiUrl;
         private String userAgent = DefaultUserAgent.DEFAULT_USER_AGENT;
-        private AsyncHttpClientConfig config;
+        private CloseableHttpClient httpClient;
         private int requestTimeoutMS;
 
         public Builder(int apiKey, String apiSecret) {
@@ -1474,30 +1508,61 @@ public class HttpClient extends DefaultAsyncHttpClient {
         }
 
         public HttpClient build() {
-            DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder()
-                    .setUserAgent(userAgent)
-                    .addRequestFilter(vonage ?
-                            new TokenAuthRequestFilter(UUID.fromString(apiKey), privateKeyPath) :
-                            new TokenAuthRequestFilter(Integer.parseInt(apiKey), apiSecret)
-                    );
-
             if (apiUrl == null) {
                 apiUrl = vonage ? DefaultApiUrl.VONAGE_API_URL : DefaultApiUrl.DEFAULT_API_URI;
             }
+
+            RequestConfig.Builder requestConfig = createRequestConfig(requestTimeoutMS);
+            HttpClientBuilder clientBuilder = HttpClientBuilder.create()
+                    .setUserAgent(userAgent)
+                    // async-http-client did not follow redirects; keep that behavior.
+                    .disableRedirectHandling()
+                    .setMaxConnTotal(MAX_CONNECTIONS)
+                    .setMaxConnPerRoute(MAX_CONNECTIONS)
+                    .addInterceptorLast(vonage ?
+                            new TokenAuthInterceptor(UUID.fromString(apiKey), privateKeyPath) :
+                            new TokenAuthInterceptor(Integer.parseInt(apiKey), apiSecret)
+                    );
+
             if (proxy != null) {
-                configBuilder.setProxyServer(createProxyServer(proxy, proxyAuthScheme, principal, password));
-            }
-            if (requestTimeoutMS != 0) {
-                configBuilder.setRequestTimeout(requestTimeoutMS);
+                HttpHost proxyHost = createProxyHost(proxy);
+                if (proxyHost != null) {
+                    clientBuilder.setProxy(proxyHost);
+                    if (principal != null) {
+                        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                        credentialsProvider.setCredentials(
+                                new AuthScope(proxyHost),
+                                createProxyCredentials(proxyAuthScheme, principal, password)
+                        );
+                        clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                        if (proxyAuthScheme != null) {
+                            requestConfig.setProxyPreferredAuthSchemes(
+                                    Collections.singletonList(toAuthSchemeName(proxyAuthScheme))
+                            );
+                        }
+                    }
+                }
             }
 
-            config = configBuilder.build();
-            // NOTE: not thread-safe, config could be modified by another thread here?
+            httpClient = clientBuilder.setDefaultRequestConfig(requestConfig.build()).build();
             return new HttpClient(this);
         }
 
-        // credit: https://github.com/AsyncHttpClient/async-http-client/blob/b52a8de5d6a862b5d1652d62f87ce774cbcff156/src/main/java/com/ning/http/client/ProxyServer.java#L99-L127
-        static ProxyServer createProxyServer(final Proxy proxy, ProxyAuthScheme proxyAuthScheme, String principal, String password) {
+        /**
+         * Maps the single request timeout onto Apache HttpClient's timeouts. A value of 0 uses the
+         * 60 second default; a negative value disables the timeout. The connect timeout keeps the
+         * previous 5 second default unless the request timeout is shorter.
+         */
+        static RequestConfig.Builder createRequestConfig(int requestTimeoutMS) {
+            int timeout = requestTimeoutMS == 0 ? DEFAULT_REQUEST_TIMEOUT_MS : Math.max(requestTimeoutMS, 0);
+            int connectTimeout = timeout == 0 ? DEFAULT_CONNECT_TIMEOUT_MS : Math.min(DEFAULT_CONNECT_TIMEOUT_MS, timeout);
+            return RequestConfig.custom()
+                    .setConnectTimeout(connectTimeout)
+                    .setConnectionRequestTimeout(timeout)
+                    .setSocketTimeout(timeout);
+        }
+
+        static HttpHost createProxyHost(final Proxy proxy) {
             switch (proxy.type()) {
                 case DIRECT:
                     return null;
@@ -1514,48 +1579,47 @@ public class HttpClient extends DefaultAsyncHttpClient {
             InetSocketAddress isa = (InetSocketAddress) sa;
 
             final String isaHost = isa.isUnresolved() ? isa.getHostName() : isa.getAddress().getHostAddress();
-            ProxyServer.Builder builder = new ProxyServer.Builder(isaHost, isa.getPort());
+            return new HttpHost(isaHost, isa.getPort());
+        }
 
-            if (principal != null) {
-                Realm.AuthScheme authScheme = null;
-                switch (proxyAuthScheme) {
-                    case BASIC:
-                        authScheme = AuthScheme.BASIC;
-                        break;
-                    case DIGEST:
-                        authScheme = AuthScheme.DIGEST;
-                        break;
-                    case NTLM:
-                        authScheme = AuthScheme.NTLM;
-                        break;
-                    case KERBEROS:
-                        authScheme = AuthScheme.KERBEROS;
-                        break;
-                    case SPNEGO:
-                        authScheme = AuthScheme.SPNEGO;
-                        break;
-                }
-
-                Realm.Builder rb = new Realm.Builder(principal, password);
-                rb.setScheme(authScheme);
-
-                builder.setRealm(rb.build());
+        static Credentials createProxyCredentials(ProxyAuthScheme proxyAuthScheme, String principal, String password) {
+            if (proxyAuthScheme == ProxyAuthScheme.NTLM) {
+                // Apache's NTLM scheme only accepts NTCredentials.
+                return new NTCredentials(principal, password, null, null);
             }
+            // SPNEGO and KERBEROS take their credentials from the JAAS/GSS configuration;
+            // a credentials entry is still required for the scheme to be attempted.
+            return new UsernamePasswordCredentials(principal, password);
+        }
 
-            return builder.build();
+        static String toAuthSchemeName(ProxyAuthScheme proxyAuthScheme) {
+            switch (proxyAuthScheme) {
+                case BASIC:
+                    return AuthSchemes.BASIC;
+                case DIGEST:
+                    return AuthSchemes.DIGEST;
+                case NTLM:
+                    return AuthSchemes.NTLM;
+                case SPNEGO:
+                    return AuthSchemes.SPNEGO;
+                case KERBEROS:
+                    return AuthSchemes.KERBEROS;
+                default:
+                    throw new IllegalArgumentException("Unsupported proxy auth scheme: " + proxyAuthScheme);
+            }
         }
     }
 
-    static class TokenAuthRequestFilter implements RequestFilter {
+    static class TokenAuthInterceptor implements HttpRequestInterceptor {
         private final Supplier<String> tokenGenerator;
         private final String headerName;
 
-        public TokenAuthRequestFilter(int apiKey, String apiSecret) {
+        public TokenAuthInterceptor(int apiKey, String apiSecret) {
             headerName = "X-OPENTOK-AUTH";
             tokenGenerator = () -> TokenGenerator.generateToken(apiKey, apiSecret);
         }
 
-        public TokenAuthRequestFilter(UUID applicationId, Path privateKeyPath) {
+        public TokenAuthInterceptor(UUID applicationId, Path privateKeyPath) {
             headerName = "Authorization";
             try {
                 Jwt jwtGenerator = Jwt.builder().applicationId(applicationId).privateKeyPath(privateKeyPath).build();
@@ -1566,13 +1630,95 @@ public class HttpClient extends DefaultAsyncHttpClient {
             }
         }
 
+        /**
+         * Sets a freshly generated token on every request, replacing any previous value
+         * (for example when a request is retried).
+         */
         @Override
-        public <T> FilterContext<T> filter(FilterContext<T> ctx) throws FilterException {
-            return new FilterContext.FilterContextBuilder<>(ctx)
-                    .request(ctx.getRequest().toBuilder()
-                        .addHeader(headerName, tokenGenerator.get())
-                        .build()
-                    ).build();
+        public void process(HttpRequest request, HttpContext context) {
+            request.setHeader(headerName, tokenGenerator.get());
+        }
+    }
+
+    /**
+     * Minimal request builder used by the API methods above.
+     */
+    private final class Request {
+        private final String method;
+        private final String url;
+        private final Map<String, String> headers = new LinkedHashMap<>();
+        private final List<NameValuePair> queryParams = new ArrayList<>();
+        private HttpEntity entity;
+
+        private Request(String method, String url) {
+            this.method = method;
+            this.url = url;
+        }
+
+        Request setHeader(String name, String value) {
+            headers.put(name, value);
+            return this;
+        }
+
+        Request setBody(String body) {
+            entity = new ByteArrayEntity(body.getBytes(StandardCharsets.UTF_8));
+            return this;
+        }
+
+        Request setFormParams(Map<String, List<String>> params) {
+            List<NameValuePair> pairs = new ArrayList<>();
+            params.forEach((name, values) -> values.forEach(value -> pairs.add(new BasicNameValuePair(name, value))));
+            entity = new UrlEncodedFormEntity(pairs, StandardCharsets.UTF_8);
+            return this;
+        }
+
+        Request addQueryParam(String name, String value) {
+            queryParams.add(new BasicNameValuePair(name, value));
+            return this;
+        }
+
+        Response execute() throws IOException {
+            RequestBuilder builder;
+            try {
+                URI uri = new URI(url);
+                if (!queryParams.isEmpty()) {
+                    uri = new URIBuilder(uri).addParameters(queryParams).build();
+                }
+                builder = RequestBuilder.create(method).setUri(uri);
+            } catch (URISyntaxException e) {
+                throw new ClientProtocolException("Invalid request URL: " + url, e);
+            }
+            headers.forEach(builder::setHeader);
+            if (entity != null) {
+                builder.setEntity(entity);
+            } else if (!"GET".equals(method) && !"DELETE".equals(method)) {
+                // Send an explicit "Content-Length: 0" on body-less POST/PUT/PATCH requests.
+                builder.setEntity(new ByteArrayEntity(new byte[0]));
+            }
+
+            try (CloseableHttpResponse response = httpClient.execute(builder.build())) {
+                HttpEntity responseEntity = response.getEntity();
+                String body = responseEntity != null ? EntityUtils.toString(responseEntity, StandardCharsets.UTF_8) : "";
+                return new Response(response.getStatusLine().getStatusCode(), body);
+            }
+        }
+    }
+
+    private static final class Response {
+        private final int statusCode;
+        private final String responseBody;
+
+        private Response(int statusCode, String responseBody) {
+            this.statusCode = statusCode;
+            this.responseBody = responseBody;
+        }
+
+        int getStatusCode() {
+            return statusCode;
+        }
+
+        String getResponseBody() {
+            return responseBody;
         }
     }
 }
