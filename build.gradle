@@ -237,19 +237,42 @@ task createCentralBundle(type: Zip) {
     }
 }
 
-// Task to upload bundle to Central Portal
-task uploadToCentralPortal(type: Exec) {
+// Task to upload bundle to Central Portal and wait for it to publish.
+// Fails the build on an HTTP error, a FAILED deployment, or a timeout, so a
+// broken release is never reported as success.
+task uploadToCentralPortal {
     dependsOn 'createCentralBundle'
-    
-    def username = System.getenv("MAVEN_USERNAME")
-    def password = System.getenv("MAVEN_SECRET")
-    def bundleFile = "${buildDir}/central/central-bundle-${project.version}.zip"
-    
-    commandLine 'curl', '-X', 'POST',
-        '-H', 'Content-Type: multipart/form-data',
-        '-F', "bundle=@${bundleFile}",
-        '-u', "${username}:${password}",
-        'https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC'
+
+    doLast {
+        if (!System.getenv("MAVEN_USERNAME") || !System.getenv("MAVEN_SECRET")) {
+            throw new GradleException("MAVEN_USERNAME and MAVEN_SECRET must be set to publish to Central Portal")
+        }
+        exec {
+            environment 'BUNDLE_VERSION', project.version
+            commandLine 'bash', '-c', '''
+set -euo pipefail
+bundle="build/central/central-bundle-${BUNDLE_VERSION}.zip"
+base="https://central.sonatype.com/api/v1/publisher"
+
+echo "Uploading ${bundle} to Central Portal..."
+id=$(curl --fail-with-body -sS -X POST -u "${MAVEN_USERNAME}:${MAVEN_SECRET}" -F "bundle=@${bundle}" "${base}/upload?publishingType=AUTOMATIC")
+echo "Deployment ID: ${id}"
+
+for i in $(seq 1 60); do
+  body=$(curl --fail-with-body -sS -X POST -u "${MAVEN_USERNAME}:${MAVEN_SECRET}" "${base}/status?id=${id}")
+  state=$(echo "${body}" | grep -o '"deploymentState":"[^"]*"' | head -1 | cut -d'"' -f4)
+  echo "Deployment state: ${state:-unknown}"
+  case "${state}" in
+    PUBLISHED) echo "Published to Maven Central."; exit 0 ;;
+    FAILED) echo "Deployment ${id} FAILED: ${body}" >&2; exit 1 ;;
+  esac
+  sleep 10
+done
+echo "Timed out waiting for deployment ${id} to publish." >&2
+exit 1
+'''
+        }
+    }
 }
 
 signing {
