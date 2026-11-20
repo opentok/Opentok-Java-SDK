@@ -12,7 +12,7 @@ plugins {
 
 group = 'com.tokbox'
 base.archivesName = 'opentok-server-sdk'
-version = '4.18.0'
+version = '4.18.1'
 
 ext.githubPath = "opentok/Opentok-Java-SDK"
 
@@ -240,14 +240,21 @@ task createCentralBundle(type: Zip) {
 // Task to upload bundle to Central Portal and wait for it to publish.
 // Fails the build on an HTTP error, a FAILED deployment, or a timeout, so a
 // broken release is never reported as success.
+interface InjectedExecOps {
+    @javax.inject.Inject
+    org.gradle.process.ExecOperations getExecOps()
+}
+
 task uploadToCentralPortal {
     dependsOn 'createCentralBundle'
+    // Project.exec() was removed in Gradle 9
+    def injected = project.objects.newInstance(InjectedExecOps)
 
     doLast {
         if (!System.getenv("MAVEN_USERNAME") || !System.getenv("MAVEN_SECRET")) {
             throw new GradleException("MAVEN_USERNAME and MAVEN_SECRET must be set to publish to Central Portal")
         }
-        exec {
+        injected.execOps.exec {
             environment 'BUNDLE_VERSION', project.version
             commandLine 'bash', '-c', '''
 set -euo pipefail
