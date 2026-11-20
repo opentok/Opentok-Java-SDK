@@ -46,7 +46,7 @@ jobs:
           MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
           MAVEN_SECRET: ${{secrets.MAVEN_SECRET}}
         run: |
-          gradle uploadToCentralPortal \
+          ./gradlew uploadToCentralPortal \
             -PsigningKey="${SIGNING_KEY}" \
             -PsigningPassword="${SIGNING_PASSWORD}" \
             --info
