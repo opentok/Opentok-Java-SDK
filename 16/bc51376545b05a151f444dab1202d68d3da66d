@@ -1,0 +1,19 @@
+.github/workflows/publish.yml
+  s_3840dfd61d4465::t_1f01518c3d813e 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "16bc51376545b05a151f444dab1202d68d3da66d",
+  "prompts": {},
+  "sessions": {
+    "s_3840dfd61d4465": {
+      "agent_id": {
+        "tool": "kiro",
+        "id": "sess_f5a7f4bf-f880-4368-a68a-9ad0c75d82e9",
+        "model": "auto"
+      },
+      "human_author": "Chris Tankersley <chris@ctankersley.com>"
+    }
+  }
+}
